@@ -15301,3 +15301,47 @@
   dispatch:
     CPU: to_base_out_cpu
     CUDA: to_base_out_cuda
+
+- func: arry_add(Tensor in_a, Tensor in_b) -> Tensor
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+    CPU: arry_add_cpu
+    CUDA: arry_add_cuda
+
+# ##TODO inpalcefailed
+# - func: arry_dd_(Tensor(a!) self,Tensor in_b) -> Tensor(a!)
+#   device_check: NoCheck   # TensorIterator
+#   dispatch:
+#      CPU: arry_add_cpu_
+
+- func: arry_add.out(Tensor in_a, Tensor in_b, *, Tensor(a!) out_c) -> Tensor(a!)
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+    CPU: arry_add_cpu_out
+    # CUDA: arry_add_out_cuda
+
+- func: Subtractions(Tensor in_a, Tensor in_b) -> Tensor
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+    CPU: Subtraction_cpu
+    CUDA: Subtraction_cuda
+
+# ##TODO inpalcefailed
+# - func: Subtractions_(Tensor(a!) self,Tensor in_b) -> Tensor(a!)
+#   device_check: NoCheck   # TensorIterator
+#   dispatch:
+#      CPU: Subtraction_cpu_
+#      CUDA: Subtraction_cuda_
+  
+  
+- func: Multiplications(Tensor in_a, Tensor in_b) -> Tensor
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+    CPU: Multiplication_cpu
+    CUDA: Multiplication_cuda
+
+- func: Divisions(Tensor in_a, Tensor in_b) -> Tensor
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+    CPU: Division_cpu
+    CUDA: Division_cuda

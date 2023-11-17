@@ -5474,3 +5474,9 @@ def to_base(input: Tensor, inplace: bool = False) -> Tensor:
     else:
         result = torch.to_base(input)
     return result
+
+
+def add_mont(input1: Tensor,input2: Tensor) -> Tensor:
+
+    result=torch.arry_add(input1,input2)
+    return result
