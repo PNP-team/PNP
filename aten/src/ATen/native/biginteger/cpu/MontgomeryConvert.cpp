@@ -67,7 +67,7 @@ static void Arry_sub_template(Tensor &a,const Tensor &b) {
   if (a.scalar_type() != b.scalar_type()) {
     throw std::runtime_error("Data types of input tensors must be the same.");
   }
-  AT_DISPATCH_FR_BASE_TYPES(a.scalar_type(), "Subtraction_cpu", [&] {
+  AT_DISPATCH_FR_MONT_TYPES(a.scalar_type(), "Subtraction_cpu", [&] {
     auto a_ptr = reinterpret_cast<scalar_t::compute_type*>(a.mutable_data_ptr<scalar_t>());
     auto b_ptr = reinterpret_cast<scalar_t::compute_type*>(b.mutable_data_ptr<scalar_t>());
 
@@ -88,7 +88,7 @@ static void Arry_mul_template(Tensor &a,const Tensor &b) {
     if (a.scalar_type() != b.scalar_type()) {
     throw std::runtime_error("Data types of input tensors must be the same.");
   }
-  AT_DISPATCH_FR_BASE_TYPES(a.scalar_type(), "Multiplication_cpu", [&] {
+  AT_DISPATCH_FR_MONT_TYPES(a.scalar_type(), "Multiplication_cpu", [&] {
     auto a_ptr = reinterpret_cast<scalar_t::compute_type*>(a.mutable_data_ptr<scalar_t>());
     auto b_ptr = reinterpret_cast<scalar_t::compute_type*>(b.mutable_data_ptr<scalar_t>());
 
@@ -109,7 +109,7 @@ static void Arry_div_template(Tensor &a,const Tensor &b) {
     if (a.scalar_type() != b.scalar_type()) {
     throw std::runtime_error("Data types of input tensors must be the same.");
   }
-  AT_DISPATCH_FR_BASE_TYPES(a.scalar_type(), "Division_cpu", [&] {
+  AT_DISPATCH_FR_MONT_TYPES(a.scalar_type(), "Division_cpu", [&] {
     auto a_ptr = reinterpret_cast<scalar_t::compute_type*>(a.mutable_data_ptr<scalar_t>());
     auto b_ptr = reinterpret_cast<scalar_t::compute_type*>(b.mutable_data_ptr<scalar_t>());
 

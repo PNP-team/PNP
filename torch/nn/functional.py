@@ -5480,3 +5480,20 @@ def add_mont(input1: Tensor,input2: Tensor) -> Tensor:
 
     result=torch.arry_add(input1,input2)
     return result
+
+
+def sub_mont(input1: Tensor,input2: Tensor) -> Tensor:
+
+    result=torch.Subtractions(input1,input2)
+    return result
+
+
+def mul_mont(input1: Tensor,input2: Tensor) -> Tensor:
+
+    result=torch.Multiplications(input1,input2)
+    return result
+
+def div_mont(input1: Tensor,input2: Tensor) -> Tensor:
+
+    result=torch.Divisions(input1,input2)
+    return result

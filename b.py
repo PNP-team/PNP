@@ -18,7 +18,7 @@ print(y)
 # z = F.to_base(y)
 # print(z)
 
-res=F.add_mont(y,yq)
+res=F.sub_mont(y,yq)
 # a = y.clone()
 print(res)
 z=F.to_base(res)
