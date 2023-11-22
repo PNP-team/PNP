@@ -44,6 +44,7 @@ static void to_mont_cpu_template(Tensor& self) {
 static void Arry_add_template(Tensor &a,const Tensor &b) {
   if (a.scalar_type() != b.scalar_type()) {
     throw std::runtime_error("Data types of input tensors must be the same.");
+    return ;
   }
     AT_DISPATCH_FR_MONT_TYPES(a.scalar_type(), "arry_add_cpu", [&] {
     auto a_ptr = reinterpret_cast<scalar_t::compute_type*>(a.mutable_data_ptr<scalar_t>());
@@ -54,6 +55,7 @@ static void Arry_add_template(Tensor &a,const Tensor &b) {
     if(a_num_<b_num_)
     {
       throw std::runtime_error("length check!");
+      return ;
     }
     for(auto i = 0; i < a_num_; i++) {
       a_ptr[i]+=b_ptr[i];
@@ -66,6 +68,7 @@ static void Arry_add_template(Tensor &a,const Tensor &b) {
 static void Arry_sub_template(Tensor &a,const Tensor &b) {
   if (a.scalar_type() != b.scalar_type()) {
     throw std::runtime_error("Data types of input tensors must be the same.");
+    return ;
   }
   AT_DISPATCH_FR_MONT_TYPES(a.scalar_type(), "Subtraction_cpu", [&] {
     auto a_ptr = reinterpret_cast<scalar_t::compute_type*>(a.mutable_data_ptr<scalar_t>());
@@ -76,6 +79,7 @@ static void Arry_sub_template(Tensor &a,const Tensor &b) {
     if(a_num_<b_num_)
     {
       throw std::runtime_error("length check!");
+      return ;
     }
     for(auto i = 0; i < a_num_; i++) {
       a_ptr[i]-=b_ptr[i];
@@ -87,18 +91,20 @@ static void Arry_sub_template(Tensor &a,const Tensor &b) {
 static void Arry_mul_template(Tensor &a,const Tensor &b) {
     if (a.scalar_type() != b.scalar_type()) {
     throw std::runtime_error("Data types of input tensors must be the same.");
+    return ;
   }
   AT_DISPATCH_FR_MONT_TYPES(a.scalar_type(), "Multiplication_cpu", [&] {
     auto a_ptr = reinterpret_cast<scalar_t::compute_type*>(a.mutable_data_ptr<scalar_t>());
     auto b_ptr = reinterpret_cast<scalar_t::compute_type*>(b.mutable_data_ptr<scalar_t>());
-
     int64_t a_num_ = a.numel() / num_uint64(a.scalar_type());
     int64_t b_num_ = b.numel() / num_uint64(b.scalar_type());
     if(a_num_<b_num_)
     {
       throw std::runtime_error("length check!");
+      return ;
     }
     for(auto i = 0; i < a_num_; i++) {
+      std::cout<<a_ptr[i];
       a_ptr[i]*=b_ptr[i];
     }
   });
@@ -108,6 +114,7 @@ static void Arry_mul_template(Tensor &a,const Tensor &b) {
 static void Arry_div_template(Tensor &a,const Tensor &b) {
     if (a.scalar_type() != b.scalar_type()) {
     throw std::runtime_error("Data types of input tensors must be the same.");
+    return ;
   }
   AT_DISPATCH_FR_MONT_TYPES(a.scalar_type(), "Division_cpu", [&] {
     auto a_ptr = reinterpret_cast<scalar_t::compute_type*>(a.mutable_data_ptr<scalar_t>());
@@ -118,6 +125,7 @@ static void Arry_div_template(Tensor &a,const Tensor &b) {
     if(a_num_<b_num_)
     {
       throw std::runtime_error("length check!");
+      return ;
     }
     for(auto i = 0; i < a_num_; i++) {
       a_ptr[i]/=b_ptr[i];
@@ -174,7 +182,6 @@ Tensor& to_base_out_cpu(const Tensor& input, Tensor& output) {
 
 Tensor arry_add_cpu(const Tensor& a, const Tensor& b) {
   Tensor c = a.clone();
-  std::cout<<"\n \n sadsa";
   Arry_add_template(c, b);
   return c;
 }

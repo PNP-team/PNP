@@ -15307,10 +15307,11 @@
   dispatch:
     CPU: arry_add_cpu
     CUDA: arry_add_cuda
+# - func: arry_dd_(Tensor(a!) self
 
-# ##TODO inpalcefailed
-# - func: arry_dd_(Tensor(a!) self,Tensor in_b) -> Tensor(a!)
+##TODO inpalcefailed) -> Tensor(a!)
 #   device_check: NoCheck   # TensorIterator
+#   variants: method
 #   dispatch:
 #      CPU: arry_add_cpu_
 
