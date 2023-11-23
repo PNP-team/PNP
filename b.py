@@ -1,49 +1,49 @@
 import torch
 import torch.nn.functional as F
-
+import os
 print(torch.__path__)
 
-x1 = torch.tensor([[1, 2, 3, 2], [5, 6, 7, 8],[1,2,3,4]], dtype=torch.BLS12_377_Fr_G1_Base)
+# x1 = torch.tensor([[1, 2, 3, 2], [5, 6, 7, 8],[1,2,3,4]], dtype=torch.BLS12_377_Fr_G1_Base)
 
-x2 =torch.tensor([[1, 2, 3, 4], [5, 6, 7, 8],[1,2,3,4]], dtype=torch.BLS12_377_Fr_G1_Base)
-# x.to("cuda")
-print("===========")
-y1 = F.to_mont(x1)
-y2=F.to_mont(x2)
+# x2 =torch.tensor([[1, 2, 3, 4], [5, 6, 7, 8],[1,2,3,4]], dtype=torch.BLS12_377_Fr_G1_Base)
+# # x.to("cuda")
+# print("===========")
+# y1 = F.to_mont(x1)
+# y2=F.to_mont(x2)
 
 
-# z = F.to_base(y)
-# print(z)
+# # z = F.to_base(y)
+# # print(z)
 
+# # res=F.sub_mont(y1,y2)
+# # res=F.add_mont(res,y1)
 # res=F.sub_mont(y1,y2)
-# res=F.add_mont(res,y1)
-res=F.sub_mont(y1,y2)
-res2=F.add_mont(res,y1)
-# a = y.clone()
+# res2=F.add_mont(res,y1)
+# # a = y.clone()
 
-print("mont",res2)
-z=F.to_base(res2)
-print("base",z)
+# print("mont",res2)
+# z=F.to_base(res2)
+# print("base",z)
 
 
 
-# test cuda
-x3 = torch.tensor([[1, 2, 3, 2], [5, 6, 7, 8]], dtype=torch.BLS12_377_Fr_G1_Base)
+# # test cuda
+# x3 = torch.tensor([[1, 2, 3, 2], [5, 6, 7, 8]], dtype=torch.BLS12_377_Fr_G1_Base)
 
-x4 =torch.tensor([[1, 2, 3, 4], [5, 6, 7, 8]], dtype=torch.BLS12_377_Fr_G1_Base)
+# x4 =torch.tensor([[1, 2, 3, 4], [5, 6, 7, 8]], dtype=torch.BLS12_377_Fr_G1_Base)
 
-y3 = F.to_mont(x3)
-y4=F.to_mont(x4)
-y3 = y3.cuda()
-y4=y4.cuda()
-#m = F.add_mont(y3,y4)
-m=F.div_mont(y3,y4)
+# y3 = F.to_mont(x3)
+# y4=F.to_mont(x4)
+# y3 = y3.cuda()
+# y4=y4.cuda()
+# #m = F.add_mont(y3,y4)
+# m=F.div_mont(y3,y4)
 
-# y=y3/y4
+# # y=y3/y4
 
-m2=F.mul_mont(m,y4)
-res=F.to_base(m)
-print(res)
+# m2=F.mul_mont(m,y4)
+# res=F.to_base(m)
+# print(res)
 
 
 
@@ -106,7 +106,6 @@ print(res)
 # # d = torch.tensor(c, dtype=torch.uint64)
 
 # # print(d)
-
 import torch
 import torchviz
 
@@ -139,11 +138,12 @@ class MyModel(torch.nn.Module):
 model = MyModel()
 
 # Create input tensor
-x = torch.tensor([3.0], requires_grad=True)
-x2 = torch.tensor([3.0], requires_grad=True)
+x1 = torch.tensor([3.0], requires_grad=False)
+x2 = torch.tensor([3.0], requires_grad=False)
 # Forward pass
-res = model(x,x2)
+res = model(x1,x2)
 print(res.size())
 #参数手动添加  [('x',x)]
 # Use torchviz to visualize the computation graph
-torchviz.make_dot(res, params=dict([('x',x)]+[('x2',x2)]+[('res',res)])).render("my_model", format="pdf")
+
+torchviz.make_dot(res, params=dict([('x1',x1)]+[('x2',x2)]+[('res',res)])).render("test/11_11/pic/my_model1", format="pdf")

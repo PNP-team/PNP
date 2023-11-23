@@ -65,24 +65,29 @@ static void Arry_add_template(Tensor &a,const Tensor &b) {
 }
 
 
-static void Arry_sub_template(Tensor &a,const Tensor &b) {
-  if (a.scalar_type() != b.scalar_type()) {
-    throw std::runtime_error("Data types of input tensors must be the same.");
-    return ;
-  }
-  AT_DISPATCH_FR_MONT_TYPES(a.scalar_type(), "Subtraction_cpu", [&] {
-    auto a_ptr = reinterpret_cast<scalar_t::compute_type*>(a.mutable_data_ptr<scalar_t>());
-    auto b_ptr = reinterpret_cast<scalar_t::compute_type*>(b.mutable_data_ptr<scalar_t>());
+static void Arry_sub_template(const Tensor &in_a, const Tensor &in_b, Tensor& out_c) {
+  // if (a.scalar_type() != b.scalar_type()) {
+  //   throw std::runtime_error("Data types of input tensors must be the same.");
+  //   return ;
+  // }
 
-    int64_t a_num_ = a.numel() / num_uint64(a.scalar_type());
-    int64_t b_num_ = b.numel() / num_uint64(b.scalar_type());
-    if(a_num_<b_num_)
-    {
-      throw std::runtime_error("length check!");
-      return ;
-    }
-    for(auto i = 0; i < a_num_; i++) {
-      a_ptr[i]-=b_ptr[i];
+  TORCH_CHECK(a.numel() == b.numel(), 
+    "XXXXX");
+
+  AT_DISPATCH_FR_MONT_TYPES(a.scalar_type(), "Subtraction_cpu", [&] {
+    auto a_ptr = reinterpret_cast<scalar_t::compute_type*>(in_a.const_data_ptr<scalar_t>());
+    auto b_ptr = reinterpret_cast<scalar_t::compute_type*>(in_b.const_data_ptr<scalar_t>());
+    auto c_ptr = reinterpret_cast<scalar_t::compute_type*>(out_c.mutable_data_ptr<scalar_t>());
+
+    int64_t num_ = a.numel() / num_uint64(a.scalar_type());
+    // int64_t b_num_ = b.numel() / num_uint64(b.scalar_type());
+    // if(a_num_<b_num_)
+    // {
+    //   throw std::runtime_error("length check!");
+    //   return ;
+    // }
+    for(auto i = 0; i < num_; i++) {
+      c_ptr[i] = a_ptr[i]-b_ptr[i];
     }
   });
 }
@@ -199,15 +204,20 @@ Tensor& arry_add_cpu_out(const Tensor& a, const Tensor& b, Tensor& c) {
 
 
 Tensor Subtraction_cpu(const Tensor& a, const Tensor& b) {
-  Tensor c = a.clone();
-  Arry_sub_template(c, b);
+  Tensor c = at::empty_like(a);
+  //  a.clone();
+  Arry_sub_template(a, b, c);
   return c;
 }
 
+Tensor& Subtraction_cpu_(Tensor& self, const Tensor& b) {
+  Arry_sub_template(self, b, self);
+  return self; 
+}
 
-Tensor& Subtraction_cpu_(Tensor& self,const Tensor&b) {
-  Arry_sub_template(self,b);
-  return self;
+Tensor& Subtraction_cpu_out(const Tensor& a, const Tensor& b, Tensor& c) {
+  Arry_sub_template(a, b, c);
+  return c;
 }
 
 Tensor Multiplication_cpu(const Tensor& a, const Tensor& b) {
