@@ -5455,14 +5455,14 @@ def multi_head_attention_forward(
         return attn_output, None
 
 # Below are for BigInteger
-def to_mont(input: Tensor, inplace: bool = False) -> Tensor:
+def to_mod(input: Tensor, inplace: bool = False) -> Tensor:
     r"""
         Convert input to Montgomery domain. Only for Elliptic Curve.
     """
     if inplace:
-        result = torch.to_mont_(input)
+        result = torch.to_mod_(input)
     else:
-        result = torch.to_mont(input)
+        result = torch.to_mod(input)
     return result
 
 def to_base(input: Tensor, inplace: bool = False) -> Tensor:
@@ -5476,24 +5476,36 @@ def to_base(input: Tensor, inplace: bool = False) -> Tensor:
     return result
 
 
-def add_mont(input1: Tensor,input2: Tensor) -> Tensor:
+def add_mod(input1: Tensor,input2: Tensor, inplace: bool = False) -> Tensor:
 
-    result=torch.arry_add(input1,input2)
+    if inplace:
+        result=torch.add_mod(input1,input2)
+    else:
+        result = torch.add_mod_(input1,input2)
     return result
 
 
-def sub_mont(input1: Tensor,input2: Tensor) -> Tensor:
+def sub_mod(input1: Tensor,input2: Tensor,inplace: bool = False) -> Tensor:
 
-    result=torch.Subtractions(input1,input2)
+    if inplace:
+        result=torch.sub_mod(input1,input2)
+    else:
+        result = torch.sub_mod_(input1,input2)
     return result
 
 
-def mul_mont(input1: Tensor,input2: Tensor) -> Tensor:
-
-    result=torch.Multiplications(input1,input2)
+def mul_mod(input1: Tensor,input2: Tensor,inplace: bool = False) -> Tensor:
+    
+    if inplace:
+        result=torch.mul_mod(input1,input2)
+    else:
+        result = torch.mul_mod_(input1,input2)
     return result
 
-def div_mont(input1: Tensor,input2: Tensor) -> Tensor:
+def div_mod(input1: Tensor,input2: Tensor,inplace: bool = False) -> Tensor:
 
-    result=torch.Divisions(input1,input2)
+    if inplace:
+        result=torch.div_mod(input1,input2)
+    else:
+        result = torch.div_mod_(input1,input2)
     return result

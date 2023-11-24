@@ -3,18 +3,18 @@ import torch.nn.functional as F
 
 print(torch.__path__)
 
-x = torch.tensor([[9223372036854772, 2, 3, 4], [5, 6, 7, 8]], dtype=torch.BLS12_377_Fr_G1_Base)
-xq = torch.tensor([[9223372036854772, 2, 3, 4, 5, 6], [1, 2, 5, 6, 7, 8]], dtype=torch.BLS12_377_Fq_G1_Base)
+x1 = torch.tensor([[1, 2, 3, 4], [5, 6, 7, 8]], dtype=torch.BLS12_377_Fr_G1_Base)
+x2 = torch.tensor([[1, 2, 3, 4], [5, 6, 7, 8]], dtype=torch.BLS12_377_Fr_G1_Base)
 # x.to("cuda")
 print("===========")
-print(x)
-y = F.to_mont(x)
-print(y)
-z = F.to_base(y)
-print(z)
+print(x1)
+y1 = F.to_mod(x1)
+y2= F.to_mod(x2)
 
-a = y.clone()
-print(a)
+z = F.add_mod(y1,y2)
+
+print(F.to_base(z))
+
 
 
 

@@ -15266,19 +15266,19 @@
 
 # Below are operations for ZKP
 
-- func: to_mont(Tensor self) -> Tensor
+- func: to_mod(Tensor self) -> Tensor
   device_check: NoCheck   # TensorIterator
   dispatch:
     CPU: to_mont_cpu
     CUDA: to_mont_cuda
 
-- func: to_mont_(Tensor(a!) self) -> Tensor(a!)
+- func: to_mod_(Tensor(a!) self) -> Tensor(a!)
   device_check: NoCheck   # TensorIterator
   dispatch:
     CPU: to_mont_cpu_
     CUDA: to_mont_cuda_
 
-- func: to_mont.out(Tensor self, *, Tensor(a!) out) -> Tensor(a!)
+- func: to_mod.out(Tensor self, *, Tensor(a!) out) -> Tensor(a!)
   device_check: NoCheck   # TensorIterator
   dispatch:
     CPU: to_mont_out_cpu
@@ -15302,46 +15302,77 @@
     CPU: to_base_out_cpu
     CUDA: to_base_out_cuda
 
+## add
 - func: add_mod(Tensor self, Tensor in_b) -> Tensor
   device_check: NoCheck   # TensorIterator
   dispatch:
-    CPU: arry_add_cpu
-    CUDA: arry_add_cuda
-# - func: arry_dd_(Tensor(a!) self
+    CPU: add_cpu
+    CUDA: add_cuda
 
-- func: arry_add_(Tensor(a!) self, Tensor in_b) -> Tensor(a!)
+- func: add_mod_(Tensor(a!) self, Tensor in_b) -> Tensor(a!)
   device_check: NoCheck   # TensorIterator
   dispatch:
-     CPU: arry_add_cpu_
+     CPU: add_cpu_
+     CUDA: add_cuda_
 
-- func: arry_add.out(Tensor self, Tensor in_b, *, Tensor(a!) out) -> Tensor(a!)
+- func: add_mod.out(Tensor self, Tensor in_b, *, Tensor(a!) out) -> Tensor(a!)
   device_check: NoCheck   # TensorIterator
   dispatch:
-    CPU: arry_add_cpu_out
-    # CUDA: arry_add_out_cuda
-
-- func: Subtractions(Tensor in_a, Tensor in_b) -> Tensor
+    CPU: add_cpu_out
+    CUDA: add_cuda_out
+## sub
+- func: sub_mod(Tensor self, Tensor in_b) -> Tensor
   device_check: NoCheck   # TensorIterator
   dispatch:
-    CPU: Subtraction_cpu
-    CUDA: Subtraction_cuda
+    CPU: subtraction_cpu
+    CUDA: subtraction_cuda
 
-# ##TODO inpalcefailed
-# - func: Subtractions_(Tensor(a!) self,Tensor in_b) -> Tensor(a!)
-#   device_check: NoCheck   # TensorIterator
-#   dispatch:
-#      CPU: Subtraction_cpu_
-#      CUDA: Subtraction_cuda_
+- func: sub_mod_(Tensor(a!) self, Tensor in_b) -> Tensor(a!)
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+     CPU: subtraction_cpu_
+     CUDA: subtraction_cuda_
   
-  
-- func: Multiplications(Tensor in_a, Tensor in_b) -> Tensor
+- func: sub_mod.out(Tensor self, Tensor in_b, *, Tensor(a!) out) -> Tensor(a!)
   device_check: NoCheck   # TensorIterator
   dispatch:
-    CPU: Multiplication_cpu
-    CUDA: Multiplication_cuda
+    CPU: subtraction_cpu_out
+    CUDA: subtraction_cuda_out
 
-- func: Divisions(Tensor in_a, Tensor in_b) -> Tensor
+### mul
+- func: mul_mod(Tensor self, Tensor in_b) -> Tensor
   device_check: NoCheck   # TensorIterator
   dispatch:
-    CPU: Division_cpu
-    CUDA: Division_cuda
+    CPU: multiplication_cpu
+    CUDA: multiplication_cuda
+
+- func: mul_mod_(Tensor(a!) self, Tensor in_b) -> Tensor(a!)
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+     CPU: multiplication_cpu_
+     CUDA: multiplication_cuda_
+
+- func: mul_mod.out(Tensor self, Tensor in_b, *, Tensor(a!) out) -> Tensor(a!)
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+    CPU: multiplication_cpu_out
+    CUDA: multiplication_cuda_out
+
+## div
+- func: div_mod(Tensor self, Tensor in_b) -> Tensor
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+    CPU: division_cpu
+    CUDA: division_cuda
+
+- func: div_mod_(Tensor(a!) self, Tensor in_b) -> Tensor(a!)
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+     CPU: division_cpu_
+     CUDA: division_cuda_
+
+- func: div_mod.out(Tensor self, Tensor in_b, *, Tensor(a!) out) -> Tensor(a!)
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+    CPU: division_cpu_out
+    CUDA: division_cuda_out

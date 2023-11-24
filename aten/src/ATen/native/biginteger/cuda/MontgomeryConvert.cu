@@ -92,12 +92,10 @@ static void to_mont_cuda_template(Tensor& self) {
   });
   self.set_dtype(get_corresponding_type(self.scalar_type()));
 }
-///////////////////////////////////////
-static void cuda_Arry_add(Tensor& a,const Tensor &b) {
-  if (a.scalar_type() != b.scalar_type()) {
-    throw std::runtime_error("Data types of input tensors must be the same.");
-  }
-  AT_DISPATCH_FR_MONT_TYPES(a.scalar_type(), "arry_add_cuda", [&] {
+//**********************tempalte***********************
+static void add_cuda_template(Tensor& a,const Tensor &b) {
+  TORCH_CHECK(a.numel() == b.numel(), "Length check!");
+  AT_DISPATCH_FR_MONT_TYPES(a.scalar_type(), "add_cuda", [&] {
     auto a_ptr = reinterpret_cast<scalar_t::compute_type*>(a.mutable_data_ptr<scalar_t>());
     auto b_ptr = reinterpret_cast<scalar_t::compute_type*>(b.mutable_data_ptr<scalar_t>());
     int64_t N = a.numel() / num_uint64(a.scalar_type());
@@ -110,11 +108,9 @@ static void cuda_Arry_add(Tensor& a,const Tensor &b) {
   // a.set_dtype(get_corresponding_type(a.scalar_type()));
 }
 
-static void cuda_Arry_sub(Tensor& a,const Tensor &b) {
-  if (a.scalar_type() != b.scalar_type()) {
-    throw std::runtime_error("Data types of input tensors must be the same.");
-  }
-  AT_DISPATCH_FR_MONT_TYPES(a.scalar_type(), "Subtraction_cuda", [&] {
+static void sub_cuda_template(Tensor& a,const Tensor &b) {
+  TORCH_CHECK(a.numel() == b.numel(), "Length check!");
+  AT_DISPATCH_FR_MONT_TYPES(a.scalar_type(), "subtraction_cuda", [&] {
     auto a_ptr = reinterpret_cast<scalar_t::compute_type*>(a.mutable_data_ptr<scalar_t>());
     auto b_ptr = reinterpret_cast<scalar_t::compute_type*>(b.mutable_data_ptr<scalar_t>());
     int64_t N = a.numel() / num_uint64(a.scalar_type());
@@ -127,11 +123,9 @@ static void cuda_Arry_sub(Tensor& a,const Tensor &b) {
   // self.set_dtype(get_corresponding_type(self.scalar_type()));
 }
 
-static void cuda_Arry_mul(Tensor& a,const Tensor &b) {
-  if (a.scalar_type() != b.scalar_type()) {
-    throw std::runtime_error("Data types of input tensors must be the same.");
-  }
-  AT_DISPATCH_FR_MONT_TYPES(a.scalar_type(), "Multiplication_cuda", [&] {
+static void mul_cuda_template(Tensor& a,const Tensor &b) {
+  TORCH_CHECK(a.numel() == b.numel(), "Length check!");
+  AT_DISPATCH_FR_MONT_TYPES(a.scalar_type(), "multiplication_cuda", [&] {
     auto a_ptr = reinterpret_cast<scalar_t::compute_type*>(a.mutable_data_ptr<scalar_t>());
     auto b_ptr = reinterpret_cast<scalar_t::compute_type*>(b.mutable_data_ptr<scalar_t>());
     int64_t N = a.numel() / num_uint64(a.scalar_type());
@@ -141,15 +135,12 @@ static void cuda_Arry_mul(Tensor& a,const Tensor &b) {
     mul_mont_kernel<<<grid, num_threads(), 0, stream>>>(N, a_ptr,b_ptr);
     C10_CUDA_KERNEL_LAUNCH_CHECK();
   });
-  // self.set_dtype(get_corresponding_type(self.scalar_type()));
+  
 }
 
-
-static void cuda_Arry_div(Tensor& a,const Tensor &b) {
-  if (a.scalar_type() != b.scalar_type()) {
-    throw std::runtime_error("Data types of input tensors must be the same.");
-  }
-  AT_DISPATCH_FR_MONT_TYPES(a.scalar_type(), "Division_cuda", [&] {
+static void div_cuda_template(Tensor& a,const Tensor &b) {
+  TORCH_CHECK(a.numel() == b.numel(), "Length check!");
+  AT_DISPATCH_FR_MONT_TYPES(a.scalar_type(), "division_cuda", [&] {
     auto a_ptr = reinterpret_cast<scalar_t::compute_type*>(a.mutable_data_ptr<scalar_t>());
     auto b_ptr = reinterpret_cast<scalar_t::compute_type*>(b.mutable_data_ptr<scalar_t>());
     int64_t N = a.numel() / num_uint64(a.scalar_type());
@@ -179,7 +170,7 @@ static void to_base_cuda_template(Tensor& self) {
 } // namespace
 
 Tensor to_mont_cuda(const Tensor& input) {
-  Tensor output = input.clone();
+  Tensor output = at::empty_like(input);
   to_mont_cuda_template(output);
   return output;
 }
@@ -196,7 +187,7 @@ Tensor& to_mont_out_cuda(const Tensor& input, Tensor& output) {
 }
 
 Tensor to_base_cuda(const Tensor& input) {
-  Tensor output = input.clone();
+  Tensor output =at::empty_like(input);
   to_base_cuda_template(output);
   return output;
 }
@@ -211,45 +202,71 @@ Tensor& to_base_out_cuda(const Tensor& input, Tensor& output) {
   to_base_cuda_template(output);
   return output;
 }
-
-Tensor arry_add_cuda( const Tensor& a, const Tensor& b) {
-  Tensor c = a.clone();
-  cuda_Arry_add(c, b);
+//********************add**********************//
+Tensor add_cuda( const Tensor& a, const Tensor& b) {
+  Tensor c = at::empty_like(a);
+  add_cuda_template(c, b);
   return c;
 }
 
-Tensor& arry_add_cuda_(Tensor& a,  Tensor& b) {
-  cuda_Arry_add(a, b);
+Tensor& add_cuda_(Tensor& a,  const Tensor& b) {
+  add_cuda_template(a, b);
   return a;
 }
 
-Tensor& arry_add_cuda_out_cuda(Tensor& a,  Tensor& b, Tensor& c) {
+Tensor& add_cuda_out(const Tensor& a, const Tensor& b, Tensor& c) {
   copy(c, a);
-  cuda_Arry_add(c, b);
+  add_cuda_template(c, b);
+  return c;
+}
+//*********************sub***************************//
+Tensor subtraction_cuda( const Tensor& a, const Tensor& b) {
+  Tensor c = at::empty_like(a);
+  sub_cuda_template(c, b);
   return c;
 }
 
-Tensor Subtraction_cuda( const Tensor& a, const Tensor& b) {
-  Tensor c = a.clone();
-  cuda_Arry_sub(c, b);
-  return c;
-}
-
-Tensor& Subtraction_cuda_(Tensor& a,  Tensor& b) {
-  cuda_Arry_sub(a, b);
+Tensor& subtraction_cuda_(Tensor& a,  const Tensor& b) {
+  sub_cuda_template(a, b);
   return a;
 }
-
-Tensor Multiplication_cuda( const Tensor& a, const Tensor& b) {
-  Tensor c = a.clone();
-  cuda_Arry_mul(c, b);
+Tensor& subtraction_cuda_out(const Tensor& a,  const Tensor& b, Tensor& c) {
+  copy(c, a);
+  sub_cuda_template(c, b);
+  return c;
+}
+//******************mul***************************//
+Tensor multiplication_cuda( const Tensor& a, const Tensor& b) {
+  Tensor c = at::empty_like(a);
+  mul_cuda_template(c, b);
+  return c;
+}
+Tensor& multiplication_cuda_(Tensor& a,  const Tensor& b) {
+  mul_cuda_template(a, b);
+  return a;
+}
+Tensor& multiplication_cuda_out(const Tensor& a, const  Tensor& b, Tensor& c) {
+  copy(c, a);
+  mul_cuda_template(c, b);
   return c;
 }
 
-Tensor Division_cuda( const Tensor& a, const Tensor& b) {
-  Tensor c = a.clone();
-  cuda_Arry_div(c, b);
+//**********************div**************************//
+Tensor division_cuda( const Tensor& a, const Tensor& b) {
+  Tensor c = at::empty_like(a);
+  div_cuda_template(c, b);
   return c;
 }
+Tensor division_cuda_(Tensor& a, const Tensor& b) {
+  Tensor c = at::empty_like(a);
+  div_cuda_template(c, b);
+  return c;
+}
+Tensor division_cuda_out( const Tensor& a, const Tensor& b,Tensor & c) {
+  copy(c, a);
+  div_cuda_template(c, b);
+  return c;
+}
+
 } // namespace native
 } // namespace at

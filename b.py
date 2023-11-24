@@ -3,27 +3,27 @@ import torch.nn.functional as F
 import os
 print(torch.__path__)
 
-# x1 = torch.tensor([[1, 2, 3, 2], [5, 6, 7, 8],[1,2,3,4]], dtype=torch.BLS12_377_Fr_G1_Base)
+x1 = torch.tensor([[1, 2, 3, 2], [5, 6, 7, 8],[1,2,3,4]], dtype=torch.BLS12_377_Fr_G1_Base)
 
-# x2 =torch.tensor([[1, 2, 3, 4], [5, 6, 7, 8],[1,2,3,4]], dtype=torch.BLS12_377_Fr_G1_Base)
-# # x.to("cuda")
-# print("===========")
-# y1 = F.to_mont(x1)
-# y2=F.to_mont(x2)
+x2 =torch.tensor([[1, 2, 3, 4], [5, 6, 7, 8],[1,2,3,4]], dtype=torch.BLS12_377_Fr_G1_Base)
+# x.to("cuda")
+print("===========")
+y1 = F.to_mod(x1)
+y2=F.to_mod(x2)
 
 
-# # z = F.to_base(y)
-# # print(z)
+# z = F.to_base(y)
+# print(z)
 
-# # res=F.sub_mont(y1,y2)
-# # res=F.add_mont(res,y1)
 # res=F.sub_mont(y1,y2)
-# res2=F.add_mont(res,y1)
-# # a = y.clone()
+# res=F.add_mont(res,y1)
+res=F.sub_mod(y1,y2)
+res2=F.add_mod(res,y1)
+# a = y.clone()
 
-# print("mont",res2)
-# z=F.to_base(res2)
-# print("base",z)
+print("mont",res2)
+z=F.to_base(res2)
+print("base",z)
 
 
 
