@@ -13,7 +13,7 @@ class MyCustomFunction(torch.autograd.Function):
     @staticmethod
     def forward(ctx, input):
         ctx.save_for_backward(input)
-        output =F.to_mont(input)
+        output =F.to_mod(input)
         return output
 
     @staticmethod
@@ -31,9 +31,9 @@ class MyModel(torch.nn.Module):
     def forward(self, x,x2):
         # In the forward pass, use the custom function directly
         x = self.custom_function(x)
-        x2=F.to_mont(x2)
-        result=F.add_mont(x,x2)
-        result=F.sub_mont(result,x2)
+        x2=F.to_mod(x2)
+        result=F.add_mod(x,x2)
+        result=F.sub_mod(result,x2)
         return result
 
 # Create model instance
