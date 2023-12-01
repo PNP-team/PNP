@@ -1,5 +1,8 @@
 import torch
 import torch.nn.functional as F
+import unittest
+
+
 
 print(torch.__path__)
 
@@ -9,15 +12,27 @@ x2 = torch.tensor([[1, 2, 3, 4], [5, 6, 7, 8]], dtype=torch.BLS12_377_Fr_G1_Base
 print("===========")
 print(x1)
 y1 = F.to_mod(x1)
+
 y2= F.to_mod(x2)
 
 z = F.add_mod(y1,y2)
 
 print(F.to_base(z))
+if(torch.equal_mod(y1,y1)):
+    print(1)
+
+# if(y1==F.to_mod(x1)):
+#     print(1)
+# class TestDict(unittest.TestCase):
+
+#     def test_init(self):
+#         d =F.to_mod(x1)
+#         self.assertEqual(d,y1)
 
 
 
-
+# if __name__ == '__main__':
+#     unittest.main()
 
 
 # y = torch.tensor([[9223372036854772, 2, 3, 10], [4, 5, 6, 8], [4, 5, 6, 8]], dtype=torch.big_integer)

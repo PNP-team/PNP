@@ -78,6 +78,8 @@ FUNCTIONAL_OPS_THAT_CANNOT_GET_AN_OUT_VARIANT = [
     "_nested_tensor_storage_offsets",  # returns a vector of ints
     "_chunk_grad_outputs_efficient_attention",  # returns a bool
     "_fused_sdp_choice",  # returns an int
+    "equal_mod",#return boolean
+    "equal_base",#return boolean
 ]
 
 INPLACE_OPS_THAT_DONT_GET_GROUPED_PROPERLY = [

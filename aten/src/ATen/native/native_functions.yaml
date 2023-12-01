@@ -15374,5 +15374,16 @@
 - func: div_mod.out(Tensor self, Tensor in_b, *, Tensor(a!) out) -> Tensor(a!)
   device_check: NoCheck   # TensorIterator
   dispatch:
-    CPU: division_cpu_out
+    CPU: division_cpu_out 
     CUDA: division_cuda_out
+
+##equal
+- func: equal_mod(Tensor in_a, Tensor in_b) -> bool
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+    CPU: equal_cpu_mod
+
+- func: equal_base(Tensor in_a, Tensor in_b) -> bool
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+    CPU: equal_cpu_base

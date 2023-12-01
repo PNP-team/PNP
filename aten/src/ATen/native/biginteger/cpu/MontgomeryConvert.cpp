@@ -41,6 +41,52 @@ static void to_mont_cpu_template(Tensor& self) {
 }
 
 /////////////////////////////////////////////////////////////////////
+
+static bool equal_mod_template(const Tensor &in_a,const Tensor &in_b) {
+    bool result=true;
+
+    AT_DISPATCH_FR_MONT_TYPES(in_a.scalar_type(), "equal_cpu", [&] {
+    auto a_ptr = reinterpret_cast<scalar_t::compute_type*>(in_a.mutable_data_ptr<scalar_t>());
+    auto b_ptr = reinterpret_cast<scalar_t::compute_type*>(in_b.mutable_data_ptr<scalar_t>());
+  
+    int64_t a_num_ = in_a.numel() / num_uint64(in_a.scalar_type());
+    int64_t b_num_ = in_b.numel() / num_uint64(in_b.scalar_type());
+    TORCH_CHECK(in_a.numel() == in_b.numel(), "Length check!");
+
+    for(auto i = 0; i < a_num_; i++) {
+      if(a_ptr[i]!=b_ptr[i])
+      {
+        result=false;
+      }
+    }
+   
+  });
+  //a.set_dtype(get_corresponding_type(a.scalar_type()));
+   return result;
+}
+static bool equal_base_template(const Tensor &in_a, const Tensor &in_b)
+{
+
+    bool result=true;
+
+    AT_DISPATCH_FR_BASE_TYPES(in_a.scalar_type(), "equal_cpu", [&] {
+    auto a_ptr = reinterpret_cast<scalar_t::compute_type*>(in_a.mutable_data_ptr<scalar_t>());
+    auto b_ptr = reinterpret_cast<scalar_t::compute_type*>(in_b.mutable_data_ptr<scalar_t>());
+  
+    int64_t a_num_ = in_a.numel() / num_uint64(in_a.scalar_type());
+    int64_t b_num_ = in_b.numel() / num_uint64(in_b.scalar_type());
+    TORCH_CHECK(in_a.numel() == in_b.numel(), "Length check!");
+
+    for(auto i = 0; i < a_num_; i++) {
+      if(a_ptr[i]!=b_ptr[i])
+      {
+        result=false;
+      }
+    }
+    });
+    return result;
+}
+
 static void add_template(const Tensor &in_a,const Tensor &in_b, Tensor &out_c) {
 
     TORCH_CHECK(in_a.numel() == in_b.numel(), "Length check!");
@@ -225,6 +271,18 @@ Tensor& division_cpu_out(const Tensor& a, const Tensor& b, Tensor& c) {
   div_template(a, b,c);
   return c;
 }
+//********************equal*******************
+bool equal_cpu_mod(const Tensor &a,const Tensor &b)
+{
+  return equal_mod_template(a,b);
+}
+
+
+bool equal_cpu_base(const Tensor &a,const Tensor &b)
+{
+  return equal_base_template(a,b);
+}
+
 
 } // namespace native
 } // namespace at
