@@ -84,4 +84,4 @@ output = model(input1, input2)
 # 创建一个新的字典，包含模型参数和输入数据
 
 
-torchviz.make_dot(output, params=combined_dict).render("test/11_11/pic/elliptic_curve_model_with_tensors", format="png")
+torchviz.make_dot(output, params=combined_dict,show_attrs=True, show_saved=True).render("test/11_11/pic/elliptic_curve_model_with_tensors", format="png")

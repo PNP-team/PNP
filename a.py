@@ -95,3 +95,30 @@ if(torch.equal_mod(y1,y1)):
 
 
 
+import unittest
+import torch
+import pytest
+
+class TestTensorTypes(unittest.TestCase):
+
+
+    @pytest.mark.parametrize("dtype", [torch.float32, torch.int64, torch.float64])  # 在这里添加更多的数据类型
+    def test_tensor_dtype(dtype):
+        def my_function(in_a):
+            if in_a.dtype == torch.float64:
+                return False
+            else:
+                return True
+        tensor = torch.zeros(5, dtype=dtype)  # 创建不同 dtype 的张量
+        result = my_function(tensor)  # 调用类方法需要使用 self
+        assert result is True, f"Failed for dtype: {dtype}"  # 使用 assert 进行断言验证
+
+def run_tests():
+    test_suite = unittest.defaultTestLoader.loadTestsFromTestCase(TestTensorTypes)
+    unittest.TextTestRunner().run(test_suite)
+
+    # 添加更多的测试方法
+run_tests()
+# 你的其他测试类和函数
+
+
