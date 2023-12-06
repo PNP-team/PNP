@@ -2,36 +2,18 @@ import torch
 import torch.nn.functional as F
 import os
 import unittest
-import pytest
-
-
+import torchviz
 from HTMLTestRunner import HTMLTestRunner
 print(torch.__path__)
+x1 = torch.tensor([[1, 2, 3, 2], [5, 6, 7, 8],[1,2,3,4]], dtype=torch.BLS12_381_Fr_G1_Base)
+x2 =torch.tensor([[1, 2, 3, 4], [5, 6, 7, 8],[1,2,3,4]], dtype=torch.BLS12_381_Fr_G1_Base)
 
-x1 = torch.tensor([[1, 2, 3, 2], [5, 6, 7, 8],[1,2,3,4]], dtype=torch.BLS12_377_Fr_G1_Base)
-
-x2 =torch.tensor([[1, 2, 3, 4], [5, 6, 7, 8],[1,2,3,4]], dtype=torch.BLS12_377_Fr_G1_Base)
-# x.to("cuda")
-print("===========")
-y1=F.to_mod(x1)
-y2=F.to_mod(x2)
-
-# res=F.sub_mont(y1,y2)
-# res=F.add_mont(res,y1)
-res=F.sub_mod(y1,y2)
-res2=F.add_mod(res,y2)
-# a = y.clone()
-
-print("mont",res2)
-z=F.to_base(res2)
-print("base",z)
-
-
-
-
-import torch
-import torchviz
-
+'''
+测试的主要内容：
+1.测试mont的转换正确性 
+2.测试add等运算符的运算的正确性
+3.验证不同曲线的正确性
+'''
 data_type=[torch.BLS12_377_Fr_G1_Base,torch.BLS12_381_Fr_G1_Base]
 
 class CustomTestCase(unittest.TestCase):
@@ -43,20 +25,27 @@ class CustomTestCase(unittest.TestCase):
             return False
         # self.assertEqual(first, second, msg=msg)
 
-    # 在测试方法中使用新的自定义断言方法
     def test_custom_data_equality(self):
-        custom_data_1 =y1
-        custom_data_2 =y2
-
-        # 使用自定义断言方法进行比较
+        #蒙哥马利域下的比较
+        custom_data_1 =F.to_mod(x1)
+        custom_data_2 =F.to_mod(x2)
         self.assertCustomEqual(custom_data_1, custom_data_2, "自定义数据应该相等")
     
     def test_custom_data_type(self):
-        custom_data_1=y1
-        test_to_base_value=F.to_base(y1)
-        self.assertEqual(test_to_base_value.dtype, torch.BLS12_377_Fr_G1_Base)
+        #检查mont转换的结果是否正确，和直接计算的结果比对
+        def compute(in_a):
+            for i in len(in_a):
+                res=0
+                for j in len(i):
+                    res+=in_a[i][j]*(2**(j*64))
+
+
+        custom_data_1=F.to_mod(x1)
+        test_to_base_value=F.to_base(custom_data_1)
+        self.assertEqual(test_to_base_value.dtype, torch.BLS12_381_Fr_G1_Base )
 
     def test_tensor_dtype(self):
+        ##检查不同曲线转换的类型是否正确
         def my_function(in_a):
             try:
                 torch.to_mod(in_a)
@@ -69,6 +58,9 @@ class CustomTestCase(unittest.TestCase):
             input = torch.tensor([[1, 2, 3, 2], [5, 6, 7, 8],[1,2,3,4]], dtype=type_ele)
             result =my_function(input)
             self.assertTrue(result)
+
+    def test_tensor_compute(self):
+        
 
 
 if __name__ == '__main__':

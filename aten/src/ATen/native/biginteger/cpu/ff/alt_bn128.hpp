@@ -5,7 +5,6 @@
 namespace at { 
 namespace native {
 
-/* define Fr and Fq for ALT_BN128 */
 static const vec256 ALT_BN128_r = {
     TO_LIMB_T(0x43e1f593f0000001), TO_LIMB_T(0x2833e84879b97091),
     TO_LIMB_T(0xb85045b68181585d), TO_LIMB_T(0x30644e72e131a029)

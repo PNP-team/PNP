@@ -169,6 +169,22 @@ std::string Dtype::ToCppString() const {
       return "<MNT4753, Fq, G1, Mont>";
     case ScalarType::MNT4753_Fq_G2_Mont:
       return "<MNT4753, Fq, G2, Mont>";
+    case ScalarType::PALLAS_Fr_G1_Mont:
+      return "<PALLAS, Fr, G1, Mont>";
+    case ScalarType::PALLAS_Fr_G2_Mont:
+      return "<PALLAS, Fr, G2, Mont>";
+    case ScalarType::PALLAS_Fq_G1_Mont:
+      return "<PALLAS, Fq, G1, Mont>";
+    case ScalarType::PALLAS_Fq_G2_Mont:
+      return "<PALLAS, Fq, G2, Mont>";
+    case ScalarType::VESTA_Fr_G1_Mont:
+      return "<VESTA, Fr, G1, Mont>";
+    case ScalarType::VESTA_Fr_G2_Mont:
+      return "<VESTA, Fr, G2, Mont>";
+    case ScalarType::VESTA_Fq_G1_Mont:
+      return "<VESTA, Fq, G1, Mont>";
+    case ScalarType::VESTA_Fq_G2_Mont:
+      return "<VESTA, Fq, G2, Mont>";
     default:
       throw unsupported_dtype();
   }

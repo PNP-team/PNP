@@ -24,7 +24,6 @@ static __device__ __constant__ __align__(16) const uint32_t BLS12_377_rx8[8] = {
     TO_CUDA_T(0x05a268f2e1bd800a), TO_CUDA_T(0x955b2af4d1652ab3)
 };
 static __device__ __constant__ /*const*/ uint32_t BLS12_377_m0 = 0xffffffff;
-
 typedef mont_t<253, BLS12_377_r, BLS12_377_m0,
                     BLS12_377_rRR, BLS12_377_rone,
                     BLS12_377_rx8> bls12_377_fr_mont;
@@ -56,7 +55,6 @@ static __device__ __constant__ __align__(16) const uint32_t BLS12_381_Px128[12] 
     TO_CUDA_T(0x1d82e03650a49d8d), TO_CUDA_T(0xd71d230be2887563)
 };
 static __device__ __constant__ /*const*/ uint32_t BLS12_377_M0 = 0xffffffff;
-
 typedef mont_t<377, BLS12_377_P, BLS12_377_M0,
                     BLS12_377_RR, BLS12_377_one,
                     BLS12_381_Px128> bls12_377_fq_mont;

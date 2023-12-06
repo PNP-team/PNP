@@ -21,6 +21,14 @@ struct MNT4753_Fr_G1;
 struct MNT4753_Fr_G2;
 struct MNT4753_Fq_G1;
 struct MNT4753_Fq_G2;
+struct PALLAS_Fr_G1;
+struct PALLAS_Fr_G2;
+struct PALLAS_Fq_G1;
+struct PALLAS_Fq_G2;
+struct VESTA_Fr_G1;
+struct VESTA_Fr_G2;
+struct VESTA_Fq_G1;
+struct VESTA_Fq_G2;
 
 } // namespace native
 } // namespace at
@@ -92,7 +100,17 @@ FUNC(BLS12_381_Fq_G2)         \
 FUNC(MNT4753_Fr_G1)           \
 FUNC(MNT4753_Fr_G2)           \
 FUNC(MNT4753_Fq_G1)           \
-FUNC(MNT4753_Fq_G2)
+FUNC(MNT4753_Fq_G2)           \
+FUNC(PALLAS_Fr_G1)            \
+FUNC(PALLAS_Fr_G2)            \
+FUNC(PALLAS_Fq_G1)            \
+FUNC(PALLAS_Fq_G2)            \
+FUNC(VESTA_Fr_G1)            \
+FUNC(VESTA_Fr_G2)            \
+FUNC(VESTA_Fq_G1)            \
+FUNC(VESTA_Fq_G2)
+
+
 
 APPLY_ALL_CURVE(DEF_BIGINTEGER);
 
@@ -117,6 +135,14 @@ FUNC(MNT4753_Fr_G1_Base)                \
 FUNC(MNT4753_Fr_G2_Base)                \
 FUNC(MNT4753_Fq_G1_Base)                \
 FUNC(MNT4753_Fq_G2_Base)                \
+FUNC(PALLAS_Fr_G1_Base)                 \
+FUNC(PALLAS_Fr_G2_Base)                 \
+FUNC(PALLAS_Fq_G1_Base)                 \
+FUNC(PALLAS_Fq_G2_Base)                 \
+FUNC(VESTA_Fr_G1_Base)                  \
+FUNC(VESTA_Fr_G2_Base)                  \
+FUNC(VESTA_Fq_G1_Base)                  \
+FUNC(VESTA_Fq_G2_Base)                  \
 FUNC(ALT_BN128_Fr_G1_Mont)              \
 FUNC(ALT_BN128_Fr_G2_Mont)              \
 FUNC(ALT_BN128_Fq_G1_Mont)              \
@@ -132,7 +158,16 @@ FUNC(BLS12_381_Fq_G2_Mont)              \
 FUNC(MNT4753_Fr_G1_Mont)                \
 FUNC(MNT4753_Fr_G2_Mont)                \
 FUNC(MNT4753_Fq_G1_Mont)                \
-FUNC(MNT4753_Fq_G2_Mont)
+FUNC(MNT4753_Fq_G2_Mont)                \
+FUNC(PALLAS_Fr_G1_Mont)                 \
+FUNC(PALLAS_Fr_G2_Mont)                 \
+FUNC(PALLAS_Fq_G1_Mont)                 \
+FUNC(PALLAS_Fq_G2_Mont)                 \
+FUNC(VESTA_Fr_G1_Mont)                  \
+FUNC(VESTA_Fr_G2_Mont)                  \
+FUNC(VESTA_Fq_G1_Mont)                  \
+FUNC(VESTA_Fq_G2_Mont)
+
 
 #define DEF_IS_FIELD(name)                                   \
 template<>                                                   \

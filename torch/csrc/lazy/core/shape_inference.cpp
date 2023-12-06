@@ -1153,6 +1153,22 @@ std::vector<Shape> compute_shape_selu(const at::Tensor& self) {
   return {Shape(self.scalar_type(), self.sizes().vec())};
 }
 
+std::vector<Shape> compute_shape_intt_zkp(const at::Tensor& self) {
+  return {Shape(self.scalar_type(), self.sizes().vec())};
+}
+
+std::vector<Shape> compute_shape_ntt_zkp(const at::Tensor& self) {
+  return {Shape(self.scalar_type(), self.sizes().vec())};
+}
+
+std::vector<Shape> compute_shape_intt_coset_zkp(const at::Tensor& self) {
+  return {Shape(self.scalar_type(), self.sizes().vec())};
+}
+
+std::vector<Shape> compute_shape_ntt_coset_zkp(const at::Tensor& self) {
+  return {Shape(self.scalar_type(), self.sizes().vec())};
+}
+
 // Non-Native Ops
 std::vector<Shape> compute_shape_scalar(
     const at::Scalar& value,

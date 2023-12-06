@@ -24,7 +24,6 @@ static __device__ __constant__ __align__(16) const uint32_t ALT_BN128_Px4[8] = {
     TO_CUDA_T(0xe14116da06056176), TO_CUDA_T(0xc19139cb84c680a6)
 };
 static __device__ __constant__ const uint32_t ALT_BN128_M0 = 0xe4866389;
-
 typedef mont_t<254, ALT_BN128_P, ALT_BN128_M0,
                     ALT_BN128_RR, ALT_BN128_one,
                     ALT_BN128_Px4> alt_bn128_fq_mont;
@@ -34,7 +33,6 @@ struct ALT_BN128_Fq_G1 : public alt_bn128_fq_mont {
     __device__ __forceinline__ ALT_BN128_Fq_G1() {}
     __device__ __forceinline__ ALT_BN128_Fq_G1(const alt_bn128_fq_mont& a) : alt_bn128_fq_mont(a) {}
 };
-
 
 static __device__ __constant__ __align__(16) const uint32_t ALT_BN128_r[8] = {
     TO_CUDA_T(0x43e1f593f0000001), TO_CUDA_T(0x2833e84879b97091),
@@ -53,8 +51,6 @@ static __device__ __constant__ __align__(16) const uint32_t ALT_BN128_rx4[8] = {
     TO_CUDA_T(0xe14116da06056174), TO_CUDA_T(0xc19139cb84c680a6)
 };
 static __device__ __constant__ const uint32_t ALT_BN128_m0 = 0xefffffff;
-
-
 typedef mont_t<254, ALT_BN128_r, ALT_BN128_m0,
                     ALT_BN128_rRR, ALT_BN128_rone,
                     ALT_BN128_rx4> alt_bn128_fr_mont;
@@ -63,8 +59,6 @@ struct ALT_BN128_Fr_G1 : public alt_bn128_fr_mont {
     __device__ __forceinline__ ALT_BN128_Fr_G1() {}
     __device__ __forceinline__ ALT_BN128_Fr_G1(const alt_bn128_fr_mont& a) : alt_bn128_fr_mont(a) {}
 };
-
-
 
 } // namespace native
 } // namespace at

@@ -30,7 +30,7 @@ caffe2::TypeMeta get_corresponding_type(const ScalarType type) {
 
 static void to_mont_cpu_template(Tensor& self) {
 
-  AT_DISPATCH_FR_BASE_TYPES(self.scalar_type(), "to_mont_cpu", [&] {
+  AT_DISPATCH_BASE_TYPES(self.scalar_type(), "to_mont_cpu", [&] {
     auto self_ptr = reinterpret_cast<scalar_t::compute_type*>(self.mutable_data_ptr<scalar_t>());
     int64_t num_ = self.numel() / num_uint64(self.scalar_type());
     for(auto i = 0; i < num_; i++) {
@@ -159,7 +159,7 @@ static void div_template(const Tensor &in_a,const Tensor &in_b,Tensor &out_c) {
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 static void to_base_cpu_template(Tensor& self) {
-  AT_DISPATCH_FR_MONT_TYPES(self.scalar_type(), "to_base_cpu", [&] {
+  AT_DISPATCH_MONT_TYPES(self.scalar_type(), "to_base_cpu", [&] {
     auto self_ptr = reinterpret_cast<scalar_t::compute_type*>(self.mutable_data_ptr<scalar_t>());
     int64_t num_ = self.numel() / num_uint64(self.scalar_type());
     for(auto i = 0; i < num_; i++) {

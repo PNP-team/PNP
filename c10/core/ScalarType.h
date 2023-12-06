@@ -93,7 +93,24 @@ namespace c10 {
   _(c10::MNT4753_Fr_G1_Mont, MNT4753_Fr_G1_Mont) /* 34.5 */      \
   _(c10::MNT4753_Fr_G2_Mont, MNT4753_Fr_G2_Mont) /* 34.6 */      \
   _(c10::MNT4753_Fq_G1_Mont, MNT4753_Fq_G1_Mont) /* 34.7 */      \
-  _(c10::MNT4753_Fq_G2_Mont, MNT4753_Fq_G2_Mont) /* 34.8 */
+  _(c10::MNT4753_Fq_G2_Mont, MNT4753_Fq_G2_Mont) /* 34.8 */      \
+  _(c10::PALLAS_Fr_G1_Base, PALLAS_Fr_G1_Base) /* 35.1 */        \
+  _(c10::PALLAS_Fr_G2_Base, PALLAS_Fr_G2_Base) /* 35.2 */        \
+  _(c10::PALLAS_Fq_G1_Base, PALLAS_Fq_G1_Base) /* 35.3 */        \
+  _(c10::PALLAS_Fq_G2_Base, PALLAS_Fq_G2_Base) /* 35.4 */        \
+  _(c10::PALLAS_Fr_G1_Mont, PALLAS_Fr_G1_Mont) /* 35.5 */        \
+  _(c10::PALLAS_Fr_G2_Mont, PALLAS_Fr_G2_Mont) /* 35.6 */        \
+  _(c10::PALLAS_Fq_G1_Mont, PALLAS_Fq_G1_Mont) /* 35.7 */        \
+  _(c10::PALLAS_Fq_G2_Mont, PALLAS_Fq_G2_Mont) /* 35.8 */        \
+  _(c10::VESTA_Fr_G1_Base, VESTA_Fr_G1_Base) /* 36.1 */          \
+  _(c10::VESTA_Fr_G2_Base, VESTA_Fr_G2_Base) /* 36.2 */          \
+  _(c10::VESTA_Fq_G1_Base, VESTA_Fq_G1_Base) /* 36.3 */          \
+  _(c10::VESTA_Fq_G2_Base, VESTA_Fq_G2_Base) /* 36.4 */          \
+  _(c10::VESTA_Fr_G1_Mont, VESTA_Fr_G1_Mont) /* 36.5 */          \
+  _(c10::VESTA_Fr_G2_Mont, VESTA_Fr_G2_Mont) /* 36.6 */          \
+  _(c10::VESTA_Fq_G1_Mont, VESTA_Fq_G1_Mont) /* 36.7 */          \
+  _(c10::VESTA_Fq_G2_Mont, VESTA_Fq_G2_Mont) /* 36.8 */
+
 
 // If you want to support ComplexHalf for real, add ComplexHalf
 // into this macro (and change the name).  But beware: convert()
@@ -338,7 +355,23 @@ AT_FORALL_SCALAR_TYPES_WITH_COMPLEX_AND_QINTS(SPECIALIZE_CppTypeToScalarType)
   _(c10::MNT4753_Fr_G1_Mont, MNT4753_Fr_G1_Mont)     \
   _(c10::MNT4753_Fr_G2_Mont, MNT4753_Fr_G2_Mont)     \
   _(c10::MNT4753_Fq_G1_Mont, MNT4753_Fq_G1_Mont)     \
-  _(c10::MNT4753_Fq_G2_Mont, MNT4753_Fq_G2_Mont)
+  _(c10::MNT4753_Fq_G2_Mont, MNT4753_Fq_G2_Mont)     \
+  _(c10::PALLAS_Fr_G1_Base, PALLAS_Fr_G1_Base)       \
+  _(c10::PALLAS_Fr_G2_Base, PALLAS_Fr_G2_Base)       \
+  _(c10::PALLAS_Fq_G1_Base, PALLAS_Fq_G1_Base)       \
+  _(c10::PALLAS_Fq_G2_Base, PALLAS_Fq_G2_Base)       \
+  _(c10::PALLAS_Fr_G1_Mont, PALLAS_Fr_G1_Mont)       \
+  _(c10::PALLAS_Fr_G2_Mont, PALLAS_Fr_G2_Mont)       \
+  _(c10::PALLAS_Fq_G1_Mont, PALLAS_Fq_G1_Mont)       \
+  _(c10::PALLAS_Fq_G2_Mont, PALLAS_Fq_G2_Mont)       \
+  _(c10::VESTA_Fr_G1_Base, VESTA_Fr_G1_Base)         \
+  _(c10::VESTA_Fr_G2_Base, VESTA_Fr_G2_Base)         \
+  _(c10::VESTA_Fq_G1_Base, VESTA_Fq_G1_Base)         \
+  _(c10::VESTA_Fq_G2_Base, VESTA_Fq_G2_Base)         \
+  _(c10::VESTA_Fr_G1_Mont, VESTA_Fr_G1_Mont)         \
+  _(c10::VESTA_Fr_G2_Mont, VESTA_Fr_G2_Mont)         \
+  _(c10::VESTA_Fq_G1_Mont, VESTA_Fq_G1_Mont)         \
+  _(c10::VESTA_Fq_G2_Mont, VESTA_Fq_G2_Mont)
 
 
 
@@ -421,7 +454,8 @@ static inline bool isQIntType(ScalarType t) {
 }
 
 static inline bool isEllipticCurveType(ScalarType t) {
-  return t == ScalarType::ALT_BN128_Fr_G1_Base || t == ScalarType::ALT_BN128_Fr_G2_Base || t == ScalarType::ALT_BN128_Fq_G1_Base || t == ScalarType::ALT_BN128_Fq_G2_Base || t == ScalarType::ALT_BN128_Fr_G1_Mont || t == ScalarType::ALT_BN128_Fr_G2_Mont || t == ScalarType::ALT_BN128_Fq_G1_Mont || t == ScalarType::ALT_BN128_Fq_G2_Mont || t == ScalarType::BLS12_377_Fr_G1_Base || t == ScalarType::BLS12_377_Fr_G2_Base || t == ScalarType::BLS12_377_Fq_G1_Base || t == ScalarType::BLS12_377_Fq_G2_Base || t == ScalarType::BLS12_377_Fr_G1_Mont || t == ScalarType::BLS12_377_Fr_G2_Mont || t == ScalarType::BLS12_377_Fq_G1_Mont || t == ScalarType::BLS12_377_Fq_G2_Mont || t == ScalarType::BLS12_381_Fr_G1_Base || t == ScalarType::BLS12_381_Fr_G2_Base || t == ScalarType::BLS12_381_Fq_G1_Base || t == ScalarType::BLS12_381_Fq_G2_Base || t == ScalarType::BLS12_381_Fr_G1_Mont || t == ScalarType::BLS12_381_Fr_G2_Mont || t == ScalarType::BLS12_381_Fq_G1_Mont || t == ScalarType::BLS12_381_Fq_G2_Mont || t == ScalarType::MNT4753_Fr_G1_Base || t == ScalarType::MNT4753_Fr_G2_Base || t == ScalarType::MNT4753_Fq_G1_Base || t == ScalarType::MNT4753_Fq_G2_Base || t == ScalarType::MNT4753_Fr_G1_Mont || t == ScalarType::MNT4753_Fr_G2_Mont || t == ScalarType::MNT4753_Fq_G1_Mont || t == ScalarType::MNT4753_Fq_G2_Mont;
+  return t == ScalarType::ALT_BN128_Fr_G1_Base || t == ScalarType::ALT_BN128_Fr_G2_Base || t == ScalarType::ALT_BN128_Fq_G1_Base || t == ScalarType::ALT_BN128_Fq_G2_Base || t == ScalarType::ALT_BN128_Fr_G1_Mont || t == ScalarType::ALT_BN128_Fr_G2_Mont || t == ScalarType::ALT_BN128_Fq_G1_Mont || t == ScalarType::ALT_BN128_Fq_G2_Mont || t == ScalarType::BLS12_377_Fr_G1_Base || t == ScalarType::BLS12_377_Fr_G2_Base || t == ScalarType::BLS12_377_Fq_G1_Base || t == ScalarType::BLS12_377_Fq_G2_Base || t == ScalarType::BLS12_377_Fr_G1_Mont || t == ScalarType::BLS12_377_Fr_G2_Mont || t == ScalarType::BLS12_377_Fq_G1_Mont || t == ScalarType::BLS12_377_Fq_G2_Mont || t == ScalarType::BLS12_381_Fr_G1_Base || t == ScalarType::BLS12_381_Fr_G2_Base || t == ScalarType::BLS12_381_Fq_G1_Base || t == ScalarType::BLS12_381_Fq_G2_Base || t == ScalarType::BLS12_381_Fr_G1_Mont || t == ScalarType::BLS12_381_Fr_G2_Mont || t == ScalarType::BLS12_381_Fq_G1_Mont || t == ScalarType::BLS12_381_Fq_G2_Mont || t == ScalarType::MNT4753_Fr_G1_Base || t == ScalarType::MNT4753_Fr_G2_Base || t == ScalarType::MNT4753_Fq_G1_Base || t == ScalarType::MNT4753_Fq_G2_Base || t == ScalarType::MNT4753_Fr_G1_Mont || t == ScalarType::MNT4753_Fr_G2_Mont || t == ScalarType::MNT4753_Fq_G1_Mont || t == ScalarType::MNT4753_Fq_G2_Mont || t == ScalarType::PALLAS_Fr_G1_Base || t == ScalarType::PALLAS_Fr_G2_Base || t == ScalarType::PALLAS_Fq_G1_Base || t == ScalarType::PALLAS_Fq_G2_Base || t == ScalarType::PALLAS_Fr_G1_Mont || t == ScalarType::PALLAS_Fr_G2_Mont || t == ScalarType::PALLAS_Fq_G1_Mont || t == ScalarType::MNT4753_Fq_G2_Mont || t == ScalarType::VESTA_Fr_G1_Base || t == ScalarType::VESTA_Fr_G2_Base || t == ScalarType::VESTA_Fq_G1_Base || t == ScalarType::VESTA_Fq_G2_Base || t == ScalarType::VESTA_Fr_G1_Mont || t == ScalarType::VESTA_Fr_G2_Mont || t == ScalarType::VESTA_Fq_G1_Mont || t == ScalarType::VESTA_Fq_G2_Mont;
+
 }
 
 static inline bool isBigIntegerType(ScalarType t) {
@@ -431,10 +465,8 @@ static inline bool isBigIntegerType(ScalarType t) {
 
 static inline bool isMontgomeryField(ScalarType t) {
   // Don't forget to extend this when adding new BigInteger types
-  return t == ScalarType::BigInteger_Mont || t == ScalarType::ALT_BN128_Fr_G1_Mont || t == ScalarType::ALT_BN128_Fr_G2_Mont || t == ScalarType::ALT_BN128_Fq_G1_Mont || t == ScalarType::ALT_BN128_Fq_G2_Mont || t == ScalarType::BLS12_377_Fr_G1_Mont || t == ScalarType::BLS12_377_Fr_G2_Mont || t == ScalarType::BLS12_377_Fq_G1_Mont || t == ScalarType::BLS12_377_Fq_G2_Mont || t == ScalarType::BLS12_381_Fr_G1_Mont || t == ScalarType::BLS12_381_Fr_G2_Mont || t == ScalarType::BLS12_381_Fq_G1_Mont || t == ScalarType::BLS12_381_Fq_G2_Mont || t == ScalarType::MNT4753_Fr_G1_Mont || t == ScalarType::MNT4753_Fr_G2_Mont || t == ScalarType::MNT4753_Fq_G1_Mont || t == ScalarType::MNT4753_Fq_G2_Mont;
+  return t == ScalarType::BigInteger_Mont || t == ScalarType::ALT_BN128_Fr_G1_Mont || t == ScalarType::ALT_BN128_Fr_G2_Mont || t == ScalarType::ALT_BN128_Fq_G1_Mont || t == ScalarType::ALT_BN128_Fq_G2_Mont || t == ScalarType::BLS12_377_Fr_G1_Mont || t == ScalarType::BLS12_377_Fr_G2_Mont || t == ScalarType::BLS12_377_Fq_G1_Mont || t == ScalarType::BLS12_377_Fq_G2_Mont || t == ScalarType::BLS12_381_Fr_G1_Mont || t == ScalarType::BLS12_381_Fr_G2_Mont || t == ScalarType::BLS12_381_Fq_G1_Mont || t == ScalarType::BLS12_381_Fq_G2_Mont || t == ScalarType::MNT4753_Fr_G1_Mont || t == ScalarType::MNT4753_Fr_G2_Mont || t == ScalarType::MNT4753_Fq_G1_Mont || t == ScalarType::MNT4753_Fq_G2_Mont || t == ScalarType::PALLAS_Fr_G1_Mont || t == ScalarType::PALLAS_Fr_G2_Mont || t == ScalarType::PALLAS_Fq_G1_Mont || t == ScalarType::PALLAS_Fq_G2_Mont || t == ScalarType::VESTA_Fr_G1_Mont || t == ScalarType::VESTA_Fr_G2_Mont || t == ScalarType::VESTA_Fq_G1_Mont || t == ScalarType::VESTA_Fq_G2_Mont;
 }
-
-
 
 static inline uint8_t num_uint64(ScalarType t) {
   switch (t) {
@@ -477,6 +509,24 @@ static inline uint8_t num_uint64(ScalarType t) {
     case ScalarType::MNT4753_Fq_G2_Base:
     case ScalarType::MNT4753_Fq_G2_Mont:
       return 12;
+    case ScalarType::PALLAS_Fr_G1_Base:
+    case ScalarType::PALLAS_Fr_G1_Mont:
+    case ScalarType::PALLAS_Fr_G2_Base:
+    case ScalarType::PALLAS_Fr_G2_Mont:
+    case ScalarType::PALLAS_Fq_G1_Base:
+    case ScalarType::PALLAS_Fq_G1_Mont:
+    case ScalarType::PALLAS_Fq_G2_Base:
+    case ScalarType::PALLAS_Fq_G2_Mont:
+      return 4;
+    case ScalarType::VESTA_Fr_G1_Base:
+    case ScalarType::VESTA_Fr_G1_Mont:
+    case ScalarType::VESTA_Fr_G2_Base:
+    case ScalarType::VESTA_Fr_G2_Mont:
+    case ScalarType::VESTA_Fq_G1_Base:
+    case ScalarType::VESTA_Fq_G1_Mont:
+    case ScalarType::VESTA_Fq_G2_Base:
+    case ScalarType::VESTA_Fq_G2_Mont:
+      return 4;
     default:
       TORCH_CHECK(false, "not a elliptic curve type");
   }

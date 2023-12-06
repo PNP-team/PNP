@@ -1,85 +1,73 @@
-// Copyright Supranational LLC
-// Licensed under the Apache License, Version 2.0, see LICENSE for details.
-// SPDX-License-Identifier: Apache-2.0
+#pragma once
 
-#ifndef __SPPARK_FF_PASTA_HPP__
-#define __SPPARK_FF_PASTA_HPP__
+#include <third_party/blst/include/blst_t.hpp>
 
-#ifdef __NVCC__
-#include <cstdint>
+namespace at { 
+namespace native {
 
-namespace device {
-    static __device__ __constant__ __align__(16) const uint32_t Vesta_P[8] = {
-        0x00000001, 0x8c46eb21, 0x0994a8dd, 0x224698fc,
-        0x00000000, 0x00000000, 0x00000000, 0x40000000
-    };
-    static __device__ __constant__ __align__(16) const uint32_t Vesta_RR[8] = { /* (1<<512)%P */
-        0x0000000f, 0xfc9678ff, 0x891a16e3, 0x67bb433d,
-        0x04ccf590, 0x7fae2310, 0x7ccfdaa9, 0x096d41af
-    };
-    static __device__ __constant__ __align__(16) const uint32_t Vesta_one[8] = { /* (1<<256)%P */
-        0xfffffffd, 0x5b2b3e9c, 0xe3420567, 0x992c350b,
-        0xffffffff, 0xffffffff, 0xffffffff, 0x3fffffff
-    };
-    static __device__ __constant__ __align__(16) const uint32_t Vesta_Px2[8] = { /* left-aligned modulus */
-        0x00000002, 0x188dd642, 0x132951bb, 0x448d31f8,
-        0x00000000, 0x00000000, 0x00000000, 0x80000000
-    };
-
-    static __device__ __constant__ __align__(16) const uint32_t Pallas_P[8] = {
-        0x00000001, 0x992d30ed, 0x094cf91b, 0x224698fc,
-        0x00000000, 0x00000000, 0x00000000, 0x40000000
-    };
-    static __device__ __constant__ __align__(16) const uint32_t Pallas_RR[8] = { /* (1<<512)%P */
-        0x0000000f, 0x8c78ecb3, 0x8b0de0e7, 0xd7d30dbd,
-        0xc3c95d18, 0x7797a99b, 0x7b9cb714, 0x096d41af
-    };
-    static __device__ __constant__ __align__(16) const uint32_t Pallas_one[8] = { /* (1<<256)%P */
-        0xfffffffd, 0x34786d38, 0xe41914ad, 0x992c350b,
-        0xffffffff, 0xffffffff, 0xffffffff, 0x3fffffff
-    };
-    static __device__ __constant__ __align__(16) const uint32_t Pallas_Px2[8] = { /* left-aligned modulus */
-        0x00000002, 0x325a61da, 0x1299f237, 0x448d31f8,
-        0x00000000, 0x00000000, 0x00000000, 0x80000000
-    };
-    static __device__ __constant__ /*const*/ uint32_t Pasta_M0 = 0xffffffff;
-}
-
-# ifdef __CUDA_ARCH__   // device-side field types
-# include "mont_t.cuh"
-typedef mont_t<255, device::Vesta_P, device::Pasta_M0,
-                    device::Vesta_RR, device::Vesta_one,
-                    device::Vesta_Px2> vesta_mont;
-struct vesta_t : public vesta_mont {
-    using mem_t = vesta_t;
-    __device__ __forceinline__ vesta_t() {}
-    __device__ __forceinline__ vesta_t(const vesta_mont& a) : vesta_mont(a) {}
+static const vec256 Pallas_P = {
+    TO_LIMB_T(0x992d30ed00000001), TO_LIMB_T(0x224698fc094cf91b),
+    TO_LIMB_T(0x0000000000000000), TO_LIMB_T(0x4000000000000000)
 };
-typedef mont_t<255, device::Pallas_P, device::Pasta_M0,
-                    device::Pallas_RR, device::Pallas_one,
-                    device::Pallas_Px2> pallas_mont;
-struct pallas_t : public pallas_mont {
-    using mem_t = pallas_t;
-    __device__ __forceinline__ pallas_t() {}
-    __device__ __forceinline__ pallas_t(const pallas_mont& a) : pallas_mont(a) {}
+static const vec256 Pallas_RR = { /* (1<<512)%P */
+    TO_LIMB_T(0x8c78ecb30000000f), TO_LIMB_T(0xd7d30dbd8b0de0e7),
+    TO_LIMB_T(0x7797a99bc3c95d18), TO_LIMB_T(0x096d41af7b9cb714)
 };
-# endif
-#endif
+static const vec256 Pallas_one = { /* (1<<256)%P */
+    TO_LIMB_T(0x34786d38fffffffd), TO_LIMB_T(0x992c350be41914ad),
+    TO_LIMB_T(0xffffffffffffffff), TO_LIMB_T(0x3fffffffffffffff)
+};
+static const vec256 Pallas_Px2 = { /* left-aligned modulus */
+    TO_LIMB_T(0x325a61da00000002), TO_LIMB_T(0x448d31f81299f237),
+    TO_LIMB_T(0x0000000000000000), TO_LIMB_T(0x8000000000000000)
+};
+typedef blst_256_t<255, Pallas_P, 0x992d30ecffffffff,
+                    Pallas_RR, Pallas_one> pallas_fr_mont;
+struct PALLAS_Fr_G1 : public pallas_fr_mont {
+    using mem_t = PALLAS_Fr_G1;
+    inline PALLAS_Fr_G1() = default;
+    inline PALLAS_Fr_G1(const pallas_fr_mont& a) : pallas_fr_mont(a) {}
+};
 
-#ifndef __CUDA_ARCH__   // host-side field types
-# include <pasta_t.hpp>
-#endif
+typedef blst_256_t<255, Pallas_P, 0x992d30ecffffffff,
+                    Pallas_RR, Pallas_one> vesta_fq_mont;
+struct VESTA_Fq_G1 : public vesta_fq_mont {
+    using mem_t = VESTA_Fq_G1;
+    inline VESTA_Fq_G1() = default;
+    inline VESTA_Fq_G1(const vesta_fq_mont& a) : vesta_fq_mont(a) {}
+};
 
-# if defined(__GNUC__) && !defined(__clang__)
-#  pragma GCC diagnostic push
-#  pragma GCC diagnostic ignored "-Wsubobject-linkage"
-# endif
+static const vec256 Vesta_P = {
+    TO_LIMB_T(0x8c46eb2100000001), TO_LIMB_T(0x224698fc0994a8dd),
+    TO_LIMB_T(0x0000000000000000), TO_LIMB_T(0x4000000000000000)
+};
+static const vec256 Vesta_RR = { /* (1<<512)%P */
+    TO_LIMB_T(0xfc9678ff0000000f), TO_LIMB_T(0x67bb433d891a16e3),
+    TO_LIMB_T(0x7fae231004ccf590), TO_LIMB_T(0x096d41af7ccfdaa9)
+};
+static const vec256 Vesta_one = { /* (1<<256)%P */
+    TO_LIMB_T(0x5b2b3e9cfffffffd), TO_LIMB_T(0x992c350be3420567),
+    TO_LIMB_T(0xffffffffffffffff), TO_LIMB_T(0x3fffffffffffffff)
+};
+static const vec256 Vesta_Px2 = { /* left-aligned modulus */
+    TO_LIMB_T(0x188dd64200000002), TO_LIMB_T(0x448d31f8132951bb),
+    TO_LIMB_T(0x0000000000000000), TO_LIMB_T(0x8000000000000000)
+};
+typedef blst_256_t<255, Vesta_P, 0x8c46eb20ffffffff,
+                Vesta_RR, Vesta_one> pallas_fq_mont;
+struct PALLAS_Fq_G1 : public pallas_fq_mont {
+    using mem_t = PALLAS_Fq_G1;
+    inline PALLAS_Fq_G1() = default;
+    inline PALLAS_Fq_G1(const pallas_fq_mont& a) : pallas_fq_mont(a) {}
+};
 
-#if defined(FEATURE_PALLAS)
-typedef pallas_t fp_t;
-typedef vesta_t fr_t;
-#elif defined(FEATURE_VESTA)
-typedef vesta_t fp_t;
-typedef pallas_t fr_t;
-#endif
-#endif
+typedef blst_256_t<255, Vesta_P, 0x8c46eb20ffffffff,
+                Vesta_RR, Vesta_one> vesta_fr_mont;
+struct VESTA_Fr_G1 : public vesta_fr_mont {
+    using mem_t = VESTA_Fr_G1;
+    inline VESTA_Fr_G1() = default;
+    inline VESTA_Fr_G1(const vesta_fr_mont& a) : vesta_fr_mont(a) {}
+};
+
+} // namespace native
+} // namespace at

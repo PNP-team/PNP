@@ -132,7 +132,6 @@ file(GLOB native_cpu_h "native/cpu/*.h")
 file(GLOB native_utils_h "native/utils/*.h")
 file(GLOB native_biginteger_h "native/biginteger/*.h" "native/quantized/cpu/*.h" "native/quantized/cuda/*.h")
 
-
 file(GLOB native_cuda_cu "native/cuda/*.cu")
 file(GLOB native_cuda_cpp "native/cuda/*.cpp")
 file(GLOB native_cuda_h "native/cuda/*.h" "native/cuda/*.cuh")
