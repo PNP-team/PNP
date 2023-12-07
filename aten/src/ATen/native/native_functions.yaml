@@ -15460,3 +15460,8 @@
   device_check: NoCheck   # TensorIterator
   dispatch:
     CPU: equal_cpu_base
+
+- func: mul_base(Tensor self, Tensor in_b) -> Tensor
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+    CPU: mul_base_demo

@@ -23,31 +23,54 @@ mod1=0xffffffff00000001
 mod2=0x53bda402fffe5bfe
 mod3=0x3339d80809a1d805
 mod4=0x73eda753299d7d48
-modlist=[mod1,mod2,mod3,mod4]
 
+# mod1 = 0x0a1180000000000
+# mod2 = 0x59aa76fed0000001
+# mod3=0x60b44d1e5c37b001
+# mod4=0x12ab655e9a2ca556
+
+
+mod = mod1 + (mod2 << 64) + (mod3 << 128) + (mod4 << 192)
+print(mod)
 t=torch.tensor([[1, 0,0,0],[1,0,0,0]], dtype=torch.BLS12_381_Fr_G1_Base)
+t_mont = F.to_mod(t)
+print(F.to_base(t_mont))
+
+print(hex(8589934590))
+print(hex(6378425256633387010))
+print(hex(11064306276430008309))
+print(hex(1739710354780652911))
+
 t1=torch.tensor([[1, 0,0,0],[1,0,0,0]], dtype=torch.uint64)
 r1=torch.tensor([[          8589934590,  6378425256633387010, 11064306276430008309,
           1739710354780652911],
         [          8589934590,  6378425256633387010, 11064306276430008309,
           1739710354780652911]], dtype=torch.uint64)
+
+#r1 = r1.tolist()
+
+print(r1)
 def compute_base(in_a):
     rows, cols = in_a.shape
-    for i in range(rows):
+    for i in range(1):
         res=0
         for j in range(cols):
-            res+=(int(in_a[i][j])<<256)*(2**(j*64))%modlist[j]
+            res+=(int(in_a[i][j]))*(2**(j*64))%mod
+            # if(j==3):
+        res=(res*(2**256))%mod
     print(res)
-def compute1_mont(in_a):
+    
+def compute_mont(in_a):
     rows, cols = in_a.shape
-    for i in range(rows):
+    for i in range(1):
         res=0
         for j in range(cols):
+            print(in_a[i][j])
             res+=(int(in_a[i][j]))*(2**(j*64))
     print(res)
 
 compute_base(t1)
-compute1_mont(r1)
+compute_mont(r1)
 
 t_res=F.to_mod(t)
 print(t_res)

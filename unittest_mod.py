@@ -2,66 +2,17 @@ import torch
 import torch.nn.functional as F
 import os
 import unittest
-import torchviz
 from HTMLTestRunner import HTMLTestRunner
-print(torch.__path__)
-x1 = torch.tensor([[1, 2, 3, 2], [5, 6, 7, 8],[1,2,3,4]], dtype=torch.BLS12_381_Fr_G1_Base)
-x2 =torch.tensor([[1, 2, 3, 4], [5, 6, 7, 8],[1,2,3,4]], dtype=torch.BLS12_381_Fr_G1_Base)
+from torch.testing._internal.zkp_test_lists import CustomTestCase
+# x1 = torch.tensor([[1, 1, 1, 1]], dtype=torch.BLS12_381_Fr_G1_Base)
+# x2 =torch.tensor([[2, 1, 1, 1]], dtype=torch.BLS12_381_Fr_G1_Base)
 
-'''
-测试的主要内容：
-1.测试mont的转换正确性 
-2.测试add等运算符的运算的正确性
-3.验证不同曲线的正确性
-'''
-data_type=[torch.BLS12_377_Fr_G1_Base,torch.BLS12_381_Fr_G1_Base]
-
-class CustomTestCase(unittest.TestCase):
-
-    def assertCustomEqual(self, first, second, msg=None):
-        if(torch.equal_mod(first,second)) :
-            return True
-        else:
-            return False
-        # self.assertEqual(first, second, msg=msg)
-
-    def test_custom_data_equality(self):
-        #蒙哥马利域下的比较
-        custom_data_1 =F.to_mod(x1)
-        custom_data_2 =F.to_mod(x2)
-        self.assertCustomEqual(custom_data_1, custom_data_2, "自定义数据应该相等")
-    
-    def test_custom_data_type(self):
-        #检查mont转换的结果是否正确，和直接计算的结果比对
-        def compute(in_a):
-            for i in len(in_a):
-                res=0
-                for j in len(i):
-                    res+=in_a[i][j]*(2**(j*64))
-
-
-        custom_data_1=F.to_mod(x1)
-        test_to_base_value=F.to_base(custom_data_1)
-        self.assertEqual(test_to_base_value.dtype, torch.BLS12_381_Fr_G1_Base )
-
-    def test_tensor_dtype(self):
-        ##检查不同曲线转换的类型是否正确
-        def my_function(in_a):
-            try:
-                torch.to_mod(in_a)
-                return True
-            except Exception as e:
-                print(f"An error occurred: {e}")
-                return False
-        
-        for type_ele in data_type:
-            input = torch.tensor([[1, 2, 3, 2], [5, 6, 7, 8],[1,2,3,4]], dtype=type_ele)
-            result =my_function(input)
-            self.assertTrue(result)
-
-    def test_tensor_compute(self):
-        
-
+# x3=torch.tensor([[2,1,1,1]],dtype=torch.BLS12_381_Fr_G1_Base)
+# custom_data_1 =F.to_mod(x1)
+# custom_data_2 =F.to_mod(x2)
+# print(F.mul_mod(custom_data_1,custom_data_2))
+# print('\n')
+# print(F.to_mod(x3))
 
 if __name__ == '__main__':
     suite = unittest.TestSuite()
