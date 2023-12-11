@@ -5507,33 +5507,33 @@ def to_base(input: Tensor, inplace: bool = False) -> Tensor:
 def add_mod(input1: Tensor,input2: Tensor, inplace: bool = False) -> Tensor:
 
     if inplace:
-        result=torch.add_mod(input1,input2)
+        result=torch.add_mod_(input1,input2)
     else:
-        result = torch.add_mod_(input1,input2)
+        result = torch.add_mod(input1,input2)
     return result
 
 
 def sub_mod(input1: Tensor,input2: Tensor,inplace: bool = False) -> Tensor:
 
     if inplace:
-        result=torch.sub_mod(input1,input2)
+        result=torch.sub_mod_(input1,input2)
     else:
-        result = torch.sub_mod_(input1,input2)
+        result = torch.sub_mod(input1,input2)
     return result
 
 
 def mul_mod(input1: Tensor,input2: Tensor,inplace: bool = False) -> Tensor:
     
     if inplace:
-        result=torch.mul_mod(input1,input2)
+        result=torch.mul_mod_(input1,input2)
     else:
-        result = torch.mul_mod_(input1,input2)
+        result = torch.mul_mod(input1,input2)
     return result
 
 def div_mod(input1: Tensor,input2: Tensor,inplace: bool = False) -> Tensor:
 
     if inplace:
-        result=torch.div_mod(input1,input2)
+        result=torch.div_mod_(input1,input2)
     else:
-        result = torch.div_mod_(input1,input2)
+        result = torch.div_mod(input1,input2)
     return result

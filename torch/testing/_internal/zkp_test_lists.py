@@ -170,7 +170,7 @@ class CustomTestCase(unittest.TestCase):
 
                 mont1=self.compute_mont(r1)
                 mont2=self.compute_mont(r2)
-                self.assertEqual((mont1*mont2/(2**256))%self.modlist[type_element],self.compute_mont(F.mul_mod(r1,r2)))
+                self.assertEqual(((mont1*mont2))%self.modlist[type_element],((self.compute_mont(F.mul_mod(r1,r2)))<<256) %self.modlist[type_element])
 
 
 if __name__ == '__main__':

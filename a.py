@@ -1,8 +1,10 @@
 import torch
 import torch.nn.functional as F
 import unittest
-
+import math
 import random
+
+from sympy import mod_inverse
 
 print(torch.__path__)
 
@@ -17,8 +19,9 @@ t1=torch.tensor([[0, 2, 3, 4], [5, 6, 7, 8]], dtype=torch.BLS12_381_Fr_G1_Base)
 
 t2=torch.tensor([[2, 2, 3, 4], [5, 6, 7, 8]], dtype=torch.BLS12_381_Fr_G1_Base)
 
-t_mont = F.to_mont(t2)
-# print(t_mont)
+t3=torch.tensor([[1,0,0,0]],dtype=torch.BLS12_381_Fr_G1_Base)
+t_mont = F.to_mont(t3)
+print(t_mont)
 
 r1=torch.tensor([[7329914504210493124, 5885763944681445961, 2026681885674896553,
           682130252471487967],
@@ -31,6 +34,8 @@ r2=torch.tensor([[ 7329914491325591239,  5541498096586141254, 131003385815942115
         [ 3294422756502364090,   614120333364951411,  9150370761219685937,
           1747744114183546630]],dtype=torch.BLS12_381_Fr_G1_Mont)
 
+r3=torch.tensor([[          8589934590,  6378425256633387010, 11064306276430008309,
+          1739710354780652911]], dtype=torch.BLS12_381_Fr_G1_Mont)
 def compute_base(in_a):
     in_a=in_a.tolist()
     rows, cols =len(in_a), len(in_a[0])
@@ -41,7 +46,18 @@ def compute_base(in_a):
             # if(j==3):
         res=(res*(2**256))%mod
     return res
-    
+
+def compute_base_1(in_a):
+    in_a=in_a.tolist()
+    rows, cols =len(in_a), len(in_a[0])
+    for i in range(1):
+        res=0
+        for j in range(cols):
+            res+=(int(in_a[i][j]))*(2**(j*64))
+            # if(j==3):
+    return res
+
+
 def compute_mont(in_a):
     in_a=in_a.tolist()
     rows, cols =len(in_a), len(in_a[0])
@@ -52,15 +68,20 @@ def compute_mont(in_a):
     return res
 
 base1=compute_base(t1)
+
 base2=compute_base(t2)
 
 mont1=compute_mont(r1)
 mont2=compute_mont(r2)
 
-# print(mont1,mont2)
-print( (mont1*mont2)%mod)
+mont3=compute_mont(r3)
+
+print((mont1*mont2)%mod)
+# print(mod_inverse(2**256,mod)*2**256%mod)
+# print(base1+base2)                                                                      
+
 print(compute_mont(F.add_mod(r1,r2)))
-print(compute_mont(F.mul_mod(r1,r2)))
+print(((compute_mont(F.mul_mod(r1,r2)))<<256) %mod)
 
 
 
