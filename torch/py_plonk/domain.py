@@ -1,7 +1,4 @@
-from dataclasses import dataclass
-import gmpy2
 from .bls12_381 import fr
-import math
 
 def newdomain(num_coeffs: int):
     # Compute the size of our evaluation domain

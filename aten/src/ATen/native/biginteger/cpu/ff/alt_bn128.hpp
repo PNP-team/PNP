@@ -32,7 +32,7 @@ static const vec256 ALT_BN128_P = {
 };
 static const vec256 ALT_BN128_RR = {    /* (1<<512)%P */
     TO_LIMB_T(0xf32cfc5b538afa89), TO_LIMB_T(0xb5e71911d44501fb),
-    TO_LIMB_T(0x47ab1eff0a417ff6), TO_LIMB_T(0x06d89f71cab8351f),
+    TO_LIMB_T(0x47ab1eff0a417ff6), TO_LIMB_T(0x06d89f71cab8351f)
 };
 static const vec256 ALT_BN128_ONE = {   /* (1<<256)%P */
     TO_LIMB_T(0xd35d438dc58f0d9d), TO_LIMB_T(0x0a78eb28f5c70b3d),

@@ -8,11 +8,11 @@ template <int intermediate_mul>
 __launch_bounds__(768, 1) __global__
 void _GS_NTT(const unsigned int radix, const unsigned int lg_domain_size,
              const unsigned int stage, const unsigned int iterations,
-             BLS12_381_Fr_G1* d_inout, const BLS12_381_Fr_G1 (*d_partial_twiddles)[WINDOW_SIZE],
+             BLS12_381_Fr_G1* d_inout, const BLS12_381_Fr_G1* d_partial_twiddles,
              const BLS12_381_Fr_G1* d_radix6_twiddles, const BLS12_381_Fr_G1* d_radixX_twiddles,
              const BLS12_381_Fr_G1* d_intermediate_twiddles,
              const unsigned int intermediate_twiddle_shift,
-             const bool is_intt, const uint32_t* d_domain_size_inverse)
+             const bool is_intt, const BLS12_381_Fr_G1* d_domain_size_inverse)
 {
 #if (__CUDACC_VER_MAJOR__-0) >= 11
     __builtin_assume(lg_domain_size <= MAX_LG_DOMAIN_SIZE);
@@ -136,8 +136,8 @@ void _GS_NTT(const unsigned int radix, const unsigned int lg_domain_size,
 
 #define NTT_ARGUMENTS \
         unsigned int, unsigned int, unsigned int, unsigned int, BLS12_381_Fr_G1*, \
-        const BLS12_381_Fr_G1 (*)[WINDOW_SIZE], const BLS12_381_Fr_G1*, const BLS12_381_Fr_G1*, const BLS12_381_Fr_G1*, \
-        unsigned int, bool, const uint32_t*
+        const BLS12_381_Fr_G1*, const BLS12_381_Fr_G1*, const BLS12_381_Fr_G1*, const BLS12_381_Fr_G1*, \
+        unsigned int, bool, const BLS12_381_Fr_G1*
 
 template __global__ void _GS_NTT<0>(NTT_ARGUMENTS);
 template __global__ void _GS_NTT<1>(NTT_ARGUMENTS);
@@ -145,11 +145,17 @@ template __global__ void _GS_NTT<2>(NTT_ARGUMENTS);
 
 #undef NTT_ARGUMENTS
 
-void GSkernel(int iterations, BLS12_381_Fr_G1* d_inout, int lg_domain_size, bool is_intt,
-          const NTTParameters& ntt_parameters, const cudaStream_t& stream, int* stage)
+void GSkernel(int iterations, BLS12_381_Fr_G1* d_inout,
+          BLS12_381_Fr_G1* partial_twiddles,
+          BLS12_381_Fr_G1* radix7_twiddles,
+          BLS12_381_Fr_G1* radix_middles,
+          BLS12_381_Fr_G1* partial_group_gen_powers,
+          BLS12_381_Fr_G1* Domain_size_inverse,
+          int lg_domain_size, bool is_intt,
+          const cudaStream_t& stream, int* stage)
 {
     //assert(iterations <= 10);
-    TORCH_CHECK(iterations <= 10, "NTT iterations check!");
+    TORCH_CHECK(iterations <= 10, "GS_NTT iterations cannot exceed 10!");
     const int radix = iterations < 6 ? 6 : iterations;
 
     index_t num_threads = (index_t)1 << (lg_domain_size - 1);
@@ -171,10 +177,10 @@ void GSkernel(int iterations, BLS12_381_Fr_G1* d_inout, int lg_domain_size, bool
 
     #define NTT_ARGUMENTS \
         radix, lg_domain_size, *stage, iterations, d_inout, \
-        ntt_parameters.partial_twiddles, ntt_parameters.radix6_twiddles, \
+        partial_twiddles, radix7_twiddles+64+128+256+512, \
         d_radixX_twiddles, d_intermediate_twiddles, \
         intermediate_twiddle_shift, \
-        is_intt, ntt_parameters.Domain_size_inverse+lg_domain_size*8
+        is_intt, Domain_size_inverse + lg_domain_size
 
     switch (radix) {
     case 6:
@@ -184,12 +190,12 @@ void GSkernel(int iterations, BLS12_381_Fr_G1* d_inout, int lg_domain_size, bool
             break;
         case 12:
             intermediate_twiddle_shift = std::max(12 - lg_domain_size, 0);
-            d_intermediate_twiddles = ntt_parameters.radix6_twiddles_6;
+            d_intermediate_twiddles = radix_middles; //radix6_twiddles_6
             _GS_NTT<2><<<NTT_CONFIGURATION>>>(NTT_ARGUMENTS);
             break;
         case 18:
             intermediate_twiddle_shift = std::max(18 - lg_domain_size, 0);
-            d_intermediate_twiddles = ntt_parameters.radix6_twiddles_12;
+            d_intermediate_twiddles = radix_middles + 64*64; //radix6_twiddles_12
             _GS_NTT<2><<<NTT_CONFIGURATION>>>(NTT_ARGUMENTS);
             break;
         default:
@@ -198,14 +204,14 @@ void GSkernel(int iterations, BLS12_381_Fr_G1* d_inout, int lg_domain_size, bool
         }
         break;
     case 7:
-        d_radixX_twiddles = ntt_parameters.radix7_twiddles;
+        d_radixX_twiddles = radix7_twiddles;
         switch (*stage) {
         case 7:
             _GS_NTT<0><<<NTT_CONFIGURATION>>>(NTT_ARGUMENTS);
             break;
         case 14:
             intermediate_twiddle_shift = std::max(14 - lg_domain_size, 0);
-            d_intermediate_twiddles = ntt_parameters.radix7_twiddles_7;
+            d_intermediate_twiddles = radix_middles + 64*64+4096*64; //radix7_twiddles_7
             _GS_NTT<2><<<NTT_CONFIGURATION>>>(NTT_ARGUMENTS);
             break;
         default:
@@ -214,14 +220,14 @@ void GSkernel(int iterations, BLS12_381_Fr_G1* d_inout, int lg_domain_size, bool
         }
         break;
     case 8:
-        d_radixX_twiddles = ntt_parameters.radix8_twiddles;
+        d_radixX_twiddles = radix7_twiddles + 64; //radix8_twiddles
         switch (*stage) {
         case 8:
             _GS_NTT<0><<<NTT_CONFIGURATION>>>(NTT_ARGUMENTS);
             break;
         case 16:
             intermediate_twiddle_shift = std::max(16 - lg_domain_size, 0);
-            d_intermediate_twiddles = ntt_parameters.radix8_twiddles_8;
+            d_intermediate_twiddles = radix_middles + 64*64+4096*64+128*128; //radix8_twiddles_8
             _GS_NTT<2><<<NTT_CONFIGURATION>>>(NTT_ARGUMENTS);
             break;
         default:
@@ -230,14 +236,14 @@ void GSkernel(int iterations, BLS12_381_Fr_G1* d_inout, int lg_domain_size, bool
         }
         break;
     case 9:
-        d_radixX_twiddles = ntt_parameters.radix9_twiddles;
+        d_radixX_twiddles = radix7_twiddles + 64+128; //radix9_twiddles
         switch (*stage) {
         case 9:
             _GS_NTT<0><<<NTT_CONFIGURATION>>>(NTT_ARGUMENTS);
             break;
         case 18:
             intermediate_twiddle_shift = std::max(18 - lg_domain_size, 0);
-            d_intermediate_twiddles = ntt_parameters.radix9_twiddles_9;
+            d_intermediate_twiddles = radix_middles + 64*64+4096*64+128*128+256*256; //radix9_twiddles_9
             _GS_NTT<2><<<NTT_CONFIGURATION>>>(NTT_ARGUMENTS);
             break;
         default:
@@ -246,7 +252,7 @@ void GSkernel(int iterations, BLS12_381_Fr_G1* d_inout, int lg_domain_size, bool
         }
         break;
     case 10:
-        d_radixX_twiddles = ntt_parameters.radix10_twiddles;
+        d_radixX_twiddles = radix7_twiddles + 64+128+256; //radix10_twiddles
         switch (*stage) {
         case 10:
             _GS_NTT<0><<<NTT_CONFIGURATION>>>(NTT_ARGUMENTS);
@@ -268,32 +274,97 @@ void GSkernel(int iterations, BLS12_381_Fr_G1* d_inout, int lg_domain_size, bool
 }
 
 void GS_NTT(BLS12_381_Fr_G1* d_inout, const int lg_domain_size, const bool is_intt,
-    const NTTParameters& ntt_parameters, const cudaStream_t& stream)
+    const cudaStream_t& stream,
+    BLS12_381_Fr_G1* partial_twiddles,
+    BLS12_381_Fr_G1* radix_twiddles,
+    BLS12_381_Fr_G1* radix_middles,
+    BLS12_381_Fr_G1* partial_group_gen_powers,
+    BLS12_381_Fr_G1* Domain_size_inverse)
 {
-    TORCH_CHECK(lg_domain_size <= 40, "NTT length check!");
+    TORCH_CHECK(lg_domain_size <= 40, "GS_NTT length cannot exceed 40!");
     int stage = lg_domain_size;
 
     if (lg_domain_size <= 10) {
-        GSkernel(lg_domain_size, d_inout, lg_domain_size, is_intt, ntt_parameters, stream, &stage);
+        GSkernel(lg_domain_size, d_inout,
+                 partial_twiddles,
+                 radix_twiddles, radix_middles,
+                 partial_group_gen_powers,
+                 Domain_size_inverse,
+                 lg_domain_size, is_intt, stream, &stage);
     } else if (lg_domain_size <= 12) {
-        GSkernel(lg_domain_size - 6, d_inout, lg_domain_size, is_intt, ntt_parameters, stream, &stage);
-        GSkernel(6, d_inout, lg_domain_size, is_intt, ntt_parameters, stream, &stage);
+        GSkernel(lg_domain_size - 6, d_inout,
+                 partial_twiddles,
+                 radix_twiddles, radix_middles,
+                 partial_group_gen_powers,
+                 Domain_size_inverse,
+                 lg_domain_size, is_intt, stream, &stage);
+        GSkernel(6, d_inout,
+                 partial_twiddles,
+                 radix_twiddles, radix_middles,
+                 partial_group_gen_powers,
+                 Domain_size_inverse,
+                 lg_domain_size, is_intt, stream, &stage);
     } else if (lg_domain_size <= 18) {
-        GSkernel(lg_domain_size / 2 + lg_domain_size % 2, d_inout, lg_domain_size, is_intt, ntt_parameters, stream, &stage);
-        GSkernel(lg_domain_size / 2, d_inout, lg_domain_size, is_intt, ntt_parameters, stream, &stage);
+        GSkernel(lg_domain_size / 2 + lg_domain_size % 2, d_inout,
+                 partial_twiddles,
+                 radix_twiddles, radix_middles,
+                 partial_group_gen_powers,
+                 Domain_size_inverse,
+                 lg_domain_size, is_intt, stream, &stage);
+        GSkernel(lg_domain_size / 2, d_inout,
+                 partial_twiddles,
+                 radix_twiddles, radix_middles,
+                 partial_group_gen_powers,
+                 Domain_size_inverse,
+                 lg_domain_size, is_intt, stream, &stage);
     } else if (lg_domain_size <= 30) {
         int step = lg_domain_size / 3;
         int rem = lg_domain_size % 3;
-        GSkernel(step + (rem > 0), d_inout, lg_domain_size, is_intt, ntt_parameters, stream, &stage);
-        GSkernel(step + (rem > 1), d_inout, lg_domain_size, is_intt, ntt_parameters, stream, &stage);
-        GSkernel(step, d_inout, lg_domain_size, is_intt, ntt_parameters, stream, &stage);
+        GSkernel(step + (rem > 0), d_inout,
+                 partial_twiddles,
+                 radix_twiddles, radix_middles,
+                 partial_group_gen_powers,
+                 Domain_size_inverse,
+                 lg_domain_size, is_intt, stream, &stage);
+        GSkernel(step + (rem > 1), d_inout,
+                 partial_twiddles,
+                 radix_twiddles, radix_middles,
+                 partial_group_gen_powers,
+                 Domain_size_inverse,
+                 lg_domain_size, is_intt, stream, &stage);
+        GSkernel(step, d_inout,
+                 partial_twiddles,
+                 radix_twiddles, radix_middles,
+                 partial_group_gen_powers,
+                 Domain_size_inverse,
+                 lg_domain_size, is_intt, stream, &stage);
     } else if (lg_domain_size <= 40) {
         int step = lg_domain_size / 4;
         int rem = lg_domain_size % 4;
-        GSkernel(step + (rem > 0), d_inout, lg_domain_size, is_intt, ntt_parameters, stream, &stage);
-        GSkernel(step + (rem > 1), d_inout, lg_domain_size, is_intt, ntt_parameters, stream, &stage);
-        GSkernel(step + (rem > 2), d_inout, lg_domain_size, is_intt, ntt_parameters, stream, &stage);
-        GSkernel(step, d_inout, lg_domain_size, is_intt, ntt_parameters, stream, &stage);
+        GSkernel(step + (rem > 0), d_inout,
+                 partial_twiddles,
+                 radix_twiddles, radix_middles,
+                 partial_group_gen_powers,
+                 Domain_size_inverse,
+                 lg_domain_size, is_intt, stream, &stage);
+        GSkernel(step + (rem > 1), d_inout,
+                 partial_twiddles,
+                 radix_twiddles, radix_middles,
+                 partial_group_gen_powers,
+                 Domain_size_inverse,
+                 lg_domain_size, is_intt, stream, &stage);
+        GSkernel(step + (rem > 2), d_inout,
+                 partial_twiddles,
+                 radix_twiddles, radix_middles,
+                 partial_group_gen_powers,
+                 Domain_size_inverse,
+                 lg_domain_size, is_intt, stream, &stage);
+        GSkernel(step, d_inout,
+                 partial_twiddles,
+                 radix_twiddles, radix_middles,
+                 partial_group_gen_powers,
+                 Domain_size_inverse,
+                 lg_domain_size, is_intt, stream, &stage);
     } 
 }
 

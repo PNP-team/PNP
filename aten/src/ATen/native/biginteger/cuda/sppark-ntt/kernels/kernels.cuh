@@ -36,18 +36,18 @@ void swap(T& u1, T& u2)
 __device__ __forceinline__
 void get_intermediate_roots(BLS12_381_Fr_G1& root0, BLS12_381_Fr_G1& root1,
                             index_t idx0, index_t idx1,
-                            const BLS12_381_Fr_G1 (*roots)[WINDOW_SIZE])
+                            const BLS12_381_Fr_G1 *roots)
 {
     int win = (WINDOW_NUM - 1) * LG_WINDOW_SIZE;
     int off = (WINDOW_NUM - 1);
 
-    root0 = roots[off][idx0 >> win];
-    root1 = roots[off][idx1 >> win];
+    root0 = roots[off * WINDOW_SIZE + idx0 >> win];
+    root1 = roots[off * WINDOW_SIZE + idx1 >> win];
     #pragma unroll 1
     while (off--) {
         win -= LG_WINDOW_SIZE;
-        root0 *= roots[off][(idx0 >> win) % WINDOW_SIZE];
-        root1 *= roots[off][(idx1 >> win) % WINDOW_SIZE];
+        root0 *= roots[off * WINDOW_SIZE + (idx0 >> win) % WINDOW_SIZE];
+        root1 *= roots[off * WINDOW_SIZE + (idx1 >> win) % WINDOW_SIZE];
     }
 }
 

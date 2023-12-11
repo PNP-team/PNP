@@ -4886,77 +4886,94 @@
   autogen: relu.out
   tags: pointwise
 
-- func: ntt_zkp(Tensor self) -> Tensor
+- func: params_zkp(int domain_size, int gpu_id, bool is_intt, *, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor
   device_check: NoCheck   # TensorIterator
   dispatch:
-    CPU: ntt_zkp_cpu
+    CUDA: params_zkp_cuda
+
+# - func: _cudnn_init_dropout_state(float dropout, bool train, int dropout_seed, *, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=False) -> Tensor
+#   dispatch:
+#     CUDA: _cudnn_init_dropout_state
+#   autogen: _cudnn_init_dropout_state.out
+#   tags: nondeterministic_seeded
+
+
+# - func: params_zkp_(Tensor[] inout, int gpu_id, bool is_intt, int window_size) -> None
+#   device_check: NoCheck   # TensorIterator
+#   dispatch:
+#     CUDA: params_zkp_cuda_
+
+- func: ntt_zkp(Tensor self, Tensor params) -> Tensor
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+    #CPU: ntt_zkp_cpu
     CUDA: ntt_zkp_cuda
 
-- func: ntt_zkp_(Tensor(a!) self) -> Tensor(a!)
+- func: ntt_zkp_(Tensor(a!) self, Tensor params) -> Tensor(a!)
   device_check: NoCheck   # TensorIterator
   dispatch:
-    CPU: ntt_zkp_cpu_
+    #CPU: ntt_zkp_cpu_
     CUDA: ntt_zkp_cuda_
 
-- func: ntt_zkp.out(Tensor self, *, Tensor(a!) out) -> Tensor(a!)
+- func: ntt_zkp.out(Tensor self, Tensor params, *, Tensor(a!) out) -> Tensor(a!)
   device_check: NoCheck   # TensorIterator
   dispatch:
-    CPU: ntt_zkp_out_cpu
+    #CPU: ntt_zkp_out_cpu
     CUDA: ntt_zkp_out_cuda
 
 
-- func: intt_zkp(Tensor self) -> Tensor
+- func: intt_zkp(Tensor self, Tensor params) -> Tensor
   device_check: NoCheck   # TensorIterator
   dispatch:
-    CPU: intt_zkp_cpu
+    #CPU: intt_zkp_cpu
     CUDA: intt_zkp_cuda
 
-- func: intt_zkp_(Tensor(a!) self) -> Tensor(a!)
+- func: intt_zkp_(Tensor(a!) self, Tensor params) -> Tensor(a!)
   device_check: NoCheck   # TensorIterator
   dispatch:
-    CPU: intt_zkp_cpu_
+    #CPU: intt_zkp_cpu_
     CUDA: intt_zkp_cuda_
 
-- func: intt_zkp.out(Tensor self, *, Tensor(a!) out) -> Tensor(a!)
+- func: intt_zkp.out(Tensor self, Tensor params, *, Tensor(a!) out) -> Tensor(a!)
   device_check: NoCheck   # TensorIterator
   dispatch:
-    CPU: intt_zkp_out_cpu
+    #CPU: intt_zkp_out_cpu
     CUDA: intt_zkp_out_cuda
 
-- func: ntt_coset_zkp(Tensor self) -> Tensor
+- func: ntt_coset_zkp(Tensor self, Tensor params) -> Tensor
   device_check: NoCheck   # TensorIterator
   dispatch:
-    CPU: ntt_coset_zkp_cpu
+    #CPU: ntt_coset_zkp_cpu
     CUDA: ntt_coset_zkp_cuda
 
-- func: ntt_coset_zkp_(Tensor(a!) self) -> Tensor(a!)
+- func: ntt_coset_zkp_(Tensor(a!) self, Tensor params) -> Tensor(a!)
   device_check: NoCheck   # TensorIterator
   dispatch:
-    CPU: ntt_coset_zkp_cpu_
+    #CPU: ntt_coset_zkp_cpu_
     CUDA: ntt_coset_zkp_cuda_
 
-- func: ntt_coset_zkp.out(Tensor self, *, Tensor(a!) out) -> Tensor(a!)
+- func: ntt_coset_zkp.out(Tensor self, Tensor params, *, Tensor(a!) out) -> Tensor(a!)
   device_check: NoCheck   # TensorIterator
   dispatch:
-    CPU: ntt_coset_zkp_out_cpu
+    #CPU: ntt_coset_zkp_out_cpu
     CUDA: ntt_coset_zkp_out_cuda
 
-- func: intt_coset_zkp(Tensor self) -> Tensor
+- func: intt_coset_zkp(Tensor self, Tensor params) -> Tensor
   device_check: NoCheck   # TensorIterator
   dispatch:
-    CPU: intt_coset_zkp_cpu
+    #CPU: intt_coset_zkp_cpu
     CUDA: intt_coset_zkp_cuda
 
-- func: intt_coset_zkp_(Tensor(a!) self) -> Tensor(a!)
+- func: intt_coset_zkp_(Tensor(a!) self, Tensor params) -> Tensor(a!)
   device_check: NoCheck   # TensorIterator
   dispatch:
-    CPU: intt_coset_zkp_cpu_
+    #CPU: intt_coset_zkp_cpu_
     CUDA: intt_coset_zkp_cuda_
 
-- func: intt_coset_zkp.out(Tensor self, *, Tensor(a!) out) -> Tensor(a!)
+- func: intt_coset_zkp.out(Tensor self, Tensor params, *, Tensor(a!) out) -> Tensor(a!)
   device_check: NoCheck   # TensorIterator
   dispatch:
-    CPU: intt_coset_zkp_out_cpu
+    #CPU: intt_coset_zkp_out_cpu
     CUDA: intt_coset_zkp_out_cuda
     
 - func: relu6(Tensor self) -> Tensor

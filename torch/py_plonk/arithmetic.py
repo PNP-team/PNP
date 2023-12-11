@@ -108,7 +108,7 @@ def from_list_tensor(input:list):
     output = torch.tensor(base_input,dtype=torch.uint64)
     return output
 
-def from_list_cuda(input:list):
+def from_list_tensor(input:list):
     base_input=[]
     for i in range(len(input)):
         base_input.append(input[i].value)
@@ -149,7 +149,7 @@ def INTT(evals):
     resize_evals = copy.deepcopy(evals)
     from_gmpy_list(resize_evals)
     # input = from_list_tensor(resize_evals)
-    input = from_list_cuda(resize_evals)
+    input = from_list_tensor(resize_evals)
     input_gpu = input.to("cuda")
     output = torch.intt_zkp(input_gpu)
     output_cpu = output.to("cpu")

@@ -1,6 +1,7 @@
 import gmpy2
 import copy
 import itertools
+import torch.nn as nn
 from .domain import newdomain,element
 from .transcript import transcript
 from .composer import StandardComposer
@@ -11,11 +12,11 @@ from .plonk_core.src.proof_system.prover_key import Prover_Key
 from .plonk_core.src.proof_system.pi import into_dense_poly
 from .plonk_core.src.proof_system import quotient_poly
 from .plonk_core.src.proof_system import linearisation_poly
-from .arithmetic import INTT,from_coeff_vec,resize,is_zero_poly
+from .arithmetic import INTT,from_coeff_vec,resize,is_zero_poly,from_gmpy_list,from_list_gmpy,from_list_tensor,from_tensor_list
 from .load import read_scalar_data
 from .KZG import kzg10
 from .KZG.kzg10 import commit
-from .bls12_381 import fq,fr
+from .bls12_381 import fr
 
 
 def gen_proof(pp, pk: Prover_Key, cs: StandardComposer, transcript: transcript.Transcript):
@@ -32,7 +33,16 @@ def gen_proof(pp, pk: Prover_Key, cs: StandardComposer, transcript: transcript.T
     w_o_scalar=read_scalar_data("torch/py_plonk/w_o_scalar.txt")
     w_4_scalar=read_scalar_data("torch/py_plonk/w_4_scalar.txt")
 
-    w_l_poly = from_coeff_vec(INTT(w_l_scalar))
+    INTTclass = nn.NTT_zkp(True, 0, 32)
+    evals = copy.deepcopy(w_l_scalar)
+    from_gmpy_list(evals)
+    input = from_list_tensor(evals)
+    input_gpu = input.to("cuda")
+    output = INTTclass.forward(input_gpu, True, False)
+    output_cpu = output.to("cpu")
+    w_l_poly = from_tensor_list(output_cpu)
+    from_list_gmpy(w_l_poly)
+    #w_l_poly = from_coeff_vec(INTT(w_l_scalar))
     w_r_poly = from_coeff_vec(INTT(w_r_scalar))
     w_o_poly = from_coeff_vec(INTT(w_o_scalar))
     w_4_poly = from_coeff_vec(INTT(w_4_scalar))

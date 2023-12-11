@@ -18,19 +18,19 @@ typedef unsigned int index_t; //for MAX_LG_DOMAIN_SIZE <= 32, otherwise use size
 #define WINDOW_NUM ((MAX_LG_DOMAIN_SIZE + LG_WINDOW_SIZE - 1) / LG_WINDOW_SIZE)
 
 __global__ 
-void generate_partial_twiddles( BLS12_381_Fr_G1(*roots)[WINDOW_SIZE],
-                               const BLS12_381_Fr_G1 root_of_unity);
+void generate_partial_twiddles( BLS12_381_Fr_G1* roots,
+                               const BLS12_381_Fr_G1* root_of_unity);
 
 __global__
-void generate_all_twiddles(BLS12_381_Fr_G1* d_radixX_twiddles, const BLS12_381_Fr_G1 root6,
-                                                    const BLS12_381_Fr_G1 root7,
-                                                    const BLS12_381_Fr_G1 root8,
-                                                    const BLS12_381_Fr_G1 root9,
-                                                    const BLS12_381_Fr_G1 root10);
+void generate_all_twiddles(BLS12_381_Fr_G1* d_radixX_twiddles, const BLS12_381_Fr_G1 *root6,
+                                                    const BLS12_381_Fr_G1 *root7,
+                                                    const BLS12_381_Fr_G1 *root8,
+                                                    const BLS12_381_Fr_G1 *root9,
+                                                    const BLS12_381_Fr_G1 *root10);
 
 __launch_bounds__(512) __global__
 void generate_radixX_twiddles_X(BLS12_381_Fr_G1* d_radixX_twiddles_X, int n,
-                                const BLS12_381_Fr_G1 root_of_unity);
+                                const BLS12_381_Fr_G1 *root_of_unity);
 
 
 }//namespace native
