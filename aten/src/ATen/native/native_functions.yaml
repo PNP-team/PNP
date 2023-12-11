@@ -15339,19 +15339,19 @@
 
 # Below are operations for ZKP
 
-- func: to_mod(Tensor self) -> Tensor
+- func: to_mont(Tensor self) -> Tensor
   device_check: NoCheck   # TensorIterator
   dispatch:
     CPU: to_mont_cpu
     CUDA: to_mont_cuda
 
-- func: to_mod_(Tensor(a!) self) -> Tensor(a!)
+- func: to_mont_(Tensor(a!) self) -> Tensor(a!)
   device_check: NoCheck   # TensorIterator
   dispatch:
     CPU: to_mont_cpu_
     CUDA: to_mont_cuda_
 
-- func: to_mod.out(Tensor self, *, Tensor(a!) out) -> Tensor(a!)
+- func: to_mont.out(Tensor self, *, Tensor(a!) out) -> Tensor(a!)
   device_check: NoCheck   # TensorIterator
   dispatch:
     CPU: to_mont_out_cpu
@@ -15460,8 +15460,3 @@
   device_check: NoCheck   # TensorIterator
   dispatch:
     CPU: equal_cpu_base
-
-- func: mul_base(Tensor self, Tensor in_b) -> Tensor
-  device_check: NoCheck   # TensorIterator
-  dispatch:
-    CPU: mul_base_demo

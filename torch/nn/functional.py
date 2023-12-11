@@ -5483,14 +5483,14 @@ def multi_head_attention_forward(
         return attn_output, None
 
 # Below are for BigInteger
-def to_mod(input: Tensor, inplace: bool = False) -> Tensor:
+def to_mont(input: Tensor, inplace: bool = False) -> Tensor:
     r"""
         Convert input to Montgomery domain. Only for Elliptic Curve.
     """
     if inplace:
-        result = torch.to_mod_(input)
+        result = torch.to_mont_(input)
     else:
-        result = torch.to_mod(input)
+        result = torch.to_mont(input)
     return result
 
 def to_base(input: Tensor, inplace: bool = False) -> Tensor:

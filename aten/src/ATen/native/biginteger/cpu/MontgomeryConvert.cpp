@@ -141,23 +141,6 @@ static void mul_template(const Tensor &in_a,const Tensor &in_b,Tensor &out_c) {
   });
 }
 
-static void demo_template(const Tensor &in_a,const Tensor &in_b,Tensor &out_c) {
-
-  TORCH_CHECK(in_a.numel() == in_b.numel(), "Length check!");
-
-  AT_DISPATCH_FR_BASE_TYPES(in_a.scalar_type(), "mul_base_demo", [&] {
-    auto a_ptr = reinterpret_cast<scalar_t::compute_type*>(in_a.mutable_data_ptr<scalar_t>());
-    auto b_ptr = reinterpret_cast<scalar_t::compute_type*>(in_b.mutable_data_ptr<scalar_t>());
-    auto c_ptr = reinterpret_cast<scalar_t::compute_type*>(out_c.mutable_data_ptr<scalar_t>());
-
-    int64_t num_ = in_a.numel() / num_uint64(in_a.scalar_type());
-
-    for(auto i = 0; i < num_; i++) {
-      c_ptr[i]=a_ptr[i]*b_ptr[i];
-    }
-  });
-}
-
 static void div_template(const Tensor &in_a,const Tensor &in_b,Tensor &out_c) {
     TORCH_CHECK(in_a.numel() == in_b.numel(), "Length check!");
 
@@ -298,12 +281,7 @@ bool equal_cpu_base(const Tensor &a,const Tensor &b)
 {
   return equal_base_template(a,b);
 }
-///
-Tensor mul_base_demo(const Tensor& a, const Tensor& b) {
-  Tensor c = at::empty_like(a);
-  demo_template(a, b,c);
-  return c;
-}
+
 
 
 } // namespace native
