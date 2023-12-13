@@ -1607,6 +1607,34 @@ In-place version of :func:`~selu`.
 )
 
 
+def ntt_zkp(input: Tensor) -> Tensor:
+    r"""
+        ntt_zkp
+    """
+    result = torch.ntt_zkp(input)
+    return result
+
+def intt_zkp(input: Tensor) -> Tensor:
+    r"""
+        intt_zkp
+    """
+    result = torch.intt_zkp(input)
+    return result
+
+def coset_ntt_zkp(input: Tensor) -> Tensor:
+    r"""
+        coset_ntt_zkp
+    """
+    result = torch.coset_ntt_zkp(input)
+    return result
+
+def coset_intt_zkp(input: Tensor) -> Tensor:
+    r"""
+        coset_intt_zkp
+    """
+    result = torch.coset_intt_zkp(input)
+    return result
+
 def celu(input: Tensor, alpha: float = 1.0, inplace: bool = False) -> Tensor:
     r"""celu(input, alpha=1., inplace=False) -> Tensor
 
@@ -5473,4 +5501,39 @@ def to_base(input: Tensor, inplace: bool = False) -> Tensor:
         result = torch.to_base_(input)
     else:
         result = torch.to_base(input)
+    return result
+
+
+def add_mod(input1: Tensor,input2: Tensor, inplace: bool = False) -> Tensor:
+
+    if inplace:
+        result=torch.add_mod_(input1,input2)
+    else:
+        result = torch.add_mod(input1,input2)
+    return result
+
+
+def sub_mod(input1: Tensor,input2: Tensor,inplace: bool = False) -> Tensor:
+
+    if inplace:
+        result=torch.sub_mod_(input1,input2)
+    else:
+        result = torch.sub_mod(input1,input2)
+    return result
+
+
+def mul_mod(input1: Tensor,input2: Tensor,inplace: bool = False) -> Tensor:
+    
+    if inplace:
+        result=torch.mul_mod_(input1,input2)
+    else:
+        result = torch.mul_mod(input1,input2)
+    return result
+
+def div_mod(input1: Tensor,input2: Tensor,inplace: bool = False) -> Tensor:
+
+    if inplace:
+        result=torch.div_mod_(input1,input2)
+    else:
+        result = torch.div_mod(input1,input2)
     return result

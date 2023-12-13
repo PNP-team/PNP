@@ -15301,3 +15301,89 @@
   dispatch:
     CPU: to_base_out_cpu
     CUDA: to_base_out_cuda
+
+## add
+- func: add_mod(Tensor self, Tensor in_b) -> Tensor
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+    CPU: add_cpu
+    CUDA: add_cuda
+
+- func: add_mod_(Tensor(a!) self, Tensor in_b) -> Tensor(a!)
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+     CPU: add_cpu_
+     CUDA: add_cuda_
+
+- func: add_mod.out(Tensor self, Tensor in_b, *, Tensor(a!) out) -> Tensor(a!)
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+    CPU: add_cpu_out
+    CUDA: add_cuda_out
+## sub
+- func: sub_mod(Tensor self, Tensor in_b) -> Tensor
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+    CPU: subtraction_cpu
+    CUDA: subtraction_cuda
+
+- func: sub_mod_(Tensor(a!) self, Tensor in_b) -> Tensor(a!)
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+     CPU: subtraction_cpu_
+     CUDA: subtraction_cuda_
+  
+- func: sub_mod.out(Tensor self, Tensor in_b, *, Tensor(a!) out) -> Tensor(a!)
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+    CPU: subtraction_cpu_out
+    CUDA: subtraction_cuda_out
+
+### mul
+- func: mul_mod(Tensor self, Tensor in_b) -> Tensor
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+    CPU: multiplication_cpu
+    CUDA: multiplication_cuda
+
+- func: mul_mod_(Tensor(a!) self, Tensor in_b) -> Tensor(a!)
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+     CPU: multiplication_cpu_
+     CUDA: multiplication_cuda_
+
+- func: mul_mod.out(Tensor self, Tensor in_b, *, Tensor(a!) out) -> Tensor(a!)
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+    CPU: multiplication_cpu_out
+    CUDA: multiplication_cuda_out
+
+## div
+- func: div_mod(Tensor self, Tensor in_b) -> Tensor
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+    CPU: division_cpu
+    CUDA: division_cuda
+
+- func: div_mod_(Tensor(a!) self, Tensor in_b) -> Tensor(a!)
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+     CPU: division_cpu_
+     CUDA: division_cuda_
+
+- func: div_mod.out(Tensor self, Tensor in_b, *, Tensor(a!) out) -> Tensor(a!)
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+    CPU: division_cpu_out 
+    CUDA: division_cuda_out
+
+##equal
+- func: equal_mod(Tensor in_a, Tensor in_b) -> bool
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+    CPU: equal_cpu_mod
+
+- func: equal_base(Tensor in_a, Tensor in_b) -> bool
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+    CPU: equal_cpu_base
