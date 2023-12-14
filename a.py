@@ -88,14 +88,13 @@ mont3=compute_mont(r3)
 
 def test_add():
 
-    #####生成测试数据
-    min_dimension = 4  # 最低维度为4
 
-    # 随机确定行数和列数（至少4行4列）
-    rows = random.randint(min_dimension, min_dimension)  # 至少4行，最多7行
-    columns = random.randint(min_dimension, min_dimension)  # 至少4列，最多7列
+    min_dimension = 4 
 
-    # 生成随机整数二维数组
+    rows = random.randint(min_dimension, min_dimension) 
+    columns = random.randint(min_dimension, min_dimension)  
+
+  
     random_array_1 = [[random.randint(0, 2**64) for _ in range(columns)] for _ in range(rows)]
     random_array_2 = [[random.randint(0, 2**64) for _ in range(columns)] for _ in range(rows)]
     t1 = torch.tensor(random_array_1,dtype=torch.BLS12_381_Fr_G1_Base)
@@ -118,30 +117,5 @@ test_add()
 # print(t_res)
 
 
-# import unittest
-# import torch
-# import pytest
-
-# class TestTensorTypes(unittest.TestCase):
-
-
-#     @pytest.mark.parametrize("dtype", [torch.float32, torch.int64, torch.float64])  # 在这里添加更多的数据类型
-#     def test_tensor_dtype(dtype):
-#         def my_function(in_a):
-#             if in_a.dtype == torch.float64:
-#                 return False
-#             else:
-#                 return True
-#         tensor = torch.zeros(5, dtype=dtype)  # 创建不同 dtype 的张量
-#         result = my_function(tensor)  # 调用类方法需要使用 self
-#         assert result is True, f"Failed for dtype: {dtype}"  # 使用 assert 进行断言验证
-
-# def run_tests():
-#     test_suite = unittest.defaultTestLoader.loadTestsFromTestCase(TestTensorTypes)
-#     unittest.TextTestRunner().run(test_suite)
-
-#     # 添加更多的测试方法
-# run_tests()
-# # 你的其他测试类和函数
 
 

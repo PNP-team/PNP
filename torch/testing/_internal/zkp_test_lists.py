@@ -136,11 +136,6 @@ class CustomTestCase(unittest.TestCase):
 
                 r1=F.to_mont(t1)
                 r2=F.to_mont(t2)
-
-                mont1=self.compute_mont(r1)
-                mont2=self.compute_mont(r2)
-                # print(mont1,mont2)
-                # print(self.modlist[type_element])
                 self.assertEqual((base1+base2)%self.modlist[type_element],self.compute_mont(F.add_mod(r1,r2)))
 
     def test_sub(self):
@@ -174,10 +169,6 @@ class CustomTestCase(unittest.TestCase):
                 r1=F.to_mont(t1)
                 r2=F.to_mont(t2)
 
-                mont1=self.compute_mont(r1)
-                mont2=self.compute_mont(r2)
-
-                
                 self.assertEqual((base1-base2)%self.modlist[type_element],self.compute_mont(F.sub_mod(r1,r2)))
 
     def test_mul(self):
@@ -207,12 +198,8 @@ class CustomTestCase(unittest.TestCase):
                 #################################################################
                 base1=self.compute_base(t1)
                 base2=self.compute_base(t2)
-
                 r1=F.to_mont(t1)
                 r2=F.to_mont(t2)
-
-                mont1=self.compute_mont(r1)
-                mont2=self.compute_mont(r2)
                 self.assertEqual(((base1*base2)<<256)%self.modlist[type_element],((self.compute_mont(F.mul_mod(r1,r2)))) %self.modlist[type_element])
 
     def test_special(self):
