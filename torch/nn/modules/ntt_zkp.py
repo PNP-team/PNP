@@ -16,54 +16,35 @@ __all__ = [
 
 
 class NTT_zkp(Module):
-    r"""Applies a linear transformation to the incoming data: :math:`y = xA^T + b`
+    r"""Applies a Number Theory Transformation(NTT) for a 2-dim tensor`
 
-    This module supports :ref:`TensorFloat32<tf32_on_ampere>`.
-
-    On certain ROCm devices, when using float16 inputs this module will use :ref:`different precision<fp16_on_mi200>` for backward.
+    This module only supports all curve types, does not support common types.
 
     Args:
-        in_features: size of each input sample
-        out_features: size of each output sample
-        bias: If set to ``False``, the layer will not learn an additive bias.
-            Default: ``True``
-
-    Shape:
-        - Input: :math:`(*, H_{in})` where :math:`*` means any number of
-          dimensions including none and :math:`H_{in} = \text{in\_features}`.
-        - Output: :math:`(*, H_{out})` where all but the last dimension
-          are the same shape as the input and :math:`H_{out} = \text{out\_features}`.
+        Params: a tensor that stores all parameters required in the NTT process.
 
     Attributes:
-        weight: the learnable weights of the module of shape
-            :math:`(\text{out\_features}, \text{in\_features})`. The values are
-            initialized from :math:`\mathcal{U}(-\sqrt{k}, \sqrt{k})`, where
-            :math:`k = \frac{1}{\text{in\_features}}`
-        bias:   the learnable bias of the module of shape :math:`(\text{out\_features})`.
-                If :attr:`bias` is ``True``, the values are initialized from
-                :math:`\mathcal{U}(-\sqrt{k}, \sqrt{k})` where
-                :math:`k = \frac{1}{\text{in\_features}}`
+        is_intt: NTT direction, forward(False) or inverse(True).
+        gpu_id: gpu device number used.
+        domain_size: root of unity size in Fr of the selected curve.
+        dtype: specified elliptic curve.
 
     Examples::
 
-        >>> m = nn.Linear(20, 30)
-        >>> input = torch.randn(128, 20)
-        >>> output = m(input)
-        >>> print(output.size())
-        torch.Size([128, 30])
+        >>> m = nn.NTT_zkp(True, 0, domain_size, torch.BLS12_377_Fr_G1_Mont)
+        >>> random_list = [[random.randint(1, 1000) for _ in range(4)] for _ in range(1024)]
+        >>> x = torch.tensor(random_list, dtype=torch.BLS12_377_Fr_G1_Mont)
+        >>> input = x.to("cuda")
+        >>> output = m.forward(input, True, False)
+
     """
     __constants__ = ['Params']
-    
-    # windows_size: int
-    # gpu_id: int
-    # is_intt: bool
+
     Params: Tensor
     
-
-
-    def __init__(self, is_intt: bool, gpu_id: int, domain_size: int) -> None:
+    def __init__(self, is_intt: bool, gpu_id: int, domain_size: int, dtype) -> None:
         super().__init__()
-        self.Params = torch.params_zkp(domain_size, gpu_id, is_intt, dtype= torch.BLS12_381_Fr_G1_Mont, device='cuda')
+        self.Params = torch.params_zkp(domain_size, gpu_id, is_intt, dtype = dtype, device='cuda')
 
 
     def forward(self, input: Tensor, is_intt: bool, is_coset: bool) -> Tensor:

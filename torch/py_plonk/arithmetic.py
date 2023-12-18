@@ -101,18 +101,11 @@ def is_zero_poly(input:list):
             break 
     return flag
 
-def from_list_tensor(input:list):
+def from_list_tensor(input:list, dtype):
     base_input=[]
     for i in range(len(input)):
         base_input.append(input[i].value)
-    output = torch.tensor(base_input,dtype=torch.uint64)
-    return output
-
-def from_list_tensor(input:list):
-    base_input=[]
-    for i in range(len(input)):
-        base_input.append(input[i].value)
-    output = torch.tensor(base_input,dtype=torch.BLS12_381_Fr_G1_Mont)
+    output = torch.tensor(base_input,dtype = dtype)
     return output
 
 def from_tensor_list(input:torch.Tensor):
@@ -136,20 +129,20 @@ def from_gmpy_list(input:list):
         input[i] = fr.Fr(value = output)
 
 
-def NTT(coeffs):
+def NTT(coeffs, dtype):
     resize_coeffs = copy.deepcopy(coeffs)
     from_gmpy_list(resize_coeffs)
-    input = from_list_tensor(resize_coeffs)
+    input = from_list_tensor(resize_coeffs, dtype)
     output = torch.ntt_zkp(input)
     evals = from_tensor_list(output)
     from_list_gmpy(evals)
     return evals
 
-def INTT(evals):
+def INTT(evals, dtype):
     resize_evals = copy.deepcopy(evals)
     from_gmpy_list(resize_evals)
     # input = from_list_tensor(resize_evals)
-    input = from_list_tensor(resize_evals)
+    input = from_list_tensor(resize_evals, dtype)
     input_gpu = input.to("cuda")
     output = torch.intt_zkp(input_gpu)
     output_cpu = output.to("cpu")

@@ -1,18 +1,18 @@
 #include "algorithm.cuh"
-#include "kernels.cuh"
+#include "algkernels.cuh"
 
 namespace at { 
 namespace native {
 
-template <int intermediate_mul>
+template <int intermediate_mul, typename fr_t>
 __launch_bounds__(768, 1) __global__
 void _GS_NTT(const unsigned int radix, const unsigned int lg_domain_size,
              const unsigned int stage, const unsigned int iterations,
-             BLS12_381_Fr_G1* d_inout, const BLS12_381_Fr_G1* d_partial_twiddles,
-             const BLS12_381_Fr_G1* d_radix6_twiddles, const BLS12_381_Fr_G1* d_radixX_twiddles,
-             const BLS12_381_Fr_G1* d_intermediate_twiddles,
+             fr_t* d_inout, const fr_t* d_partial_twiddles,
+             const fr_t* d_radix6_twiddles, const fr_t* d_radixX_twiddles,
+             const fr_t* d_intermediate_twiddles,
              const unsigned int intermediate_twiddle_shift,
-             const bool is_intt, const BLS12_381_Fr_G1* d_domain_size_inverse)
+             const bool is_intt, const fr_t* d_domain_size_inverse)
 {
 #if (__CUDACC_VER_MAJOR__-0) >= 11
     __builtin_assume(lg_domain_size <= MAX_LG_DOMAIN_SIZE);
@@ -30,31 +30,33 @@ void _GS_NTT(const unsigned int radix, const unsigned int lg_domain_size,
     idx0 += (tid >> (iterations - 1)) & out_mask;
     index_t idx1 = idx0 + ((index_t)1 << (stage - 1));
 
-    BLS12_381_Fr_G1 r0 = d_inout[idx0];
-    BLS12_381_Fr_G1 r1 = d_inout[idx1];
+    fr_t r0 = d_inout[idx0];
+    fr_t r1 = d_inout[idx1];
 
     for (int s = iterations; --s >= 6;) {
         unsigned int laneMask = 1 << (s - 1);
         unsigned int thrdMask = (1 << s) - 1;
         unsigned int rank = threadIdx.x & thrdMask;
 
-        BLS12_381_Fr_G1 t = d_radixX_twiddles[rank << (radix - (s + 1))];
+        fr_t t = d_radixX_twiddles[rank << (radix - (s + 1))];
 
         t *= (r0 - r1);
         r0 = r0 + r1;
         r1 = t;
 
-        extern __shared__ BLS12_381_Fr_G1 shared_exchange[];
+        extern __shared__ char shmem[];
+        auto shared_exchange = reinterpret_cast<fr_t *>(shmem);
+        // extern __shared__ fr_t shared_exchange[];
 
         bool pos = rank < laneMask;
 #ifdef __CUDA_ARCH__
-        t = BLS12_381_Fr_G1::csel(r1, r0, pos);
+        t = fr_t::csel(r1, r0, pos);
         __syncthreads();
         shared_exchange[threadIdx.x] = t;
         __syncthreads();
         t = shared_exchange[threadIdx.x ^ laneMask];
-        r0 = BLS12_381_Fr_G1::csel(t, r0, !pos);
-        r1 = BLS12_381_Fr_G1::csel(t, r1, pos);
+        r0 = fr_t::csel(t, r0, !pos);
+        r1 = fr_t::csel(t, r1, pos);
 #endif
     }
 
@@ -63,7 +65,7 @@ void _GS_NTT(const unsigned int radix, const unsigned int lg_domain_size,
         unsigned int thrdMask = (1 << s) - 1;
         unsigned int rank = threadIdx.x & thrdMask;
 
-        BLS12_381_Fr_G1 t = d_radix6_twiddles[rank << (6 - (s + 1))];
+        fr_t t = d_radix6_twiddles[rank << (6 - (s + 1))];
 
         t *= (r0 - r1);
         r0 = r0 + r1;
@@ -71,15 +73,15 @@ void _GS_NTT(const unsigned int radix, const unsigned int lg_domain_size,
 
         bool pos = rank < laneMask;
 #ifdef __CUDA_ARCH__
-        t = BLS12_381_Fr_G1::csel(r1, r0, pos);
+        t = fr_t::csel(r1, r0, pos);
         shfl_bfly(t, laneMask);
-        r0 = BLS12_381_Fr_G1::csel(t, r0, !pos);
-        r1 = BLS12_381_Fr_G1::csel(t, r1, pos);
+        r0 = fr_t::csel(t, r0, !pos);
+        r1 = fr_t::csel(t, r1, pos);
 #endif
     }
 
     {
-        BLS12_381_Fr_G1 t = r0 - r1;
+        fr_t t = r0 - r1;
         r0 = r0 + r1;
         r1 = t;
     }
@@ -93,7 +95,7 @@ void _GS_NTT(const unsigned int radix, const unsigned int lg_domain_size,
         index_t root_idx0 = bit_rev(thread_ntt_idx, nbits) * thread_ntt_pos;
         index_t root_idx1 = thread_ntt_pos << (nbits - 1);
 
-        BLS12_381_Fr_G1 first_root, second_root;
+        fr_t first_root, second_root;
         get_intermediate_roots(first_root, second_root,
                                root_idx0, root_idx1, d_partial_twiddles);
         second_root *= first_root;
@@ -109,16 +111,16 @@ void _GS_NTT(const unsigned int radix, const unsigned int lg_domain_size,
         index_t root_idx0 = bit_rev(thread_ntt_idx, nbits);
         index_t root_idx1 = bit_rev(thread_ntt_idx + 1, nbits);
 
-        BLS12_381_Fr_G1 t0 = d_intermediate_twiddles[(thread_ntt_pos << radix) + root_idx0];
-        BLS12_381_Fr_G1 t1 = d_intermediate_twiddles[(thread_ntt_pos << radix) + root_idx1];
+        fr_t t0 = d_intermediate_twiddles[(thread_ntt_pos << radix) + root_idx0];
+        fr_t t1 = d_intermediate_twiddles[(thread_ntt_pos << radix) + root_idx1];
 
         r0 *= t0;
         r1 *= t1;
     }
 
     if (is_intt && (stage + iterations) == lg_domain_size) {
-        r0 *= *(reinterpret_cast<const BLS12_381_Fr_G1*>(d_domain_size_inverse));
-        r1 *= *(reinterpret_cast<const BLS12_381_Fr_G1*>(d_domain_size_inverse));
+        r0 *= *(reinterpret_cast<const fr_t*>(d_domain_size_inverse));
+        r1 *= *(reinterpret_cast<const fr_t*>(d_domain_size_inverse));
     }
 
     // rotate "iterations" bits in indices
@@ -134,23 +136,13 @@ void _GS_NTT(const unsigned int radix, const unsigned int lg_domain_size,
     d_inout[idx1] = r1;
 }
 
-#define NTT_ARGUMENTS \
-        unsigned int, unsigned int, unsigned int, unsigned int, BLS12_381_Fr_G1*, \
-        const BLS12_381_Fr_G1*, const BLS12_381_Fr_G1*, const BLS12_381_Fr_G1*, const BLS12_381_Fr_G1*, \
-        unsigned int, bool, const BLS12_381_Fr_G1*
-
-template __global__ void _GS_NTT<0>(NTT_ARGUMENTS);
-template __global__ void _GS_NTT<1>(NTT_ARGUMENTS);
-template __global__ void _GS_NTT<2>(NTT_ARGUMENTS);
-
-#undef NTT_ARGUMENTS
-
-void GSkernel(int iterations, BLS12_381_Fr_G1* d_inout,
-          BLS12_381_Fr_G1* partial_twiddles,
-          BLS12_381_Fr_G1* radix7_twiddles,
-          BLS12_381_Fr_G1* radix_middles,
-          BLS12_381_Fr_G1* partial_group_gen_powers,
-          BLS12_381_Fr_G1* Domain_size_inverse,
+template <typename fr_t>
+void GSkernel(int iterations, fr_t* d_inout,
+          fr_t* partial_twiddles,
+          fr_t* radix7_twiddles,
+          fr_t* radix_middles,
+          fr_t* partial_group_gen_powers,
+          fr_t* Domain_size_inverse,
           int lg_domain_size, bool is_intt,
           const cudaStream_t& stream, int* stage)
 {
@@ -168,12 +160,12 @@ void GSkernel(int iterations, BLS12_381_Fr_G1* d_inout,
     //assert(num_blocks == (unsigned int)num_blocks);
     TORCH_CHECK(num_blocks == (unsigned int)num_blocks, "NTT blocks check!");
     
-    BLS12_381_Fr_G1* d_radixX_twiddles = nullptr;
-    BLS12_381_Fr_G1* d_intermediate_twiddles = nullptr;
+    fr_t* d_radixX_twiddles = nullptr;
+    fr_t* d_intermediate_twiddles = nullptr;
     int intermediate_twiddle_shift = 0;
 
     #define NTT_CONFIGURATION \
-        num_blocks, block_size, sizeof(BLS12_381_Fr_G1) * block_size, stream
+        num_blocks, block_size, sizeof(fr_t) * block_size, stream
 
     #define NTT_ARGUMENTS \
         radix, lg_domain_size, *stage, iterations, d_inout, \
@@ -273,100 +265,101 @@ void GSkernel(int iterations, BLS12_381_Fr_G1* d_inout,
     C10_CUDA_KERNEL_LAUNCH_CHECK();
 }
 
-void GS_NTT(BLS12_381_Fr_G1* d_inout, const int lg_domain_size, const bool is_intt,
-    const cudaStream_t& stream,
-    BLS12_381_Fr_G1* partial_twiddles,
-    BLS12_381_Fr_G1* radix_twiddles,
-    BLS12_381_Fr_G1* radix_middles,
-    BLS12_381_Fr_G1* partial_group_gen_powers,
-    BLS12_381_Fr_G1* Domain_size_inverse)
-{
-    TORCH_CHECK(lg_domain_size <= 40, "GS_NTT length cannot exceed 40!");
-    int stage = lg_domain_size;
+// template <typename fr_t>
+// void GS_NTT(fr_t* d_inout, const int lg_domain_size, const bool is_intt,
+//     const cudaStream_t& stream,
+//     fr_t* partial_twiddles,
+//     fr_t* radix_twiddles,
+//     fr_t* radix_middles,
+//     fr_t* partial_group_gen_powers,
+//     fr_t* Domain_size_inverse)
+// {
+//     TORCH_CHECK(lg_domain_size <= 40, "GS_NTT length cannot exceed 40!");
+//     int stage = lg_domain_size;
 
-    if (lg_domain_size <= 10) {
-        GSkernel(lg_domain_size, d_inout,
-                 partial_twiddles,
-                 radix_twiddles, radix_middles,
-                 partial_group_gen_powers,
-                 Domain_size_inverse,
-                 lg_domain_size, is_intt, stream, &stage);
-    } else if (lg_domain_size <= 12) {
-        GSkernel(lg_domain_size - 6, d_inout,
-                 partial_twiddles,
-                 radix_twiddles, radix_middles,
-                 partial_group_gen_powers,
-                 Domain_size_inverse,
-                 lg_domain_size, is_intt, stream, &stage);
-        GSkernel(6, d_inout,
-                 partial_twiddles,
-                 radix_twiddles, radix_middles,
-                 partial_group_gen_powers,
-                 Domain_size_inverse,
-                 lg_domain_size, is_intt, stream, &stage);
-    } else if (lg_domain_size <= 18) {
-        GSkernel(lg_domain_size / 2 + lg_domain_size % 2, d_inout,
-                 partial_twiddles,
-                 radix_twiddles, radix_middles,
-                 partial_group_gen_powers,
-                 Domain_size_inverse,
-                 lg_domain_size, is_intt, stream, &stage);
-        GSkernel(lg_domain_size / 2, d_inout,
-                 partial_twiddles,
-                 radix_twiddles, radix_middles,
-                 partial_group_gen_powers,
-                 Domain_size_inverse,
-                 lg_domain_size, is_intt, stream, &stage);
-    } else if (lg_domain_size <= 30) {
-        int step = lg_domain_size / 3;
-        int rem = lg_domain_size % 3;
-        GSkernel(step + (rem > 0), d_inout,
-                 partial_twiddles,
-                 radix_twiddles, radix_middles,
-                 partial_group_gen_powers,
-                 Domain_size_inverse,
-                 lg_domain_size, is_intt, stream, &stage);
-        GSkernel(step + (rem > 1), d_inout,
-                 partial_twiddles,
-                 radix_twiddles, radix_middles,
-                 partial_group_gen_powers,
-                 Domain_size_inverse,
-                 lg_domain_size, is_intt, stream, &stage);
-        GSkernel(step, d_inout,
-                 partial_twiddles,
-                 radix_twiddles, radix_middles,
-                 partial_group_gen_powers,
-                 Domain_size_inverse,
-                 lg_domain_size, is_intt, stream, &stage);
-    } else if (lg_domain_size <= 40) {
-        int step = lg_domain_size / 4;
-        int rem = lg_domain_size % 4;
-        GSkernel(step + (rem > 0), d_inout,
-                 partial_twiddles,
-                 radix_twiddles, radix_middles,
-                 partial_group_gen_powers,
-                 Domain_size_inverse,
-                 lg_domain_size, is_intt, stream, &stage);
-        GSkernel(step + (rem > 1), d_inout,
-                 partial_twiddles,
-                 radix_twiddles, radix_middles,
-                 partial_group_gen_powers,
-                 Domain_size_inverse,
-                 lg_domain_size, is_intt, stream, &stage);
-        GSkernel(step + (rem > 2), d_inout,
-                 partial_twiddles,
-                 radix_twiddles, radix_middles,
-                 partial_group_gen_powers,
-                 Domain_size_inverse,
-                 lg_domain_size, is_intt, stream, &stage);
-        GSkernel(step, d_inout,
-                 partial_twiddles,
-                 radix_twiddles, radix_middles,
-                 partial_group_gen_powers,
-                 Domain_size_inverse,
-                 lg_domain_size, is_intt, stream, &stage);
-    } 
-}
+//     if (lg_domain_size <= 10) {
+//         GSkernel(lg_domain_size, d_inout,
+//                  partial_twiddles,
+//                  radix_twiddles, radix_middles,
+//                  partial_group_gen_powers,
+//                  Domain_size_inverse,
+//                  lg_domain_size, is_intt, stream, &stage);
+//     } else if (lg_domain_size <= 12) {
+//         GSkernel(lg_domain_size - 6, d_inout,
+//                  partial_twiddles,
+//                  radix_twiddles, radix_middles,
+//                  partial_group_gen_powers,
+//                  Domain_size_inverse,
+//                  lg_domain_size, is_intt, stream, &stage);
+//         GSkernel(6, d_inout,
+//                  partial_twiddles,
+//                  radix_twiddles, radix_middles,
+//                  partial_group_gen_powers,
+//                  Domain_size_inverse,
+//                  lg_domain_size, is_intt, stream, &stage);
+//     } else if (lg_domain_size <= 18) {
+//         GSkernel(lg_domain_size / 2 + lg_domain_size % 2, d_inout,
+//                  partial_twiddles,
+//                  radix_twiddles, radix_middles,
+//                  partial_group_gen_powers,
+//                  Domain_size_inverse,
+//                  lg_domain_size, is_intt, stream, &stage);
+//         GSkernel(lg_domain_size / 2, d_inout,
+//                  partial_twiddles,
+//                  radix_twiddles, radix_middles,
+//                  partial_group_gen_powers,
+//                  Domain_size_inverse,
+//                  lg_domain_size, is_intt, stream, &stage);
+//     } else if (lg_domain_size <= 30) {
+//         int step = lg_domain_size / 3;
+//         int rem = lg_domain_size % 3;
+//         GSkernel(step + (rem > 0), d_inout,
+//                  partial_twiddles,
+//                  radix_twiddles, radix_middles,
+//                  partial_group_gen_powers,
+//                  Domain_size_inverse,
+//                  lg_domain_size, is_intt, stream, &stage);
+//         GSkernel(step + (rem > 1), d_inout,
+//                  partial_twiddles,
+//                  radix_twiddles, radix_middles,
+//                  partial_group_gen_powers,
+//                  Domain_size_inverse,
+//                  lg_domain_size, is_intt, stream, &stage);
+//         GSkernel(step, d_inout,
+//                  partial_twiddles,
+//                  radix_twiddles, radix_middles,
+//                  partial_group_gen_powers,
+//                  Domain_size_inverse,
+//                  lg_domain_size, is_intt, stream, &stage);
+//     } else if (lg_domain_size <= 40) {
+//         int step = lg_domain_size / 4;
+//         int rem = lg_domain_size % 4;
+//         GSkernel(step + (rem > 0), d_inout,
+//                  partial_twiddles,
+//                  radix_twiddles, radix_middles,
+//                  partial_group_gen_powers,
+//                  Domain_size_inverse,
+//                  lg_domain_size, is_intt, stream, &stage);
+//         GSkernel(step + (rem > 1), d_inout,
+//                  partial_twiddles,
+//                  radix_twiddles, radix_middles,
+//                  partial_group_gen_powers,
+//                  Domain_size_inverse,
+//                  lg_domain_size, is_intt, stream, &stage);
+//         GSkernel(step + (rem > 2), d_inout,
+//                  partial_twiddles,
+//                  radix_twiddles, radix_middles,
+//                  partial_group_gen_powers,
+//                  Domain_size_inverse,
+//                  lg_domain_size, is_intt, stream, &stage);
+//         GSkernel(step, d_inout,
+//                  partial_twiddles,
+//                  radix_twiddles, radix_middles,
+//                  partial_group_gen_powers,
+//                  Domain_size_inverse,
+//                  lg_domain_size, is_intt, stream, &stage);
+//     } 
+// }
 
 }//namespace native
 }//namespace at

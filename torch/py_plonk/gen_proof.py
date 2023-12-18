@@ -1,6 +1,7 @@
 import gmpy2
 import copy
 import itertools
+import torch
 import torch.nn as nn
 from .domain import newdomain,element
 from .transcript import transcript
@@ -12,7 +13,8 @@ from .plonk_core.src.proof_system.prover_key import Prover_Key
 from .plonk_core.src.proof_system.pi import into_dense_poly
 from .plonk_core.src.proof_system import quotient_poly
 from .plonk_core.src.proof_system import linearisation_poly
-from .arithmetic import INTT,from_coeff_vec,resize,is_zero_poly,from_gmpy_list,from_list_gmpy,from_list_tensor,from_tensor_list
+from .arithmetic import INTT,from_coeff_vec,resize,is_zero_poly,\
+                        from_gmpy_list,from_list_gmpy,from_list_tensor,from_tensor_list
 from .load import read_scalar_data
 from .KZG import kzg10
 from .KZG.kzg10 import commit
@@ -27,28 +29,65 @@ def gen_proof(pp, pk: Prover_Key, cs: StandardComposer, transcript: transcript.T
     n = domain["size"]
     transcript.append_pi(b"pi")
     powers = [pp.powers_of_g, pp.powers_of_gamma_g]
+    dtype = torch.BLS12_381_Fr_G1_Mont
+
     #1. Compute witness Polynomials
     w_l_scalar=read_scalar_data("torch/py_plonk/w_l_scalar.txt")
     w_r_scalar=read_scalar_data("torch/py_plonk/w_r_scalar.txt")
     w_o_scalar=read_scalar_data("torch/py_plonk/w_o_scalar.txt")
     w_4_scalar=read_scalar_data("torch/py_plonk/w_4_scalar.txt")
 
-    INTTclass = nn.NTT_zkp(True, 0, 32)
-    evals = copy.deepcopy(w_l_scalar)
-    from_gmpy_list(evals)
-    input = from_list_tensor(evals)
-    input_gpu = input.to("cuda")
-    output = INTTclass.forward(input_gpu, True, False)
-    output_cpu = output.to("cpu")
-    w_l_poly = from_tensor_list(output_cpu)
+    INTTclass = nn.NTT_zkp(True, 0, 32, dtype)
+
+    w_l_evals = copy.deepcopy(w_l_scalar)
+    w_r_evals = copy.deepcopy(w_r_scalar)
+    w_o_evals = copy.deepcopy(w_o_scalar)
+    w_4_evals = copy.deepcopy(w_4_scalar)
+
+    from_gmpy_list(w_l_evals)
+    from_gmpy_list(w_r_evals)
+    from_gmpy_list(w_o_evals)
+    from_gmpy_list(w_4_evals)
+
+    w_l_input = from_list_tensor(w_l_evals, dtype)
+    w_r_input = from_list_tensor(w_r_evals, dtype)
+    w_o_input = from_list_tensor(w_o_evals, dtype)
+    w_4_input = from_list_tensor(w_4_evals, dtype)
+
+    w_l_input_gpu = w_l_input.to("cuda")
+    w_r_input_gpu = w_r_input.to("cuda")
+    w_o_input_gpu = w_o_input.to("cuda")
+    w_4_input_gpu = w_4_input.to("cuda")
+    #假设数据已经存在gpu上，如果想要只输入data，需要把ntt/intt单独写成class
+    w_l_output = INTTclass.forward(w_l_input_gpu, True, False)
+    w_r_output = INTTclass.forward(w_r_input_gpu, True, False)
+    w_o_output = INTTclass.forward(w_o_input_gpu, True, False)
+    w_4_output = INTTclass.forward(w_4_input_gpu, True, False)
+
+    w_l_coeffs = w_l_output.to("cpu")
+    w_r_coeffs = w_r_output.to("cpu")
+    w_o_coeffs = w_o_output.to("cpu")
+    w_4_coeffs = w_4_output.to("cpu")
+
+    w_l_poly = from_tensor_list(w_l_coeffs)
+    w_r_poly = from_tensor_list(w_r_coeffs)
+    w_o_poly = from_tensor_list(w_o_coeffs)
+    w_4_poly = from_tensor_list(w_4_coeffs)
+
+    #w_commits_tensor = torch.tensor([w_l_poly,w_r_poly,w_o_poly,w_4_poly], dtype = dtype)
+
     from_list_gmpy(w_l_poly)
-    #w_l_poly = from_coeff_vec(INTT(w_l_scalar))
-    w_r_poly = from_coeff_vec(INTT(w_r_scalar))
-    w_o_poly = from_coeff_vec(INTT(w_o_scalar))
-    w_4_poly = from_coeff_vec(INTT(w_4_scalar))
+    from_list_gmpy(w_r_poly)
+    from_list_gmpy(w_o_poly)
+    from_list_gmpy(w_4_poly)
+
+    # w_l_poly = from_coeff_vec(INTT(w_l_scalar))
+    # w_r_poly = from_coeff_vec(INTT(w_r_scalar))
+    # w_o_poly = from_coeff_vec(INTT(w_o_scalar))
+    # w_4_poly = from_coeff_vec(INTT(w_4_scalar))
 
     w_polys = [w_l_poly,w_r_poly,w_o_poly,w_4_poly]
-    
+    #假设做完INTT后做MSM，数据直接传入，MSM的参数为2个tensor，scalar 和 point
     w_l_commits, w_l_rands = commit(powers,w_l_poly)
     w_r_commits, w_r_rands = commit(powers,w_r_poly)
     w_o_commits, w_o_rands = commit(powers,w_o_poly)
@@ -77,6 +116,7 @@ def gen_proof(pp, pk: Prover_Key, cs: StandardComposer, transcript: transcript.T
     # Compress lookup table into vector of single elements
     t_multiset = [pk.lookup.table_1,pk.lookup.table_2,
                   pk.lookup.table_3,pk.lookup.table_4]
+    
     compressed_t_multiset = multiset.compress(t_multiset, zeta)
 
     #Compute table poly

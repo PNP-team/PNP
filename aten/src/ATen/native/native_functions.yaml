@@ -4897,12 +4897,6 @@
 #   autogen: _cudnn_init_dropout_state.out
 #   tags: nondeterministic_seeded
 
-
-# - func: params_zkp_(Tensor[] inout, int gpu_id, bool is_intt, int window_size) -> None
-#   device_check: NoCheck   # TensorIterator
-#   dispatch:
-#     CUDA: params_zkp_cuda_
-
 - func: ntt_zkp(Tensor self, Tensor params) -> Tensor
   device_check: NoCheck   # TensorIterator
   dispatch:

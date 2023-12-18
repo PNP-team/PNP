@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from ..structure import UniversalParams,OpenProof
+from ..structure import OpenProof, AffinePointG1
 from ..jacobian import ProjectivePointG1
 from ..field import field
 from ..bls12_381 import fr,fq
@@ -31,9 +31,9 @@ class Randomness:
     def add_assign(self, f:field, other: 'Randomness'):
         self.blind_poly = poly_add_poly_mul_const(self.blind_poly, f, other.blind_poly)
 
-def commit(powers,polynomial:list[fr.Fr],hiding_bound=None):
+def commit(powers, polynomial:list[fr.Fr], hiding_bound=None):
     num_leading_zeros, plain_coeffs = skip_leading_zeros_and_convert_to_bigints(polynomial)
-    any:ProjectivePointG1 = MSM(
+    commitment:ProjectivePointG1 = MSM(
         powers[0][num_leading_zeros:],
         plain_coeffs,
     )
@@ -42,18 +42,18 @@ def commit(powers,polynomial:list[fr.Fr],hiding_bound=None):
         randomness = Randomness.rand(hiding_bound)
 
     random_ints = convert_to_bigints(randomness.blind_poly)
-    random_any:ProjectivePointG1 = MSM(powers[1],random_ints)
-    random_any_affine = random_any.to_affine()
-    any = any.add_assign_mixed(random_any_affine)
-    any_affine = any.to_affine()
-    return any_affine, randomness
+    random_commitment:ProjectivePointG1 = MSM(powers[1],random_ints)
+    random_commitment_affine = random_commitment.to_affine()
+    commitment = commitment.add_assign_mixed(random_commitment_affine)
+    commitment_affine = commitment.to_affine()
+    return commitment_affine, randomness
     
 # On input a list of labeled polynomials and a query point, `open` outputs a proof of evaluation
 # of the polynomials at the query point.
 def open(
     ck,
     labeled_polynomials: 'LabeledPoly',
-    _anys: 'Labeledany',
+    _commitments: 'LabeledCommitment',
     point,
     opening_challenge: field,
     rands,
@@ -78,14 +78,14 @@ def open(
     return proof
 
 dataclass
-class Labeledany:
-    def __init__(self,label,any):
+class LabeledCommitment:
+    def __init__(self,label,commitment):
         self.label = label
-        self.any =any
+        self.commitment =commitment
 
     @classmethod
-    def new(cls,label,any):
-        return cls(label = label,any = any)
+    def new(cls,label,commitment):
+        return cls(label = label, commitment = commitment)
 
 class LabeledPoly:
     def __init__(self, label, hiding_bound, poly):
@@ -152,56 +152,56 @@ def open_proof(powers, p: List[field], point: field, rand: Randomness):
     return proof
 @dataclass
 class Proof:
-    # any to the witness polynomial for the left wires.
-    a_comm: any
+    # Commitment to the witness polynomial for the left wires.
+    a_comm: AffinePointG1
 
-    # any to the witness polynomial for the right wires.
-    b_comm: any
+    # Commitment to the witness polynomial for the right wires.
+    b_comm: AffinePointG1
 
-    # any to the witness polynomial for the output wires.
-    c_comm: any
+    # Commitment to the witness polynomial for the output wires.
+    c_comm: AffinePointG1
 
-    # any to the witness polynomial for the fourth wires.
-    d_comm: any
+    # Commitment to the witness polynomial for the fourth wires.
+    d_comm: AffinePointG1
 
-    # any to the permutation polynomial.
-    z_comm: any
+    # Commitment to the permutation polynomial.
+    z_comm: AffinePointG1
 
-    # any to the lookup query polynomial.
-    f_comm: any
+    # Commitment to the lookup query polynomial.
+    f_comm: AffinePointG1
 
-    # any to first half of sorted polynomial
-    h_1_comm: any
+    # Commitment to first half of sorted polynomial
+    h_1_comm: AffinePointG1
 
-    # any to second half of sorted polynomial
-    h_2_comm: any
+    # Commitment to second half of sorted polynomial
+    h_2_comm: AffinePointG1
 
-    # any to the lookup permutation polynomial.
-    z_2_comm: any
+    # Commitment to the lookup permutation polynomial.
+    z_2_comm: AffinePointG1
 
-    # any to the quotient polynomial.
-    t_1_comm: any
+    # Commitment to the quotient polynomial.
+    t_1_comm: AffinePointG1
 
-    # any to the quotient polynomial.
-    t_2_comm: any
+    # Commitment to the quotient polynomial.
+    t_2_comm: AffinePointG1
 
-    # any to the quotient polynomial.
-    t_3_comm: any
+    # Commitment to the quotient polynomial.
+    t_3_comm: AffinePointG1
 
-    # any to the quotient polynomial.
-    t_4_comm: any
+    # Commitment to the quotient polynomial.
+    t_4_comm: AffinePointG1
 
-    # any to the quotient polynomial.
-    t_5_comm: any
+    # Commitment to the quotient polynomial.
+    t_5_comm: AffinePointG1
 
-    # any to the quotient polynomial.
-    t_6_comm: any
+    # Commitment to the quotient polynomial.
+    t_6_comm: AffinePointG1
 
-    # any to the quotient polynomial.
-    t_7_comm: any
+    # Commitment to the quotient polynomial.
+    t_7_comm: AffinePointG1
 
-    # any to the quotient polynomial.
-    t_8_comm: any
+    # Commitment to the quotient polynomial.
+    t_8_comm: AffinePointG1
 
     # Batch opening proof of the aggregated witnesses
     aw_opening: OpenProof

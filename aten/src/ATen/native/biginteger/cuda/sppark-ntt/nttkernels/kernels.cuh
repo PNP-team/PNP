@@ -1,28 +1,37 @@
-#include "ATen/native/biginteger/cuda/sppark-ntt/kernels.cuh"
-#include "kernels/kernels.cuh"
+#pragma once
+#include "algkernels.cuh"
+#include "ATen/native/biginteger/cuda/CurveDef.cuh"
+#include "ATen/native/biginteger/cuda/sppark-ntt/ntt_config.h"
+#include <cooperative_groups.h>
+#pragma diag_suppress 607
 namespace at { 
 namespace native {
+
 // Permutes the data in an array such that data[i] = data[bit_reverse(i)]
 // and data[bit_reverse(i)] = data[i]
+template <typename fr_t>
 __launch_bounds__(1024) __global__
-void bit_rev_permutation(BLS12_381_Fr_G1* d_out, const BLS12_381_Fr_G1 *d_in, uint32_t lg_domain_size)
+void bit_rev_permutation(fr_t* d_out, const fr_t *d_in, uint32_t lg_domain_size)
 {
     index_t i = threadIdx.x + blockDim.x * (index_t)blockIdx.x;
     index_t r = bit_rev(i, lg_domain_size);
 
     if (i < r || (d_out != d_in && i == r)) {
-        BLS12_381_Fr_G1 t0 = d_in[i];
-        BLS12_381_Fr_G1 t1 = d_in[r];
+        fr_t t0 = d_in[i];
+        fr_t t1 = d_in[r];
         d_out[r] = t0;
         d_out[i] = t1;
     }
 }
 
+template <typename fr_t>
 __launch_bounds__(1024) __global__
-void bit_rev_permutation_aux(BLS12_381_Fr_G1* out, const BLS12_381_Fr_G1* in, uint32_t lg_domain_size)
+void bit_rev_permutation_aux(fr_t* out, const fr_t* in, uint32_t lg_domain_size)
 {
-    extern __shared__ BLS12_381_Fr_G1 exchange[];
-    BLS12_381_Fr_G1 (*xchg)[8][8] = reinterpret_cast<decltype(xchg)>(exchange);
+    extern __shared__ char shmem[];
+    auto exchange = reinterpret_cast<fr_t *>(shmem);
+    // extern __shared__ fr_t exchange[];
+    fr_t (*xchg)[8][8] = reinterpret_cast<decltype(xchg)>(exchange);
 
     index_t step = (index_t)1 << (lg_domain_size - 3);
     index_t group_idx = (threadIdx.x + blockDim.x * (index_t)blockIdx.x) >> 3;
@@ -49,13 +58,14 @@ void bit_rev_permutation_aux(BLS12_381_Fr_G1* out, const BLS12_381_Fr_G1* in, ui
     }
 }
 
+template <typename fr_t>
 __device__ __forceinline__
-BLS12_381_Fr_G1 get_intermediate_root(index_t pow, const BLS12_381_Fr_G1 *roots,
-                           unsigned int nbits)
+fr_t get_intermediate_root(index_t pow, const fr_t *roots,
+                           unsigned int nbits = MAX_LG_DOMAIN_SIZE)
 {
     unsigned int off = 0;
 
-    BLS12_381_Fr_G1 root = roots[off * WINDOW_SIZE + pow % WINDOW_SIZE];
+    fr_t root = roots[off * WINDOW_SIZE + pow % WINDOW_SIZE];
     #pragma unroll 1
     while (pow >>= LG_WINDOW_SIZE){
         off += 1;
@@ -65,14 +75,15 @@ BLS12_381_Fr_G1 get_intermediate_root(index_t pow, const BLS12_381_Fr_G1 *roots,
     return root;
 }
 
+template <typename fr_t>
 __launch_bounds__(1024) __global__
-void LDE_distribute_powers(BLS12_381_Fr_G1* d_inout, uint32_t lg_blowup, bool bitrev,
-                           const BLS12_381_Fr_G1 *gen_powers,
+void LDE_distribute_powers(fr_t* d_inout, uint32_t lg_blowup, bool bitrev,
+                           const fr_t *gen_powers,
                            bool ext_pow)
 {
     index_t idx = threadIdx.x + blockDim.x * (index_t)blockIdx.x;
     index_t pow = idx;
-    BLS12_381_Fr_G1 r = d_inout[idx];
+    fr_t r = d_inout[idx];
 
     if (bitrev) {
         size_t domain_size = gridDim.x * (size_t)blockDim.x;
@@ -90,12 +101,16 @@ void LDE_distribute_powers(BLS12_381_Fr_G1* d_inout, uint32_t lg_blowup, bool bi
     d_inout[idx] = r;
 }
 
+template <typename fr_t>
 __launch_bounds__(1024) __global__
-void LDE_spread_distribute_powers(BLS12_381_Fr_G1* out, BLS12_381_Fr_G1* in,
-                                  const BLS12_381_Fr_G1* gen_powers,
+void LDE_spread_distribute_powers(fr_t* out, fr_t* in,
+                                  const fr_t* gen_powers,
                                   uint32_t lg_domain_size, uint32_t lg_blowup)
 {
-    extern __shared__ BLS12_381_Fr_G1 exchange[]; // block size
+
+    extern __shared__ char shmem[];
+    auto exchange = reinterpret_cast<fr_t *>(shmem);
+    // extern __shared__ fr_t exchange[]; // block size
 
     assert(lg_domain_size + lg_blowup <= MAX_LG_DOMAIN_SIZE);
 
@@ -119,7 +134,7 @@ void LDE_spread_distribute_powers(BLS12_381_Fr_G1* out, BLS12_381_Fr_G1* in,
     for (index_t iter = 0; iter < iters; iter++) {
         index_t idx = idx0 + threadIdx.x;
 
-        BLS12_381_Fr_G1 r = in[idx];
+        fr_t r = in[idx];
 
         // TODO: winterfell does not shift by lg_blowup - need to resolve
         // discrepency with Polygon
