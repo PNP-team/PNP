@@ -1,11 +1,5 @@
-// Copyright Supranational LLC
-// Licensed under the Apache License, Version 2.0, see LICENSE for details.
-// SPDX-License-Identifier: Apache-2.0
-
-#ifndef __BB31_T_CUH__
-#define __BB31_T_CUH__
-
-# include <cstdint>
+#pragma once
+#include <cstdint>
 
 #ifdef __CUDA_ARCH__
 # define inline __device__ __forceinline__
@@ -209,4 +203,3 @@ public:
 #  undef inline
 #  undef asm
 # endif
-#endif /* __BB31_T_CUH__ */

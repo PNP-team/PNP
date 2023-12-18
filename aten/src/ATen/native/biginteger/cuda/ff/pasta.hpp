@@ -31,15 +31,6 @@ struct PALLAS_Fr_G1 : public pallas_fr_mont {
     __device__ __forceinline__ PALLAS_Fr_G1(const pallas_fr_mont& a) : pallas_fr_mont(a) {}
 };
 
-typedef mont_t<255, Pallas_P, Pasta_M0,
-                    Pallas_RR, Pallas_one,
-                    Pallas_Px2> vesta_fq_mont;
-struct VESTA_Fq_G1 : public vesta_fq_mont {
-    using mem_t = VESTA_Fq_G1;
-    __device__ __forceinline__ VESTA_Fq_G1() = default;
-    __device__ __forceinline__ VESTA_Fq_G1(const vesta_fq_mont& a) : vesta_fq_mont(a) {}
-};
-
 static __device__ __constant__ __align__(16) const uint32_t Vesta_P[8] = {
     0x00000001, 0x8c46eb21, 0x0994a8dd, 0x224698fc,
     0x00000000, 0x00000000, 0x00000000, 0x40000000
@@ -56,23 +47,37 @@ static __device__ __constant__ __align__(16) const uint32_t Vesta_Px2[8] = { /* 
     0x00000002, 0x188dd642, 0x132951bb, 0x448d31f8,
     0x00000000, 0x00000000, 0x00000000, 0x80000000
 };
+
 typedef mont_t<255, Vesta_P, Pasta_M0,
                     Vesta_RR, Vesta_one,
-                    Vesta_Px2> pallas_fq_mont;
-struct PALLAS_Fq_G1 : public pallas_fq_mont {
-    using mem_t = PALLAS_Fq_G1;
-    __device__ __forceinline__ PALLAS_Fq_G1() = default;
-    __device__ __forceinline__ PALLAS_Fq_G1(const pallas_fq_mont& a) : pallas_fq_mont(a) {}
+                    Vesta_Px2> vesta_fr_mont;
+struct VESTA_Fr_G1 : public vesta_fr_mont {
+    using mem_t = VESTA_Fr_G1;
+    __device__ __forceinline__ VESTA_Fr_G1() = default;
+    __device__ __forceinline__ VESTA_Fr_G1(const vesta_fr_mont& a) : vesta_fr_mont(a) {}
+};
+
+typedef mont_t<255, Pallas_P, Pasta_M0,
+                    Pallas_RR, Pallas_one,
+                    Pallas_Px2> vesta_fq_mont;
+struct VESTA_Fq_G1 : public vesta_fq_mont {
+    using mem_t = VESTA_Fq_G1;
+    using scalar_t = VESTA_Fr_G1;
+    __device__ __forceinline__ VESTA_Fq_G1() = default;
+    __device__ __forceinline__ VESTA_Fq_G1(const vesta_fq_mont& a) : vesta_fq_mont(a) {}
 };
 
 typedef mont_t<255, Vesta_P, Pasta_M0,
                     Vesta_RR, Vesta_one,
                     Vesta_Px2> pallas_fq_mont;
-struct VESTA_Fr_G1 : public pallas_fq_mont {
-    using mem_t = Pallas_Fq_G1;
-    __device__ __forceinline__ VESTA_Fr_G1() = default;
-    __device__ __forceinline__ VESTA_Fr_G1(const pallas_fq_mont& a) : pallas_fq_mont(a) {}
+struct PALLAS_Fq_G1 : public pallas_fq_mont {
+    using mem_t = PALLAS_Fq_G1;
+    using scalar_t = PALLAS_Fr_G1;
+    __device__ __forceinline__ PALLAS_Fq_G1() = default;
+    __device__ __forceinline__ PALLAS_Fq_G1(const pallas_fq_mont& a) : pallas_fq_mont(a) {}
 };
+
+
 
 } // namespace native
 } // namespace at

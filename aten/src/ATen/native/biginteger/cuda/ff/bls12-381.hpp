@@ -60,6 +60,7 @@ typedef mont_t<381, BLS12_381_P, BLS12_381_M0,
                     BLS12_381_Px8> bls12_381_fq_mont;
 struct BLS12_381_Fq_G1 : public bls12_381_fq_mont {
     using mem_t = BLS12_381_Fq_G1;
+    using scalar_t = BLS12_381_Fr_G1;
     __device__ __forceinline__ BLS12_381_Fq_G1() {}
     __device__ __forceinline__ BLS12_381_Fq_G1(const bls12_381_fq_mont& a) : bls12_381_fq_mont(a) {}
 };
