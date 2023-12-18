@@ -69,7 +69,7 @@ typedef mont_t<255, Vesta_P, Pasta_M0,
                     Vesta_RR, Vesta_one,
                     Vesta_Px2> pallas_fq_mont;
 struct VESTA_Fr_G1 : public pallas_fq_mont {
-    using mem_t = Pallas_Fq_G1;
+    using mem_t = PALLAS_Fq_G1;
     __device__ __forceinline__ VESTA_Fr_G1() = default;
     __device__ __forceinline__ VESTA_Fr_G1(const pallas_fq_mont& a) : pallas_fq_mont(a) {}
 };

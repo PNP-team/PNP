@@ -35,7 +35,6 @@ class CustomTestCase(unittest.TestCase):
             res=0
             for j in range(cols):
                 res+=(int(in_a[i][j]))*(2**(j*64))%mod
-                # if(j==3):
             res=(res*(2**256))%mod
         return res
     
@@ -60,12 +59,10 @@ class CustomTestCase(unittest.TestCase):
     def assertCustomEqual(self, first, second, msg=None):
          if not torch.equal_mod(first, second):
             raise ValueError("Tensors are not equal")
-        # self.assertEqual(first, second, msg=msg)
 
     def test_custom_data_equality(self):
         custom_data_1 =F.to_mont(self.x1)
         custom_data_2 =F.to_mont(self.x1)
-        # print(custom_data_1,custom_data_2)
         self.assertCustomEqual(custom_data_1, custom_data_2, "Custom data should be equal")
 
     def test_tensor_dtype(self):
@@ -77,7 +74,6 @@ class CustomTestCase(unittest.TestCase):
             except Exception as e:
                 print(f"An error occurred: {e}")
                 return False
-        
         for type_ele in data_type:
             input = torch.tensor([[1, 2, 3, 2], [5, 6, 7, 8],[1,2,3,4]], dtype=type_ele)
             result =my_function(input)
@@ -89,29 +85,21 @@ class CustomTestCase(unittest.TestCase):
             try:
                 custom_data_1=F.to_mont(self.x1)
                 test_to_base_value=F.to_base(custom_data_1)
-
-
-
                 self.assertEqual(test_to_base_value.dtype, torch.BLS12_381_Fr_G1_Base )
             except Exception as e:
                 print(f"An error occurred: {e}")
                 return False
-
         for index in range(len(data_type)):
             self.assertEqual(self.compute_base_mod(self.x[index],self.modlist[self.x[index].dtype]),self.compute_mont(F.to_mont(self.x[index])))
 
     def test_add(self):
-            #####Generate test data
+            ##Generate test data
             min_dimension = 4  # The lowest dimension is 4
-
             #Randomly determine the number of rows and columns (at least 4 rows and 4 columns)
             rows = random.randint(min_dimension, min_dimension)  
-            columns = random.randint(min_dimension, min_dimension)  
-
-
+            columns = random.randint(min_dimension, min_dimension)
             for type_element in data_type:
                 # Generate a two-dimensional array of random integers
-
                 t1=[]
                 t2=[]   ####check value < modulo
                 while True:
@@ -127,29 +115,19 @@ class CustomTestCase(unittest.TestCase):
                         if base1 < self.p[type_element] and base2 < self.p[type_element]:
                             break  # Exit loop if conditions are met
 
-                    # t1=torch.tensor([[0, 2, 3, 4], [5, 6, 7, 8]], dtype=torch.BLS12_381_Fr_G1_Base)
-
-                    # t2=torch.tensor([[1, 2, 3, 4], [5, 6, 7, 8]], dtype=torch.BLS12_381_Fr_G1_Base)
-                    #################################################################
                 base1=self.compute_base_mod(t1,self.modlist[type_element])
                 base2=self.compute_base_mod(t2,self.modlist[type_element])
-
                 r1=F.to_mont(t1)
                 r2=F.to_mont(t2)
                 self.assertEqual((base1+base2)%self.modlist[type_element],self.compute_mont(F.add_mod(r1,r2)))
 
     def test_sub(self):
-
             min_dimension = 4  
-
             rows = random.randint(min_dimension, min_dimension) 
             columns = random.randint(min_dimension, min_dimension)  
-
-
             for type_element in data_type:
-               
                 t1=[]
-                t2=[]   ####check value < modulo
+                t2=[]   #check value < modulo
                 while True:
                         random_array_1 = [[random.randint(0, 2**64) for _ in range(columns)] for _ in range(rows)]
                         random_array_2 = [[random.randint(0, 2**64) for _ in range(columns)] for _ in range(rows)]
@@ -162,23 +140,16 @@ class CustomTestCase(unittest.TestCase):
                         
                         if base1 < self.p[type_element] and base2 < self.p[type_element]:
                             break  # Exit loop if conditions are met
-                #################################################################
                 base1=self.compute_base_mod(t1,self.modlist[type_element])
                 base2=self.compute_base_mod(t2,self.modlist[type_element])
-
                 r1=F.to_mont(t1)
                 r2=F.to_mont(t2)
-
                 self.assertEqual((base1-base2)%self.modlist[type_element],self.compute_mont(F.sub_mod(r1,r2)))
 
     def test_mul(self):
             min_dimension = 4  
-
-  
             rows = random.randint(min_dimension, min_dimension)  
             columns = random.randint(min_dimension, min_dimension) 
-
-
             for type_element in data_type:
                 t1=[]
                 t2=[]   ####check value < modulo
@@ -195,7 +166,6 @@ class CustomTestCase(unittest.TestCase):
                         if base1 < self.p[type_element] and base2 < self.p[type_element]:
                             break  # Exit loop if conditions are met
                 t2 = torch.tensor(random_array_2,dtype=type_element)
-                #################################################################
                 base1=self.compute_base(t1)
                 base2=self.compute_base(t2)
                 r1=F.to_mont(t1)
@@ -203,17 +173,14 @@ class CustomTestCase(unittest.TestCase):
                 self.assertEqual(((base1*base2)<<256)%self.modlist[type_element],((self.compute_mont(F.mul_mod(r1,r2)))) %self.modlist[type_element])
 
     def test_special(self):
-        #####Generate test data
+        ##Generate test data
         min_dimension = 5  
-
         #Randomly determine the number of rows and columns 
         rows = random.randint(min_dimension, min_dimension)  
         columns = random.randint(min_dimension, min_dimension)  
         for type_element in data_type:
-
             random_array_1 = [[random.randint(0, 2**64) for _ in range(columns)] for _ in range(rows)]
             random_array_2 = [[random.randint(0, 2**64) for _ in range(columns)] for _ in range(rows)]
-
             t1 = torch.tensor(random_array_1,dtype=type_element)
             F.to_mont(t1)
 
