@@ -3,17 +3,10 @@ import torch.nn.functional as F
 
 print(torch.__path__)
 
-x = torch.tensor([[9223372036854772, 2, 3, 4], [5, 6, 7, 8]], dtype=torch.uint64)
-xq = torch.tensor([[9223372036854772, 2, 3, 4, 5, 6], [1, 2, 5, 6, 7, 8]], dtype=torch.BLS12_381_Fq_G1_Base)
+x = torch.tensor([[1, 2, 3, 2], [5, 6, 7, 8],[1,2,3,4]], dtype=torch.BLS12_381_Fq_G1_Base)
+xq = torch.tensor([[1, 2, 3, 2], [5, 6, 7, 8],[1,2,3,4]], dtype=torch.BLS12_381_Fq_G1_Base)
 # x.to("cuda")
 print("===========")
-print(x)
-print(xq)
-y = F.to_mont(x)
-print(y)
-z = F.to_base(y)
-print(z)
-
 # a = y.clone()
 # print(a)
 
@@ -35,7 +28,10 @@ print(z)
 # # x.to_Fq(torch.uint192)
 
 
-# # x.to("CUDA")
+x.to("cuda")
+xq.to("cuda")
+y = F.to_mont(x)
+yq= F.to_mont(xq)
 
 # print(x.shape)
 # print(y.shape)

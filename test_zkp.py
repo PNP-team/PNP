@@ -5,7 +5,7 @@ import unittest
 from torch.testing._internal.zkp_test_lists import CustomTestCase
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     print(torch.__file__)
     suite = unittest.TestSuite()
     suite.addTests(unittest.TestLoader().loadTestsFromTestCase(CustomTestCase))
