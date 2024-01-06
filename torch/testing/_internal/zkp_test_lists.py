@@ -1,10 +1,6 @@
-import torch.nn.functional as F
-import torch
 import torch
 import torch.nn.functional as F
-import os
 import unittest
-import torchviz
 import random
 
 """
@@ -149,6 +145,7 @@ class CustomTestCase(unittest.TestCase):
                 (base1 + base2) % self.modlist[type_element],
                 self.compute_mont(F.add_mod(r1, r2)),
             )
+
 
     def test_sub_cpu(self):
         min_dimension = 4
@@ -354,7 +351,6 @@ class CustomTestCase(unittest.TestCase):
             ]
             t1 = torch.tensor(random_array_1, dtype=type_element)
             F.to_mont(t1)
-
 
 if __name__ == "__main__":
     suite = unittest.TestSuite()

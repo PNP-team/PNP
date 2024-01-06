@@ -15305,71 +15305,71 @@
 - func: add_mod(Tensor self, Tensor in_b) -> Tensor
   device_check: NoCheck   # TensorIterator
   dispatch:
-    CPU: addition_mod_cpu
-    CUDA: addition_mod_cuda
+    CPU: add_mod_cpu
+    CUDA: add_mod_cuda
 
 - func: add_mod_(Tensor(a!) self, Tensor in_b) -> Tensor(a!)
   device_check: NoCheck   # TensorIterator
   dispatch:
-     CPU: addition_mod_cpu_
-     CUDA: addition_mod_cuda_
+     CPU: add_mod_cpu_
+     CUDA: add_mod_cuda_
 
 - func: add_mod.out(Tensor self, Tensor in_b, *, Tensor(a!) out) -> Tensor(a!)
   device_check: NoCheck   # TensorIterator
   dispatch:
-    CPU: addition_mod_cpu_out
-    CUDA: addition_mod_cuda_out
+    CPU: add_mod_cpu_out
+    CUDA: add_mod_cuda_out
 
 - func: sub_mod(Tensor self, Tensor in_b) -> Tensor
   device_check: NoCheck   # TensorIterator
   dispatch:
-    CPU: subtraction_mod_cpu
-    CUDA: subtraction_mod_cuda
+    CPU: sub_mod_cpu
+    CUDA: sub_mod_cuda
 
 - func: sub_mod_(Tensor(a!) self, Tensor in_b) -> Tensor(a!)
   device_check: NoCheck   # TensorIterator
   dispatch:
-     CPU: subtraction_mod_cpu_
-     CUDA: subtraction_mod_cuda_
+     CPU: sub_mod_cpu_
+     CUDA: sub_mod_cuda_
   
 - func: sub_mod.out(Tensor self, Tensor in_b, *, Tensor(a!) out) -> Tensor(a!)
   device_check: NoCheck   # TensorIterator
   dispatch:
-    CPU: subtraction_mod_cpu_out
-    CUDA: subtraction_mod_cuda_out
+    CPU: sub_mod_cpu_out
+    CUDA: sub_mod_cuda_out
 
 - func: mul_mod(Tensor self, Tensor in_b) -> Tensor
   device_check: NoCheck   # TensorIterator
   dispatch:
-    CPU: multiplication_mod_cpu
-    CUDA: multiplication_mod_cuda
+    CPU: mul_mod_cpu
+    CUDA: mul_mod_cuda
 
 - func: mul_mod_(Tensor(a!) self, Tensor in_b) -> Tensor(a!)
   device_check: NoCheck   # TensorIterator
   dispatch:
-     CPU: multiplication_mod_cpu_
-     CUDA: multiplication_mod_cuda_
+     CPU: mul_mod_cpu_
+     CUDA: mul_mod_cuda_
 
 - func: mul_mod.out(Tensor self, Tensor in_b, *, Tensor(a!) out) -> Tensor(a!)
   device_check: NoCheck   # TensorIterator
   dispatch:
-    CPU: multiplication_mod_cpu_out
-    CUDA: multiplication_mod_cuda_out
+    CPU: mul_mod_cpu_out
+    CUDA: mul_mod_cuda_out
 
 - func: div_mod(Tensor self, Tensor in_b) -> Tensor
   device_check: NoCheck   # TensorIterator
   dispatch:
-    CPU: division_mod_cpu
-    CUDA: division_mod_cuda
+    CPU: div_mod_cpu
+    CUDA: div_mod_cuda
 
 - func: div_mod_(Tensor(a!) self, Tensor in_b) -> Tensor(a!)
   device_check: NoCheck   # TensorIterator
   dispatch:
-     CPU: division_mod_cpu_
-     CUDA: division_mod_cuda_
+     CPU: div_mod_cpu_
+     CUDA: div_mod_cuda_
 
 - func: div_mod.out(Tensor self, Tensor in_b, *, Tensor(a!) out) -> Tensor(a!)
   device_check: NoCheck   # TensorIterator
   dispatch:
-    CPU: division_mod_cpu_out 
-    CUDA: division_mod_cuda_out
+    CPU: div_mod_cpu_out 
+    CUDA: div_mod_cuda_out
