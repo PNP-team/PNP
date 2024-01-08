@@ -137,54 +137,38 @@ class CustomTestCase(unittest.TestCase):
                 if base1 < self.p[type_element] and base2 < self.p[type_element]:
                     break  # Exit loop if conditions are met
 
-            base1 = self.compute_base_mod(t1, self.modlist[type_element])
-            base2 = self.compute_base_mod(t2, self.modlist[type_element])
-            r1 = F.to_mont(t1)
-            r2 = F.to_mont(t2)
-            self.assertEqual(
-                (base1 + base2) % self.modlist[type_element],
-                self.compute_mont(F.add_mod(r1, r2)),
-            )
+            t2 = torch.tensor(random_array_2, dtype=type_element)
+            devices=['cuda','cpu']
+            for device in devices:
+
+                base1 = self.compute_base_mod(t1, self.modlist[type_element])
+                base2 = self.compute_base_mod(t2, self.modlist[type_element])
+
+                if device=='cuda':
+                    t1.to("cuda")
+                    t2.to("cuda")
+                    r1 = F.to_mont(t1)
+                    r2 = F.to_mont(t2)
+                    self.assertEqual(
+                        (base1 + base2) % self.modlist[type_element],
+                        self.compute_mont(F.add_mod(r1, r2)),
+                    )
+                else:
+                    r1 = F.to_mont(t1)
+                    r2 = F.to_mont(t2)
+                    self.assertEqual(
+                        (base1 + base2) % self.modlist[type_element],
+                        self.compute_mont(F.add_mod(r1, r2)),
+                    )
 
     def test_sub(self):
-        min_dimension = 4
+        ##Generate test data
+        min_dimension = 4  # The lowest dimension is 4
+        # Randomly determine the number of rows and columns (at least 4 rows and 4 columns)
         rows = random.randint(min_dimension, min_dimension)
         columns = random.randint(min_dimension, min_dimension)
         for type_element in data_type:
-            t1 = []
-            t2 = []  # check value < modulo
-            while True:
-                random_array_1 = [
-                    [random.randint(0, 2**64) for _ in range(columns)]
-                    for _ in range(rows)
-                ]
-                random_array_2 = [
-                    [random.randint(0, 2**64) for _ in range(columns)]
-                    for _ in range(rows)
-                ]
-
-                t1 = torch.tensor(random_array_1, dtype=type_element)
-                t2 = torch.tensor(random_array_2, dtype=type_element)
-
-                base1 = self.compute_base(t1)
-                base2 = self.compute_base(t2)
-
-                if base1 < self.p[type_element] and base2 < self.p[type_element]:
-                    break  # Exit loop if conditions are met
-            base1 = self.compute_base_mod(t1, self.modlist[type_element])
-            base2 = self.compute_base_mod(t2, self.modlist[type_element])
-            r1 = F.to_mont(t1)
-            r2 = F.to_mont(t2)
-            self.assertEqual(
-                (base1 - base2) % self.modlist[type_element],
-                self.compute_mont(F.sub_mod(r1, r2)),
-            )
-
-    def test_mul(self):
-        min_dimension = 4
-        rows = random.randint(min_dimension, min_dimension)
-        columns = random.randint(min_dimension, min_dimension)
-        for type_element in data_type:
+            # Generate a two-dimensional array of random integers
             t1 = []
             t2 = []  ####check value < modulo
             while True:
@@ -205,33 +189,100 @@ class CustomTestCase(unittest.TestCase):
 
                 if base1 < self.p[type_element] and base2 < self.p[type_element]:
                     break  # Exit loop if conditions are met
+
             t2 = torch.tensor(random_array_2, dtype=type_element)
+            devices=['cuda','cpu']
+            for device in devices:
+
+                base1 = self.compute_base_mod(t1, self.modlist[type_element])
+                base2 = self.compute_base_mod(t2, self.modlist[type_element])
+
+                if device=='cuda':
+                    t1.to("cuda")
+                    t2.to("cuda")
+                    r1 = F.to_mont(t1)
+                    r2 = F.to_mont(t2)
+                    self.assertEqual(
+                        (base1 + base2) % self.modlist[type_element],
+                        self.compute_mont(F.add_mod(r1, r2)),
+                    )
+                else:
+                    r1 = F.to_mont(t1)
+                    r2 = F.to_mont(t2)
+                    self.assertEqual(
+                        (base1 - base2) % self.modlist[type_element],
+                        self.compute_mont(F.sub_mod(r1, r2)),
+                    )
+
+    def test_mul(self):
+        ##Generate test data
+        min_dimension = 4  # The lowest dimension is 4
+        # Randomly determine the number of rows and columns (at least 4 rows and 4 columns)
+        rows = random.randint(min_dimension, min_dimension)
+        columns = random.randint(min_dimension, min_dimension)
+        for type_element in data_type:
+            # Generate a two-dimensional array of random integers
+            t1 = []
+            t2 = []  ####check value < modulo
+            while True:
+                random_array_1 = [
+                    [random.randint(0, 2**64) for _ in range(columns)]
+                    for _ in range(rows)
+                ]
+                random_array_2 = [
+                    [random.randint(0, 2**64) for _ in range(columns)]
+                    for _ in range(rows)
+                ]
+
+                t1 = torch.tensor(random_array_1, dtype=type_element)
+                t2 = torch.tensor(random_array_2, dtype=type_element)
+
+                base1 = self.compute_base(t1)
+                base2 = self.compute_base(t2)
+
+                if base1 < self.p[type_element] and base2 < self.p[type_element]:
+                    break  # Exit loop if conditions are met
+
+            t2 = torch.tensor(random_array_2, dtype=type_element)
+            devices=['cuda','cpu']
             base1 = self.compute_base(t1)
             base2 = self.compute_base(t2)
-            r1 = F.to_mont(t1)
-            r2 = F.to_mont(t2)
-            self.assertEqual(
-                ((base1 * base2) << 256) % self.modlist[type_element],
-                ((self.compute_mont(F.mul_mod(r1, r2)))) % self.modlist[type_element],
-            )
+            for device in devices:
+                if device=='cuda':
+                    r1 = F.to_mont(t1)
+                    r2 = F.to_mont(t2)
+                    r1.to("cuda")
+                    r2.to("cuda")
+                    self.assertEqual(
+                        ((base1 * base2) << 256) % self.modlist[type_element],
+                        ((self.compute_mont(F.mul_mod(r1, r2)))) % self.modlist[type_element],
+                    )
+                else:
+                    r1 = F.to_mont(t1)
+                    r2 = F.to_mont(t2)
+                    self.assertEqual(
+                        ((base1 * base2) << 256) % self.modlist[type_element],
+                        ((self.compute_mont(F.mul_mod(r1, r2)))) % self.modlist[type_element],
+                    )
 
-    # def test_special(self):
-    #     ##Generate test data
-    #     min_dimension = 5
-    #     # Randomly determine the number of rows and columns
-    #     rows = random.randint(min_dimension, min_dimension)
-    #     columns = random.randint(min_dimension, min_dimension)
-    #     for type_element in data_type:
-    #         random_array_1 = [
-    #             [random.randint(0, 2**64) for _ in range(columns)]
-    #             for _ in range(rows)
-    #         ]
-    #         random_array_2 = [
-    #             [random.randint(0, 2**64) for _ in range(columns)]
-    #             for _ in range(rows)
-    #         ]
-    #         t1 = torch.tensor(random_array_1, dtype=type_element)
-    #         F.to_mont(t1)
+    def test_special(self):
+        ##Generate test data
+        min_dimension = 5
+        # Randomly determine the number of rows and columns
+        rows = random.randint(min_dimension, min_dimension)
+        columns = random.randint(min_dimension, min_dimension)
+        for type_element in data_type:
+            random_array_1 = [
+                [random.randint(0, 2**64) for _ in range(columns)]
+                for _ in range(rows)
+            ]
+            random_array_2 = [
+                [random.randint(0, 2**64) for _ in range(columns)]
+                for _ in range(rows)
+            ]
+            t1 = torch.tensor(random_array_1, dtype=type_element)
+            F.to_mont(t1)
+
 
 
 if __name__ == "__main__":
