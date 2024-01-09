@@ -19,6 +19,10 @@ class bb31_t {
 private:
     uint32_t val;
 
+    static const uint32_t M = 0x77ffffffu;
+    static const uint32_t RR = 0x45dddde3u;
+    static const uint32_t ONE = 0x0ffffffeu;
+    
 public:
     static const uint32_t nbits = 31;
     static const uint32_t MOD = 0x78000001u;

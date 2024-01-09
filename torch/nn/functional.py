@@ -1606,7 +1606,6 @@ In-place version of :func:`~selu`.
 """,
 )
 
-
 def celu(input: Tensor, alpha: float = 1.0, inplace: bool = False) -> Tensor:
     r"""celu(input, alpha=1., inplace=False) -> Tensor
 

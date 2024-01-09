@@ -18,7 +18,7 @@ namespace {
 static void msm(Tensor& self) {
   AT_DISPATCH_FQ_MONT_TYPES(self.scalar_type(), "msm_cpu", [&] {
     auto self_ptr = reinterpret_cast<scalar_t::compute_type*>(self.mutable_data_ptr<scalar_t>());
-    auto fr_ptr = reinterpret_cast<scalar_t::compute_type::scalar_type*>(self.mutable_data_ptr<scalar_t>());
+    auto fr_ptr = reinterpret_cast<scalar_t::compute_type::coeff_t*>(self.mutable_data_ptr<scalar_t>());
     int64_t num_ = num_uint64(self.scalar_type());
     for(auto i = 0; i < num_; i++) {
       self_ptr[i].to();

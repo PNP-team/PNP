@@ -91,7 +91,6 @@ TORCH_API std::vector<torch::lazy::Shape> compute_shape_narrow_copy_symint(const
 TORCH_API std::vector<torch::lazy::Shape> compute_shape_hardswish(const at::Tensor & self);
 TORCH_API std::vector<torch::lazy::Shape> compute_shape_hardswish_backward(const at::Tensor & grad_output, const at::Tensor & self);
 TORCH_API std::vector<torch::lazy::Shape> compute_shape_selu(const at::Tensor & self);
-
 // Non-Native ops
 TORCH_API std::vector<Shape> compute_shape_scalar(const at::Scalar& value, const at::ScalarType& type);
 TORCH_API std::vector<Shape> compute_shape_expand(const Output& input0, const std::vector<int64_t>& size, const bool& is_scalar_expand);

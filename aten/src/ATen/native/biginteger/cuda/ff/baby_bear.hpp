@@ -14,7 +14,15 @@ typedef bb31_t fr_t;
 #include <cstdint>      // currently only used as a stand-in and should
 class fr_t {            // not be used for any other purpose
     uint32_t val;
+    static const uint32_t M = 0x77ffffff;
 public:
+    using mem_t = fr_t;
+    static const uint32_t degree = 1;
+    static const uint32_t nbits = 31;
+    static const uint32_t MOD = 0x78000001;
+    // this is used in constant declaration, e.g. as bb31_t{11}
+    inline constexpr fr_t(int a) : val(((uint64_t)a << 32) % MOD) {}
+
     inline fr_t()                       {}
     inline fr_t(uint32_t a) : val(a)    {}
     inline operator uint32_t() const    { return val; }
@@ -22,7 +30,9 @@ public:
     inline fr_t operator+=(fr_t b)      { return val; }
     inline fr_t operator-=(fr_t b)      { return val; }
     inline fr_t operator*=(fr_t b)      { return val; }
+    
     inline fr_t sqr()                   { return val; }
     inline void zero()                  { val = 0; }
+    inline bool is_zero() const         { return val==0; }
 };
 #endif

@@ -48,7 +48,7 @@ caffe2::TypeMeta get_corresponding_type(const ScalarType type) {
 #undef CONVERT_ELEM
 
 static void to_mont_cuda_template(Tensor& self) {
-  AT_DISPATCH_FR_BASE_TYPES(self.scalar_type(), "to_mont_cuda", [&] {
+  AT_DISPATCH_BASE_TYPES(self.scalar_type(), "to_mont_cuda", [&] {
     auto self_ptr = reinterpret_cast<scalar_t::compute_type*>(self.mutable_data_ptr<scalar_t>());
     int64_t N = self.numel() / num_uint64(self.scalar_type());
     TORCH_INTERNAL_ASSERT(N > 0 && N <= std::numeric_limits<int32_t>::max());
@@ -61,7 +61,7 @@ static void to_mont_cuda_template(Tensor& self) {
 }
 
 static void to_base_cuda_template(Tensor& self) {
-  AT_DISPATCH_FR_MONT_TYPES(self.scalar_type(), "to_base_cuda", [&] {
+  AT_DISPATCH_MONT_TYPES(self.scalar_type(), "to_base_cuda", [&] {
     auto self_ptr = reinterpret_cast<scalar_t::compute_type*>(self.mutable_data_ptr<scalar_t>());
     int64_t N = self.numel() / num_uint64(self.scalar_type());
     TORCH_INTERNAL_ASSERT(N > 0 && N <= std::numeric_limits<int32_t>::max());

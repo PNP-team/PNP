@@ -4886,6 +4886,11 @@
   autogen: relu.out
   tags: pointwise
 
+- func: msm_zkp(Tensor points, Tensor scalars) -> Tensor
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+    CUDA: msm_zkp_cuda
+
 - func: relu6(Tensor self) -> Tensor
   python_module: nn
 
