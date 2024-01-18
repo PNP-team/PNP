@@ -458,10 +458,12 @@ public:
         assert(this->npoints == 0 || npoints <= this->npoints);
 
         uint32_t lg_npoints = lg2(npoints + npoints/2);
-        size_t batch = 1 << (std::max(lg_npoints, wbits) - wbits);
-        batch >>= 6;
-        batch = batch ? batch : 1;
-        uint32_t stride = (npoints + batch - 1) / batch;
+        // size_t batch = 1 << (std::max(lg_npoints, wbits) - wbits);
+        // batch >>= 6;
+        // batch = batch ? batch : 1;
+        size_t batch = 1;
+        // uint32_t stride = (npoints + batch - 1) / batch;
+        uint32_t stride = npoints;
         stride = (stride+WARP_SZ-1) & ((size_t)0-WARP_SZ);
 
         std::vector<result_t> res(nwins);
@@ -479,7 +481,8 @@ public:
         // |points| being nullptr means the points are pre-loaded to
         // |d_points|, otherwise allocate double-stride.
         const char* points = reinterpret_cast<const char*>(points_);
-        size_t d_point_sz = points ? (batch > 1 ? 2*stride : stride) : 0;
+        // size_t d_point_sz = points ? (batch > 1 ? 2*stride : stride) : 0;
+        size_t d_point_sz = points ? stride : 0;
         d_point_sz *= sizeof(affine_h);
 
         size_t digits_sz = nwins * stride * sizeof(uint32_t);
@@ -520,8 +523,8 @@ public:
 
             gpu[i&1].launch_coop(accumulate<bucket_t, affine_h>,
                 {gpu.sm_count(), 0},
-                d_buckets, nwins, wbits, &d_points[d_off], d_digits, d_hist, i&1
-            );
+                d_buckets, nwins, wbits, &d_points[d_off], d_digits, d_hist, (uint32_t)0
+            ); 
             gpu[i&1].record(ev);
 
             integrate<bucket_t><<<nwins, MSM_NTHREADS,
@@ -531,31 +534,31 @@ public:
             );
             CUDA_OK(cudaGetLastError());
 
-            if (i < batch-1) {
-                h_off += stride;
-                num = h_off + stride <= npoints ? stride : npoints - h_off;
+            // if (i < batch-1) {
+            //     h_off += stride;
+            //     num = h_off + stride <= npoints ? stride : npoints - h_off;
 
-                if (scalars)
-                    gpu[2].HtoD(&d_scalars[0], scalars+h_off, num);
-                gpu[2].wait(ev);
-                digits(&d_scalars[scalars ? 0 : h_off], num,
-                        d_digits, d_temps, mont);
-                gpu[2].record(ev);
+            //     if (scalars)
+            //         gpu[2].HtoD(&d_scalars[0], scalars+h_off, num);
+            //     gpu[2].wait(ev);
+            //     digits(&d_scalars[scalars ? 0 : h_off], num,
+            //             d_digits, d_temps, mont);
+            //     gpu[2].record(ev);
 
-                if (points) {
-                    size_t j = (i + 1) & 1;
-                    d_off = j ? stride : 0;
-                    gpu[j].HtoD(&d_points[d_off], points+h_off*ffi_affine_sz,
-                                num,              ffi_affine_sz);
-                } else {
-                    d_off = h_off;
-                }
-            }
+            //     if (points) {
+            //         size_t j = (i + 1) & 1;
+            //         d_off = j ? stride : 0;
+            //         gpu[j].HtoD(&d_points[d_off], points+h_off*ffi_affine_sz,
+            //                     num,              ffi_affine_sz);
+            //     } else {
+            //         d_off = h_off;
+            //     }
+            // }
 
-            if (i > 0) {
-                collect(p, res, ones);
-                out.add(p);
-            }
+            // if (i > 0) {
+            //     collect(p, res, ones);
+            //     out.add(p);
+            // }
 
             gpu[i&1].DtoH(ones, d_buckets + (nwins << (wbits-1)));
             gpu[i&1].DtoH(res, d_buckets, sizeof(bucket_h)<<(wbits-1));
@@ -569,7 +572,6 @@ public:
 //             return RustError{e.code()};
 // #endif
 //         }
-
         collect(p, res, ones);
         out.add(p);
 
@@ -642,14 +644,14 @@ private:
                     res.add(acc);
             }
 
-            return res; //???
+            return res; 
         }
 
-        point_t  res = row[i][0]; //???
+        point_t  res = row[i][0]; 
         bucket_t acc = row[i][1];
 
         while (i--) {
-            point_t raise = acc; //???
+            point_t raise = acc; 
             for (size_t j = 0; j < lsbits-1-NTHRBITS; j++)
                 raise.dbl();
             res.add(raise);
@@ -733,6 +735,7 @@ void mult_pippenger(point_t *out, const affine_t points[], size_t npoints,
     msm_t<bucket_t, point_t, affine_t, scalar_t> msm{nullptr, npoints};
     msm.invoke(*out, slice_t<affine_t>{points, npoints},
                             scalars, mont, ffi_affine_sz);
+    std::cout<< *out <<std::endl;
     // } catch (const cuda_error& e) {
     //out->inf();
 // #ifdef TAKE_RESPONSIBILITY_FOR_ERROR_MESSAGE

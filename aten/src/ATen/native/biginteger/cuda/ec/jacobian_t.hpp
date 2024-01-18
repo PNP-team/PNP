@@ -2,7 +2,9 @@
 
 namespace at { 
 namespace native {
-template<class field_t> class jacobian_t {
+template<class field_t> 
+class jacobian_t {
+public:
     field_t X, Y, Z;
 
     inline operator const void*() const { return this; }
