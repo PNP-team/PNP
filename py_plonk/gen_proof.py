@@ -130,8 +130,15 @@ def gen_proof(pp, pk: Prover_Key, cs: StandardComposer, transcript: transcript.T
     transcript.append(b"f",f_poly_commit[0].commitment.value)
 
     # Compute s, as the sorted and concatenated version of f and t
+    from_list_gmpy(compressed_f_multiset.elements)
     h_1, h_2 = compressed_t_multiset.combine_split(compressed_f_multiset)
 
+
+    from_gmpy_list(h_1)
+    from_gmpy_list(h_2)
+    h_1=from_list_tensor(h_1,dtype=torch.torch.BLS12_381_Fr_G1_Mont)
+    h_2=from_list_tensor(h_2,dtype=torch.torch.BLS12_381_Fr_G1_Mont)
+    
     # Compute h polys
     h_1_temp = INTT(domain,h_1)
     h_2_temp = INTT(domain,h_2)
