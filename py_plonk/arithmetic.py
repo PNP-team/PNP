@@ -159,6 +159,7 @@ def NTT(domain,coeffs:torch.Tensor):
 
     from_gmpy_list(evals)
     output=from_list_tensor(evals,dtype=torch.BLS12_381_Fr_G1_Mont)
+
     return output
 
 def INTT(domain,evals:torch.Tensor):
@@ -197,9 +198,15 @@ def INTT(domain,evals:torch.Tensor):
 
 
 # Compute a NTT over a coset of the domain, modifying the input vector in place.
-def coset_NTT(coeffs:list[fr.Fr], domain):
+def coset_NTT(coeffs:torch.tensor, domain):
+
+    coeffs=from_tensor_list(coeffs)
+    from_list_gmpy(coeffs)
+
     modified_coeffs = coeffs[:]
     distribute_powers(modified_coeffs, fr.Fr.GENERATOR)
+    from_gmpy_list(modified_coeffs)
+    modified_coeffs=from_list_tensor(modified_coeffs)
     evals = NTT(domain,modified_coeffs)
     return evals
 
@@ -221,7 +228,7 @@ def from_coeff_vec(coeffs:torch.Tensor):
         result.pop()
     
     output=from_list_tensor(result,dtype=torch.BLS12_381_Fr_G1_Mont)
-    return result
+    return output
 
 def poly_add_poly(self: list[fr.Fr], other: list[fr.Fr]):
     if len(self) == 0:

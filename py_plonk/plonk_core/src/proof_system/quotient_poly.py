@@ -148,34 +148,43 @@ def compute(domain: Radix2EvaluationDomain,
     #get NTT domain
     domain_8n = Radix2EvaluationDomain.new(8 * domain.size,params)
     
-    l1_poly = compute_first_lagrange_poly_scaled(domain, alpha.one())
+    l1_poly = compute_first_lagrange_poly_scaled(domain, alpha.one()) ########输出为Tensor
+
     l1_eval_8n = coset_NTT(l1_poly,domain_8n)
 
     z_eval_8n = coset_NTT(z_poly,domain_8n)
+    z_eval_8n=from_tensor_list(z_eval_8n)
     z_eval_8n += z_eval_8n[:8]
 
     wl_eval_8n = coset_NTT(w_l_poly,domain_8n)
+    wl_eval_8n=from_tensor_list(wl_eval_8n)
     wl_eval_8n += wl_eval_8n[:8]
 
     wr_eval_8n = coset_NTT(w_r_poly,domain_8n)
+    wr_eval_8n=from_tensor_list(wr_eval_8n)
     wr_eval_8n += wr_eval_8n[:8]
 
     wo_eval_8n = coset_NTT(w_o_poly,domain_8n)
 
     w4_eval_8n = coset_NTT(w_4_poly,domain_8n)
+    w4_eval_8n=from_tensor_list(w4_eval_8n)
     w4_eval_8n += w4_eval_8n[:8]
 
     z2_eval_8n = coset_NTT(z2_poly,domain_8n)
+    z2_eval_8n=from_tensor_list(z2_eval_8n)
     z2_eval_8n +=z2_eval_8n[:8]
 
     f_eval_8n = coset_NTT(f_poly,domain_8n)
 
     table_eval_8n = coset_NTT(table_poly,domain_8n)
+    table_eval_8n=from_tensor_list(table_eval_8n)
     table_eval_8n += table_eval_8n[:8]
 
     h1_eval_8n = coset_NTT(h1_poly,domain_8n)
+    h1_eval_8n=from_tensor_list(h1_eval_8n)
     h1_eval_8n += h1_eval_8n[:8]
 
+    # h2_poly=from_tensor_list(h2_poly)
     h2_eval_8n = coset_NTT(h2_poly,domain_8n)
 
     gate_constraints = compute_gate_constraint_satisfiability(

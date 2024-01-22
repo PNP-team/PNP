@@ -38,9 +38,10 @@ class Commitment:
     def __init__(self,value):
         self.value = value
     @classmethod
-    def commit(cls,powers,polynomial:list[fr.Fr],hiding_bound,params):
+    def commit(cls,powers,polynomial:torch.tensor,hiding_bound,params):
 
         from_list_gmpy(polynomial)
+
         num_leading_zeros, plain_coeffs = skip_leading_zeros_and_convert_to_bigints(polynomial)
         commitment:ProjectivePointG1 = MSM(
             powers[0][num_leading_zeros:],

@@ -140,7 +140,7 @@ def compute_permutation_poly(domain, wires, beta, gamma, sigma_polys):
     return z_poly
 
 # Define a Python function that mirrors the Rust function
-def compute_lookup_permutation_poly(domain, f, t, h_1:torch.Tensor, h_2, delta, epsilon):
+def compute_lookup_permutation_poly(domain, f, t, h_1:torch.Tensor, h_2, delta, epsilon):  ####输出为Tensor
     n = domain.size
 
     h_1=from_tensor_list(h_1)

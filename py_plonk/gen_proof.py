@@ -63,10 +63,16 @@ def gen_proof(pp, pk: Prover_Key, cs: StandardComposer, transcript: transcript.T
     w_r_poly = from_coeff_vec(INTT(domain,w_r_scalar))
     w_o_poly = from_coeff_vec(INTT(domain,w_o_scalar))
     w_4_poly = from_coeff_vec(INTT(domain,w_4_scalar))
+
+    w_l_poly=from_tensor_list(w_l_poly)
+    w_r_poly=from_tensor_list(w_r_poly)
+    w_o_poly=from_tensor_list(w_o_poly)
+    w_4_poly=from_tensor_list(w_4_poly)
     print(w_l_poly)
 
     w_polys = [kzg10.LabeledPoly.new(label="w_l_poly",hiding_bound=None,poly=w_l_poly),kzg10.LabeledPoly.new(label="w_r_poly",hiding_bound=None,poly=w_r_poly),
                kzg10.LabeledPoly.new(label="w_o_poly",hiding_bound=None,poly=w_o_poly),kzg10.LabeledPoly.new(label="w_4_poly",hiding_bound=None,poly=w_4_poly)]
+
     w_commits, w_rands = kzg10.commit_poly(pp,w_polys,Fr) 
 
     transcript.append(b"w_l",w_commits[0].commitment.value)
@@ -123,6 +129,7 @@ def gen_proof(pp, pk: Prover_Key, cs: StandardComposer, transcript: transcript.T
     # Compute query poly
     compressed_f_poly = INTT(domain,compressed_f_multiset_elements_tensor)
     f_poly = from_coeff_vec(compressed_f_poly)
+    f_poly=from_tensor_list(f_poly)
     f_polys = [kzg10.LabeledPoly.new(label="f_poly",hiding_bound=None,poly=f_poly)]
 
     # Commit to query polynomial
@@ -142,8 +149,9 @@ def gen_proof(pp, pk: Prover_Key, cs: StandardComposer, transcript: transcript.T
     # Compute h polys
     h_1_temp = INTT(domain,h_1)
     h_2_temp = INTT(domain,h_2)
-    h_1_poly = from_coeff_vec(h_1_temp)
-    h_2_poly = from_coeff_vec(h_2_temp)
+    h_1_poly = from_tensor_list(from_coeff_vec(h_1_temp))
+    h_2_poly = from_tensor_list(from_coeff_vec(h_2_temp))
+    
 
     # Commit to h polys
     h_1_polys = [kzg10.LabeledPoly.new(label="h_1_poly",hiding_bound=None,poly=h_1_poly)]
@@ -208,6 +216,7 @@ def gen_proof(pp, pk: Prover_Key, cs: StandardComposer, transcript: transcript.T
             pk_permutation_fourth_sigma
         ))
     # Commit to permutation polynomial.
+    z_poly=from_tensor_list(z_poly)
     z_polys = [kzg10.LabeledPoly.new(label="z_poly",hiding_bound=None,poly=z_poly)]
     z_poly_commit,_ = kzg10.commit_poly(pp,z_polys,Fr)
 
@@ -227,6 +236,7 @@ def gen_proof(pp, pk: Prover_Key, cs: StandardComposer, transcript: transcript.T
     )
 
     # Commit to lookup permutation polynomial.
+    z_2_poly=from_tensor_list(z_2_poly)
     z_2_polys = [kzg10.LabeledPoly.new(label="z_2_poly",hiding_bound=None,poly=z_2_poly)]
     z_2_poly_commit,_ = kzg10.commit_poly(pp,z_2_polys,Fr)
 
@@ -253,6 +263,28 @@ def gen_proof(pp, pk: Prover_Key, cs: StandardComposer, transcript: transcript.T
 
     lookup_sep_challenge = transcript.challenge_scalar(b"lookup separation challenge",Fr)
     transcript.append(b"lookup separation challenge", lookup_sep_challenge)
+
+
+    from_gmpy_list(z_poly)
+    from_gmpy_list(z_2_poly)
+    from_gmpy_list(w_l_poly)
+    from_gmpy_list(w_r_poly)
+    from_gmpy_list(w_o_poly)
+    from_gmpy_list(w_4_poly)
+    from_gmpy_list(f_poly)
+    from_gmpy_list(h_1_poly)
+    from_gmpy_list(h_2_poly)
+
+
+    z_poly=from_list_tensor(z_poly)
+    z_2_poly=from_list_tensor(z_2_poly)
+    w_l_poly=from_list_tensor(w_l_poly)
+    w_r_poly=from_list_tensor(w_r_poly)
+    w_o_poly=from_list_tensor(w_o_poly)
+    w_4_poly=from_list_tensor(w_4_poly)
+    f_poly=from_list_tensor(f_poly)
+    h_1_poly=from_list_tensor(h_1_poly)
+    h_2_poly=from_list_tensor(h_2_poly)
 
     t_poly = quotient_poly.compute(
         domain,pk,
