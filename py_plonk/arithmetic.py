@@ -9,7 +9,7 @@ import random
 import torch
 
 
-def from_list_tensor(input:list, dtype):
+def from_list_tensor(input:list, dtype=torch.BLS12_381_Fr_G1_Mont):
     base_input=[]
     for i in range(len(input)):
         # print(input[i].value)
@@ -157,8 +157,8 @@ def NTT(domain,coeffs:torch.Tensor):
     resize_coeffs_value = resize(coeffs_value,domain.size,zero)
     evals = operator(domain,resize_coeffs_value,domain.group_gen)
 
-    output_evals=from_gmpy_list(evals)
-    output=from_list_tensor(output_evals)
+    from_gmpy_list(evals)
+    output=from_list_tensor(evals,dtype=torch.BLS12_381_Fr_G1_Mont)
     return output
 
 def INTT(domain,evals:torch.Tensor):

@@ -138,7 +138,7 @@ def gen_proof(pp, pk: Prover_Key, cs: StandardComposer, transcript: transcript.T
     from_gmpy_list(h_2)
     h_1=from_list_tensor(h_1,dtype=torch.torch.BLS12_381_Fr_G1_Mont)
     h_2=from_list_tensor(h_2,dtype=torch.torch.BLS12_381_Fr_G1_Mont)
-    
+
     # Compute h polys
     h_1_temp = INTT(domain,h_1)
     h_2_temp = INTT(domain,h_2)
@@ -178,15 +178,34 @@ def gen_proof(pp, pk: Prover_Key, cs: StandardComposer, transcript: transcript.T
     assert gamma.value != epsilon.value, "challenges must be different"
     assert delta.value != epsilon.value, "challenges must be different"
     
+
+    w_l_scalar=from_tensor_list(w_l_scalar)
+    w_r_scalar=from_tensor_list(w_r_scalar)
+    w_o_scalar=from_tensor_list(w_o_scalar)
+    w_4_scalar=from_tensor_list(w_4_scalar)
+    from_list_gmpy(w_l_scalar)
+    from_list_gmpy(w_r_scalar)
+    from_list_gmpy(w_o_scalar)
+    from_list_gmpy(w_4_scalar)
+    from_gmpy_list(pk.permutation.left_sigma[0])
+    from_gmpy_list(pk.permutation.right_sigma[0])
+    from_gmpy_list(pk.permutation.out_sigma[0])
+    from_gmpy_list(pk.permutation.fourth_sigma[0])
+    pk_permutation_left_sigma=from_list_tensor(pk.permutation.left_sigma[0],dtype=torch.BLS12_381_Fr_G1_Mont)
+    pk_permutation_right_sigma=from_list_tensor(pk.permutation.right_sigma[0],dtype=torch.BLS12_381_Fr_G1_Mont)
+    pk_permutation_out_sigma=from_list_tensor( pk.permutation.out_sigma[0],dtype=torch.BLS12_381_Fr_G1_Mont)
+    pk_permutation_fourth_sigma=from_list_tensor(pk.permutation.fourth_sigma[0],dtype=torch.BLS12_381_Fr_G1_Mont)
+
+
     z_poly = mod.compute_permutation_poly(domain,
         (w_l_scalar, w_r_scalar, w_o_scalar, w_4_scalar),
         beta,
         gamma,
         (
-            pk.permutation.left_sigma[0],
-            pk.permutation.right_sigma[0],
-            pk.permutation.out_sigma[0],
-            pk.permutation.fourth_sigma[0]
+            pk_permutation_left_sigma,
+            pk_permutation_right_sigma,
+            pk_permutation_out_sigma,
+            pk_permutation_fourth_sigma
         ))
     # Commit to permutation polynomial.
     z_polys = [kzg10.LabeledPoly.new(label="z_poly",hiding_bound=None,poly=z_poly)]

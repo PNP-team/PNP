@@ -3,6 +3,10 @@ from ....arithmetic import NTT,INTT,from_coeff_vec
 from ....bls12_381 import fr
 import copy
 import math
+import torch
+from ....arithmetic import INTT,from_coeff_vec,resize,\
+                        from_gmpy_list,from_list_gmpy,from_list_tensor,from_tensor_list
+
 
 def numerator_irreducible(root, w, k, beta, gamma):
     mid1 = beta.mul(k)
@@ -56,6 +60,16 @@ def compute_permutation_poly(domain, wires, beta, gamma, sigma_polys):
     sigma_mappings[2] = NTT(domain,sigma_polys[2])
     sigma_mappings[3] = NTT(domain,sigma_polys[3])
 
+    
+    sigma_mappings_0=from_tensor_list(sigma_mappings[0])
+    sigma_mappings_1=from_tensor_list(sigma_mappings[1])
+    sigma_mappings_2=from_tensor_list(sigma_mappings[2])
+    sigma_mappings_3=from_tensor_list(sigma_mappings[3])
+
+    from_list_gmpy(sigma_mappings_0)
+    from_list_gmpy(sigma_mappings_1)
+    from_list_gmpy(sigma_mappings_2)
+    from_list_gmpy(sigma_mappings_3)
     # Transpose wires and sigma values to get "rows" in the form [wl_i,
     # wr_i, wo_i, ... ] where each row contains the wire and sigma
     # values for a single gate
@@ -63,8 +77,8 @@ def compute_permutation_poly(domain, wires, beta, gamma, sigma_polys):
         [w0, w1, w2, w3] for w0, w1, w2, w3 in zip(wires[0],wires[1],wires[2],wires[3])
     ]
     gatewise_sigmas = [
-        [s0, s1, s2, s3] for s0, s1, s2, s3 in zip(sigma_mappings[0],sigma_mappings[1],
-                                                   sigma_mappings[2],sigma_mappings[3])
+        [s0, s1, s2, s3] for s0, s1, s2, s3 in zip(sigma_mappings_0,sigma_mappings_1,
+                                                   sigma_mappings_2,sigma_mappings_3)
     ]
 
     # Compute all roots, same as calculating twiddles, but doubled in size
@@ -117,17 +131,22 @@ def compute_permutation_poly(domain, wires, beta, gamma, sigma_polys):
     # Remove the last(n+1'th) element
     z.pop()
     
+    from_gmpy_list(z)
+    z_tensor=from_list_tensor(z)
     #Compute z poly
-    z_poly = INTT(domain,z)
+    z_poly = INTT(domain,z_tensor)
     z_poly = from_coeff_vec(z_poly)
     
     return z_poly
 
 # Define a Python function that mirrors the Rust function
-def compute_lookup_permutation_poly(domain, f, t, h_1, h_2, delta, epsilon):
+def compute_lookup_permutation_poly(domain, f, t, h_1:torch.Tensor, h_2, delta, epsilon):
     n = domain.size
 
-
+    h_1=from_tensor_list(h_1)
+    h_2=from_tensor_list(h_2)
+    from_list_gmpy(h_1)
+    from_list_gmpy(h_2)
 
     assert len(f) == n
     assert len(t) == n
@@ -149,7 +168,10 @@ def compute_lookup_permutation_poly(domain, f, t, h_1, h_2, delta, epsilon):
         p.append(state)
     
     p.pop()
-    p_poly = INTT(domain,p)
+
+    from_gmpy_list(p)
+    p_tensor=from_list_tensor(p)
+    p_poly = INTT(domain,p_tensor)
     p_poly = from_coeff_vec(p_poly)
     
     return p_poly

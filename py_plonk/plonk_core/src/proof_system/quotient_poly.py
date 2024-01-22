@@ -8,12 +8,17 @@ from ....plonk_core.src.proof_system.widget.logic import LogicGate,LogicValues
 from ....plonk_core.src.proof_system.widget.fixed_base_scalar_mul import FBSMGate,FBSMValues
 from ....plonk_core.src.proof_system.widget.curve_addition import CAGate,CAValues
 from ....plonk_core.src.proof_system.mod import CustomEvaluations
+from ....arithmetic import INTT,from_coeff_vec,resize,\
+                        from_gmpy_list,from_list_gmpy,from_list_tensor,from_tensor_list
 
 # Computes the first lagrange polynomial with the given `scale` over `domain`.
 def compute_first_lagrange_poly_scaled(domain: Radix2EvaluationDomain,scale: fr.Fr):
     x_evals = [fr.Fr.zero() for _ in range(domain.size)]
     x_evals[0] = scale
-    x_coeffs = INTT(domain,x_evals)
+    
+    from_gmpy_list(x_evals)
+    x_evals_tensor=from_list_tensor(x_evals)
+    x_coeffs = INTT(domain,x_evals_tensor)
     result_poly = from_coeff_vec(x_coeffs)
     return result_poly
 
