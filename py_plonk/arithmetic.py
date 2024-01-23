@@ -211,12 +211,16 @@ def coset_NTT(coeffs:torch.tensor, domain):
     return evals
 
 # Compute a INTT over a coset of the domain, modifying the input vector in place.
-def coset_INTT(evals:list[fr.Fr], domain):
+def coset_INTT(evals:torch.tensor, domain):
+    evals=from_tensor_list(evals)
+    from_list_gmpy(evals)
     #add zero to resize
     zero = fr.Fr.zero()
     resize_evals = resize(evals,domain.size,zero)
     evals = operator(domain,resize_evals,domain.group_gen_inv)
     distribute_powers_and_mul_by_const(evals, domain.generator_inv,domain.size_inv)
+    from_gmpy_list(evals)
+    evals=from_list_tensor(evals)
     return evals
 
 def from_coeff_vec(coeffs:torch.Tensor):

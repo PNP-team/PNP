@@ -32,6 +32,8 @@ def compute_gate_constraint_satisfiability(domain,
     domain_8n = Radix2EvaluationDomain.new(8 * domain.size,params)
 
     pi_eval_8n = coset_NTT(pi_poly,domain_8n)
+    pi_eval_8n=from_tensor_list(pi_eval_8n)
+    from_list_gmpy(pi_eval_8n)
 
     gate_contributions = []
 
@@ -109,6 +111,9 @@ def compute_permutation_checks(
     alpha2 = alpha.square()
     l1_poly_alpha = compute_first_lagrange_poly_scaled(domain, alpha2)
     l1_alpha_sq_evals = coset_NTT(l1_poly_alpha, domain_8n)
+    l1_alpha_sq_evals=from_tensor_list(l1_alpha_sq_evals)
+    from_list_gmpy(l1_alpha_sq_evals)
+
 
     # Initialize result list
     result = []
@@ -151,41 +156,56 @@ def compute(domain: Radix2EvaluationDomain,
     l1_poly = compute_first_lagrange_poly_scaled(domain, alpha.one()) ########输出为Tensor
 
     l1_eval_8n = coset_NTT(l1_poly,domain_8n)
+    l1_eval_8n=from_tensor_list(l1_eval_8n)
+    from_list_gmpy(l1_eval_8n)
 
     z_eval_8n = coset_NTT(z_poly,domain_8n)
     z_eval_8n=from_tensor_list(z_eval_8n)
     z_eval_8n += z_eval_8n[:8]
+    from_list_gmpy(z_eval_8n)
 
     wl_eval_8n = coset_NTT(w_l_poly,domain_8n)
     wl_eval_8n=from_tensor_list(wl_eval_8n)
     wl_eval_8n += wl_eval_8n[:8]
+    from_list_gmpy(wl_eval_8n)
 
     wr_eval_8n = coset_NTT(w_r_poly,domain_8n)
     wr_eval_8n=from_tensor_list(wr_eval_8n)
     wr_eval_8n += wr_eval_8n[:8]
+    from_list_gmpy(wr_eval_8n)
 
     wo_eval_8n = coset_NTT(w_o_poly,domain_8n)
+    wo_eval_8n=from_tensor_list(wo_eval_8n)
+    from_list_gmpy(wo_eval_8n)
 
     w4_eval_8n = coset_NTT(w_4_poly,domain_8n)
     w4_eval_8n=from_tensor_list(w4_eval_8n)
     w4_eval_8n += w4_eval_8n[:8]
+    from_list_gmpy(w4_eval_8n)
 
     z2_eval_8n = coset_NTT(z2_poly,domain_8n)
     z2_eval_8n=from_tensor_list(z2_eval_8n)
     z2_eval_8n +=z2_eval_8n[:8]
+    from_list_gmpy(z2_eval_8n)
 
     f_eval_8n = coset_NTT(f_poly,domain_8n)
+    f_eval_8n=from_tensor_list(f_eval_8n)
+    from_list_gmpy(f_eval_8n)
 
     table_eval_8n = coset_NTT(table_poly,domain_8n)
     table_eval_8n=from_tensor_list(table_eval_8n)
     table_eval_8n += table_eval_8n[:8]
+    from_list_gmpy(table_eval_8n)
 
     h1_eval_8n = coset_NTT(h1_poly,domain_8n)
     h1_eval_8n=from_tensor_list(h1_eval_8n)
     h1_eval_8n += h1_eval_8n[:8]
+    from_list_gmpy(h1_eval_8n)
 
     # h2_poly=from_tensor_list(h2_poly)
     h2_eval_8n = coset_NTT(h2_poly,domain_8n)
+    h2_eval_8n=from_tensor_list(h2_eval_8n)
+    from_list_gmpy(h2_eval_8n)
 
     gate_constraints = compute_gate_constraint_satisfiability(
         domain,
@@ -228,6 +248,9 @@ def compute(domain: Radix2EvaluationDomain,
         res = numerator.mul(denominator)
         quotient.append(res)
 
+    from_gmpy_list(quotient)
+    quotient=from_list_tensor(quotient)
+    
     quotient_poly = coset_INTT(quotient,domain_8n)
     hx = from_coeff_vec(quotient_poly)
 

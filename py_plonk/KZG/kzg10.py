@@ -39,7 +39,7 @@ class Commitment:
         self.value = value
     @classmethod
     def commit(cls,powers,polynomial:torch.tensor,hiding_bound,params):
-
+        polynomial=from_tensor_list(polynomial)
         from_list_gmpy(polynomial)
 
         num_leading_zeros, plain_coeffs = skip_leading_zeros_and_convert_to_bigints(polynomial)
