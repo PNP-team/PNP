@@ -3,7 +3,7 @@ from .....bls12_381 import fr
 from typing import List, Tuple
 from .....plonk_core.src.proof_system.widget.mod import WitnessValues
 from .....plonk_core.src.constraint_system.hash import SBOX_ALPHA
-from .....arithmetic import poly_mul_const,poly_add_poly
+from .....arithmetic import poly_mul_const,poly_add_poly,from_gmpy_list,from_list_gmpy,from_list_tensor,from_tensor_list
 @dataclass
 class Arith:
     q_m: Tuple[List,List]
@@ -67,7 +67,11 @@ class Arith:
         mid8_1 = d_eval.pow(SBOX_ALPHA)
         mid8 = poly_mul_const(self.q_h4[0] ,mid8_1)
 
-        add1 = poly_add_poly(mid1, mid2)
+        from_gmpy_list(mid2)
+        mid2=from_list_tensor(mid2)
+
+
+        add1 = poly_add_poly(mid1, mid2)   #######返回值为tensor
         add2 = poly_add_poly(add1, mid3)
         add3 = poly_add_poly(add2, mid4)
         add4 = poly_add_poly(add3, mid5)
@@ -75,6 +79,9 @@ class Arith:
         add6 = poly_add_poly(add5, mid7)
         add7 = poly_add_poly(add6, mid8)
         add8 = poly_add_poly(add7, self.q_c[0])
+        
 
+        add8=from_tensor_list(add8)
+        from_list_gmpy(add8)
         result = poly_mul_const(add8, q_arith_eval)
         return result

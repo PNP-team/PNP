@@ -197,14 +197,18 @@ def gen_proof(pp, pk: Prover_Key, cs: StandardComposer, transcript: transcript.T
     from_list_gmpy(w_r_scalar)
     from_list_gmpy(w_o_scalar)
     from_list_gmpy(w_4_scalar)
-    from_gmpy_list(pk.permutation.left_sigma[0])
-    from_gmpy_list(pk.permutation.right_sigma[0])
-    from_gmpy_list(pk.permutation.out_sigma[0])
-    from_gmpy_list(pk.permutation.fourth_sigma[0])
-    pk_permutation_left_sigma=from_list_tensor(pk.permutation.left_sigma[0],dtype=torch.BLS12_381_Fr_G1_Mont)
-    pk_permutation_right_sigma=from_list_tensor(pk.permutation.right_sigma[0],dtype=torch.BLS12_381_Fr_G1_Mont)
-    pk_permutation_out_sigma=from_list_tensor( pk.permutation.out_sigma[0],dtype=torch.BLS12_381_Fr_G1_Mont)
-    pk_permutation_fourth_sigma=from_list_tensor(pk.permutation.fourth_sigma[0],dtype=torch.BLS12_381_Fr_G1_Mont)
+    pk_permutation_left_sigma_list=copy.deepcopy(pk.permutation.left_sigma[0])
+    pk_permutation_right_sigma_list=copy.deepcopy(pk.permutation.right_sigma[0])
+    pk_permutation_out_sigma_list=copy.deepcopy(pk.permutation.out_sigma[0])
+    pk_permutation_fourth_sigma_list=copy.deepcopy(pk.permutation.fourth_sigma[0])
+    from_gmpy_list(pk_permutation_left_sigma_list)
+    from_gmpy_list(pk_permutation_right_sigma_list)
+    from_gmpy_list(pk_permutation_out_sigma_list)
+    from_gmpy_list(pk_permutation_fourth_sigma_list)
+    pk_permutation_left_sigma=from_list_tensor(pk_permutation_left_sigma_list,dtype=torch.BLS12_381_Fr_G1_Mont)
+    pk_permutation_right_sigma=from_list_tensor(pk_permutation_right_sigma_list,dtype=torch.BLS12_381_Fr_G1_Mont)
+    pk_permutation_out_sigma=from_list_tensor( pk_permutation_out_sigma_list,dtype=torch.BLS12_381_Fr_G1_Mont)
+    pk_permutation_fourth_sigma=from_list_tensor(pk_permutation_fourth_sigma_list,dtype=torch.BLS12_381_Fr_G1_Mont)
 
 
     z_poly = mod.compute_permutation_poly(domain,
@@ -265,28 +269,6 @@ def gen_proof(pp, pk: Prover_Key, cs: StandardComposer, transcript: transcript.T
 
     lookup_sep_challenge = transcript.challenge_scalar(b"lookup separation challenge",Fr)
     transcript.append(b"lookup separation challenge", lookup_sep_challenge)
-
-
-    # from_gmpy_list(z_poly)
-    # from_gmpy_list(z_2_poly)
-    # from_gmpy_list(w_l_poly)
-    # from_gmpy_list(w_r_poly)
-    # from_gmpy_list(w_o_poly)
-    # from_gmpy_list(w_4_poly)
-    # from_gmpy_list(f_poly)
-    # from_gmpy_list(h_1_poly)
-    # from_gmpy_list(h_2_poly)
-
-
-    # z_poly=from_list_tensor(z_poly)
-    # z_2_poly=from_list_tensor(z_2_poly)
-    # w_l_poly=from_list_tensor(w_l_poly)
-    # w_r_poly=from_list_tensor(w_r_poly)
-    # w_o_poly=from_list_tensor(w_o_poly)
-    # w_4_poly=from_list_tensor(w_4_poly)
-    # f_poly=from_list_tensor(f_poly)
-    # h_1_poly=from_list_tensor(h_1_poly)
-    # h_2_poly=from_list_tensor(h_2_poly)
 
     t_poly = quotient_poly.compute(
         domain,pk,
@@ -394,6 +376,7 @@ def gen_proof(pp, pk: Prover_Key, cs: StandardComposer, transcript: transcript.T
     # opening poly. It is being left in for now but it may not
     # be necessary. Warrants further investigation.
     # Ditto with the out_sigma poly.
+    
     aw_polys = [kzg10.LabeledPoly.new(label="lin_poly",hiding_bound=None,poly=lin_poly),
                 kzg10.LabeledPoly.new(label="prover_key.permutation.left_sigma.0.clone()",hiding_bound=None,poly=pk.permutation.left_sigma[0]),
                 kzg10.LabeledPoly.new(label="prover_key.permutation.right_sigma.0.clone()",hiding_bound=None,poly=pk.permutation.right_sigma[0]),
@@ -402,6 +385,7 @@ def gen_proof(pp, pk: Prover_Key, cs: StandardComposer, transcript: transcript.T
                 kzg10.LabeledPoly.new(label="h_2_poly",hiding_bound=None,poly=h_2_poly),
                 kzg10.LabeledPoly.new(label="table_poly",hiding_bound=None,poly=table_poly)]
     
+
     aw_commits, aw_rands = kzg10.commit_poly(pp,aw_polys,Fr)
     aw_opening = kzg10.open(
         pp,

@@ -224,7 +224,7 @@ def coset_INTT(evals:torch.tensor, domain):
     return evals
 
 def from_coeff_vec(coeffs:torch.Tensor):
-    coeffs=from_tensor_list(coeffs)  ###########有问题
+    coeffs=from_tensor_list(coeffs)  
 
     result = coeffs[:]
     # print(result[-1])
@@ -234,29 +234,38 @@ def from_coeff_vec(coeffs:torch.Tensor):
     output=from_list_tensor(result,dtype=torch.BLS12_381_Fr_G1_Mont)
     return output
 
-def poly_add_poly(self: list[fr.Fr], other: list[fr.Fr]):
+def poly_add_poly(self: torch.tensor, other: torch.tensor):    #input tensor output tensor
     if len(self) == 0:
         res = other[:]
         return res
     if len(other) == 0:
-        res = self[:]
+        res =self[:]
         return res
     elif len(self) >= len(other):
-        result = self[:]
+    
+        result=from_tensor_list(self)
+        from_list_gmpy(result)
         for i in range(len(other)):
             result[i] = result[i].add(other[i])
+
+        from_gmpy_list(result)
+        result=from_list_tensor(result)
 
         result = from_coeff_vec(result)
         return result
     else:
-        result = other[:]
+     
+        result=from_tensor_list(other)
+        from_list_gmpy(result)
         for i in range(len(self)):
             result[i] = result[i].add(self[i])
-    
+
+        from_gmpy_list(result)
+        result=from_list_tensor(result)
         result = from_coeff_vec(result)
         return result
 
-def poly_mul_const(poly:list[fr.Fr],elem:fr.Fr):
+def poly_mul_const(poly:list[fr.Fr],elem:fr.Fr):  ###因为输入poly可能会是空，这样无法转为tensor
     if len(poly) == 0 or elem.value == 0:
         return poly
     else:
@@ -315,7 +324,9 @@ def evaluate(self, point: fr.Fr):
     return horner_evaluate(self, point)
 
 # Horner's method for polynomial evaluation
-def horner_evaluate(poly_coeffs: list[fr.Fr], point: fr.Fr):
+def horner_evaluate(poly_coeffs: list, point: fr.Fr):
+
+    # from_list_gmpy(poly_coeffs)
     result = fr.Fr.zero()
     for coeff in reversed(poly_coeffs):
         result = result.mul(point)

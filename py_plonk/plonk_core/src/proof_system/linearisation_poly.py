@@ -9,8 +9,8 @@ from ....plonk_core.src.proof_system.widget.range import RangeGate,RangeValues
 from ....plonk_core.src.proof_system.widget.logic import LogicGate,LogicValues
 from ....plonk_core.src.proof_system.widget.fixed_base_scalar_mul import FBSMGate,FBSMValues
 from ....plonk_core.src.proof_system.widget.curve_addition import CAGate,CAValues
-from ....arithmetic import poly_mul_const,poly_add_poly,evaluate,compute_first_lagrange_evaluation
-
+from ....arithmetic import poly_mul_const,poly_add_poly,evaluate,compute_first_lagrange_evaluation,from_gmpy_list,from_list_gmpy,from_list_tensor,from_tensor_list
+import torch
 
 @dataclass
 class WireEvaluations:
@@ -98,30 +98,68 @@ def compute(
     var_base_separation_challenge: fr.Fr,
     lookup_separation_challenge: fr.Fr,
     z_challenge: fr.Fr,
-    w_l_poly: List[fr.Fr],
-    w_r_poly: List[fr.Fr],
-    w_o_poly: List[fr.Fr],
-    w_4_poly: List[fr.Fr],
-    t_1_poly: List[fr.Fr],
-    t_2_poly: List[fr.Fr],
-    t_3_poly: List[fr.Fr],
-    t_4_poly: List[fr.Fr],
-    t_5_poly: List[fr.Fr],
-    t_6_poly: List[fr.Fr],
-    t_7_poly: List[fr.Fr],
-    t_8_poly: List[fr.Fr],
-    z_poly: List[fr.Fr],
-    z2_poly: List[fr.Fr],
-    f_poly: List[fr.Fr],
-    h1_poly: List[fr.Fr],
-    h2_poly: List[fr.Fr],
-    table_poly: List[fr.Fr]
+    w_l_poly: torch.tensor,
+    w_r_poly: torch.tensor,
+    w_o_poly: torch.tensor,
+    w_4_poly: torch.tensor,
+    t_1_poly: torch.tensor,
+    t_2_poly: torch.tensor,
+    t_3_poly: torch.tensor,
+    t_4_poly: torch.tensor,
+    t_5_poly: torch.tensor,
+    t_6_poly: torch.tensor,
+    t_7_poly: torch.tensor,
+    t_8_poly: torch.tensor,
+    z_poly: torch.tensor,
+    z2_poly: torch.tensor,
+    f_poly: torch.tensor,
+    h1_poly: torch.tensor,
+    h2_poly: torch.tensor,
+    table_poly: torch.tensor
     ):
     n = domain.size
     omega = domain.group_gen
     shifted_z_challenge = z_challenge.mul(omega)
 
     # Wire evaluations
+    w_l_poly = from_tensor_list(w_l_poly)
+    w_r_poly = from_tensor_list(w_r_poly)
+    w_o_poly = from_tensor_list(w_o_poly)
+    w_4_poly = from_tensor_list(w_4_poly)
+    t_1_poly = from_tensor_list(t_1_poly)
+    t_2_poly = from_tensor_list(t_2_poly)
+    t_3_poly = from_tensor_list(t_3_poly)
+    t_4_poly = from_tensor_list(t_4_poly)
+    t_5_poly = from_tensor_list(t_5_poly)
+    t_6_poly = from_tensor_list(t_6_poly)
+    t_7_poly = from_tensor_list(t_7_poly)
+    t_8_poly = from_tensor_list(t_8_poly)
+    z_poly = from_tensor_list(z_poly)
+    z2_poly = from_tensor_list(z2_poly)
+    f_poly = from_tensor_list(f_poly)
+    h1_poly = from_tensor_list(h1_poly)
+    h2_poly = from_tensor_list(h2_poly)
+    table_poly = from_tensor_list(table_poly)
+
+    from_list_gmpy(w_l_poly)
+    from_list_gmpy(w_r_poly)
+    from_list_gmpy(w_o_poly)
+    from_list_gmpy(w_4_poly)
+    from_list_gmpy(t_1_poly)
+    from_list_gmpy(t_2_poly)
+    from_list_gmpy(t_3_poly)
+    from_list_gmpy(t_4_poly)
+    from_list_gmpy(t_5_poly)
+    from_list_gmpy(t_6_poly)
+    from_list_gmpy(t_7_poly)
+    from_list_gmpy(t_8_poly)
+    from_list_gmpy(z_poly)
+    from_list_gmpy(z2_poly)
+    from_list_gmpy(f_poly)
+    from_list_gmpy(h1_poly)
+    from_list_gmpy(h2_poly)
+    from_list_gmpy(table_poly)
+
     a_eval = evaluate(w_l_poly, z_challenge)
     b_eval = evaluate(w_r_poly, z_challenge)
     c_eval = evaluate(w_o_poly, z_challenge)
@@ -173,6 +211,7 @@ def compute(
          ("b_next_eval", b_next_eval),
          ("d_next_eval", d_next_eval)]
     )
+
 
     z2_next_eval = evaluate(z2_poly, shifted_z_challenge)
     h1_eval = evaluate(h1_poly, z_challenge)
@@ -250,37 +289,73 @@ def compute(
     term_1 = poly_mul_const(t_8_poly , z_challenge_to_n)
 
     # Calculate (term_1 + t_7_poly) * z_challenge_to_n
+    from_gmpy_list(term_1)
+    term_1=from_list_tensor(term_1)
     term_2_1 = poly_add_poly(term_1 , t_7_poly)
+    term_2_1 =from_tensor_list(term_2_1)
+    from_list_gmpy(term_2_1)
     term_2 = poly_mul_const(term_2_1, z_challenge_to_n)
 
+    from_gmpy_list(term_2)
+    term_2=from_list_tensor(term_2)
     # Calculate (term_2 + t_6_poly) * z_challenge_to_n
     term_3_1 = poly_add_poly(term_2 , t_6_poly)
+    term_3_1 = from_tensor_list(term_3_1)
+    from_list_gmpy(term_3_1)
     term_3 = poly_mul_const(term_3_1, z_challenge_to_n)
 
+    from_gmpy_list(term_3)
+    term_3=from_list_tensor(term_3)
     # Calculate (term_3 + t_5_poly) * z_challenge_to_n
     term_4_1 = poly_add_poly(term_3 , t_5_poly)
+    term_4_1 = from_tensor_list(term_4_1)
+    from_list_gmpy(term_4_1)
     term_4 = poly_mul_const(term_4_1, z_challenge_to_n)
 
+    from_gmpy_list(term_4)
+    term_4=from_list_tensor(term_4)
     # Calculate (term_4 + t_4_poly) * z_challenge_to_n
     term_5_1 = poly_add_poly(term_4 , t_4_poly)
+    term_5_1 = from_tensor_list(term_5_1)
+    from_list_gmpy(term_5_1)
     term_5 = poly_mul_const(term_5_1, z_challenge_to_n)
 
+    from_gmpy_list(term_5)
+    term_5=from_list_tensor(term_5)
     # Calculate (term_5 + t_3_poly) * z_challenge_to_n
     term_6_1 = poly_add_poly(term_5 , t_3_poly)
+    term_6_1 = from_tensor_list(term_6_1)
+    from_list_gmpy(term_6_1)
     term_6 = poly_mul_const(term_6_1, z_challenge_to_n)
 
+    from_gmpy_list(term_6)
+    term_6=from_list_tensor(term_6)
     # Calculate (term_6 + t_2_poly) * z_challenge_to_n
     term_7_1 = poly_add_poly(term_6 , t_2_poly)
+    term_7_1 = from_tensor_list(term_7_1)
+    from_list_gmpy(term_7_1)
     term_7 = poly_mul_const(term_7_1, z_challenge_to_n)
 
+    from_gmpy_list(term_7)
+    term_7=from_list_tensor(term_7)
     # Calculate (term_7 + t_1_poly) * vanishing_poly_eval
     term_8_1 = poly_add_poly(term_7 , t_1_poly)
+    term_8_1 = from_tensor_list(term_8_1)
+    from_list_gmpy(term_8_1)
     quotient_term = poly_mul_const(term_8_1, vanishing_poly_eval)
+
 
     neg_one = one.neg()
     negative_quotient_term = poly_mul_const(quotient_term,neg_one)
+    from_gmpy_list(gate_constraints)
+    gate_constraints=from_list_tensor(gate_constraints)
+    permutation=from_tensor_list(permutation)
+    from_list_gmpy(permutation)
     linearisation_polynomial_term_1 = poly_add_poly(gate_constraints, permutation)
     linearisation_polynomial_term_2 = poly_add_poly(lookup, negative_quotient_term)
+
+    linearisation_polynomial_term_2=from_tensor_list(linearisation_polynomial_term_2)
+    from_list_gmpy(linearisation_polynomial_term_2)
     linearisation_polynomial = poly_add_poly(linearisation_polynomial_term_1, linearisation_polynomial_term_2)
 
     proof_evaluations = ProofEvaluations(wire_evals, perm_evals, lookup_evals, custom_evals)
@@ -340,7 +415,7 @@ def compute_gate_constraint_satisfiability(
         CAValues.from_evaluations(custom_evals),
     )
 
-    mid1 = poly_add_poly(arithmetic, range)
+    mid1 = poly_add_poly(arithmetic, range)  ###返回值为tensor
     mid2 = poly_add_poly(mid1, logic)
     mid3 = poly_add_poly(mid2, fixed_base_scalar_mul)
     res = poly_add_poly(mid3, curve_addition)

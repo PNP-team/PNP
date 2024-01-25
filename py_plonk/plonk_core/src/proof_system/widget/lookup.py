@@ -3,7 +3,7 @@ from .....domain import Radix2EvaluationDomain
 from dataclasses import dataclass
 from typing import List, Tuple
 from .....plonk_core.src.utils import lc
-from .....arithmetic import poly_add_poly,poly_mul_const
+from .....arithmetic import poly_add_poly,poly_mul_const,from_gmpy_list,from_list_gmpy,from_list_tensor,from_tensor_list
 @dataclass
 class Lookup:
     # Lookup selector
@@ -185,7 +185,10 @@ class Lookup:
         c_1 = epsilon_one_plus_delta_h2_eval.add(delta_h1_next_eval)
         c0_c1 = c_0.mul(c_1)
         c = poly_mul_const(h1_poly, c0_c1)
-
+        
+        
         ab = poly_add_poly(a, b)
+        from_gmpy_list(ab)
+        ab=from_list_tensor(ab)
         abc = poly_add_poly(ab, c)
         return abc

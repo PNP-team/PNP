@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from ....bls12_381 import fr
 from typing import List, Tuple
 from ....domain import Radix2EvaluationDomain
-from ....arithmetic import poly_mul_const,poly_add_poly
+from ....arithmetic import poly_mul_const,poly_add_poly,from_list_gmpy,from_list_tensor,from_tensor_list,from_gmpy_list
 from ....plonk_core.src.permutation.constants import K1,K2,K3
 @dataclass
 class Permutation:
@@ -165,6 +165,10 @@ class Permutation:
             alpha2,
             z_poly
         )
+        from_gmpy_list(a)
+        # from_gmpy_list(b)
+        a=from_list_tensor(a)
+        # b=from_list_tensor(b)
         ab = poly_add_poly(a,b)
         abc = poly_add_poly(ab,c)
         return abc
