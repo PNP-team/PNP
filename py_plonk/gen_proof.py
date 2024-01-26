@@ -438,6 +438,7 @@ def gen_proof(pp, pk: Prover_Key, cs: StandardComposer, transcript: transcript.T
             aw_opening = aw_opening,
             saw_opening = saw_opening,
             evaluations = evaluations)
+    print(Proof.b_comm.x.value)
     return Proof
 
 

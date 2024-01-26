@@ -14,7 +14,8 @@ def from_list_tensor(input:list, dtype=torch.BLS12_381_Fr_G1_Mont):
     for i in range(len(input)):
         # print(input[i].value)
         base_input.append(input[i].value)
-    output = torch.tensor(base_input,dtype = dtype)
+    output = torch.tensor(base_input,dtype = dtype,device='cuda')
+
     return output
 
 def from_list_tensor_2(input:list, dtype):
