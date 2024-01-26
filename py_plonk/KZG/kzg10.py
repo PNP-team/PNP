@@ -8,6 +8,7 @@ from ..arithmetic import MSM,skip_leading_zeros_and_convert_to_bigints,convert_t
 from ..plonk_core.src.proof_system.linearisation_poly import ProofEvaluations
 import random
 import torch 
+import copy
 from ..arithmetic import INTT,from_coeff_vec,resize,\
                         from_gmpy_list,from_list_gmpy,from_list_tensor,from_tensor_list
 
@@ -70,6 +71,7 @@ def open(
     rands,
     _rng=None
 ):
+    
     combined_polynomial = []
     combined_rand = Randomness.empty()
 
@@ -78,9 +80,12 @@ def open(
     curr_challenge = opening_challenges(opening_challenge, opening_challenge_counter)
     opening_challenge_counter += 1
 
-    for polynomial, rand in zip(labeled_polynomials, rands):
 
-        combined_polynomial = poly_add_poly_mul_const(combined_polynomial,curr_challenge, polynomial.poly)
+    for polynomial, rand in zip(labeled_polynomials, rands):
+        polynomial.poly=from_tensor_list(polynomial.poly)
+        from_list_gmpy(polynomial.poly)
+        combined_polynomial = poly_add_poly_mul_const(combined_polynomial,curr_challenge, polynomial.poly)  #polynomial.poly is tensor
+        
         combined_rand.add_assign(curr_challenge, rand)
         curr_challenge = opening_challenges(opening_challenge, opening_challenge_counter)
         opening_challenge_counter += 1
@@ -137,8 +142,17 @@ def opening_challenges(opening_challenge: fr.Fr, pow):
 def compute_witness_polynomial(p: List[fr.Fr], point: fr.Fr, randomness: Randomness):
     neg_p = point.neg()
     one = point.one()
-    divisor = from_coeff_vec([neg_p,one])
+    input=[neg_p,one]
+    from_gmpy_list(input)
+    input=from_list_tensor(input)
+    divisor = from_coeff_vec(input)
+
+    divisor=from_tensor_list(divisor)
+    from_list_gmpy(divisor)
+    
+
     witness_polynomial = p[:]
+
     if len(p) != 0:
         witness_polynomial = poly_div_poly(p, divisor)
     random_witness_polynomial = None
@@ -153,6 +167,10 @@ def open_with_witness_polynomial(
     randomness: Randomness,
     witness_polynomial, 
     hiding_witness_polynomial):
+
+    # witness_polynomial_mpz=copy.deepcopy(witness_polynomial)
+    # witness_polynomial_mpz=from_tensor_list(witness_polynomial_mpz)
+    # from_list_gmpy(witness_polynomial_mpz)
 
     num_leading_zeros, witness_coeffs =skip_leading_zeros_and_convert_to_bigints(witness_polynomial)
     w = MSM(powers[0][num_leading_zeros:],witness_coeffs,point)
@@ -170,11 +188,13 @@ def open_with_witness_polynomial(
 # On input a polynomial `p` and a point `point`, outputs a proof for the same.
 def open_proof(powers, p: List[field], point: field, rand: Randomness):
     witness_poly, hiding_witness_poly = compute_witness_polynomial(p, point, rand)
+    witness_polynomial_mpz=from_tensor_list(witness_poly)
+    from_list_gmpy(witness_polynomial_mpz)
     proof = open_with_witness_polynomial(
             powers,
             point,
             rand,
-            witness_poly,
+            witness_polynomial_mpz,
             hiding_witness_poly,
         )
     return proof

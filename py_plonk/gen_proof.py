@@ -306,7 +306,6 @@ def gen_proof(pp, pk: Prover_Key, cs: StandardComposer, transcript: transcript.T
     transcript.append(b"t_8", t_commits[7].commitment.value)
 
     # 4. Compute linearisation polynomial
-
     # Compute evaluation challenge `z`.
     z_challenge = transcript.challenge_scalar(b"z", Fr)
     transcript.append(b"z", z_challenge)
@@ -378,15 +377,16 @@ def gen_proof(pp, pk: Prover_Key, cs: StandardComposer, transcript: transcript.T
     # Ditto with the out_sigma poly.
     
     aw_polys = [kzg10.LabeledPoly.new(label="lin_poly",hiding_bound=None,poly=lin_poly),
-                kzg10.LabeledPoly.new(label="prover_key.permutation.left_sigma.0.clone()",hiding_bound=None,poly=pk.permutation.left_sigma[0]),
-                kzg10.LabeledPoly.new(label="prover_key.permutation.right_sigma.0.clone()",hiding_bound=None,poly=pk.permutation.right_sigma[0]),
-                kzg10.LabeledPoly.new(label="prover_key.permutation.out_sigma.0.clone()",hiding_bound=None,poly=pk.permutation.out_sigma[0]),
+                kzg10.LabeledPoly.new(label="prover_key.permutation.left_sigma.0.clone()",hiding_bound=None,poly=pk_permutation_left_sigma),
+                kzg10.LabeledPoly.new(label="prover_key.permutation.right_sigma.0.clone()",hiding_bound=None,poly=pk_permutation_right_sigma),
+                kzg10.LabeledPoly.new(label="prover_key.permutation.out_sigma.0.clone()",hiding_bound=None,poly=pk_permutation_out_sigma),
                 kzg10.LabeledPoly.new(label="f_poly",hiding_bound=None,poly=f_poly),
                 kzg10.LabeledPoly.new(label="h_2_poly",hiding_bound=None,poly=h_2_poly),
                 kzg10.LabeledPoly.new(label="table_poly",hiding_bound=None,poly=table_poly)]
     
 
     aw_commits, aw_rands = kzg10.commit_poly(pp,aw_polys,Fr)
+    
     aw_opening = kzg10.open(
         pp,
         itertools.chain(aw_polys, w_polys),

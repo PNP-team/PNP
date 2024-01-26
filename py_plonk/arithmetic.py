@@ -298,6 +298,8 @@ def divide_with_q_and_r(self: list[fr.Fr], divisor: list[fr.Fr]):
                 remainder[cur_q_degree + i] = remainder[cur_q_degree + i].sub(temp)
             while remainder[-1] and remainder[-1].value == 0:
                 remainder.pop()
+        from_gmpy_list(quotient)
+        quotient=from_list_tensor(quotient)
         res_quotient = from_coeff_vec(quotient)
         return res_quotient, remainder
             
@@ -349,8 +351,16 @@ def poly_add_poly_mul_const(self: list[fr.Fr], f: fr.Fr, other: list[fr.Fr]):
     for i in range(len(other)):
         temp = f.mul(other[i])
         self[i] = self[i].add(temp)
-    self = from_coeff_vec(self)
-    return self
+
+    res=copy.deepcopy(self)
+    from_gmpy_list(res)
+    res=from_list_tensor(res)
+
+    res = from_coeff_vec(res)
+
+    res=from_tensor_list(res)
+    from_list_gmpy(res)
+    return res
 
 # Given a vector of field elements {v_i}, compute the vector {coeff * v_i^(-1)}
 # This method is explicitly single core.

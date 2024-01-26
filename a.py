@@ -34,10 +34,10 @@ print(z)
 # # x.to_Fq(torch.uint192)
 
 
-# # x.to("CUDA")
+x.to("cuda")
 
-# print(x.shape)
-# print(y.shape)
+print(x.shape)
+
 
 # print("===========")
 # print(x)
