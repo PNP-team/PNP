@@ -438,7 +438,21 @@ def gen_proof(pp, pk: Prover_Key, cs: StandardComposer, transcript: transcript.T
             aw_opening = aw_opening,
             saw_opening = saw_opening,
             evaluations = evaluations)
-    print(Proof.b_comm.x.value)
+    
+        # print(Proof)
+    def write_to_file(data, filename):
+        try:
+            with open(filename, 'a') as file:
+                file.write(str(data) + '\n')  # 添加换行符以区分不同的写入
+            print(f"数据成功写入文件 {filename}")
+        except Exception as e:
+            print(f"写入文件时发生错误: {e}")
+
+    attributes = vars(Proof)
+    for attribute, value in attributes.items():
+        my_data={f"{attribute}: {value.x.value},{value.y.value}"}
+        print(f"{attribute}: {value.x.value},{value.y.value}")
+        write_to_file(my_data, 'proof_data.txt')
     return Proof
 
 
