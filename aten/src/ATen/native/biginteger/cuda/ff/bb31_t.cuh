@@ -5,7 +5,7 @@
 #ifndef __BB31_T_CUH__
 #define __BB31_T_CUH__
 
-#include <cstdint>
+# include <cstdint>
 
 #ifdef __CUDA_ARCH__
 # define inline __device__ __forceinline__
