@@ -511,28 +511,27 @@ public:
             gpu[0].HtoD(&d_points[d_off], points+h_off,
                         num,              ffi_affine_sz);
 
-        for (uint32_t i = 0; i < batch; i++) {
-            gpu[i&1].wait(ev);
+        gpu[0].wait(ev);
 
-            batch_addition<bucket_t><<<gpu.sm_count(), BATCH_ADD_BLOCK_SIZE,
-                                        0, gpu[i&1]>>>(
-                &d_buckets[nwins << (wbits-1)], &d_points[d_off], num,
-                &d_digits[0][0], d_hist[0][0]
-            );
-            CUDA_OK(cudaGetLastError());
+        batch_addition<bucket_t><<<gpu.sm_count(), BATCH_ADD_BLOCK_SIZE,
+                                    0, gpu[0]>>>(
+            &d_buckets[nwins << (wbits-1)], &d_points[d_off], num,
+            &d_digits[0][0], d_hist[0][0]
+        );
+        CUDA_OK(cudaGetLastError());
 
-            gpu[i&1].launch_coop(accumulate<bucket_t, affine_h>,
-                {gpu.sm_count(), 0},
-                d_buckets, nwins, wbits, &d_points[d_off], d_digits, d_hist, (uint32_t)0
-            ); 
-            gpu[i&1].record(ev);
+        gpu[0].launch_coop(accumulate<bucket_t, affine_h>,
+            {gpu.sm_count(), 0},
+            d_buckets, nwins, wbits, &d_points[d_off], d_digits, d_hist, (uint32_t)0
+        ); 
+        gpu[0].record(ev);
 
-            integrate<bucket_t><<<nwins, MSM_NTHREADS,
-                                    sizeof(bucket_t)*MSM_NTHREADS/bucket_t::degree,
-                                    gpu[i&1]>>>(
-                d_buckets, nwins, wbits, scalar_t::bit_length()
-            );
-            CUDA_OK(cudaGetLastError());
+        integrate<bucket_t><<<nwins, MSM_NTHREADS,
+                                sizeof(bucket_t)*MSM_NTHREADS/bucket_t::degree,
+                                gpu[0]>>>(
+            d_buckets, nwins, wbits, scalar_t::bit_length()
+        );
+        CUDA_OK(cudaGetLastError());
 
             // if (i < batch-1) {
             //     h_off += stride;
@@ -560,10 +559,9 @@ public:
             //     out.add(p);
             // }
 
-            gpu[i&1].DtoH(ones, d_buckets + (nwins << (wbits-1)));
-            gpu[i&1].DtoH(res, d_buckets, sizeof(bucket_h)<<(wbits-1));
-            gpu[i&1].sync();
-        }
+        gpu[0].DtoH(ones, d_buckets + (nwins << (wbits-1)));
+        gpu[0].DtoH(res, d_buckets, sizeof(bucket_h)<<(wbits-1));
+        gpu[0].sync();
         // } catch (const cuda_error& e) {
         //gpu.sync();
 // #ifdef TAKE_RESPONSIBILITY_FOR_ERROR_MESSAGE
@@ -732,10 +730,10 @@ void mult_pippenger(point_t *out, const affine_t points[], size_t npoints,
                                        size_t ffi_affine_sz = sizeof(affine_t))
 {
     // try {
+    std::cout<< " lalala " <<std::endl;
     msm_t<bucket_t, point_t, affine_t, scalar_t> msm{nullptr, npoints};
     msm.invoke(*out, slice_t<affine_t>{points, npoints},
                             scalars, mont, ffi_affine_sz);
-    std::cout<< *out <<std::endl;
     // } catch (const cuda_error& e) {
     //out->inf();
 // #ifdef TAKE_RESPONSIBILITY_FOR_ERROR_MESSAGE
