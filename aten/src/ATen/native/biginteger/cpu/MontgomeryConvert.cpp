@@ -1,11 +1,10 @@
-#include <ATen/core/Tensor.h>
 #include <ATen/Dispatch.h>
 #include <ATen/TensorOperators.h>
+#include <ATen/core/Tensor.h>
 
 #include <ATen/core/TensorBody.h>
 #include <ATen/core/interned_strings.h>
 #include <ATen/ops/copy.h>
-
 #include "CurveDef.h"
 
 #pragma clang diagnostic ignored "-Wmissing-prototypes"
@@ -15,12 +14,18 @@ namespace native {
 
 namespace {
 
-#define CONVERT_ELEM(name) \
-else if (type == ScalarType::name##_Base) { return caffe2::TypeMeta::Make<name##_Mont>();} \
-else if (type == ScalarType::name##_Mont) { return caffe2::TypeMeta::Make<name##_Base>();}
+#define CONVERT_ELEM(name)                        \
+  else if (type == ScalarType::name##_Base) {     \
+    return caffe2::TypeMeta::Make<name##_Mont>(); \
+  }                                               \
+  else if (type == ScalarType::name##_Mont) {     \
+    return caffe2::TypeMeta::Make<name##_Base>(); \
+  }
 
 caffe2::TypeMeta get_corresponding_type(const ScalarType type) {
-  if (false) { ; }
+  if (false) {
+    ;
+  }
   APPLY_ALL_CURVE(CONVERT_ELEM)
   else {
     throw std::runtime_error("Unsupported curve type");
@@ -30,9 +35,10 @@ caffe2::TypeMeta get_corresponding_type(const ScalarType type) {
 
 static void to_mont_cpu_template(Tensor& self) {
   AT_DISPATCH_BASE_TYPES(self.scalar_type(), "to_mont_cpu", [&] {
-    auto self_ptr = reinterpret_cast<scalar_t::compute_type*>(self.mutable_data_ptr<scalar_t>());
+    auto self_ptr = reinterpret_cast<scalar_t::compute_type*>(
+        self.mutable_data_ptr<scalar_t>());
     int64_t num_ = self.numel() / num_uint64(self.scalar_type());
-    for(auto i = 0; i < num_; i++) {
+    for (auto i = 0; i < num_; i++) {
       self_ptr[i].to();
     }
   });
@@ -41,16 +47,93 @@ static void to_mont_cpu_template(Tensor& self) {
 
 static void to_base_cpu_template(Tensor& self) {
   AT_DISPATCH_MONT_TYPES(self.scalar_type(), "to_base_cpu", [&] {
-    auto self_ptr = reinterpret_cast<scalar_t::compute_type*>(self.mutable_data_ptr<scalar_t>());
+    auto self_ptr = reinterpret_cast<scalar_t::compute_type*>(
+        self.mutable_data_ptr<scalar_t>());
     int64_t num_ = self.numel() / num_uint64(self.scalar_type());
-    for(auto i = 0; i < num_; i++) {
+    for (auto i = 0; i < num_; i++) {
       self_ptr[i].from();
     }
   });
   self.set_dtype(get_corresponding_type(self.scalar_type()));
 }
 
-} // namespace
+static void add_template(
+    const Tensor& in_a,
+    const Tensor& in_b,
+    Tensor& out_c) {
+  TORCH_CHECK(in_a.numel() == in_b.numel(), "Length check!");
+  AT_DISPATCH_FR_MONT_TYPES(in_a.scalar_type(), "add_mod_cpu", [&] {
+    auto a_ptr = reinterpret_cast<scalar_t::compute_type*>(
+        in_a.mutable_data_ptr<scalar_t>());
+    auto b_ptr = reinterpret_cast<scalar_t::compute_type*>(
+        in_b.mutable_data_ptr<scalar_t>());
+    auto c_ptr = reinterpret_cast<scalar_t::compute_type*>(
+        out_c.mutable_data_ptr<scalar_t>());
+    int64_t num_ = in_a.numel() / num_uint64(in_a.scalar_type());
+    for (auto i = 0; i < num_; i++) {
+      c_ptr[i] = a_ptr[i] + b_ptr[i];
+    }
+  });
+}
+
+static void sub_template(
+    const Tensor& in_a,
+    const Tensor& in_b,
+    Tensor& out_c) {
+  TORCH_CHECK(in_a.numel() == in_b.numel(), "Length check!");
+  AT_DISPATCH_FR_MONT_TYPES(in_a.scalar_type(), "sub_mod_cpu", [&] {
+    auto a_ptr = reinterpret_cast<scalar_t::compute_type*>(
+        in_a.mutable_data_ptr<scalar_t>());
+    auto b_ptr = reinterpret_cast<scalar_t::compute_type*>(
+        in_b.mutable_data_ptr<scalar_t>());
+    auto c_ptr = reinterpret_cast<scalar_t::compute_type*>(
+        out_c.mutable_data_ptr<scalar_t>());
+    int64_t num_ = in_a.numel() / num_uint64(in_a.scalar_type());
+    for (auto i = 0; i < num_; i++) {
+      c_ptr[i] = a_ptr[i] - b_ptr[i];
+    }
+  });
+}
+
+static void mul_template(
+    const Tensor& in_a,
+    const Tensor& in_b,
+    Tensor& out_c) {
+  TORCH_CHECK(in_a.numel() == in_b.numel(), "Length check!");
+  AT_DISPATCH_FR_MONT_TYPES(in_a.scalar_type(), "mul_mod_cpu", [&] {
+    auto a_ptr = reinterpret_cast<scalar_t::compute_type*>(
+        in_a.mutable_data_ptr<scalar_t>());
+    auto b_ptr = reinterpret_cast<scalar_t::compute_type*>(
+        in_b.mutable_data_ptr<scalar_t>());
+    auto c_ptr = reinterpret_cast<scalar_t::compute_type*>(
+        out_c.mutable_data_ptr<scalar_t>());
+    int64_t num_ = in_a.numel() / num_uint64(in_a.scalar_type());
+    for (auto i = 0; i < num_; i++) {
+      c_ptr[i] = a_ptr[i] * b_ptr[i];
+    }
+  });
+}
+
+static void div_template(
+    const Tensor& in_a,
+    const Tensor& in_b,
+    Tensor& out_c) {
+  TORCH_CHECK(in_a.numel() == in_b.numel(), "Length check!");
+  AT_DISPATCH_FR_MONT_TYPES(in_a.scalar_type(), "div_mod_cpu", [&] {
+    auto a_ptr = reinterpret_cast<scalar_t::compute_type*>(
+        in_a.mutable_data_ptr<scalar_t>());
+    auto b_ptr = reinterpret_cast<scalar_t::compute_type*>(
+        in_b.mutable_data_ptr<scalar_t>());
+    auto c_ptr = reinterpret_cast<scalar_t::compute_type*>(
+        out_c.mutable_data_ptr<scalar_t>());
+    int64_t num_ = in_a.numel() / num_uint64(in_a.scalar_type());
+    for (auto i = 0; i < num_; i++) {
+      c_ptr[i] = a_ptr[i] / b_ptr[i];
+    }
+  });
+}
+
+} // anonymous namespace
 
 Tensor to_mont_cpu(const Tensor& input) {
   Tensor output = input.clone();
@@ -84,6 +167,70 @@ Tensor& to_base_out_cpu(const Tensor& input, Tensor& output) {
   copy(output, input);
   to_base_cpu_template(output);
   return output;
+}
+
+Tensor add_mod_cpu(const Tensor& a, const Tensor& b) {
+  Tensor c = at::empty_like(a);
+  add_template(a, b, c);
+  return c;
+}
+
+Tensor& add_mod_cpu_(Tensor& self, const Tensor& b) {
+  add_template(self, b, self);
+  return self;
+}
+
+Tensor& add_mod_cpu_out(const Tensor& a, const Tensor& b, Tensor& c) {
+  add_template(a, b, c);
+  return c;
+}
+
+Tensor sub_mod_cpu(const Tensor& a, const Tensor& b) {
+  Tensor c = at::empty_like(a);
+  sub_template(a, b, c);
+  return c;
+}
+
+Tensor& sub_mod_cpu_(Tensor& self, const Tensor& b) {
+  sub_template(self, b, self);
+  return self;
+}
+
+Tensor& sub_mod_cpu_out(const Tensor& a, const Tensor& b, Tensor& c) {
+  sub_template(a, b, c);
+  return c;
+}
+
+Tensor mul_mod_cpu(const Tensor& a, const Tensor& b) {
+  Tensor c = at::empty_like(a);
+  mul_template(a, b, c);
+  return c;
+}
+
+Tensor& mul_mod_cpu_(Tensor& self, const Tensor& b) {
+  mul_template(self, b, self);
+  return self;
+}
+
+Tensor& mul_mod_cpu_out(const Tensor& a, const Tensor& b, Tensor& c) {
+  mul_template(a, b, c);
+  return c;
+}
+
+Tensor div_mod_cpu(const Tensor& a, const Tensor& b) {
+  Tensor c = at::empty_like(a);
+  div_template(a, b, c);
+  return c;
+}
+
+Tensor& div_mod_cpu_(Tensor& self, const Tensor& b) {
+  div_template(self, b, self);
+  return self;
+}
+
+Tensor& div_mod_cpu_out(const Tensor& a, const Tensor& b, Tensor& c) {
+  div_template(a, b, c);
+  return c;
 }
 
 } // namespace native
