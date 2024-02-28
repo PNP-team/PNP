@@ -533,7 +533,7 @@ static inline uint16_t bit_length(ScalarType t) {
 }
 
 static inline uint8_t num_uint64(ScalarType t) {
-  return (bit_length(t) + 63 / 64);
+  return ((bit_length(t) + 63) / 64);
 }
 
 static inline bool isBitsType(ScalarType t) {
