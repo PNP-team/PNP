@@ -30,17 +30,22 @@ static void mult_pippenger_inf(Tensor& self, const Tensor& points, const Tensor&
         using affine_t = bucket_t::affine_t;
         auto npoints = points.numel() / num_uint64(points.scalar_type());
         auto ffi_affine_sz = sizeof(affine_t); //affine mode (X,Y)
-        auto self_ptr = reinterpret_cast<point_t*>(self.mutable_data_ptr<scalar_t>());
+        auto self_ptr = reinterpret_cast<bucket_t*>(self.mutable_data_ptr<scalar_t>());
         auto point_ptr = reinterpret_cast<affine_t*>(points.mutable_data_ptr<scalar_t>());
         auto scalar_ptr = reinterpret_cast<scalar_t::compute_type::coeff_t*>(scalars.mutable_data_ptr());
-        mult_pippenger<bucket_t>(self_ptr, point_ptr, npoints, scalar_ptr, true, ffi_affine_sz);
+        mult_pippenger<point_t>(self_ptr, point_ptr, npoints, scalar_ptr, true, ffi_affine_sz);
     });
 }
 
 Tensor msm_zkp_cuda(const Tensor& points, const Tensor& scalars) {
     std::cout << points.scalar_type() << std::endl;
-    Tensor out = at::empty({3, num_uint64(points.scalar_type())}, points.options());
-    std::cout << out.scalar_type() << std::endl;
+    // Tensor out = at::empty({3, num_uint64(points.scalar_type())}, points.options());
+    auto wbits = 17;
+    auto bitlength = 384;
+    auto nwins = (bitlength - 1) / wbits + 1;
+    auto smcount = 34;
+    Tensor out = at::empty({(nwins + smcount * BATCH_ADD_BLOCK_SIZE / WARP_SZ) * 4, num_uint64(points.scalar_type())}, points.options());
+    // std::cout << out.scalar_type() << std::endl;
     mult_pippenger_inf(out, points, scalars);
     std::cout<< " lalala " <<std::endl;
     return out;
