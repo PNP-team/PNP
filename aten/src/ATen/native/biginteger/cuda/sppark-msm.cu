@@ -45,8 +45,8 @@ Tensor msm_zkp_cuda(const Tensor& points, const Tensor& scalars) {
     std::cout << points.scalar_type() << std::endl;
     // Tensor out = at::empty({3, num_uint64(points.scalar_type())}, points.options());
     auto wbits = 17;
-    auto nbits = scalars.scalar_type().nbits;
-    auto nwins = (bitlength - 1) / wbits + 1;
+    auto nbits = bit_length(scalars.scalar_type());
+    auto nwins = (nbits - 1) / wbits + 1;
     auto smcount = 34;
     //需要在这里自动获取bit length
     std::cout << "zhiyuan's nwins: " << nwins * MSM_NTHREADS/1 * 2 << std::endl;
