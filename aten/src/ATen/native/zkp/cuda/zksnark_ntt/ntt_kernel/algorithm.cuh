@@ -2,8 +2,8 @@
 
 #include <ATen/cuda/CUDAContext.h>
 #include <ATen/native/cuda/thread_constants.h>
-#include "ATen/native/biginteger/cuda/CurveDef.cuh"
-#include "ATen/native/biginteger/cuda/zksnark_ntt/ntt_config.h"
+#include "ATen/native/zkp/cuda/CurveDef.cuh"
+#include "ATen/native/zkp/cuda/zksnark_ntt/ntt_config.h"
 #include "ct_mixed_radix_wide.cuh"
 #include "gs_mixed_radix_wide.cuh"
 

@@ -5,7 +5,7 @@
 #include <cuda.h>
 #include <cassert>
 #include <iostream>
-#include "ATen/native/biginteger/cuda/CurveDef.cuh"
+#include "ATen/native/zkp/cuda/CurveDef.cuh"
 #include "algorithm.cuh"
 #include "kernels.cuh"
 

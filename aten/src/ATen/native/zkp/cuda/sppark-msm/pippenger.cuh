@@ -4,8 +4,8 @@
 #include <cooperative_groups.h>
 #include <cassert>
 
-#include <ATen/native/biginteger/cuda/sppark-util/vec2d_t.hpp>
-#include <ATen/native/biginteger/cuda/sppark-util/slice_t.hpp>
+#include <ATen/native/zkp/cuda/sppark-util/vec2d_t.hpp>
+#include <ATen/native/zkp/cuda/sppark-util/slice_t.hpp>
 
 #include "sort.cuh"
 #include "batch_addition.cuh"
@@ -321,8 +321,8 @@ void integrate(bucket_h buckets_[], uint32_t nwins, uint32_t wbits, uint32_t nbi
 
 #include <vector>
 
-#include <ATen/native/biginteger/cuda/sppark-util/exception.cuh>
-#include <ATen/native/biginteger/cuda/sppark-util/gpu_t.cuh>
+#include <ATen/native/zkp/cuda/sppark-util/exception.cuh>
+#include <ATen/native/zkp/cuda/sppark-util/gpu_t.cuh>
 
 namespace at {
 namespace native {

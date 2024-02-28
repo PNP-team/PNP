@@ -1,8 +1,8 @@
 #pragma once
 
 #include <cooperative_groups.h>
-#include "ATen/native/biginteger/cuda/CurveDef.cuh"
-#include "ATen/native/biginteger/cuda/zksnark_ntt/ntt_config.h"
+#include "ATen/native/zkp/cuda/CurveDef.cuh"
+#include "ATen/native/zkp/cuda/zksnark_ntt/ntt_config.h"
 #pragma diag_suppress 607
 
 namespace at {

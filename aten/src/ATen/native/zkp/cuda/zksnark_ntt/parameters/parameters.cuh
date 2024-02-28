@@ -2,7 +2,7 @@
 #include <ATen/cuda/CUDAContext.h>
 #include <ATen/native/cuda/thread_constants.h>
 #include <cassert>
-#include "ATen/native/biginteger/cuda/CurveDef.cuh"
+#include "ATen/native/zkp/cuda/CurveDef.cuh"
 
 // kernels for gen twiddles
 namespace at {

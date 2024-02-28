@@ -43,15 +43,12 @@ static void mult_pippenger_inf(Tensor& self, const Tensor& points, const Tensor&
 Tensor msm_zkp_cuda(const Tensor& points, const Tensor& scalars) {
 
     std::cout << points.scalar_type() << std::endl;
-    // Tensor out = at::empty({3, num_uint64(points.scalar_type())}, points.options());
     auto wbits = 17;
     auto nbits = bit_length(scalars.scalar_type());
     auto nwins = (nbits - 1) / wbits + 1;
     auto smcount = 34;
-    //需要在这里自动获取bit length
     std::cout << "zhiyuan's nwins: " << nwins * MSM_NTHREADS/1 * 2 << std::endl;
     std::cout << "zhiyuan's ones: " << smcount * BATCH_ADD_BLOCK_SIZE / WARP_SZ << std::endl;
-
     Tensor out = at::empty({(nwins * MSM_NTHREADS/1 * 2 + smcount * BATCH_ADD_BLOCK_SIZE / WARP_SZ) * 3, num_uint64(points.scalar_type())}, points.options());
     std::cout<<out.numel()<<std::endl;
     // std::cout << out.scalar_type() << std::endl;

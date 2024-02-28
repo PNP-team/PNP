@@ -468,9 +468,9 @@ static inline bool isMontgomeryField(ScalarType t) {
   return t == ScalarType::BigInteger_Mont || t == ScalarType::ALT_BN128_Fr_G1_Mont || t == ScalarType::ALT_BN128_Fr_G2_Mont || t == ScalarType::ALT_BN128_Fq_G1_Mont || t == ScalarType::ALT_BN128_Fq_G2_Mont || t == ScalarType::BLS12_377_Fr_G1_Mont || t == ScalarType::BLS12_377_Fr_G2_Mont || t == ScalarType::BLS12_377_Fq_G1_Mont || t == ScalarType::BLS12_377_Fq_G2_Mont || t == ScalarType::BLS12_381_Fr_G1_Mont || t == ScalarType::BLS12_381_Fr_G2_Mont || t == ScalarType::BLS12_381_Fq_G1_Mont || t == ScalarType::BLS12_381_Fq_G2_Mont || t == ScalarType::MNT4753_Fr_G1_Mont || t == ScalarType::MNT4753_Fr_G2_Mont || t == ScalarType::MNT4753_Fq_G1_Mont || t == ScalarType::MNT4753_Fq_G2_Mont || t == ScalarType::PALLAS_Fr_G1_Mont || t == ScalarType::PALLAS_Fr_G2_Mont || t == ScalarType::PALLAS_Fq_G1_Mont || t == ScalarType::PALLAS_Fq_G2_Mont || t == ScalarType::VESTA_Fr_G1_Mont || t == ScalarType::VESTA_Fr_G2_Mont || t == ScalarType::VESTA_Fq_G1_Mont || t == ScalarType::VESTA_Fq_G2_Mont;
 }
 
-static inline uint8_t num_uint64(ScalarType t) {
+static inline uint16_t bit_length(ScalarType t) {
   switch (t) {
-    case ScalarType::ALT_BN128_Fr_G1_Base:
+    case ScalarType::ALT_BN128_Fr_G1_Base: 
     case ScalarType::ALT_BN128_Fr_G1_Mont:
     case ScalarType::ALT_BN128_Fr_G2_Base:
     case ScalarType::ALT_BN128_Fr_G2_Mont:
@@ -478,37 +478,37 @@ static inline uint8_t num_uint64(ScalarType t) {
     case ScalarType::ALT_BN128_Fq_G1_Mont:
     case ScalarType::ALT_BN128_Fq_G2_Base:
     case ScalarType::ALT_BN128_Fq_G2_Mont:
-      return 4;
+      return 254;
     case ScalarType::BLS12_377_Fr_G1_Base:
     case ScalarType::BLS12_377_Fr_G1_Mont:
     case ScalarType::BLS12_377_Fr_G2_Base:
     case ScalarType::BLS12_377_Fr_G2_Mont:
-      return 4;
+      return 253;
     case ScalarType::BLS12_377_Fq_G1_Base:
     case ScalarType::BLS12_377_Fq_G1_Mont:
     case ScalarType::BLS12_377_Fq_G2_Base:
     case ScalarType::BLS12_377_Fq_G2_Mont:
-      return 6;
+      return 377;
     case ScalarType::BLS12_381_Fr_G1_Base:
     case ScalarType::BLS12_381_Fr_G1_Mont:
     case ScalarType::BLS12_381_Fr_G2_Base:
     case ScalarType::BLS12_381_Fr_G2_Mont:
-      return 4;
+      return 255;
     case ScalarType::BLS12_381_Fq_G1_Base:
     case ScalarType::BLS12_381_Fq_G1_Mont:
     case ScalarType::BLS12_381_Fq_G2_Base:
     case ScalarType::BLS12_381_Fq_G2_Mont:
-      return 6;
+      return 381;
     case ScalarType::MNT4753_Fr_G1_Base:
     case ScalarType::MNT4753_Fr_G1_Mont:
     case ScalarType::MNT4753_Fr_G2_Base:
     case ScalarType::MNT4753_Fr_G2_Mont:
-      return 12;
+      return 753;
     case ScalarType::MNT4753_Fq_G1_Base:
     case ScalarType::MNT4753_Fq_G1_Mont:
     case ScalarType::MNT4753_Fq_G2_Base:
     case ScalarType::MNT4753_Fq_G2_Mont:
-      return 12;
+      return 753;
     case ScalarType::PALLAS_Fr_G1_Base:
     case ScalarType::PALLAS_Fr_G1_Mont:
     case ScalarType::PALLAS_Fr_G2_Base:
@@ -517,7 +517,7 @@ static inline uint8_t num_uint64(ScalarType t) {
     case ScalarType::PALLAS_Fq_G1_Mont:
     case ScalarType::PALLAS_Fq_G2_Base:
     case ScalarType::PALLAS_Fq_G2_Mont:
-      return 4;
+      return 255;
     case ScalarType::VESTA_Fr_G1_Base:
     case ScalarType::VESTA_Fr_G1_Mont:
     case ScalarType::VESTA_Fr_G2_Base:
@@ -526,10 +526,14 @@ static inline uint8_t num_uint64(ScalarType t) {
     case ScalarType::VESTA_Fq_G1_Mont:
     case ScalarType::VESTA_Fq_G2_Base:
     case ScalarType::VESTA_Fq_G2_Mont:
-      return 4;
+      return 255;
     default:
       TORCH_CHECK(false, "not a elliptic curve type");
   }
+}
+
+static inline uint8_t num_uint64(ScalarType t) {
+  return (bit_length(t) + 63 / 64);
 }
 
 static inline bool isBitsType(ScalarType t) {
