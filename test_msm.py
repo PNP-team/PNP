@@ -15,4 +15,4 @@ montq = F.to_mont(inputq)
 out = torch.msm_zkp(montq, montr)
 
 out = out.to("cpu")
-print(out.tolist())
+print(out.tolist()[:5])

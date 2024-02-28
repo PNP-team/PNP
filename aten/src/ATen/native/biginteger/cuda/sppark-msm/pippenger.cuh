@@ -451,7 +451,7 @@ private:
     }
 
 public:
-    void invoke(bucket_t& out, const affine_t* points_, size_t npoints,
+    void invoke(bucket_h* out, const affine_t* points_, size_t npoints,
                                    const scalar_t* scalars, bool mont = true,
                                    size_t ffi_affine_sz = sizeof(affine_t))
     {
@@ -464,11 +464,12 @@ public:
         size_t batch = 1;
         // uint32_t stride = (npoints + batch - 1) / batch;
         uint32_t stride = npoints;
-        stride = (stride+WARP_SZ-1) & ((size_t)0-WARP_SZ);
+        stride = (stride + WARP_SZ - 1) & ((size_t)0-WARP_SZ);
 
-        // std::vector<result_t> res(nwins);
-        // std::vector<bucket_t> ones(gpu.sm_count() * BATCH_ADD_BLOCK_SIZE / WARP_SZ);
-
+        std::vector<result_t> res(nwins);
+        std::vector<bucket_t> ones(gpu.sm_count() * BATCH_ADD_BLOCK_SIZE / WARP_SZ);
+        std::cout<< res.size() << " " << sizeof(res[0]) << " "<< nwins  <<std::endl;
+        std::cout<< ones.size() << " " << sizeof(ones[0])<< " "<< gpu.sm_count() * BATCH_ADD_BLOCK_SIZE / WARP_SZ  <<std::endl;
         // out.inf();
         point_t p;
 
@@ -559,8 +560,12 @@ public:
             //     out.add(p);
             // }
 
-        gpu[0].DtoH(out + nwins, d_buckets + (nwins << (wbits-1)));
-        gpu[0].DtoH(out, d_buckets, sizeof(bucket_h)<<(wbits-1));
+        // gpu[0].DtoH(&out[nwins], d_buckets + (nwins << (wbits-1)));
+        std::cout<<sizeof(bucket_t)<<std::endl;
+        std::cout<<(sizeof(bucket_h)<<(wbits-1))<<std::endl;
+        C10_CUDA_CHECK(cudaMemcpyAsync(out + nwins , d_buckets + (nwins << (wbits-1)), sizeof(bucket_t), cudaMemcpyDeviceToDevice, gpu[0]));
+        //gpu[0].DtoH(&(*out), d_buckets, sizeof(bucket_h)<<(wbits-1));
+        C10_CUDA_CHECK(cudaMemcpyAsync(out, d_buckets, sizeof(bucket_h)<<(wbits-1), cudaMemcpyDeviceToDevice, gpu[0]));
         gpu[0].sync();
         // } catch (const cuda_error& e) {
         //gpu.sync();
@@ -576,7 +581,7 @@ public:
         //return RustError{cudaSuccess};
     }
 
-    void invoke(bucket_t& out, const affine_t* points, size_t npoints,
+    void invoke(bucket_h* out, const affine_t* points, size_t npoints,
                                    gpu_ptr_t<scalar_t> scalars, bool mont = true,
                                    size_t ffi_affine_sz = sizeof(affine_t))
     {
@@ -586,13 +591,13 @@ public:
         
     }
 
-    void invoke(bucket_t& out, vec_t<scalar_t> scalars, bool mont = true)
+    void invoke(bucket_h* out, vec_t<scalar_t> scalars, bool mont = true)
     {   
         invoke(out, nullptr, scalars.size(), scalars, mont); 
         //return invoke(out, nullptr, scalars.size(), scalars, mont); 
     }
 
-    void invoke(bucket_t& out, vec_t<affine_t> points,
+    void invoke(bucket_h* out, vec_t<affine_t> points,
                                    const scalar_t* scalars, bool mont = true,
                                    size_t ffi_affine_sz = sizeof(affine_t))
     {   
@@ -600,7 +605,7 @@ public:
         //return invoke(out, points, points.size(), scalars, mont, ffi_affine_sz);
     }
 
-    void invoke(bucket_t& out, vec_t<affine_t> points,
+    void invoke(bucket_h* out, vec_t<affine_t> points,
                                    vec_t<scalar_t> scalars, bool mont = true,
                                    size_t ffi_affine_sz = sizeof(affine_t))
     {   
@@ -608,7 +613,7 @@ public:
         //return invoke(out, points, points.size(), scalars, mont, ffi_affine_sz);
     }
 
-    void invoke(bucket_t& out, const std::vector<affine_t>& points,
+    void invoke(bucket_h* out, const std::vector<affine_t>& points,
                                    const std::vector<scalar_t>& scalars, bool mont = true,
                                    size_t ffi_affine_sz = sizeof(affine_t))
     {
@@ -724,14 +729,14 @@ private:
     }
 };
 
-template<class point_t, class bucket_t, class affine_t, class scalar_t> static
-void mult_pippenger(bucket_t *out, const affine_t points[], size_t npoints,
+template<class point_t, class bucket_t, class affine_t, class scalar_t, class bucket_h = class bucket_t::mem_t> static
+void mult_pippenger(bucket_h *out, const affine_t points[], size_t npoints,
                                        const scalar_t scalars[], bool mont = true,
                                        size_t ffi_affine_sz = sizeof(affine_t))
 {
     // try {
     msm_t<bucket_t, point_t, affine_t, scalar_t> msm{nullptr, npoints};
-    msm.invoke(*out, slice_t<affine_t>{points, npoints},
+    msm.invoke(out, slice_t<affine_t>{points, npoints},
                             scalars, mont, ffi_affine_sz);
     // } catch (const cuda_error& e) {
     //out->inf();
