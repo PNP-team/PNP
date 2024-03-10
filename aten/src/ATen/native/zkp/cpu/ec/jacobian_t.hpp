@@ -1,7 +1,11 @@
 #pragma once
 
+namespace at { 
+namespace native {
+
 template <class field_t, const field_t* a4 = nullptr>
 class jacobian_t {
+public:
   field_t X, Y, Z;
 
   inline operator const void*() const {
@@ -543,3 +547,4 @@ class jacobian_t {
     *this = p3;
   }
 };
+}}//namespace at::native

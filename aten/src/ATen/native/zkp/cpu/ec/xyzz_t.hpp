@@ -1,10 +1,13 @@
 #pragma once
-
+#include "jacobian_t.hpp"
+namespace at { 
+namespace native {
 template <
     class field_t,
     class field_h = typename field_t::mem_t,
     const field_h* a4 = nullptr>
 class xyzz_t {
+public:
   field_t X, Y, ZZZ, ZZ;
 
  public:
@@ -18,13 +21,13 @@ class xyzz_t {
 
    public:
     affine_t(const field_t& x, const field_t& y) : X(x), Y(y) {}
-    inline __host__ __device__ affine_t() {}
+    inline   affine_t() {}
 
-    inline __host__ bool is_inf() const {
+    inline  bool is_inf() const {
       return (bool)((int)X.is_zero() & (int)Y.is_zero());
     }
 
-    inline __host__ affine_t& operator=(const xyzz_t& a) {
+    inline  affine_t& operator=(const xyzz_t& a) {
       Y = 1 / a.ZZZ;
       X = Y * a.ZZ; // 1/Z
       X = X ^ 2; // 1/Z^2
@@ -32,7 +35,7 @@ class xyzz_t {
       Y *= a.Y; // Y/Z^3
       return *this;
     }
-    inline __host__ affine_t(const xyzz_t& a) {
+    inline  affine_t(const xyzz_t& a) {
       *this = a;
     }
 
@@ -40,7 +43,11 @@ class xyzz_t {
       return jacobian_t<field_t>{X, Y, field_t::one(is_inf())};
     }
 
-    inline __host__ __device__ operator xyzz_t() const {
+    // jacobian_t<field_t> transform() const {
+    //     return jacobian_t<field_t>{X, Y, field_t::one(is_inf())};
+    // }
+
+    inline   operator xyzz_t() const {
       xyzz_t p;
       p.X = X;
       p.Y = Y;
@@ -55,12 +62,12 @@ class xyzz_t {
     field_t X, Y;
     bool inf;
 
-    inline __host__ __device__ bool is_inf() const {
+    inline   bool is_inf() const {
       return inf;
     }
 
    public:
-    inline __device__ operator affine_t() const {
+    inline  operator affine_t() const {
       bool inf = is_inf();
       affine_t p;
       p.X = czero(X, inf);
@@ -72,29 +79,32 @@ class xyzz_t {
   };
 
   template <class affine_t>
-  inline __host__ __device__ xyzz_t& operator=(const affine_t& a) {
+  inline   xyzz_t& operator=(const affine_t& a) {
     X = a.X;
     Y = a.Y;
     ZZZ = ZZ = field_t::one(a.is_inf());
     return *this;
   }
 
-  inline __host__ operator affine_t() const {
+  inline  operator affine_t() const {
     return affine_t(*this);
   }
 
   inline operator jacobian_t<field_t>() const {
     return jacobian_t<field_t>{X * ZZ, Y * ZZZ, ZZ};
   }
+  // jacobian_t<field_t> transform() const {
+  //       return jacobian_t<field_t>{X * ZZ, Y * ZZZ, ZZ};
+  // }
 
-  inline __host__ bool is_inf() const {
+  inline  bool is_inf() const {
     return (bool)((int)ZZZ.is_zero() & (int)ZZ.is_zero());
   }
-  inline __host__ __device__ void inf() {
+  inline   void inf() {
     ZZZ.zero();
     ZZ.zero();
   }
-  inline __host__ __device__ void cneg(bool neg) {
+  inline   void cneg(bool neg) {
     ZZZ.cneg(neg);
   }
 
@@ -104,7 +114,7 @@ class xyzz_t {
    * with twist to handle either input at infinity. Addition costs 12M+2S,
    * while conditional doubling - 4M+6M+3S.
    */
-  __host__ __device__ void add(const xyzz_t& p2) {
+    void add(const xyzz_t& p2) {
     if (p2.is_inf()) {
       return;
     } else if (is_inf()) {
@@ -187,7 +197,7 @@ class xyzz_t {
    * Addition costs 8M+2S, while conditional doubling - 2M+4M+3S.
    */
   template <class affine_t>
-  __host__ __device__ void add(const affine_t& p2, bool subtract = false) {
+    void add(const affine_t& p2, bool subtract = false) {
     xyzz_t& p31 = *this;
 
     if (p2.is_inf()) {
@@ -259,3 +269,4 @@ class xyzz_t {
     add(p2, subtract);
   }
 };
+}}//namespace at::native

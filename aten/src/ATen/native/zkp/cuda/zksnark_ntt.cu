@@ -98,7 +98,7 @@ static void ntt_zkp(
         L4;
     auto self_ptr = reinterpret_cast<scalar_t::compute_type*>(
         self.mutable_data_ptr<scalar_t>());
-
+    
     compute_ntt(
         0,
         self_ptr,

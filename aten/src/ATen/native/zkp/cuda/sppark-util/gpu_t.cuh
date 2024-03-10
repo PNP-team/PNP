@@ -100,7 +100,7 @@ public:
             // CUDA_OK(cudaMemcpyAsync(dst, src, nelems*sizeof(T),
             //                         cudaMemcpyHostToDevice, stream));
             cudaMemcpyAsync(dst, src, nelems*sizeof(T),
-                            cudaMemcpyDeviceToDevice, stream);
+                            cudaMemcpyHostToDevice, stream);
             C10_CUDA_KERNEL_LAUNCH_CHECK();       
         }          
         else{
@@ -109,7 +109,7 @@ public:
             //                           cudaMemcpyHostToDevice, stream));
             cudaMemcpy2DAsync(dst, sizeof(T), src, sz,
                               std::min(sizeof(T), sz), nelems,
-                              cudaMemcpyDeviceToDevice, stream);
+                              cudaMemcpyHostToDevice, stream);
             C10_CUDA_KERNEL_LAUNCH_CHECK(); 
         }   
     }
@@ -172,7 +172,7 @@ public:
             // CUDA_OK(cudaMemcpyAsync(dst, src, nelems*sizeof(T),
             //                         cudaMemcpyDeviceToHost, stream));
             cudaMemcpyAsync(dst, src, nelems*sizeof(T),
-                                    cudaMemcpyDeviceToDevice, stream);
+                                    cudaMemcpyDeviceToHost, stream);
             C10_CUDA_KERNEL_LAUNCH_CHECK();
             }
         else
@@ -182,7 +182,7 @@ public:
             //                           cudaMemcpyDeviceToHost, stream));
             cudaMemcpy2DAsync(dst, sizeof(T), src, sz,
                               std::min(sizeof(T), sz), nelems,
-                              cudaMemcpyDeviceToDevice, stream);
+                              cudaMemcpyDeviceToHost, stream);
             C10_CUDA_KERNEL_LAUNCH_CHECK();
             }
     }

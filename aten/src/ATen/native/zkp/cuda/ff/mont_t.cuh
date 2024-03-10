@@ -43,7 +43,7 @@ class __align__(((N + 63) / 64) & 1 ? 8 : 16) mont_t {
  protected:
   static const size_t n = (N + 31) / 32;
 
- private:
+public:
   uint32_t even[n];
 
   static inline void mul_n(
@@ -213,7 +213,7 @@ class __align__(((N + 63) / 64) & 1 ? 8 : 16) mont_t {
     }
   };
 
- private:
+ public:
   inline operator const uint32_t*() const {
     return even;
   }

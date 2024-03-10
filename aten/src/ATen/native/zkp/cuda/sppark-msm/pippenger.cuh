@@ -299,25 +299,6 @@ void integrate(bucket_h buckets_[], uint32_t nwins, uint32_t wbits, uint32_t nbi
 }//namespace native
 }//namespace at
 
-// #ifndef SPPARK_DONT_INSTANTIATE_TEMPLATES
-// template __global__
-// void accumulate<bucket_t, affine_t::mem_t>(bucket_t::mem_t buckets_[],
-//                                            uint32_t nwins, uint32_t wbits,
-//                                            /*const*/ affine_t::mem_t points_[],
-//                                            const vec2d_t<uint32_t> digits,
-//                                            const vec2d_t<uint32_t> histogram,
-//                                            uint32_t sid);
-// template __global__
-// void batch_addition<bucket_t>(bucket_t::mem_t buckets[],
-//                               const affine_t::mem_t points[], size_t npoints,
-//                               const uint32_t digits[], const uint32_t& ndigits);
-// template __global__
-// void integrate<bucket_t>(bucket_t::mem_t buckets_[], uint32_t nwins,
-//                          uint32_t wbits, uint32_t nbits);
-// template __global__
-// void breakdown<scalar_t>(vec2d_t<uint32_t> digits, const scalar_t scalars[],
-//                          size_t len, uint32_t nwins, uint32_t wbits, bool mont);
-// #endif
 
 #include <vector>
 
@@ -361,13 +342,13 @@ public:
         //Ensure that npoints are multiples of WARP_SZ and are as close as possible to the original np value.
         
         wbits = 17;
-        // if (npoints > 192) {
-        //     wbits = std::min(lg2(npoints + npoints/2) - 8, 18);
-        //     if (wbits < 10)
-        //         wbits = 10;
-        // } else if (npoints > 0) {
-        //     wbits = 10;
-        // }
+        if (npoints > 192) {
+            wbits = std::min(lg2(npoints + npoints/2) - 8, 18);
+            if (wbits < 10)
+                wbits = 10;
+        } else if (npoints > 0) {
+            wbits = 10;
+        }
         nwins = (scalar_t::bit_length() - 1) / wbits + 1;
 
         uint32_t row_sz = 1U << (wbits-1); //why -1 ?
@@ -382,7 +363,8 @@ public:
         d_hist = vec2d_t<uint32_t>(&d_buckets[d_buckets_sz], row_sz);
         if (points) {
             d_points = reinterpret_cast<decltype(d_points)>(d_hist[nwins]);
-            gpu.HtoD(d_points, points, np, ffi_affine_sz);
+            C10_CUDA_CHECK(cudaMemcpyAsync(d_points , points, np * ffi_affine_sz, cudaMemcpyDeviceToDevice, gpu));
+            // gpu.HtoD(d_points, points, np, ffi_affine_sz);
             npoints = np;
         } else {
             npoints = 0;
@@ -451,25 +433,22 @@ private:
     }
 
 public:
-    void invoke(bucket_h* out, const affine_t* points_, size_t npoints,
+    void invoke(bucket_t* out, const affine_t* points_, size_t npoints,
                                    const scalar_t* scalars, bool mont = true,
                                    size_t ffi_affine_sz = sizeof(affine_t))
     {
         assert(this->npoints == 0 || npoints <= this->npoints);
 
         uint32_t lg_npoints = lg2(npoints + npoints/2);
-        // size_t batch = 1 << (std::max(lg_npoints, wbits) - wbits);
-        // batch >>= 6;
-        // batch = batch ? batch : 1;
         size_t batch = 1;
-        // uint32_t stride = (npoints + batch - 1) / batch;
         uint32_t stride = npoints;
+        // Round up to the nearest multiple greater than or equal to WARP_SZ
         stride = (stride + WARP_SZ - 1) & ((size_t)0-WARP_SZ);
 
-        std::vector<result_t> res(nwins);
-        std::vector<bucket_t> ones(gpu.sm_count() * BATCH_ADD_BLOCK_SIZE / WARP_SZ);
-        std::cout<< res.size() << " " << sizeof(res[0]) << " "<< nwins  <<std::endl;
-        std::cout<< ones.size() << " " << sizeof(ones[0])<< " "<< gpu.sm_count() * BATCH_ADD_BLOCK_SIZE / WARP_SZ  <<std::endl;
+        // std::vector<result_t> res(nwins);
+        // std::vector<bucket_t> ones(gpu.sm_count() * BATCH_ADD_BLOCK_SIZE / WARP_SZ);
+        // std::cout<< res.size() << " " << sizeof(result_t) << " "<< nwins  <<std::endl;
+        // std::cout<< ones.size() << " " << sizeof(ones[271])<< " "<< gpu.sm_count() * BATCH_ADD_BLOCK_SIZE / WARP_SZ  <<std::endl;
         // out.inf();
         point_t p;
 
@@ -482,8 +461,8 @@ public:
         // |points| being nullptr means the points are pre-loaded to
         // |d_points|, otherwise allocate double-stride.
         const char* points = reinterpret_cast<const char*>(points_);
-        // size_t d_point_sz = points ? (batch > 1 ? 2*stride : stride) : 0;
-        size_t d_point_sz = points ? stride : 0;
+
+        size_t d_point_sz = points ? (batch > 1 ? 2*stride : stride) : 0;
         d_point_sz *= sizeof(affine_h);
 
         size_t digits_sz = nwins * stride * sizeof(uint32_t);
@@ -504,14 +483,12 @@ public:
         event_t ev;
 
         if (scalars)
-            gpu[2].HtoD(&d_scalars[d_off], scalars+h_off, num);
+            C10_CUDA_CHECK(cudaMemcpyAsync(&d_scalars[d_off] , &scalars[h_off], num * sizeof(scalar_t), cudaMemcpyDeviceToDevice, gpu[2]));
         digits(&d_scalars[0], num, d_digits, d_temps, mont);
         gpu[2].record(ev);
 
         if (points)
-            gpu[0].HtoD(&d_points[d_off], points+h_off,
-                        num,              ffi_affine_sz);
-
+            C10_CUDA_CHECK(cudaMemcpyAsync(&d_points[d_off] , &points[h_off], num * ffi_affine_sz, cudaMemcpyDeviceToDevice, gpu[0]));
         gpu[0].wait(ev);
 
         batch_addition<bucket_t><<<gpu.sm_count(), BATCH_ADD_BLOCK_SIZE,
@@ -534,95 +511,48 @@ public:
         );
         CUDA_OK(cudaGetLastError());
 
-            // if (i < batch-1) {
-            //     h_off += stride;
-            //     num = h_off + stride <= npoints ? stride : npoints - h_off;
+        C10_CUDA_CHECK(cudaMemcpyAsync(out + nwins * MSM_NTHREADS/bucket_t::degree * 2 , d_buckets + (nwins << (wbits-1)), sizeof(bucket_t) * gpu.sm_count() * BATCH_ADD_BLOCK_SIZE / WARP_SZ, cudaMemcpyDeviceToDevice, gpu[0]));
 
-            //     if (scalars)
-            //         gpu[2].HtoD(&d_scalars[0], scalars+h_off, num);
-            //     gpu[2].wait(ev);
-            //     digits(&d_scalars[scalars ? 0 : h_off], num,
-            //             d_digits, d_temps, mont);
-            //     gpu[2].record(ev);
-
-            //     if (points) {
-            //         size_t j = (i + 1) & 1;
-            //         d_off = j ? stride : 0;
-            //         gpu[j].HtoD(&d_points[d_off], points+h_off*ffi_affine_sz,
-            //                     num,              ffi_affine_sz);
-            //     } else {
-            //         d_off = h_off;
-            //     }
-            // }
-
-            // if (i > 0) {
-            //     collect(p, res, ones);
-            //     out.add(p);
-            // }
-
-        // gpu[0].DtoH(&out[nwins], d_buckets + (nwins << (wbits-1)));
-        std::cout<<sizeof(bucket_t)<<std::endl;
-        std::cout<<(sizeof(bucket_h)<<(wbits-1))<<std::endl;
-        C10_CUDA_CHECK(cudaMemcpyAsync(out + nwins , d_buckets + (nwins << (wbits-1)), sizeof(bucket_t), cudaMemcpyDeviceToDevice, gpu[0]));
-        //gpu[0].DtoH(&(*out), d_buckets, sizeof(bucket_h)<<(wbits-1));
-        C10_CUDA_CHECK(cudaMemcpyAsync(out, d_buckets, sizeof(bucket_h)<<(wbits-1), cudaMemcpyDeviceToDevice, gpu[0]));
+        C10_CUDA_CHECK(cudaMemcpyAsync(out, d_buckets, sizeof(result_t) * nwins, cudaMemcpyDeviceToDevice, gpu[0]));
         gpu[0].sync();
-        // } catch (const cuda_error& e) {
-        //gpu.sync();
-// #ifdef TAKE_RESPONSIBILITY_FOR_ERROR_MESSAGE
-//             return RustError{e.code(), e.what()};
-// #else
-//             return RustError{e.code()};
-// #endif
-//         }
-        // collect(p, res, ones);
-        // out.add(p);
 
-        //return RustError{cudaSuccess};
+        //gpu.sync();
     }
 
-    void invoke(bucket_h* out, const affine_t* points, size_t npoints,
+    void invoke(bucket_t* out, const affine_t* points, size_t npoints,
                                    gpu_ptr_t<scalar_t> scalars, bool mont = true,
                                    size_t ffi_affine_sz = sizeof(affine_t))
     {
         d_scalars = scalars;
-        invoke(out, points, npoints, nullptr, mont, ffi_affine_sz);
-        //return invoke(out, points, npoints, nullptr, mont, ffi_affine_sz);
-        
+        invoke(out, points, npoints, nullptr, mont, ffi_affine_sz); 
     }
 
-    void invoke(bucket_h* out, vec_t<scalar_t> scalars, bool mont = true)
+    void invoke(bucket_t* out, vec_t<scalar_t> scalars, bool mont = true)
     {   
         invoke(out, nullptr, scalars.size(), scalars, mont); 
-        //return invoke(out, nullptr, scalars.size(), scalars, mont); 
     }
 
-    void invoke(bucket_h* out, vec_t<affine_t> points,
+    void invoke(bucket_t* out, vec_t<affine_t> points,
                                    const scalar_t* scalars, bool mont = true,
                                    size_t ffi_affine_sz = sizeof(affine_t))
     {   
         invoke(out, points, points.size(), scalars, mont, ffi_affine_sz);
-        //return invoke(out, points, points.size(), scalars, mont, ffi_affine_sz);
     }
 
-    void invoke(bucket_h* out, vec_t<affine_t> points,
+    void invoke(bucket_t* out, vec_t<affine_t> points,
                                    vec_t<scalar_t> scalars, bool mont = true,
                                    size_t ffi_affine_sz = sizeof(affine_t))
     {   
         invoke(out, points, points.size(), scalars, mont, ffi_affine_sz);
-        //return invoke(out, points, points.size(), scalars, mont, ffi_affine_sz);
     }
 
-    void invoke(bucket_h* out, const std::vector<affine_t>& points,
+    void invoke(bucket_t* out, const std::vector<affine_t>& points,
                                    const std::vector<scalar_t>& scalars, bool mont = true,
                                    size_t ffi_affine_sz = sizeof(affine_t))
     {
         invoke(out, points.data(),
                             std::min(points.size(), scalars.size()),
                             scalars.data(), mont, ffi_affine_sz);
-        // return invoke(out, points.data(),
-        //                    std::min(points.size(), scalars.size()),
-        //                    scalars.data(), mont, ffi_affine_sz);
     }
 
 private:
@@ -729,22 +659,15 @@ private:
     }
 };
 
-template<class point_t, class bucket_t, class affine_t, class scalar_t, class bucket_h = class bucket_t::mem_t> static
-void mult_pippenger(bucket_h *out, const affine_t points[], size_t npoints,
+template<class point_t, class bucket_t, class affine_t, class scalar_t> static
+void mult_pippenger(bucket_t *out, const affine_t points[], size_t npoints,
                                        const scalar_t scalars[], bool mont = true,
                                        size_t ffi_affine_sz = sizeof(affine_t))
 {
-    // try {
+
     msm_t<bucket_t, point_t, affine_t, scalar_t> msm{nullptr, npoints};
     msm.invoke(out, slice_t<affine_t>{points, npoints},
                             scalars, mont, ffi_affine_sz);
-    // } catch (const cuda_error& e) {
-    //out->inf();
-// #ifdef TAKE_RESPONSIBILITY_FOR_ERROR_MESSAGE
-//         return RustError{e.code(), e.what()};
-// #else
-//         return RustError{e.code()};
-// #endif
     }
 }//namespace native
 }//namespace at

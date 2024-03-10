@@ -4891,6 +4891,11 @@
   dispatch:
     CUDA: msm_zkp_cuda
 
+- func: msm_collect(Tensor step1res, int npoints) -> Tensor
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+    CPU: msm_collect_cpu
+
 - func: relu6(Tensor self) -> Tensor
   python_module: nn
 

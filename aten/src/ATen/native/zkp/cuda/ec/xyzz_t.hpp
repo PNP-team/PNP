@@ -14,6 +14,7 @@ namespace native {
 
 template<class field_t>
 class xyzz_t {
+public:
     field_t X, Y, ZZZ, ZZ;
     using field_h = typename field_t::mem_t;
 public:
@@ -56,6 +57,7 @@ public:
 #endif
 
     class affine_t { friend class xyzz_t;
+    public:
         field_t X, Y;
 
     public:
