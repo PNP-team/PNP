@@ -444,15 +444,8 @@ public:
         uint32_t stride = npoints;
         // Round up to the nearest multiple greater than or equal to WARP_SZ
         stride = (stride + WARP_SZ - 1) & ((size_t)0-WARP_SZ);
-
-        // std::vector<result_t> res(nwins);
-        // std::vector<bucket_t> ones(gpu.sm_count() * BATCH_ADD_BLOCK_SIZE / WARP_SZ);
-        // std::cout<< res.size() << " " << sizeof(result_t) << " "<< nwins  <<std::endl;
-        // std::cout<< ones.size() << " " << sizeof(ones[271])<< " "<< gpu.sm_count() * BATCH_ADD_BLOCK_SIZE / WARP_SZ  <<std::endl;
-        // out.inf();
         point_t p;
 
-        //try {
         // |scalars| being nullptr means the scalars are pre-loaded to
         // |d_scalars|, otherwise allocate stride.
         size_t temp_sz = scalars ? sizeof(scalar_t) : 0;

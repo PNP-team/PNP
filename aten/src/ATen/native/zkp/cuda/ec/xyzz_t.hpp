@@ -65,11 +65,15 @@ public:
         inline __host__ __device__ affine_t() {}
 
 #ifdef __CUDA_ARCH__
+        // inline __device__ bool is_inf() const
+        // {   return (bool)(X.is_zero(Y));   }
         inline __device__ bool is_inf() const
-        {   return (bool)(X.is_zero(Y));   }
+        {   return (bool)(X.is_zero(X));   }
 #else
+        // inline __host__   bool is_inf() const
+        // {   return (bool)(X.is_zero() & Y.is_zero());   }
         inline __host__   bool is_inf() const
-        {   return (bool)(X.is_zero() & Y.is_zero());   }
+        {   return (bool)(X.is_zero());   }
 #endif
 
         inline __host__ affine_t& operator=(const xyzz_t& a)
