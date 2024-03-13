@@ -509,7 +509,7 @@ public:
         C10_CUDA_CHECK(cudaMemcpyAsync(out, d_buckets, sizeof(result_t) * nwins, cudaMemcpyDeviceToDevice, gpu[0]));
         gpu[0].sync();
 
-        //gpu.sync();
+        gpu.sync();
     }
 
     void invoke(bucket_t* out, const affine_t* points, size_t npoints,

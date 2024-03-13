@@ -68,7 +68,7 @@ public:
         // inline __device__ bool is_inf() const
         // {   return (bool)(X.is_zero(Y));   }
         inline __device__ bool is_inf() const
-        {   return (bool)(X.is_zero(X));   }
+        {   return (bool)(X.is_zero(X));}
 #else
         // inline __host__   bool is_inf() const
         // {   return (bool)(X.is_zero() & Y.is_zero());   }
