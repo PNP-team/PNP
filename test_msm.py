@@ -51,8 +51,8 @@ point_list[-2] = [0,0,0,0,0,0]
 point_list[-3] = [0,0,0,0,0,0]
 point_list[-4] = [0,0,0,0,0,0]
 
-for i in range(1024):
-    scalar_list[i] = [1+i*4,2+i*4,3+i*4,4+i*4]
+for i in range(10):
+    scalar_list[i] = [i+1,i+2,i+3,i+4]
 
     
 scalar = torch.tensor(scalar_list, dtype = torch.BLS12_381_Fr_G1_Mont)

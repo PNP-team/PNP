@@ -37,8 +37,12 @@ template<class bucket_t>
 bucket_t sum_up(const bucket_t inp[], size_t n)
 {
     bucket_t sum = inp[0];
-    for (size_t i = 1; i < n; i++)
+    for (size_t i = 1; i < n; i++){
         sum.add(inp[i]);
+        if(i<10){
+            std::cout << sum.X <<std::endl;
+        }
+    }
     return sum;
 }
 
@@ -76,6 +80,28 @@ public:
 public:
     void collect(point_t* out, bucket_t* res, const bucket_t* ones, uint32_t lenofone)
     {
+        // std::vector<int> finitebucket;
+        // std::vector<int> onesbucket;
+
+        // for(size_t i=0;i<nwins * MSM_NTHREADS/1 * 2;i++){
+        //     if(!(res + i)->is_inf())
+        //         finitebucket.push_back(i);
+        // }
+        // for(size_t i=0;i<lenofone;i++){
+        //         if(!(ones+i)->is_inf())
+        //             onesbucket.push_back(i);
+        // }
+        
+        // for(size_t i=0;i<finitebucket.size();i++){
+        //     std::cout << finitebucket[i] << "   ";
+        // }
+
+        // std::cout<<"=================="<<std::endl;
+        // for(size_t i=0;i<onesbucket.size();i++){
+        //     std::cout << onesbucket[i] << "   ";
+        // }
+        // std::cout<<(res+3199)->X<<std::endl;
+
         struct tile_t {
             uint32_t x, y, dy;
             point_t p;
@@ -83,6 +109,7 @@ public:
         };
         std::vector<tile_t> grid(nwins);
         bucket_t sum_res = sum_up(res, nwins * MSM_NTHREADS/1 * 2);
+        std::cout<<"============"<<std::endl;
         uint32_t y = nwins-1, total = 0;
 
         grid[0].x  = 0;
