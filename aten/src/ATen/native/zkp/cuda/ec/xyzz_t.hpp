@@ -1,5 +1,9 @@
+// Copyright Supranational LLC
+// Licensed under the Apache License, Version 2.0, see LICENSE for details.
+// SPDX-License-Identifier: Apache-2.0
+
 #pragma once
-#include "jacobian_t.hpp"
+
 #ifndef __CUDACC__
 # undef  __host__
 # define __host__
@@ -7,20 +11,22 @@
 # define __device__
 # undef  __noinline__
 # define __noinline__
+#else
+# pragma nv_diag_suppress 284   // NULL reference is not allowed
 #endif
+namespace at{
+    namespace native{
 
-namespace at { 
-namespace native {
-
-template<class field_t>
+template<class field_t, class field_h = typename field_t::mem_t,
+         const field_h* a4 = nullptr>
 class xyzz_t {
 public:
     field_t X, Y, ZZZ, ZZ;
-    using field_h = typename field_t::mem_t;
+
 public:
     static const unsigned int degree = field_t::degree;
 
-#ifdef __NVCC__
+#ifdef __CUDACC__
     class mem_t { friend class xyzz_t;
         field_h X, Y, ZZZ, ZZ;
 
@@ -40,6 +46,7 @@ public:
             Y   = p.Y;
             ZZZ = p.ZZZ;
             ZZ  = p.ZZ;
+            return *this;
         }
         inline __device__ void inf() { ZZZ.zero(); ZZ.zero(); }
     };
@@ -65,15 +72,11 @@ public:
         inline __host__ __device__ affine_t() {}
 
 #ifdef __CUDA_ARCH__
-        // inline __device__ bool is_inf() const
-        // {   return (bool)(X.is_zero(Y));   }
         inline __device__ bool is_inf() const
-        {   return (bool)(X.is_zero(X));}
+        {   return (bool)(X.is_zero(Y));   }
 #else
-        // inline __host__   bool is_inf() const
-        // {   return (bool)(X.is_zero() & Y.is_zero());   }
         inline __host__   bool is_inf() const
-        {   return (bool)(X.is_zero());   }
+        {   return (bool)((int)X.is_zero() & (int)Y.is_zero());   }
 #endif
 
         inline __host__ affine_t& operator=(const xyzz_t& a)
@@ -87,8 +90,10 @@ public:
         }
         inline __host__ affine_t(const xyzz_t& a)  { *this = a; }
 
+#ifdef __SPPARK_EC_JACOBIAN_T_HPP__
         inline operator jacobian_t<field_t>() const
         {   return jacobian_t<field_t>{ X, Y, field_t::one(is_inf()) };   }
+#endif
 
         inline __host__ __device__ operator xyzz_t() const
         {
@@ -99,7 +104,7 @@ public:
             return p;
         }
 
-#ifdef __NVCC__
+#ifdef __CUDACC__
         class mem_t {
             field_h X, Y;
 
@@ -118,6 +123,7 @@ public:
     };
 
     class affine_inf_t {
+    public:
         field_t X, Y;
         bool inf;
 
@@ -125,7 +131,7 @@ public:
         {   return inf;   }
 
     public:
-        inline __device__ operator affine_t() const
+        inline __host__ __device__ operator affine_t() const
         {
             bool inf = is_inf();
             affine_t p;
@@ -134,20 +140,14 @@ public:
             return p;
         }
 
-#ifdef __NVCC__
+#ifdef __CUDACC__
         class mem_t {
             field_h X, Y;
-#ifdef __CUDACC__
             int inf[sizeof(field_t)%16 ? 2 : 4];
 
-            inline __host__ __device__ bool is_inf() const
+            inline __device__ bool is_inf() const
             {   return inf[0]&1 != 0;   }
-#else
-            bool inf;
 
-            inline __host__ __device__ bool is_inf() const
-            {   return inf;   }
-#endif
         public:
             inline __device__ operator affine_t() const
             {
@@ -184,13 +184,17 @@ public:
 
     inline __host__ operator affine_t() const      { return affine_t(*this); }
 
+#ifdef __SPPARK_EC_JACOBIAN_T_HPP__
     inline operator jacobian_t<field_t>() const
     {   return jacobian_t<field_t>{ X*ZZ, Y*ZZZ, ZZ };   }
+#endif
 
 #ifdef __CUDA_ARCH__
-    inline __device__ bool is_inf() const          { return (bool)(ZZZ.is_zero(ZZ)); }
+    inline __device__ bool is_inf() const
+    {   return (bool)(ZZZ.is_zero(ZZ));   }
 #else
-    inline __host__   bool is_inf() const          { return (bool)(ZZZ.is_zero() & ZZ.is_zero()); }
+    inline __host__   bool is_inf() const
+    {   return (bool)((int)ZZZ.is_zero() & (int)ZZ.is_zero());   }
 #endif
     inline __host__ __device__ void inf()          { ZZZ.zero(); ZZ.zero(); }
     inline __host__ __device__ void cneg(bool neg) { ZZZ.cneg(neg); }
@@ -266,6 +270,16 @@ public:
             S = p31.X * V;          /* S = X1*V */
             M = p31.X^2;
             M = M + M + M;          /* M = 3*X1^2[+a*ZZ1^2] */
+            if (a4 != nullptr) {
+#ifdef __CUDA_ARCH__
+                U = *a4;
+                U *= p31.ZZ^2;
+#else
+                U = p31.ZZ^2;
+                U *= *a4;
+#endif
+                M += U;
+            }
             p31.X = M^2;
             p31.X -= S;
             p31.X -= S;             /* X3 = M^2-2*S */
@@ -327,7 +341,12 @@ public:
                 inf = A.is_zero();      /* X1==X2, not add |p1| and |p2| */
                 dbl = R.is_zero() & inf;
                 if (dbl) {              /* X1==X2 && Y1==Y2, double |p2| */
-                    A = p2.Y<<1;        /* U = 2*Y1 */
+                    if (a4 != nullptr) {
+                        A = p2.ZZ;
+                        pc = 16;
+                    } else {
+                        A = p2.Y<<1;    /* U = 2*Y1 */
+                    }
                     inf = false;        /* don't set |p3| to infinity */
                 }
                 B = A;
@@ -387,6 +406,8 @@ public:
 #define S PP
             case 14:
                 A = A + A + A;          /* M = 3*X1^2[+a*ZZ1^2] */
+                if (a4 != nullptr)
+                    A += U;
                 B = A;
                 break;
             case 15:
@@ -398,6 +419,19 @@ public:
                 done = true;
                 break;
 #undef S
+            /*** account for a4 != nullptr when doubling ***/
+            case 17:                    /* ZZ1^2 */
+                if (a4 != nullptr)
+                    B = *a4;
+                break;
+            case 18:                    /* ZZ1^2*a4 */
+                if (a4 != nullptr) {
+                    U = A;
+                    A = p2.Y<<1;        /* U = 2*Y1 */
+                    B = A;
+                }
+                pc = 3;
+                break;
             }
         } while (!done);
         p31.Y = A - p31.Y;              /* Y3 = R*(Q-X3)-S1*PPP */
@@ -468,6 +502,13 @@ public:
                 S = p2.X * p31.ZZ;      /* S = X1*V */
                 M = p2.X^2;
                 M = M + M + M;          /* M = 3*X1^2[+a] */
+                if (a4 != nullptr) {
+#ifdef __CUDA_ARCH__
+                    M += (U = *a4);
+#else
+                    M += *a4;
+#endif
+                }
                 p31.X = M^2;
                 p31.X -= S;
                 p31.X -= S;             /* X3 = M^2-2*S */
@@ -579,6 +620,8 @@ public:
 #define S R
             case 10:                    /* X1^2 */
                 A += A<<1;              /* M = 3*X1^2[+a] */
+                if (a4 != nullptr)
+                    A += (B = *a4);
                 B = A;
                 break;
             case 11:                    /* M^2 */
@@ -617,5 +660,10 @@ public:
     }
 #endif
 };
-}//namespace native
-}//namespace at
+        
+}
+}
+#ifdef __CUDACC__
+# pragma nv_diag_default 284
+#endif
+

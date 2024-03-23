@@ -7,6 +7,7 @@
 #endif
 
 template<typename T> class vec2d_t {
+public:
     uint32_t dim_x;
     bool owned;
     T* ptr;

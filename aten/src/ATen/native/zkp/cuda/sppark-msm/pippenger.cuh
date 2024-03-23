@@ -81,7 +81,7 @@ void breakdown(vec2d_t<uint32_t> digits, const scalar_t scalars[], size_t len,
     const uint32_t tid = threadIdx.x;
     const uint32_t tix = threadIdx.x + blockIdx.x*blockDim.x;
 
-    const uint32_t top_i = (scalar_t::nbits + 31) / 32 - 1;
+    const uint32_t top_i = (scalar_t::nbits + 31) / 32 - 1; //find the first 32bits index
     const uint32_t wmask = 0xffffffffU >> (31-wbits); // (1U << (wbits+1)) - 1;
 
     auto& scalar = xchange[tid/WARP_SZ](tid%WARP_SZ);
@@ -363,7 +363,7 @@ public:
         d_hist = vec2d_t<uint32_t>(&d_buckets[d_buckets_sz], row_sz);
         if (points) {
             d_points = reinterpret_cast<decltype(d_points)>(d_hist[nwins]);
-            C10_CUDA_CHECK(cudaMemcpyAsync(d_points , points, np * ffi_affine_sz, cudaMemcpyDeviceToDevice, gpu));
+            C10_CUDA_CHECK(cudaMemcpy(d_points , points, np * ffi_affine_sz, cudaMemcpyDeviceToDevice));
             // gpu.HtoD(d_points, points, np, ffi_affine_sz);
             npoints = np;
         } else {
@@ -420,12 +420,12 @@ private:
         uint32_t top = scalar_t::bit_length() - wbits * (nwins-1);
         uint32_t win;
         for (win = 0; win < nwins-1; win += 2) {
-            gpu[2].launch_coop(sort, {{grid_size, 2}, SORT_BLOCKDIM, shared_sz},
+            gpu.launch_coop(sort, {{grid_size, 2}, SORT_BLOCKDIM, shared_sz},
                             d_digits, len, win, d_temps, d_hist,
                             wbits-1, wbits-1, win == nwins-2 ? top-1 : wbits-1);
         }
         if (win < nwins) {
-            gpu[2].launch_coop(sort, {{grid_size, 1}, SORT_BLOCKDIM, shared_sz},
+            gpu.launch_coop(sort, {{grid_size, 1}, SORT_BLOCKDIM, shared_sz},
                             d_digits, len, win, d_temps, d_hist,
                             wbits-1, top-1, 0u);
         }
@@ -460,7 +460,7 @@ public:
 
         size_t digits_sz = nwins * stride * sizeof(uint32_t);
 
-        dev_ptr_t<uint8_t> d_temp{temp_sz + digits_sz + d_point_sz, gpu[2]};
+        dev_ptr_t<uint8_t> d_temp{temp_sz + digits_sz + d_point_sz};
 
         vec2d_t<uint2> d_temps{&d_temp[0], stride};
         vec2d_t<uint32_t> d_digits{&d_temp[temp_sz], stride};
@@ -476,38 +476,46 @@ public:
         event_t ev;
 
         if (scalars)
-            C10_CUDA_CHECK(cudaMemcpyAsync(&d_scalars[d_off] , &scalars[h_off], num * sizeof(scalar_t), cudaMemcpyDeviceToDevice, gpu[2]));
+            C10_CUDA_CHECK(cudaMemcpy(&d_scalars[d_off] , &scalars[h_off], num * sizeof(scalar_t), cudaMemcpyDeviceToDevice));
+        gpu.sync();
         digits(&d_scalars[0], num, d_digits, d_temps, mont);
-        gpu[2].record(ev);
+        //gpu[2].record(ev);
+        gpu.sync();
+        // auto digit = reinterpret_cast<uint32_t*>(d_digits.ptr);
+        // std::vector<uint32_t> to_print(nwins * stride);
+        // C10_CUDA_CHECK(cudaMemcpy(to_print.data(), digit, nwins * stride * sizeof(uint32_t), cudaMemcpyDeviceToHost));
+        // for(int i=0;i<nwins * stride;i++){
+        //     std::cout<<to_print[i]<<std::endl;
+        // }
 
+        // reinterpret_cast<uint32_t*>(out);
         if (points)
-            C10_CUDA_CHECK(cudaMemcpyAsync(&d_points[d_off] , &points[h_off], num * ffi_affine_sz, cudaMemcpyDeviceToDevice, gpu[0]));
-        gpu[0].wait(ev);
-
-        batch_addition<bucket_t><<<gpu.sm_count(), BATCH_ADD_BLOCK_SIZE,
-                                    0, gpu[0]>>>(
+            C10_CUDA_CHECK(cudaMemcpy(&d_points[d_off] , &points[h_off], num * ffi_affine_sz, cudaMemcpyDeviceToDevice));
+        //gpu[0].wait(ev);
+        gpu.sync();
+        batch_addition<bucket_t><<<gpu.sm_count(), BATCH_ADD_BLOCK_SIZE>>>(
             &d_buckets[nwins << (wbits-1)], &d_points[d_off], num,
             &d_digits[0][0], d_hist[0][0]
         );
         CUDA_OK(cudaGetLastError());
 
-        gpu[0].launch_coop(accumulate<bucket_t, affine_h>,
+        gpu.launch_coop(accumulate<bucket_t, affine_h>,
             {gpu.sm_count(), 0},
             d_buckets, nwins, wbits, &d_points[d_off], d_digits, d_hist, (uint32_t)0
         ); 
-        gpu[0].record(ev);
-
+        // gpu[0].record(ev);
+        gpu.sync();
         integrate<bucket_t><<<nwins, MSM_NTHREADS,
-                                sizeof(bucket_t)*MSM_NTHREADS/bucket_t::degree,
-                                gpu[0]>>>(
+                                sizeof(bucket_t)*MSM_NTHREADS/bucket_t::degree>>>(
             d_buckets, nwins, wbits, scalar_t::bit_length()
         );
         CUDA_OK(cudaGetLastError());
 
-        C10_CUDA_CHECK(cudaMemcpyAsync(out + nwins * MSM_NTHREADS/bucket_t::degree * 2 , d_buckets + (nwins << (wbits-1)), sizeof(bucket_t) * gpu.sm_count() * BATCH_ADD_BLOCK_SIZE / WARP_SZ, cudaMemcpyDeviceToDevice, gpu[0]));
+        C10_CUDA_CHECK(cudaMemcpy(out + nwins * MSM_NTHREADS/bucket_t::degree * 2 , d_buckets + (nwins << (wbits-1)), sizeof(bucket_t) * gpu.sm_count() * BATCH_ADD_BLOCK_SIZE / WARP_SZ, cudaMemcpyDeviceToDevice));
 
-        C10_CUDA_CHECK(cudaMemcpyAsync(out, d_buckets, sizeof(result_t) * nwins, cudaMemcpyDeviceToDevice, gpu[0]));
-        gpu[0].sync();
+        C10_CUDA_CHECK(cudaMemcpy(out, d_buckets, sizeof(result_t) * nwins, cudaMemcpyDeviceToDevice));
+        // C10_CUDA_CHECK(cudaMemcpy(out, digit, nwins * stride * sizeof(uint32_t), cudaMemcpyDeviceToDevice));
+        //gpu[0].sync();
 
         gpu.sync();
     }

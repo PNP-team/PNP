@@ -2,7 +2,9 @@
 #include <stdint.h>
 #include <iostream>
 #include <cstdio>
+#include "ec/jacobian_t.hpp"
 #include "ec/xyzz_t.hpp"
+
 #include "sppark-msm/pippenger.cuh"
 
 #include <ATen/core/Tensor.h>
@@ -54,10 +56,13 @@ Tensor msm_zkp_cuda(const Tensor& points, const Tensor& scalars) {
     auto nbits = bit_length(scalars.scalar_type());
     auto nwins = (nbits - 1) / wbits + 1;
     auto smcount = 34;
+    auto digit_len = npoints * nwins * sizeof(uint32_t);
     std::cout << "nwins: " << nwins << std::endl;
     std::cout << "ones: " << smcount * BATCH_ADD_BLOCK_SIZE / WARP_SZ << std::endl;
+
     Tensor out = at::empty({(nwins * MSM_NTHREADS/1 * 2 + smcount * BATCH_ADD_BLOCK_SIZE / WARP_SZ) * 4, num_uint64(points.scalar_type())},
       points.options());
+
     mult_pippenger_inf(out, points, scalars);
     return out;
 }

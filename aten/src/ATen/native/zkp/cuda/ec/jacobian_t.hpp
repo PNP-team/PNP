@@ -1,21 +1,27 @@
-#pragma once
+// Copyright Supranational LLC
+// Licensed under the Apache License, Version 2.0, see LICENSE for details.
+// SPDX-License-Identifier: Apache-2.0
 
-namespace at { 
-namespace native {
-template<class field_t> 
+#ifndef __SPPARK_EC_JACOBIAN_T_HPP__
+#define __SPPARK_EC_JACOBIAN_T_HPP__
+namespace at{
+    namespace native{
+
+template<class field_t, const field_t* a4 = nullptr>
 class jacobian_t {
 public:
     field_t X, Y, Z;
 
     inline operator const void*() const { return this; }
     inline operator void*()             { return this; }
-    
+
 public:
     jacobian_t() {}
     jacobian_t(const field_t& x, const field_t& y, const field_t& z) :
                             X(x),             Y(y),             Z(z) {}
 
     class affine_t { friend jacobian_t;
+    public:
         field_t X, Y;
 
     public:
@@ -83,8 +89,7 @@ public:
      * infinity by virtue of Z3 = (U2-U1)*zz = H*zz = 0*zz == 0.
      */
     static void dadd(jacobian_t& out, const jacobian_t& p1,
-                                      const jacobian_t& p2,
-                                      const field_t* a4 = nullptr)
+                                      const jacobian_t& p2)
     {
         jacobian_t p3;          /* starts as (U1, S1, zz) from addition side */
         struct { field_t H, R, sx; } add, dbl;
@@ -142,8 +147,8 @@ public:
         vec_select(&p3, &p1, &p3, sizeof(p3), p2inf);
         vec_select(out, &p2, &p3, sizeof(p3), p1inf);
     }
-    inline void dadd(const jacobian_t& p2, const field_t* a4 = nullptr)
-    {   dadd(*this, *this, p2, a4);   }
+    inline void dadd(const jacobian_t& p2)
+    {   dadd(*this, *this, p2);   }
 
     /*
      * Addition with affine point that can handle doubling [as well as
@@ -182,6 +187,8 @@ public:
         dbl.sx = p2.X + p2.X;   /* sx = X2+X2 */
         dbl.R = p2.X^2;         /* X2^2 */
         dbl.R += dbl.R + dbl.R; /* R = 3*X2^2 */
+        if (a4 != nullptr)
+            dbl.R += *a4;
         dbl.H = p2.Y + p2.Y;    /* H = 2*Y2 */
 
         p1inf = p1.is_inf();
@@ -400,7 +407,7 @@ public:
             H = p2.X * Z1Z1;        /* U2 = X2*Z1Z1 */
             H -= U1;                /* H = U2-U1 */
 
-            if (H.is_zero() & p3.Z.is_zero()) {
+            if ((int)H.is_zero() & (int)p3.Z.is_zero()) {
                 field_t A, B, C;    /* double |p1| */
 
                 A = p1.X^2;         /* A = X1^2 */
@@ -538,5 +545,7 @@ public:
         *this = p3;
     }
 };
-}//namespace native
-}//namespace at
+        
+    }
+}
+#endif

@@ -38,10 +38,22 @@ bucket_t sum_up(const bucket_t inp[], size_t n)
 {
     bucket_t sum = inp[0];
     for (size_t i = 1; i < n; i++){
-        sum.add(inp[i]);
-        if(i<10){
-            std::cout << sum.X <<std::endl;
+        // if(i%512==0){
+        //     std::cout<<"cut"<<std::endl;
+        // }
+        if(i==6658){
+            std::cout<<sum.X<<std::endl;
+            std::cout<<i<<std::endl;
         }
+        if(i==6659){
+            std::cout<<sum.X<<std::endl;
+            std::cout<<i<<std::endl;
+        }
+        sum.add(inp[i]);
+        
+        // if(i==1541){
+        //     std::cout<<sum.X<<std::endl;
+        // }
     }
     return sum;
 }
@@ -101,7 +113,6 @@ public:
         //     std::cout << onesbucket[i] << "   ";
         // }
         // std::cout<<(res+3199)->X<<std::endl;
-
         struct tile_t {
             uint32_t x, y, dy;
             point_t p;
@@ -109,6 +120,7 @@ public:
         };
         std::vector<tile_t> grid(nwins);
         bucket_t sum_res = sum_up(res, nwins * MSM_NTHREADS/1 * 2);
+        std::cout<<sum_res.X<<std::endl;
         std::cout<<"============"<<std::endl;
         uint32_t y = nwins-1, total = 0;
 
