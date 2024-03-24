@@ -26,50 +26,60 @@ MODULUS_r = 52435875175126190479447740508185965837690552500527637822603658699938
 
 R_r = 10920338887063814464675503992315976177888879664585288394250266608035967270910
 
-R_INV_r = 3294906474794265442129797520630710739278575682199800681788903916070560242797
-def inverse(self):
-        if self == 0:
-             print("cannot invert 0!\n")
-             return  None
-        u = self
-        one = 1
-        v = MODULUS
-        b = R2
-        c = 0
+R_INV_r = 12549076656233958353659347336803947287922716146853412054870763148006372261952
 
-        while u != one and v != one:
-            while u & 1 == 0:
-                u = u // 2
-                if b & 1 == 0:
-                    b = b // 2
-                else:
-                    b = b + MODULUS
-                    b = b // 2
-            while v & 1 == 0:
-                v =v // 2
-                if c & 1 == 0:
-                    c = c // 2
-                else:
-                    c = c + MODULUS
-                    c = c // 2
-            if v < u:
-                u = u-v
-                if c > b:
-                    b = b + MODULUS
-                b = b - c
-                b = b%MODULUS
+
+def inverse(self):
+    if self == 0:
+            print("cannot invert 0!\n")
+            return  None
+    u = self
+    one = 1
+    v = MODULUS
+    b = R2
+    c = 0
+
+    while u != one and v != one:
+        while u & 1 == 0:
+            u = u // 2
+            if b & 1 == 0:
+                b = b // 2
             else:
-                v = v-u
-                if b > c:
-                    c = c + MODULUS
-                c = c - b
-                c = c%MODULUS
-        if u == one:
-            return b
+                b = b + MODULUS
+                b = b // 2
+        while v & 1 == 0:
+            v =v // 2
+            if c & 1 == 0:
+                c = c // 2
+            else:
+                c = c + MODULUS
+                c = c // 2
+        if v < u:
+            u = u-v
+            if c > b:
+                b = b + MODULUS
+            b = b - c
+            b = b%MODULUS
         else:
-            return c
+            v = v-u
+            if b > c:
+                c = c + MODULUS
+            c = c - b
+            c = c%MODULUS
+    if u == one:
+        return b
+    else:
+        return c
         
 def into_repr(self):
+    if self == 0:
+        return self
+    else:
+        res = self * R_INV_r
+        res %= MODULUS_r
+        return res
+    
+def into_repr_q(self):
     if self == 0:
         return self
     else:
@@ -81,9 +91,27 @@ def convert_to_bigints(p):
     coeffs = [into_repr(s) for s in p]
     return coeffs
 
+def convert_to_bigints_q(p):
+    coeffs = [into_repr_q(s) for s in p]
+    return coeffs
+
 pp = read_pp_data("params.txt")
 w_l_scalar = read_scalar_data("w_l_scalar.txt")
 pp = pp[:2048]
+# pp_gmpy = []
+# for i in range(len(pp)):
+#     mem = 0 
+#     pp[i].reverse()
+#     for j in pp[i]:
+#         mem = mem<<64
+#         mem = mem | j
+#     pp_gmpy.append(mem)
+# pp_gmpy = convert_to_bigints_q(pp_gmpy)
+# pp_repr = from_gmpy_tensor(pp_gmpy,6,torch.BLS12_381_Fq_G1_Base)
+# # 将数据写入文件
+# with open('pp.txt', 'w') as file:
+#     for sublist in pp_repr:
+#         file.write(' '.join(map(str, sublist)) + '\n')  
 
 # scalar_list = [[8589934590,6378425256633387010,11064306276430008309,1739710354780652911] for _ in range(1024)]
 # x=[6679831729115696150,8653662730902241269,1535610680227111361,17342916647841752903,17135755455211762752,1297449291367578485]
@@ -126,6 +154,11 @@ for i in range(len(coeff)):
     coeff_gmpy.append(mem)
 coeff_gmpy = convert_to_bigints(coeff_gmpy)
 msmscalar = from_gmpy_tensor(coeff_gmpy,4,torch.BLS12_381_Fr_G1_Base)
+
+# with open('w_l_scalar.txt', 'w') as file:
+#     for sublist in msmscalar:
+#         file.write(' '.join(map(str, sublist)) + '\n')  
+        
 msmcoeff = msmscalar.to("cuda")
 
 step1 = torch.msm_zkp(point_gpu, msmcoeff)
