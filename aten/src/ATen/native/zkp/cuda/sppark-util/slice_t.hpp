@@ -14,19 +14,19 @@ namespace native {
 // A simple way to pack a constant pointer and array's size length,
 // and to "borrow" std::vector<T>&...
 template<typename T> class slice_t {
-    const T* ptr;
+    T* ptr;
     size_t nelems;
 public:
     slice_t() : ptr(nullptr), nelems(0)                                 {}
     slice_t(void* p, size_t n) : ptr(reinterpret_cast<T*>(p)), nelems(n){}
-    slice_t(const T* p, size_t n) : ptr(p), nelems(n)                   {}
+    slice_t(T* p, size_t n) : ptr(p), nelems(n)                   {}
     slice_t(const std::vector<T>& v) : ptr(v.data()), nelems(v.size())  {}
 
     inline operator void*() const               { return (void*)ptr; }
     inline operator decltype(ptr)() const       { return ptr; }
-    inline const T* data() const                { return ptr; }
+    inline T* data() const                { return ptr; }
     inline size_t size() const                  { return nelems; }
-    inline const T& operator[](size_t i) const  { return ptr[i]; }
+    inline T& operator[](size_t i) const  { return ptr[i]; }
 };
 }//namespace native
 }//namespace at

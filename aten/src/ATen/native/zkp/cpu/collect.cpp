@@ -38,22 +38,7 @@ bucket_t sum_up(const bucket_t inp[], size_t n)
 {
     bucket_t sum = inp[0];
     for (size_t i = 1; i < n; i++){
-        // if(i%512==0){
-        //     std::cout<<"cut"<<std::endl;
-        // }
-        if(i==6658){
-            std::cout<<sum.X<<std::endl;
-            std::cout<<i<<std::endl;
-        }
-        if(i==6659){
-            std::cout<<sum.X<<std::endl;
-            std::cout<<i<<std::endl;
-        }
-        sum.add(inp[i]);
-        
-        // if(i==1541){
-        //     std::cout<<sum.X<<std::endl;
-        // }
+        sum.add(inp[i]);   
     }
     return sum;
 }
@@ -92,36 +77,12 @@ public:
 public:
     void collect(point_t* out, bucket_t* res, const bucket_t* ones, uint32_t lenofone)
     {
-        // std::vector<int> finitebucket;
-        // std::vector<int> onesbucket;
-
-        // for(size_t i=0;i<nwins * MSM_NTHREADS/1 * 2;i++){
-        //     if(!(res + i)->is_inf())
-        //         finitebucket.push_back(i);
-        // }
-        // for(size_t i=0;i<lenofone;i++){
-        //         if(!(ones+i)->is_inf())
-        //             onesbucket.push_back(i);
-        // }
-        
-        // for(size_t i=0;i<finitebucket.size();i++){
-        //     std::cout << finitebucket[i] << "   ";
-        // }
-
-        // std::cout<<"=================="<<std::endl;
-        // for(size_t i=0;i<onesbucket.size();i++){
-        //     std::cout << onesbucket[i] << "   ";
-        // }
-        // std::cout<<(res+3199)->X<<std::endl;
         struct tile_t {
             uint32_t x, y, dy;
             point_t p;
             tile_t() {}
         };
         std::vector<tile_t> grid(nwins);
-        bucket_t sum_res = sum_up(res, nwins * MSM_NTHREADS/1 * 2);
-        std::cout<<sum_res.X<<std::endl;
-        std::cout<<"============"<<std::endl;
         uint32_t y = nwins-1, total = 0;
 
         grid[0].x  = 0;
@@ -135,7 +96,7 @@ public:
             grid[total].dy = wbits;
             total++;
         }
-
+        
         std::vector<std::atomic<size_t>> row_sync(nwins); /* zeroed */
         counter_t<size_t> counter(0);
         channel_t<size_t> ch;

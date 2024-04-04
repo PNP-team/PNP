@@ -137,27 +137,20 @@ public:
                                                 size_t shared_sz,
                             Types... args) const
     {
-        if (gpu_props(gpu_id).sharedMemPerBlock < shared_sz)
+        if (48*1024 < shared_sz)
             {
-                //CUDA_OK(cudaFuncSetAttribute(f, cudaFuncAttributeMaxDynamicSharedMemorySize, shared_sz));
                 cudaFuncSetAttribute(f, cudaFuncAttributeMaxDynamicSharedMemorySize, shared_sz);
-                C10_CUDA_KERNEL_LAUNCH_CHECK();
             }
+
         if (gridDim.x == 0 || blockDim.x == 0) {
             int blockSize, minGridSize;
-
-            //CUDA_OK(cudaOccupancyMaxPotentialBlockSize(&minGridSize, &blockSize, f));
             cudaOccupancyMaxPotentialBlockSize(&minGridSize, &blockSize, f);
-            C10_CUDA_KERNEL_LAUNCH_CHECK();
             if (blockDim.x == 0) blockDim.x = blockSize;
             if (gridDim.x == 0)  gridDim.x = minGridSize;
         }
         void* va_args[sizeof...(args)] = { &args... };
-        //CUDA_OK(cudaLaunchCooperativeKernel((const void*)f, gridDim, blockDim,
-        //                                    va_args, shared_sz, stream));
         cudaLaunchCooperativeKernel((const void*)f, gridDim, blockDim,
                                             va_args, shared_sz, stream);
-        C10_CUDA_KERNEL_LAUNCH_CHECK();
     }
     template<typename... Types>
     inline void launch_coop(void(*f)(Types...), const launch_params_t& lps,

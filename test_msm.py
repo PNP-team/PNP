@@ -135,7 +135,6 @@ pp = pp[:2048]
     
 scalar = torch.tensor(w_l_scalar, dtype = torch.BLS12_381_Fr_G1_Mont)
 point = torch.tensor(pp, dtype = torch.BLS12_381_Fq_G1_Mont)
-
 scalar_gpu = scalar.to("cuda")
 point_gpu = point.to("cuda")
 
@@ -155,16 +154,17 @@ for i in range(len(coeff)):
 coeff_gmpy = convert_to_bigints(coeff_gmpy)
 msmscalar = from_gmpy_tensor(coeff_gmpy,4,torch.BLS12_381_Fr_G1_Base)
 
-# with open('w_l_scalar.txt', 'w') as file:
-#     for sublist in msmscalar:
-#         file.write(' '.join(map(str, sublist)) + '\n')  
-        
+    
 msmcoeff = msmscalar.to("cuda")
 
-step1 = torch.msm_zkp(point_gpu, msmcoeff)
+# Choose which CUDA device to use (e.g., device 0)
+device = torch.device(f"cuda:{0}")
+properties = torch.cuda.get_device_properties(device)
+smcount = properties.multi_processor_count
+
+step1 = torch.msm_zkp(point_gpu, msmcoeff, smcount, dtype=torch.BLS12_381_Fq_G1_Base, device="cuda")
 step1res = step1.to("cpu")
 list1=step1res.tolist()
-# print(list1[:30])
 step2res = torch.msm_collect(step1res,1024)
 output = step2res.tolist()
 
@@ -201,11 +201,3 @@ else:
         y = y>>64
     output = [xx,yy]
 print(output)
-# for i in range(len(output)):
-#     mem = 0 
-#     for j in reversed(output[i]):
-#         mem = mem << 64
-#         mem = mem | j
-#     out.append(mem)
-# # out = from_list_gmpy(output)
-# print(out)

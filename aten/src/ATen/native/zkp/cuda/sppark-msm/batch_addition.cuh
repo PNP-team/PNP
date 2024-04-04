@@ -132,7 +132,7 @@ template<class bucket_t, class affine_h,
          class bucket_h = class bucket_t::mem_t,
          class affine_t = class bucket_t::affine_t>
 __launch_bounds__(BATCH_ADD_BLOCK_SIZE) __global__
-void batch_addition(bucket_h ret[], const affine_h points[], size_t npoints,
+void batch_addition(bucket_h ret[], affine_h points[], size_t npoints,
                     const uint32_t digits[], const uint32_t& ndigits)
 {
     const uint32_t degree = bucket_t::degree;

@@ -44,7 +44,7 @@ static void pippenger_collect(Tensor& self, const Tensor& step1res, int64_t npoi
 }
 
 Tensor msm_collect_cpu(const Tensor& step1res, int64_t npoints){
-    Tensor out = at::empty({3, num_uint64(step1res.scalar_type())}, step1res.options());
+    Tensor out = at::empty({3,num_uint64(step1res.scalar_type())}, step1res.options());
     pippenger_collect(out, step1res, npoints);
     return out;
 }
