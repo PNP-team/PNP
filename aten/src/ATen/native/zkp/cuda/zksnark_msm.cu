@@ -47,9 +47,8 @@ static void mult_pippenger_inf(Tensor& self, const Tensor& points, const Tensor&
 
 Tensor msm_zkp_cuda(const Tensor& points, const Tensor& scalars, 
     int64_t smcount, 
-    c10::optional<ScalarType> dtype,
-    c10::optional<Layout> layout,
     c10::optional<Device> device,
+    c10::optional<Layout> layout,
     c10::optional<bool> pin_memory) {
 
     auto wbits = 17;
