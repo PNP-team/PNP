@@ -1,21 +1,15 @@
-#include <stddef.h>
 #include <stdint.h>
-#include <iostream>
 #include <cstdio>
 #include "ec/jacobian_t.hpp"
 #include "ec/xyzz_t.hpp"
-
 #include "sppark-msm/pippenger.cuh"
-
 #include <ATen/core/Tensor.h>
 #include <ATen/Dispatch.h>
 #include <ATen/TensorOperators.h>
 #include <ATen/core/TensorBody.h>
 #include <ATen/core/interned_strings.h>
-
 #include <ATen/ops/copy.h>
 #include <ATen/ops/empty.h>
-
 #include <ATen/cuda/CUDAContext.h>
 #include <ATen/native/cuda/thread_constants.h>
 #include "CurveDef.cuh"

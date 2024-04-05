@@ -91,7 +91,6 @@ static void add(bucket_h ret[], const affine_h points[], uint32_t npoints,
         }
     }
 
-#ifdef __CUDA_ARCH__
     for (uint32_t off = 1; off < warp_sz;) {
         bucket_t down = acc.shfl_down(off*degree);
 
@@ -99,7 +98,6 @@ static void add(bucket_h ret[], const affine_h points[], uint32_t npoints,
         if ((xid & (off-1)) == 0)
             acc.uadd(down); // .add() triggers spills ... in .shfl_down()
     }
-#endif
 
     cooperative_groups::this_grid().sync();
 
@@ -152,7 +150,6 @@ void batch_addition(bucket_h ret[], affine_h points[], size_t npoints,
             acc.add(p, digit >> 31);
     }
 
-#ifdef __CUDA_ARCH__
     for (uint32_t off = 1; off < warp_sz;) {
         bucket_t down = acc.shfl_down(off*degree);
 
@@ -160,7 +157,6 @@ void batch_addition(bucket_h ret[], affine_h points[], size_t npoints,
         if ((xid & (off-1)) == 0)
             acc.uadd(down); // .add() triggers spills ... in .shfl_down()
     }
-#endif
 
     if (xid == 0)
         ret[tid/warp_sz] = acc;

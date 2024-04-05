@@ -31,7 +31,6 @@ namespace native {
  * Break down |scalars| to signed |wbits|-wide digits.
  */
 
-#ifdef __CUDA_ARCH__
 // Transposed scalar_t
 template<class scalar_t>
 class scalar_T {
@@ -70,7 +69,6 @@ static uint32_t booth_encode(uint32_t wval, uint32_t wmask, uint32_t wbits)
     wval = ((wval + 1) & wmask) >> 1;
     return sign ? 0-wval : wval;
 }
-#endif
 
 template<class scalar_t>
 __launch_bounds__(1024) __global__
@@ -80,7 +78,6 @@ void breakdown(uint32_t* digits, const scalar_t scalars[], size_t len,
 {
     assert(len <= (1U<<31) && wbits < 32);
 
-#ifdef __CUDA_ARCH__
     extern __shared__ char shmem[];
     auto xchange = reinterpret_cast<scalar_T<scalar_t> *>(shmem);
     // extern __shared__ scalar_T<scalar_t> xchange[];
@@ -96,12 +93,7 @@ void breakdown(uint32_t* digits, const scalar_t scalars[], size_t len,
     for (uint32_t i = tix; i < (uint32_t)len; i += gridDim.x*blockDim.x) {
         auto s = scalars[i];
 
-#if 0
-        s.from();
-        if (!mont) s.to();
-#else
         if (mont) s.from();
-#endif
 
         // clear the most significant bit
         uint32_t msb = s[top_i] >> ((scalar_t::nbits - 1) % 32);
@@ -124,7 +116,6 @@ void breakdown(uint32_t* digits, const scalar_t scalars[], size_t len,
         if (wval) wval ^= msb;
         *(digits + i) = wval;
     }
-#endif
 }
 
 #ifndef LARGE_L1_CODE_CACHE
@@ -171,17 +162,13 @@ void accumulate(bucket_h buckets[],
     const uint32_t lane_id = laneid / degree;
 
     uint32_t x, y;
-#if 1
+
     __shared__ uint32_t xchg;
 
     if (threadIdx.x == 0)
         xchg = atomicAdd(&current, blockDim.x/degree);
     __syncthreads();
     x = xchg + threadIdx.x/degree;
-#else
-    x = laneid == 0 ? atomicAdd(&current, warp_sz) : 0;
-    x = __shfl_sync(0xffffffff, x, 0) + lane_id;
-#endif
 
     while (x < (nwins << wbits)) {
         y = x >> wbits;
@@ -399,18 +386,7 @@ private:
         C10_CUDA_CHECK(cudaGetLastError());
 
         const size_t shared_sz = sizeof(uint32_t) << DIGIT_BITS;
-#if 0
-        uint32_t win;
-        for (win = 0; win < nwins-1; win++) {
-            gpu[2].launch_coop(sort, {grid_size, SORT_BLOCKDIM, shared_sz},
-                            d_digits, len, win, temp_stride, digit_stride, hist_stride, d_temps, d_hist,
-                            wbits-1, wbits-1, 0u);
-        }
-        uint32_t top = scalar_t::bit_length() - wbits * win;
-        gpu[2].launch_coop(sort, {grid_size, SORT_BLOCKDIM, shared_sz},
-                            d_digits, len, win, temp_stride, digit_stride, hist_stride, d_temps, d_hist,
-                            wbits-1, top-1, 0u);
-#else
+
         // On the other hand a pair of kernels launched in parallel run
         // ~50% slower but sort twice as much data...
         uint32_t top = scalar_t::bit_length() - wbits * (nwins-1);
@@ -425,7 +401,6 @@ private:
                             d_digits, len, win, temp_stride, digit_stride, hist_stride, d_temps, d_hist,
                             wbits-1, top-1, 0u);
         }
-#endif
     }
 
 public:

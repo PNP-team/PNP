@@ -347,13 +347,6 @@ void sort_row(uint32_t inout[], size_t len, uint2 temp[],
     }
 }
 
-#if 0
-__launch_bounds__(SORT_BLOCKDIM)
-__global__ void sort(uint32_t inout[], size_t len, uint2 temp[],
-                     uint32_t histogram[], uint32_t wbits, uint32_t lsbits)
-{   sort_row(inout, len, temp, histogram, wbits, lsbits);   }
-#endif
-
 __launch_bounds__(SORT_BLOCKDIM)
 __global__ void sort(uint32_t* inouts, size_t len, uint32_t win,
                      const uint32_t temp_stride, const uint32_t digit_stride, const uint32_t hist_stride, 
