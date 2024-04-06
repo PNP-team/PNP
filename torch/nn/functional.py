@@ -1606,7 +1606,6 @@ In-place version of :func:`~selu`.
 """,
 )
 
-
 def celu(input: Tensor, alpha: float = 1.0, inplace: bool = False) -> Tensor:
     r"""celu(input, alpha=1., inplace=False) -> Tensor
 
@@ -5508,3 +5507,29 @@ def div_mod(input1: Tensor,input2: Tensor,inplace: bool = False) -> Tensor:
     else:
         result = torch.div_mod(input1,input2)
     return result
+
+def multi_scalar_mult(points: Tensor, scalars: Tensor, device = "cuda") -> list:
+    r"""
+        Performs a multi-scalar multiplication(MSM) using Pippenger's algorithm, derived by sppark.
+        This func is divided into 2 stages, the first is performed on GPU while the second on CPU.
+    Args:
+        points: a tensor on GPU that stores all input points.
+        scalars: a tensor on GPU that stores all input scalars.
+        device: specify tensor on gpu
+    """
+    
+    point_num = points.size(0)
+    scalar_num = scalars.size(0)
+    assert (point_num != 0 and scalar_num != 0), "tensor must not be zero"
+    assert (point_num & (point_num-1) == 0), "points' size must be a power of 2"
+    assert (scalar_num & (scalar_num-1) == 0), "scalars' size must be a power of 2"
+    assert (point_num/2 == scalar_num), "points' size must be equal to scalars' size"
+    
+    properties = torch.cuda.get_device_properties(device)
+    smcount = properties.multi_processor_count
+    
+    step1_res = torch.msm_zkp(points, scalars, smcount, device)
+    step1_cpu = step1_res.to("cpu")
+    res_jacobian = torch.msm_collect(step1_cpu,1024)
+    res_jacobian = res_jacobian.tolist()
+    return res_jacobian

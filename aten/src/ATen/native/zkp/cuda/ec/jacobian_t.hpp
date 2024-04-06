@@ -2,7 +2,10 @@
 // Licensed under the Apache License, Version 2.0, see LICENSE for details.
 // SPDX-License-Identifier: Apache-2.0
 
-#pragma once
+#ifndef __SPPARK_EC_JACOBIAN_T_HPP__
+#define __SPPARK_EC_JACOBIAN_T_HPP__
+namespace at{
+    namespace native{
 
 template<class field_t, const field_t* a4 = nullptr>
 class jacobian_t {
@@ -542,3 +545,7 @@ public:
         *this = p3;
     }
 };
+        
+    }
+}
+#endif
