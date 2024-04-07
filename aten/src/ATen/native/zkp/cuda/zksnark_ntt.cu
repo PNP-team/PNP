@@ -1,17 +1,17 @@
-#include <stddef.h>
-#include <stdint.h>
 #include <ATen/Dispatch.h>
 #include <ATen/TensorOperators.h>
 #include <ATen/core/Tensor.h>
 #include <ATen/core/TensorBody.h>
 #include <ATen/core/interned_strings.h>
-#include <ATen/ops/copy.h>
-#include <ATen/ops/empty.h>
-#include "zksnark_ntt/ntt_kernel/ntt.cuh"
-#include "zksnark_ntt/parameters/parameters.cuh"
 #include <ATen/cuda/CUDAContext.h>
 #include <ATen/native/cuda/thread_constants.h>
+#include <ATen/ops/copy.h>
+#include <ATen/ops/empty.h>
 #include <math.h>
+#include <stddef.h>
+#include <stdint.h>
+#include "zksnark_ntt/ntt_kernel/ntt.cuh"
+#include "zksnark_ntt/parameters/parameters.cuh"
 
 // temporarily set device_id to 0, set InputOutputOrder to NN
 // TODO: optimize memory copy for inout data
@@ -95,7 +95,7 @@ static void ntt_zkp(
         L4;
     auto self_ptr = reinterpret_cast<scalar_t::compute_type*>(
         self.mutable_data_ptr<scalar_t>());
-    
+
     compute_ntt(
         0,
         self_ptr,

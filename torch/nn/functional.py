@@ -1461,7 +1461,6 @@ In-place version of :func:`~threshold`.
 """,
 )
 
-
 def relu(input: Tensor, inplace: bool = False) -> Tensor:
     r"""relu(input, inplace=False) -> Tensor
 
