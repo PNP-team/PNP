@@ -344,6 +344,10 @@ Tensor internal_new_from_data(
     auto device = device_opt.has_value() ? *device_opt : options.device();
     pybind11::gil_scoped_release no_gil;
     maybe_initialize_cuda(device);
+    if(c10::isEllipticCurveType(inferred_scalar_type)) {
+      TORCH_CHECK(tensor.size(tensor.dim() - 1) == c10::num_uint64(inferred_scalar_type) || tensor.sizes() == 0, 
+        "The last dimension of the tensor must be equal to the number of uint64 in the elliptic curve type.");
+    }
     return tensor.to(
         device,
         inferred_scalar_type,
@@ -440,7 +444,7 @@ Tensor internal_new_from_data(
     }
     if(c10::isEllipticCurveType(inferred_scalar_type)) {
       TORCH_CHECK(tensor.size(tensor.dim() - 1) == c10::num_uint64(inferred_scalar_type) || tensor.sizes() == 0, 
-        "The last dimension of the tensor must be equal to the number of uint64s in the elliptic curve type.");
+        "The last dimension of the tensor must be equal to the number of uint64 in the elliptic curve type.");
     }
     pybind11::gil_scoped_release no_gil;
     maybe_initialize_cuda(device);
