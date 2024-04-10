@@ -100,7 +100,7 @@ static void to_mont_cuda_template(Tensor& self) {
 }
 static void add_cuda_template(Tensor& a, const Tensor& b) {
   TORCH_CHECK(a.numel() == b.numel(), "Length check!");
-  AT_DISPATCH_FR_MONT_TYPES(a.scalar_type(), "add_mod_cuda", [&] {
+  AT_DISPATCH_MONT_TYPES(a.scalar_type(), "add_mod_cuda", [&] {
     auto a_ptr = reinterpret_cast<scalar_t::compute_type*>(
         a.mutable_data_ptr<scalar_t>());
     auto b_ptr = reinterpret_cast<scalar_t::compute_type*>(
@@ -116,7 +116,7 @@ static void add_cuda_template(Tensor& a, const Tensor& b) {
 
 static void sub_cuda_template(Tensor& a, const Tensor& b) {
   TORCH_CHECK(a.numel() == b.numel(), "Length check!");
-  AT_DISPATCH_FR_MONT_TYPES(a.scalar_type(), "sub_mod_cuda", [&] {
+  AT_DISPATCH_MONT_TYPES(a.scalar_type(), "sub_mod_cuda", [&] {
     auto a_ptr = reinterpret_cast<scalar_t::compute_type*>(
         a.mutable_data_ptr<scalar_t>());
     auto b_ptr = reinterpret_cast<scalar_t::compute_type*>(
@@ -132,7 +132,7 @@ static void sub_cuda_template(Tensor& a, const Tensor& b) {
 
 static void mul_cuda_template(Tensor& a, const Tensor& b) {
   TORCH_CHECK(a.numel() == b.numel(), "Length check!");
-  AT_DISPATCH_FR_MONT_TYPES(a.scalar_type(), "mul_mod_cuda", [&] {
+  AT_DISPATCH_MONT_TYPES(a.scalar_type(), "mul_mod_cuda", [&] {
     auto a_ptr = reinterpret_cast<scalar_t::compute_type*>(
         a.mutable_data_ptr<scalar_t>());
     auto b_ptr = reinterpret_cast<scalar_t::compute_type*>(
@@ -147,7 +147,7 @@ static void mul_cuda_template(Tensor& a, const Tensor& b) {
 }
 static void div_cuda_template(Tensor& a, const Tensor& b) {
   TORCH_CHECK(a.numel() == b.numel(), "Length check!");
-  AT_DISPATCH_FR_MONT_TYPES(a.scalar_type(), "div_mod_cuda", [&] {
+  AT_DISPATCH_MONT_TYPES(a.scalar_type(), "div_mod_cuda", [&] {
     auto a_ptr = reinterpret_cast<scalar_t::compute_type*>(
         a.mutable_data_ptr<scalar_t>());
     auto b_ptr = reinterpret_cast<scalar_t::compute_type*>(

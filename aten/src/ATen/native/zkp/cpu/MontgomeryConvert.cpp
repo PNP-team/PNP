@@ -62,7 +62,7 @@ static void add_template(
     const Tensor& in_b,
     Tensor& out_c) {
   TORCH_CHECK(in_a.numel() == in_b.numel(), "Length check!");
-  AT_DISPATCH_FR_MONT_TYPES(in_a.scalar_type(), "add_mod_cpu", [&] {
+  AT_DISPATCH_MONT_TYPES(in_a.scalar_type(), "add_mod_cpu", [&] {
     auto a_ptr = reinterpret_cast<scalar_t::compute_type*>(
         in_a.mutable_data_ptr<scalar_t>());
     auto b_ptr = reinterpret_cast<scalar_t::compute_type*>(
@@ -81,7 +81,7 @@ static void sub_template(
     const Tensor& in_b,
     Tensor& out_c) {
   TORCH_CHECK(in_a.numel() == in_b.numel(), "Length check!");
-  AT_DISPATCH_FR_MONT_TYPES(in_a.scalar_type(), "sub_mod_cpu", [&] {
+  AT_DISPATCH_MONT_TYPES(in_a.scalar_type(), "sub_mod_cpu", [&] {
     auto a_ptr = reinterpret_cast<scalar_t::compute_type*>(
         in_a.mutable_data_ptr<scalar_t>());
     auto b_ptr = reinterpret_cast<scalar_t::compute_type*>(
@@ -100,7 +100,7 @@ static void mul_template(
     const Tensor& in_b,
     Tensor& out_c) {
   TORCH_CHECK(in_a.numel() == in_b.numel(), "Length check!");
-  AT_DISPATCH_FR_MONT_TYPES(in_a.scalar_type(), "mul_mod_cpu", [&] {
+  AT_DISPATCH_MONT_TYPES(in_a.scalar_type(), "mul_mod_cpu", [&] {
     auto a_ptr = reinterpret_cast<scalar_t::compute_type*>(
         in_a.mutable_data_ptr<scalar_t>());
     auto b_ptr = reinterpret_cast<scalar_t::compute_type*>(
@@ -119,7 +119,7 @@ static void div_template(
     const Tensor& in_b,
     Tensor& out_c) {
   TORCH_CHECK(in_a.numel() == in_b.numel(), "Length check!");
-  AT_DISPATCH_FR_MONT_TYPES(in_a.scalar_type(), "div_mod_cpu", [&] {
+  AT_DISPATCH_MONT_TYPES(in_a.scalar_type(), "div_mod_cpu", [&] {
     auto a_ptr = reinterpret_cast<scalar_t::compute_type*>(
         in_a.mutable_data_ptr<scalar_t>());
     auto b_ptr = reinterpret_cast<scalar_t::compute_type*>(
