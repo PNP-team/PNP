@@ -352,8 +352,8 @@ template <
     class point_t,
     class affine_t,
     class scalar_t,
-    class affine_h = class affine_t::mem_t,
-    class bucket_h = class bucket_t::mem_t>
+    typename affine_h = typename affine_t::mem_t,
+    typename bucket_h = typename bucket_t::mem_t>
 class msm_t {
   size_t npoints, smcount;
   uint32_t wbits, nwins;

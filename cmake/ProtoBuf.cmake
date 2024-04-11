@@ -119,7 +119,11 @@ endif()
 
 get_target_property(__tmp protobuf::libprotobuf INTERFACE_INCLUDE_DIRECTORIES)
 message(STATUS "Caffe2 protobuf include directory: " ${__tmp})
-include_directories(BEFORE SYSTEM ${__tmp})
+if(APPLE)
+  include_directories(BEFORE ${__tmp})
+else()
+  include_directories(BEFORE SYSTEM ${__tmp})
+endif()
 
 # If Protobuf_VERSION is known (true in most cases, false if we are building
 # local protobuf), then we will add a protobuf version check in

@@ -14,13 +14,18 @@
 #include "ec/jacobian_t.hpp"
 #include "ec/xyzz_t.hpp"
 
+C10_CLANG_DIAGNOSTIC_PUSH()
+#if C10_CLANG_HAS_WARNING("-Wmissing-prototypes")
+C10_CLANG_DIAGNOSTIC_IGNORE("-Wmissing-prototypes")
+#endif
+
 namespace at {
 namespace native {
 
 static void pippenger_collect(
     Tensor& self,
     const Tensor& step1res,
-    int64_t npoints) {
+    size_t npoints) {
   AT_DISPATCH_FQ_MONT_TYPES(self.scalar_type(), "msm_cpu", [&] {
     using point_t = jacobian_t<scalar_t::compute_type>;
     using bucket_t = xyzz_t<scalar_t::compute_type>;

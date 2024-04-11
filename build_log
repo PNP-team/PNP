@@ -1,0 +1,162 @@
+[1/747] Building CXX object caffe2/CMakeFiles/torch_cpu.dir/__/aten/src/ATen/native/zkp/cpu/MsmCollect.cpp.o
+FAILED: caffe2/CMakeFiles/torch_cpu.dir/__/aten/src/ATen/native/zkp/cpu/MsmCollect.cpp.o 
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/c++ -DAT_PER_OPERATOR_HEADERS -DCAFFE2_BUILD_MAIN_LIB -DCPUINFO_SUPPORTED_PLATFORM=1 -DFMT_HEADER_ONLY=1 -DFXDIV_USE_INLINE_ASSEMBLY=0 -DHAVE_MMAP=1 -DHAVE_SHM_OPEN=1 -DHAVE_SHM_UNLINK=1 -DMINIZ_DISABLE_ZIP_READER_CRC32_CHECKS -DNNP_CONVOLUTION_ONLY=0 -DNNP_INFERENCE_ONLY=0 -DONNXIFI_ENABLE_EXT=1 -DONNX_ML=1 -DONNX_NAMESPACE=onnx_torch -DUSE_EXTERNAL_MZCRC -D_FILE_OFFSET_BITS=64 -Dtorch_cpu_EXPORTS -I/Users/zrji/Code/pyZKP/build/aten/src -I/Users/zrji/Code/pyZKP/aten/src -I/Users/zrji/Code/pyZKP/build -I/Users/zrji/Code/pyZKP -I/Users/zrji/Code/pyZKP/cmake/../third_party/benchmark/include -I/Users/zrji/Code/pyZKP/third_party/onnx -I/Users/zrji/Code/pyZKP/build/third_party/onnx -I/Users/zrji/Code/pyZKP/third_party/foxi -I/Users/zrji/Code/pyZKP/build/third_party/foxi -I/Users/zrji/Code/pyZKP/torch/csrc/api -I/Users/zrji/Code/pyZKP/torch/csrc/api/include -I/Users/zrji/Code/pyZKP/caffe2/aten/src/TH -I/Users/zrji/Code/pyZKP/build/caffe2/aten/src/TH -I/Users/zrji/Code/pyZKP/build/caffe2/aten/src -I/Users/zrji/Code/pyZKP/build/caffe2/../aten/src -I/Users/zrji/Code/pyZKP/torch/csrc -I/Users/zrji/Code/pyZKP/third_party/miniz-2.1.0 -I/Users/zrji/Code/pyZKP/third_party/kineto/libkineto/include -I/Users/zrji/Code/pyZKP/third_party/kineto/libkineto/src -I/Users/zrji/Code/pyZKP/aten/src/ATen/.. -I/Users/zrji/Code/pyZKP/third_party/FXdiv/include -I/Users/zrji/Code/pyZKP/c10/.. -I/Users/zrji/Code/pyZKP/third_party/pthreadpool/include -I/Users/zrji/Code/pyZKP/third_party/cpuinfo/include -I/Users/zrji/Code/pyZKP/aten/src/ATen/native/quantized/cpu/qnnpack/include -I/Users/zrji/Code/pyZKP/aten/src/ATen/native/quantized/cpu/qnnpack/src -I/Users/zrji/Code/pyZKP/third_party/cpuinfo/deps/clog/include -I/Users/zrji/Code/pyZKP/third_party/NNPACK/include -I/Users/zrji/Code/pyZKP/third_party/FP16/include -I/Users/zrji/Code/pyZKP/third_party/fmt/include -I/Users/zrji/Code/pyZKP/third_party/flatbuffers/include -isystem /Users/zrji/Code/pyZKP/cmake/../third_party/googletest/googlemock/include -isystem /Users/zrji/Code/pyZKP/cmake/../third_party/googletest/googletest/include -isystem /Users/zrji/Code/pyZKP/third_party/protobuf/src -isystem /Users/zrji/Code/pyZKP/third_party/XNNPACK/include -isystem /Users/zrji/Code/pyZKP/cmake/../third_party/eigen -isystem /Users/zrji/Code/pyZKP/build/include -fvisibility-inlines-hidden -DUSE_PTHREADPOOL -DNDEBUG -DUSE_KINETO -DLIBKINETO_NOCUPTI -DLIBKINETO_NOROCTRACER -DUSE_PYTORCH_QNNPACK -DUSE_XNNPACK -DSYMBOLICATE_MOBILE_DEBUG_HANDLE -O2 -fPIC -Wall -Wextra -Werror=return-type -Werror=non-virtual-dtor -Werror=braced-scalar-init -Werror=range-loop-construct -Werror=bool-operation -Wnarrowing -Wno-missing-field-initializers -Wno-type-limits -Wno-array-bounds -Wno-unknown-pragmas -Wno-unused-parameter -Wno-unused-function -Wno-unused-result -Wno-strict-overflow -Wno-strict-aliasing -Wvla-extension -Wnewline-eof -Winconsistent-missing-override -Winconsistent-missing-destructor-override -Wno-pass-failed -Wsuggest-override -Wno-error=pedantic -Wno-error=old-style-cast -Wno-error=inconsistent-missing-override -Wno-error=inconsistent-missing-destructor-override -Wconstant-conversion -Wno-invalid-partial-specialization -Wno-unused-private-field -Wno-missing-braces -Wunused-lambda-capture -Qunused-arguments -fcolor-diagnostics -faligned-new -Wno-unused-but-set-variable -fno-math-errno -fno-trapping-math -Werror=format -DUSE_MPS -Wno-unused-private-field -Wno-missing-braces -O3 -DNDEBUG -DNDEBUG -std=gnu++17 -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX14.2.sdk -mmacosx-version-min=14.1 -fPIC -D__NEON__ -Wall -Wextra -Wdeprecated -Wno-unused-parameter -Wno-unused-function -Wno-missing-field-initializers -Wno-unknown-pragmas -Wno-type-limits -Wno-array-bounds -Wno-strict-overflow -Wno-strict-aliasing -fvisibility=hidden -O2 -Wmissing-prototypes -Werror=missing-prototypes -Xpreprocessor -fopenmp -I/Users/zrji/miniconda3/include -MD -MT caffe2/CMakeFiles/torch_cpu.dir/__/aten/src/ATen/native/zkp/cpu/MsmCollect.cpp.o -MF caffe2/CMakeFiles/torch_cpu.dir/__/aten/src/ATen/native/zkp/cpu/MsmCollect.cpp.o.d -o caffe2/CMakeFiles/torch_cpu.dir/__/aten/src/ATen/native/zkp/cpu/MsmCollect.cpp.o -c /Users/zrji/Code/pyZKP/aten/src/ATen/native/zkp/cpu/MsmCollect.cpp
+In file included from /Users/zrji/Code/pyZKP/aten/src/ATen/native/zkp/cpu/MsmCollect.cpp:13:
+In file included from /Users/zrji/Code/pyZKP/aten/src/ATen/native/zkp/cpu/collect.cpp:25:
+/Users/zrji/Code/pyZKP/aten/src/ATen/native/zkp/cpu/ec/jacobian_t.hpp:561:18: warning: no newline at end of file [-Wnewline-eof]
+} // namespace at
+                 ^
+In file included from /Users/zrji/Code/pyZKP/aten/src/ATen/native/zkp/cpu/MsmCollect.cpp:13:
+In file included from /Users/zrji/Code/pyZKP/aten/src/ATen/native/zkp/cpu/collect.cpp:26:
+/Users/zrji/Code/pyZKP/aten/src/ATen/native/zkp/cpu/ec/xyzz_t.hpp:279:18: warning: no newline at end of file [-Wnewline-eof]
+} // namespace at
+                 ^
+In file included from /Users/zrji/Code/pyZKP/aten/src/ATen/native/zkp/cpu/MsmCollect.cpp:13:
+/Users/zrji/Code/pyZKP/aten/src/ATen/native/zkp/cpu/collect.cpp:343:38: error: type alias 'mem_t' cannot be referenced with a class specifier
+    class affine_h = class affine_t::mem_t,
+                                     ^
+/Users/zrji/Code/pyZKP/aten/src/ATen/native/zkp/cpu/MsmCollect.cpp:49:5: note: in instantiation of default argument for 'collect_t<at::native::xyzz_t<at::native::ALT_BN128_Fq_G1>, at::native::jacobian_t<at::native::ALT_BN128_Fq_G1>, at::native::xyzz_t<at::native::ALT_BN128_Fq_G1>::affine_t, at::native::ALT_BN128_Fr_G1>' required here
+    collect_t<bucket_t, point_t, affine_t, scalar_t::compute_type::coeff_t>
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/zrji/Code/pyZKP/aten/src/ATen/Dispatch.h:460:65: note: expanded from macro 'AT_DISPATCH_FQ_MONT_TYPES'
+  AT_DISPATCH_SWITCH(TYPE, NAME, AT_DISPATCH_CASE_FQ_MONT_TYPES(__VA_ARGS__))
+                                                                ^~~~~~~~~~~
+/Users/zrji/Code/pyZKP/aten/src/ATen/Dispatch.h:453:43: note: expanded from macro 'AT_DISPATCH_CASE_FQ_MONT_TYPES'
+  AT_DISPATCH_CASE(kALT_BN128_Fq_G1_Mont, __VA_ARGS__) \
+                                          ^~~~~~~~~~~
+/Users/zrji/Code/pyZKP/aten/src/ATen/Dispatch.h:74:56: note: expanded from macro 'AT_DISPATCH_CASE'
+  AT_PRIVATE_CASE_TYPE_USING_HINT(enum_type, scalar_t, __VA_ARGS__)
+                                                       ^~~~~~~~~~~
+/Users/zrji/Code/pyZKP/aten/src/ATen/Dispatch.h:70:12: note: expanded from macro 'AT_PRIVATE_CASE_TYPE_USING_HINT'
+    return __VA_ARGS__();                                               \
+           ^~~~~~~~~~~
+/Users/zrji/Code/pyZKP/aten/src/ATen/Dispatch.h:221:7: note: expanded from macro 'AT_DISPATCH_SWITCH'
+      __VA_ARGS__                                                           \
+      ^~~~~~~~~~~
+/Users/zrji/Code/pyZKP/aten/src/ATen/native/zkp/cpu/ec/xyzz_t.hpp:60:11: note: declared here
+    using mem_t = affine_t;
+          ^
+In file included from /Users/zrji/Code/pyZKP/aten/src/ATen/native/zkp/cpu/MsmCollect.cpp:13:
+/Users/zrji/Code/pyZKP/aten/src/ATen/native/zkp/cpu/collect.cpp:343:38: error: type alias 'mem_t' cannot be referenced with a class specifier
+    class affine_h = class affine_t::mem_t,
+                                     ^
+/Users/zrji/Code/pyZKP/aten/src/ATen/native/zkp/cpu/MsmCollect.cpp:49:5: note: in instantiation of default argument for 'collect_t<at::native::xyzz_t<at::native::BLS12_377_Fq_G1>, at::native::jacobian_t<at::native::BLS12_377_Fq_G1>, at::native::xyzz_t<at::native::BLS12_377_Fq_G1>::affine_t, at::native::BLS12_377_Fr_G1>' required here
+    collect_t<bucket_t, point_t, affine_t, scalar_t::compute_type::coeff_t>
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/zrji/Code/pyZKP/aten/src/ATen/Dispatch.h:460:65: note: expanded from macro 'AT_DISPATCH_FQ_MONT_TYPES'
+  AT_DISPATCH_SWITCH(TYPE, NAME, AT_DISPATCH_CASE_FQ_MONT_TYPES(__VA_ARGS__))
+                                                                ^~~~~~~~~~~
+/Users/zrji/Code/pyZKP/aten/src/ATen/Dispatch.h:454:43: note: expanded from macro 'AT_DISPATCH_CASE_FQ_MONT_TYPES'
+  AT_DISPATCH_CASE(kBLS12_377_Fq_G1_Mont, __VA_ARGS__) \
+                                          ^~~~~~~~~~~
+/Users/zrji/Code/pyZKP/aten/src/ATen/Dispatch.h:74:56: note: expanded from macro 'AT_DISPATCH_CASE'
+  AT_PRIVATE_CASE_TYPE_USING_HINT(enum_type, scalar_t, __VA_ARGS__)
+                                                       ^~~~~~~~~~~
+/Users/zrji/Code/pyZKP/aten/src/ATen/Dispatch.h:70:12: note: expanded from macro 'AT_PRIVATE_CASE_TYPE_USING_HINT'
+    return __VA_ARGS__();                                               \
+           ^~~~~~~~~~~
+/Users/zrji/Code/pyZKP/aten/src/ATen/Dispatch.h:221:7: note: expanded from macro 'AT_DISPATCH_SWITCH'
+      __VA_ARGS__                                                           \
+      ^~~~~~~~~~~
+/Users/zrji/Code/pyZKP/aten/src/ATen/native/zkp/cpu/ec/xyzz_t.hpp:60:11: note: declared here
+    using mem_t = affine_t;
+          ^
+In file included from /Users/zrji/Code/pyZKP/aten/src/ATen/native/zkp/cpu/MsmCollect.cpp:13:
+/Users/zrji/Code/pyZKP/aten/src/ATen/native/zkp/cpu/collect.cpp:343:38: error: type alias 'mem_t' cannot be referenced with a class specifier
+    class affine_h = class affine_t::mem_t,
+                                     ^
+/Users/zrji/Code/pyZKP/aten/src/ATen/native/zkp/cpu/MsmCollect.cpp:49:5: note: in instantiation of default argument for 'collect_t<at::native::xyzz_t<at::native::BLS12_381_Fq_G1>, at::native::jacobian_t<at::native::BLS12_381_Fq_G1>, at::native::xyzz_t<at::native::BLS12_381_Fq_G1>::affine_t, at::native::BLS12_381_Fr_G1>' required here
+    collect_t<bucket_t, point_t, affine_t, scalar_t::compute_type::coeff_t>
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/zrji/Code/pyZKP/aten/src/ATen/Dispatch.h:460:65: note: expanded from macro 'AT_DISPATCH_FQ_MONT_TYPES'
+  AT_DISPATCH_SWITCH(TYPE, NAME, AT_DISPATCH_CASE_FQ_MONT_TYPES(__VA_ARGS__))
+                                                                ^~~~~~~~~~~
+/Users/zrji/Code/pyZKP/aten/src/ATen/Dispatch.h:455:43: note: expanded from macro 'AT_DISPATCH_CASE_FQ_MONT_TYPES'
+  AT_DISPATCH_CASE(kBLS12_381_Fq_G1_Mont, __VA_ARGS__) \
+                                          ^~~~~~~~~~~
+/Users/zrji/Code/pyZKP/aten/src/ATen/Dispatch.h:74:56: note: expanded from macro 'AT_DISPATCH_CASE'
+  AT_PRIVATE_CASE_TYPE_USING_HINT(enum_type, scalar_t, __VA_ARGS__)
+                                                       ^~~~~~~~~~~
+/Users/zrji/Code/pyZKP/aten/src/ATen/Dispatch.h:70:12: note: expanded from macro 'AT_PRIVATE_CASE_TYPE_USING_HINT'
+    return __VA_ARGS__();                                               \
+           ^~~~~~~~~~~
+/Users/zrji/Code/pyZKP/aten/src/ATen/Dispatch.h:221:7: note: expanded from macro 'AT_DISPATCH_SWITCH'
+      __VA_ARGS__                                                           \
+      ^~~~~~~~~~~
+/Users/zrji/Code/pyZKP/aten/src/ATen/native/zkp/cpu/ec/xyzz_t.hpp:60:11: note: declared here
+    using mem_t = affine_t;
+          ^
+In file included from /Users/zrji/Code/pyZKP/aten/src/ATen/native/zkp/cpu/MsmCollect.cpp:13:
+/Users/zrji/Code/pyZKP/aten/src/ATen/native/zkp/cpu/collect.cpp:343:38: error: type alias 'mem_t' cannot be referenced with a class specifier
+    class affine_h = class affine_t::mem_t,
+                                     ^
+/Users/zrji/Code/pyZKP/aten/src/ATen/native/zkp/cpu/MsmCollect.cpp:49:5: note: in instantiation of default argument for 'collect_t<at::native::xyzz_t<at::native::PALLAS_Fq_G1>, at::native::jacobian_t<at::native::PALLAS_Fq_G1>, at::native::xyzz_t<at::native::PALLAS_Fq_G1>::affine_t, at::native::PALLAS_Fr_G1>' required here
+    collect_t<bucket_t, point_t, affine_t, scalar_t::compute_type::coeff_t>
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/zrji/Code/pyZKP/aten/src/ATen/Dispatch.h:460:65: note: expanded from macro 'AT_DISPATCH_FQ_MONT_TYPES'
+  AT_DISPATCH_SWITCH(TYPE, NAME, AT_DISPATCH_CASE_FQ_MONT_TYPES(__VA_ARGS__))
+                                                                ^~~~~~~~~~~
+/Users/zrji/Code/pyZKP/aten/src/ATen/Dispatch.h:456:40: note: expanded from macro 'AT_DISPATCH_CASE_FQ_MONT_TYPES'
+  AT_DISPATCH_CASE(kPALLAS_Fq_G1_Mont, __VA_ARGS__)    \
+                                       ^~~~~~~~~~~
+/Users/zrji/Code/pyZKP/aten/src/ATen/Dispatch.h:74:56: note: expanded from macro 'AT_DISPATCH_CASE'
+  AT_PRIVATE_CASE_TYPE_USING_HINT(enum_type, scalar_t, __VA_ARGS__)
+                                                       ^~~~~~~~~~~
+/Users/zrji/Code/pyZKP/aten/src/ATen/Dispatch.h:70:12: note: expanded from macro 'AT_PRIVATE_CASE_TYPE_USING_HINT'
+    return __VA_ARGS__();                                               \
+           ^~~~~~~~~~~
+/Users/zrji/Code/pyZKP/aten/src/ATen/Dispatch.h:221:7: note: expanded from macro 'AT_DISPATCH_SWITCH'
+      __VA_ARGS__                                                           \
+      ^~~~~~~~~~~
+/Users/zrji/Code/pyZKP/aten/src/ATen/native/zkp/cpu/ec/xyzz_t.hpp:60:11: note: declared here
+    using mem_t = affine_t;
+          ^
+In file included from /Users/zrji/Code/pyZKP/aten/src/ATen/native/zkp/cpu/MsmCollect.cpp:13:
+/Users/zrji/Code/pyZKP/aten/src/ATen/native/zkp/cpu/collect.cpp:343:38: error: type alias 'mem_t' cannot be referenced with a class specifier
+    class affine_h = class affine_t::mem_t,
+                                     ^
+/Users/zrji/Code/pyZKP/aten/src/ATen/native/zkp/cpu/MsmCollect.cpp:49:5: note: in instantiation of default argument for 'collect_t<at::native::xyzz_t<at::native::VESTA_Fq_G1>, at::native::jacobian_t<at::native::VESTA_Fq_G1>, at::native::xyzz_t<at::native::VESTA_Fq_G1>::affine_t, at::native::VESTA_Fr_G1>' required here
+    collect_t<bucket_t, point_t, affine_t, scalar_t::compute_type::coeff_t>
+    ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+/Users/zrji/Code/pyZKP/aten/src/ATen/Dispatch.h:460:65: note: expanded from macro 'AT_DISPATCH_FQ_MONT_TYPES'
+  AT_DISPATCH_SWITCH(TYPE, NAME, AT_DISPATCH_CASE_FQ_MONT_TYPES(__VA_ARGS__))
+                                                                ^~~~~~~~~~~
+/Users/zrji/Code/pyZKP/aten/src/ATen/Dispatch.h:457:39: note: expanded from macro 'AT_DISPATCH_CASE_FQ_MONT_TYPES'
+  AT_DISPATCH_CASE(kVESTA_Fq_G1_Mont, __VA_ARGS__)
+                                      ^~~~~~~~~~~
+/Users/zrji/Code/pyZKP/aten/src/ATen/Dispatch.h:74:56: note: expanded from macro 'AT_DISPATCH_CASE'
+  AT_PRIVATE_CASE_TYPE_USING_HINT(enum_type, scalar_t, __VA_ARGS__)
+                                                       ^~~~~~~~~~~
+/Users/zrji/Code/pyZKP/aten/src/ATen/Dispatch.h:70:12: note: expanded from macro 'AT_PRIVATE_CASE_TYPE_USING_HINT'
+    return __VA_ARGS__();                                               \
+           ^~~~~~~~~~~
+/Users/zrji/Code/pyZKP/aten/src/ATen/Dispatch.h:221:7: note: expanded from macro 'AT_DISPATCH_SWITCH'
+      __VA_ARGS__                                                           \
+      ^~~~~~~~~~~
+/Users/zrji/Code/pyZKP/aten/src/ATen/native/zkp/cpu/ec/xyzz_t.hpp:60:11: note: declared here
+    using mem_t = affine_t;
+          ^
+/Users/zrji/Code/pyZKP/aten/src/ATen/native/zkp/cpu/MsmCollect.cpp:55:8: error: no previous prototype for function 'msm_collect_cpu' [-Werror,-Wmissing-prototypes]
+Tensor msm_collect_cpu(const Tensor& step1res, int64_t npoints) {
+       ^
+/Users/zrji/Code/pyZKP/aten/src/ATen/native/zkp/cpu/MsmCollect.cpp:55:1: note: declare 'static' if the function is not intended to be used outside of this translation unit
+Tensor msm_collect_cpu(const Tensor& step1res, int64_t npoints) {
+^
+static 
+/Users/zrji/Code/pyZKP/aten/src/ATen/native/zkp/cpu/MsmCollect.cpp:63:18: warning: no newline at end of file [-Wnewline-eof]
+} // namespace at
+                 ^
+3 warnings and 6 errors generated.
+[2/747] Building CXX object caffe2/CMakeFiles/torch_cpu.dir/__/aten/src/ATen/RegisterCompositeImplicitAutogradNestedTensor.cpp.o
+[3/747] Building CXX object caffe2/CMakeFiles/torch_cpu.dir/__/aten/src/ATen/RegisterFunctionalization_2.cpp.o
+[4/747] Building CXX object caffe2/CMakeFiles/torch_cpu.dir/__/aten/src/ATen/RegisterFunctionalization_0.cpp.o
+[5/747] Building CXX object caffe2/CMakeFiles/torch_cpu.dir/__/aten/src/ATen/RegisterFunctionalization_3.cpp.o
+[6/747] Building CXX object caffe2/CMakeFiles/torch_cpu.dir/__/aten/src/ATen/RegisterFunctionalization_1.cpp.o
+[7/747] Building CXX object caffe2/CMakeFiles/torch_cpu.dir/__/aten/src/ATen/RegisterCompositeExplicitAutogradNonFunctional.cpp.o
+[8/747] Building CXX object caffe2/CMakeFiles/torch_cpu.dir/__/aten/src/ATen/RegisterCompositeImplicitAutograd.cpp.o
+[9/747] Building CXX object caffe2/CMakeFiles/torch_cpu.dir/__/aten/src/ATen/RegisterMPS.cpp.o
+[10/747] Building CXX object caffe2/CMakeFiles/torch_cpu.dir/__/aten/src/ATen/RegisterMeta.cpp.o
+ninja: build stopped: subcommand failed.
+Building wheel torch-2.2.0a0+gitc877028
+-- Building version 2.2.0a0+gitc877028
+cmake --build . --target install --config Release
