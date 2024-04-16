@@ -93,7 +93,7 @@ static void to_mont_cuda_template(Tensor& self) {
     TORCH_INTERNAL_ASSERT(N > 0 && N <= std::numeric_limits<int32_t>::max());
     int64_t grid = (N + block_work_size() - 1) / block_work_size();
     auto stream = at::cuda::getCurrentCUDAStream();
-    to_mont_kernel<<<grid, num_threads(), 0, stream>>>(N, self_ptr);
+    to_mont_kernel<<<grid, block_work_size(), 0, stream>>>(N, self_ptr);
     C10_CUDA_KERNEL_LAUNCH_CHECK();
   });
   self.set_dtype(get_corresponding_type(self.scalar_type()));
@@ -109,7 +109,7 @@ static void add_cuda_template(Tensor& a, const Tensor& b) {
     TORCH_INTERNAL_ASSERT(N > 0 && N <= std::numeric_limits<int32_t>::max());
     int64_t grid = (N + block_work_size() - 1) / block_work_size();
     auto stream = at::cuda::getCurrentCUDAStream();
-    add_mont_kernel<<<grid, num_threads(), 0, stream>>>(N, a_ptr, b_ptr);
+    add_mont_kernel<<<grid, block_work_size(), 0, stream>>>(N, a_ptr, b_ptr);
     C10_CUDA_KERNEL_LAUNCH_CHECK();
   });
 }
@@ -125,7 +125,7 @@ static void sub_cuda_template(Tensor& a, const Tensor& b) {
     TORCH_INTERNAL_ASSERT(N > 0 && N <= std::numeric_limits<int32_t>::max());
     int64_t grid = (N + block_work_size() - 1) / block_work_size();
     auto stream = at::cuda::getCurrentCUDAStream();
-    sub_mont_kernel<<<grid, num_threads(), 0, stream>>>(N, a_ptr, b_ptr);
+    sub_mont_kernel<<<grid, block_work_size(), 0, stream>>>(N, a_ptr, b_ptr);
     C10_CUDA_KERNEL_LAUNCH_CHECK();
   });
 }
@@ -141,7 +141,7 @@ static void mul_cuda_template(Tensor& a, const Tensor& b) {
     TORCH_INTERNAL_ASSERT(N > 0 && N <= std::numeric_limits<int32_t>::max());
     int64_t grid = (N + block_work_size() - 1) / block_work_size();
     auto stream = at::cuda::getCurrentCUDAStream();
-    mul_mont_kernel<<<grid, num_threads(), 0, stream>>>(N, a_ptr, b_ptr);
+    mul_mont_kernel<<<grid, block_work_size(), 0, stream>>>(N, a_ptr, b_ptr);
     C10_CUDA_KERNEL_LAUNCH_CHECK();
   });
 }
@@ -156,7 +156,7 @@ static void div_cuda_template(Tensor& a, const Tensor& b) {
     TORCH_INTERNAL_ASSERT(N > 0 && N <= std::numeric_limits<int32_t>::max());
     int64_t grid = (N + block_work_size() - 1) / block_work_size();
     auto stream = at::cuda::getCurrentCUDAStream();
-    div_mont_kernel<<<grid, num_threads(), 0, stream>>>(N, a_ptr, b_ptr);
+    div_mont_kernel<<<grid, block_work_size(), 0, stream>>>(N, a_ptr, b_ptr);
     C10_CUDA_KERNEL_LAUNCH_CHECK();
   });
 }
@@ -169,7 +169,7 @@ static void to_base_cuda_template(Tensor& self) {
     TORCH_INTERNAL_ASSERT(N > 0 && N <= std::numeric_limits<int32_t>::max());
     int64_t grid = (N + block_work_size() - 1) / block_work_size();
     auto stream = at::cuda::getCurrentCUDAStream();
-    to_base_kernel<<<grid, num_threads(), 0, stream>>>(N, self_ptr);
+    to_base_kernel<<<grid, block_work_size(), 0, stream>>>(N, self_ptr);
     C10_CUDA_KERNEL_LAUNCH_CHECK();
   });
   self.set_dtype(get_corresponding_type(self.scalar_type()));

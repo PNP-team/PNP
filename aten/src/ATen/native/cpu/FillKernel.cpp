@@ -36,6 +36,18 @@ void fill_non_native_type<c10::complex<at::Half>>(TensorIterator& iter, const Sc
       [val]() { return Vectorized<int32_t>(val); });
 }
 
+template <>
+void fill_non_native_type<uint64_t>(TensorIterator& iter, const Scalar& value_scalar) {
+  auto value = value_scalar.to<uint64_t>();
+  using H = typename std::make_signed<uint64_t>::type;  // Signed type has more acceleration
+  // Reserve the representation of value. static_cast<H>(value) is implementation defined.
+  H val = *reinterpret_cast<H*>(std::addressof(value));
+  cpu_kernel_vec</*check_dynamic_cast=*/false>(
+      iter,
+      [val]() -> H { return val; },
+      [val]() { return Vectorized<H>(val); });
+}
+
 void fill_kernel(TensorIterator& iter, const Scalar& value_scalar) {
   if (iter.dtype() == ScalarType::Half) {
     fill_non_native_type<at::Half>(iter, value_scalar);
@@ -43,6 +55,8 @@ void fill_kernel(TensorIterator& iter, const Scalar& value_scalar) {
     fill_non_native_type<at::BFloat16>(iter, value_scalar);
   } else if (iter.dtype() == ScalarType::ComplexHalf) {
     fill_non_native_type<c10::complex<at::Half>>(iter, value_scalar);
+  } else if (c10::isBigIntegerType(iter.dtype())) {
+    fill_non_native_type<uint64_t>(iter, value_scalar);
   } else {
     AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND(at::ScalarType::Bool, iter.dtype(), "fill_cpu", [&]() {
       scalar_t value = value_scalar.to<scalar_t>();
