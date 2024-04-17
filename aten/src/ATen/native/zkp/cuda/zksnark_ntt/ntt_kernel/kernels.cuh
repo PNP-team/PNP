@@ -32,13 +32,13 @@ __device__ __forceinline__ void get_intermediate_roots(
   int win = (WINDOW_NUM - 1) * LG_WINDOW_SIZE;
   int off = (WINDOW_NUM - 1);
 
-  root0 = roots[off * WINDOW_SIZE + idx0 >> win];
-  root1 = roots[off * WINDOW_SIZE + idx1 >> win];
+  root0 = roots[off * WINDOW_SIZE + (idx0 >> win)];
+  root1 = roots[off * WINDOW_SIZE + (idx1 >> win)];
 #pragma unroll 1
   while (off--) {
     win -= LG_WINDOW_SIZE;
-    root0 *= roots[off * WINDOW_SIZE + (idx0 >> win) % WINDOW_SIZE];
-    root1 *= roots[off * WINDOW_SIZE + (idx1 >> win) % WINDOW_SIZE];
+    root0 *= roots[off * WINDOW_SIZE + ((idx0 >> win) % WINDOW_SIZE)];
+    root1 *= roots[off * WINDOW_SIZE + ((idx1 >> win) % WINDOW_SIZE)];
   }
 }
 
