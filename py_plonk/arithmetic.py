@@ -52,11 +52,18 @@ def calculate_execution_time(func):
 
 def neg(self):
     a=torch.tensor([18446744069414584321, 6034159408538082302, 3691218898639771653, 8353516859464449352],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    if torch.equal(self.to('cpu'),torch.tensor([0,0,0,0],dtype=torch.BLS12_381_Fr_G1_Mont)):
-        return self.to('cuda')
+    if torch.equal(self,torch.tensor([0,0,0,0],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')):
+        return self
     else:
-        res= F.sub_mod(a,self.to('cuda'))
+        res= F.sub_mod(a,self)
         return res
+    
+def neg_extend(self,size):
+    res=torch.zeros(size,4,dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
+    for i in range(len(self)):
+        res[i]=neg(self[i])
+
+    return res 
 
 def neg_fq(self):
     # a is fq modualr

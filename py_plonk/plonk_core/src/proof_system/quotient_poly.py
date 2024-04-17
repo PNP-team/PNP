@@ -15,7 +15,7 @@ from ....arithmetic import INTT,from_coeff_vec,resize,\
                         from_gmpy_list,from_list_gmpy,from_list_tensor,from_tensor_list,from_gmpy_list_1,domian_trans_tensor,calculate_execution_time,coset_NTT_new,coset_INTT_new,extend_tensor
 import torch.nn as nn
 from  .widget.arithmetic import compute_quotient_i
-from ..proof_system.permutation import permutation_compute_quotient_i
+from ..proof_system.permutation import permutation_compute_quotient
 from  ..proof_system.widget.lookup import compute_lookup_quotient_term
 import numpy as np
 import time
@@ -215,28 +215,27 @@ def compute_permutation_checks(
     pk_fourth_sigma_evals = torch.tensor(pk_permutation["fourth_sigma"]['evals'], dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
     
     # Calculate permutation contribution for each index
-    for i in range(domain_8n.size):
-        quotient_i = permutation_compute_quotient_i(
-            pk_linear_evaluations_evals,
-            pk_left_sigma_evals,
-            pk_right_sigma_evals,
-            pk_out_sigma_evals,
-            pk_fourth_sigma_evals,
-            i,
-            wl_eval_8n[i],
-            wr_eval_8n[i],
-            wo_eval_8n[i],
-            w4_eval_8n[i],
-            z_eval_8n[i],
-            z_eval_8n[i + 8],
-            alpha,
-            l1_alpha_sq_evals[i],
-            beta,
-            gamma
-        )
-        result.append(quotient_i)
+    
+    quotient = permutation_compute_quotient(
+        pk_linear_evaluations_evals,
+        pk_left_sigma_evals,
+        pk_right_sigma_evals,
+        pk_out_sigma_evals,
+        pk_fourth_sigma_evals,
+        wl_eval_8n[:domain_8n.size],
+        wr_eval_8n[:domain_8n.size],
+        wo_eval_8n[:domain_8n.size],
+        w4_eval_8n[:domain_8n.size],
+        z_eval_8n[:domain_8n.size],
+        z_eval_8n[8:],
+        alpha,
+        l1_alpha_sq_evals[:domain_8n.size],
+        beta,
+        gamma
+    )
+    
 
-    return result
+    return quotient
 
 @calculate_execution_time
 def compute_quotient_poly(domain: Radix2EvaluationDomain, 
@@ -323,6 +322,8 @@ def compute_quotient_poly(domain: Radix2EvaluationDomain,
 
     pk_lookup=prover_key['lookup'].tolist()
     pk_lookup_qlookup_evals=torch.tensor(pk_lookup['q_lookup']['evals'],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
+    
+
     lookup = compute_lookup_quotient_term(
         domain,
         wl_eval_8n,

@@ -203,7 +203,7 @@ def opening_challenges(opening_challenge: fr.Fr, pow):
 # Observe that this quotient does not change with z because
 # p(z) is the remainder term. We can therefore omit p(z) when computing the quotient.
 def compute_witness_polynomial(p: List[fr.Fr], point: fr.Fr, randomness: Randomness):
-    point =torch.tensor(from_gmpy_list_1(point),dtype=torch.BLS12_381_Fr_G1_Mont)
+    point =torch.tensor(from_gmpy_list_1(point),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
     neg_p = neg(point)
     neg_p=neg_p.to('cpu')
     one = torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont)

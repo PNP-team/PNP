@@ -2,11 +2,12 @@ from dataclasses import dataclass
 from ....bls12_381 import fr
 from typing import List, Tuple
 from ....domain import Radix2EvaluationDomain
-from ....arithmetic import poly_mul_const,poly_add_poly,from_list_gmpy,from_list_tensor,from_tensor_list,from_gmpy_list,from_gmpy_list_1,neg
+from ....arithmetic import poly_mul_const,poly_add_poly,from_list_gmpy,from_list_tensor,from_tensor_list,from_gmpy_list,from_gmpy_list_1,neg,neg_extend
 from ....plonk_core.src.permutation.constants import K1,K2,K3
 import torch.nn.functional as F
 import torch
 import copy
+from ....arithmetic import extend_tensor
 @dataclass
 class Permutation:
     # Left Permutation
@@ -281,10 +282,9 @@ class Permutation:
 # (a(x) + beta * X + gamma) (b(X) + beta * k1 * X + gamma) (c(X) + beta *
 # k2 * X + gamma)(d(X) + beta * k3 * X + gamma)z(X) * alpha
 def compute_quotient_identity_range_check_i(
-    index,
     x,
     w_l_i: fr.Fr,w_r_i: fr.Fr,w_o_i: fr.Fr,w_4_i: fr.Fr,
-    z_i: fr.Fr,alpha: fr.Fr,beta: fr.Fr,gamma: fr.Fr,):
+    z_i: fr.Fr,alpha: fr.Fr,beta: fr.Fr,gamma: fr.Fr,size):
 
 
     # x=torch.tensor(from_gmpy_list_1(x),dtype=torch.BLS12_381_Fr_G1_Mont)
@@ -295,22 +295,27 @@ def compute_quotient_identity_range_check_i(
     k1= torch.tensor(from_gmpy_list_1(k1),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
     k2= torch.tensor(from_gmpy_list_1(k2),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
     k3= torch.tensor(from_gmpy_list_1(k3),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    mid1_1 = F.mul_mod(beta, x[index])
+
+    k1= extend_tensor(k1,size)
+    k2= extend_tensor(k2,size)
+    k3= extend_tensor(k3,size)
+
+    mid1_1 = F.mul_mod(beta, x)
     mid1_2 = F.add_mod(w_l_i, mid1_1)
     mid1 = F.add_mod(mid1_2, gamma)
 
     mid2_1_1 = F.mul_mod(beta, k1)
-    mid2_1 = F.mul_mod(mid2_1_1, x[index])
+    mid2_1 = F.mul_mod(mid2_1_1, x)
     mid2_2 = F.add_mod(w_r_i, mid2_1)
     mid2 = F.add_mod(mid2_2, gamma)
 
     mid3_1_1 = F.mul_mod(beta, k2)
-    mid3_1 = F.mul_mod(mid3_1_1, x[index])
+    mid3_1 = F.mul_mod(mid3_1_1, x)
     mid3_2 = F.add_mod(w_o_i, mid3_1)
     mid3 = F.add_mod(mid3_2, gamma)
 
     mid4_1_1 = F.mul_mod(beta, k3)
-    mid4_1 = F.mul_mod(mid4_1_1,x[index])
+    mid4_1 = F.mul_mod(mid4_1_1,x)
     mid4_2 = F.add_mod(w_4_i, mid4_1)
     mid4 = F.add_mod(mid4_2, gamma)
 
@@ -331,7 +336,6 @@ def compute_quotient_copy_range_check_i(
     pk_right_sigma_evals,
     pk_out_sigma_evals,
     pk_fourth_sigma_evals,
-    index,
     w_l_i: fr.Fr,
     w_r_i: fr.Fr,
     w_o_i: fr.Fr,
@@ -339,7 +343,7 @@ def compute_quotient_copy_range_check_i(
     z_i_next: fr.Fr,
     alpha: fr.Fr,
     beta: fr.Fr,
-    gamma: fr.Fr
+    gamma: fr.Fr,
 ):
     
     # left_sigma_eval = torch.tensor(from_gmpy_list_1(self.left_sigma[1][index]),dtype=torch.BLS12_381_Fr_G1_Mont)
@@ -347,19 +351,19 @@ def compute_quotient_copy_range_check_i(
     # out_sigma_eval = torch.tensor(from_gmpy_list_1(self.out_sigma[1][index]),dtype=torch.BLS12_381_Fr_G1_Mont)
     # fourth_sigma_eval = torch.tensor(from_gmpy_list_1(self.fourth_sigma[1][index]),dtype=torch.BLS12_381_Fr_G1_Mont)
 
-    mid1_1 = F.mul_mod(beta, pk_left_sigma_evals[index])
+    mid1_1 = F.mul_mod(beta, pk_left_sigma_evals)
     mid1_2 = F.add_mod(w_l_i, mid1_1)
     mid1 = F.add_mod(mid1_2, gamma)
 
-    mid2_1 = F.mul_mod(beta, pk_right_sigma_evals[index])
+    mid2_1 = F.mul_mod(beta, pk_right_sigma_evals)
     mid2_2 = F.add_mod(w_r_i, mid2_1)
     mid2 = F.add_mod(mid2_2, gamma)
 
-    mid3_1 = F.mul_mod(beta, pk_out_sigma_evals[index])
+    mid3_1 = F.mul_mod(beta, pk_out_sigma_evals)
     mid3_2 = F.add_mod(w_o_i, mid3_1)
     mid3 = F.add_mod(mid3_2, gamma)
 
-    mid4_1 = F.mul_mod(beta, pk_fourth_sigma_evals[index])
+    mid4_1 = F.mul_mod(beta, pk_fourth_sigma_evals)
     mid4_2 = F.add_mod(w_4_i, mid4_1)
     mid4 = F.add_mod(mid4_2, gamma)
 
@@ -368,13 +372,14 @@ def compute_quotient_copy_range_check_i(
     mid5 = F.mul_mod(mid5, mid4)
     mid5 = F.mul_mod(mid5, z_i_next)
     product = F.mul_mod(mid5, alpha)         
-    res = neg(product)
+    res = neg_extend(product,len(product))
     return res
 
 # Computes the following:
 # L_1(X)[Z(X) - 1]
-def compute_quotient_term_check_one_i(z_i: fr.Fr, l1_alpha_sq: fr.Fr):
+def compute_quotient_term_check_one_i(z_i, l1_alpha_sq,size):
     one = torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
+    one =extend_tensor(one,size)
     z_i_sub_one = F.sub_mod(z_i, one)
     res = F.mul_mod(z_i_sub_one, l1_alpha_sq)
 
@@ -512,27 +517,32 @@ def compute_lineariser_check_is_one(
     return res
 
 
-def permutation_compute_quotient_i( 
+def permutation_compute_quotient( 
             pk_linear_evaluations_evals,
             pk_left_sigma_evals,
             pk_right_sigma_evals,
             pk_out_sigma_evals,
-            pk_fourth_sigma_evals, index,
+            pk_fourth_sigma_evals,
         w_l_i: fr.Fr, w_r_i: fr.Fr, w_o_i: fr.Fr, w_4_i: fr.Fr,
         z_i: fr.Fr, z_i_next: fr.Fr,
         alpha: fr.Fr, l1_alpha_sq: fr.Fr,
         beta: fr.Fr, gamma: fr.Fr):
+        size=len(pk_linear_evaluations_evals)
+
+        alpha=extend_tensor(alpha,size)
+        beta=extend_tensor(beta,size)
+        gamma= extend_tensor(gamma,size)
 
         a = compute_quotient_identity_range_check_i(
-          index,pk_linear_evaluations_evals, w_l_i, w_r_i, w_o_i, w_4_i, z_i, alpha, beta, gamma,
+          pk_linear_evaluations_evals, w_l_i, w_r_i, w_o_i, w_4_i, z_i, alpha, beta, gamma,size
         )
         b = compute_quotient_copy_range_check_i(
             pk_left_sigma_evals,
             pk_right_sigma_evals,
             pk_out_sigma_evals,
-            pk_fourth_sigma_evals, index, w_l_i, w_r_i, w_o_i, w_4_i, z_i_next, alpha, beta, gamma,
+            pk_fourth_sigma_evals,  w_l_i, w_r_i, w_o_i, w_4_i, z_i_next, alpha, beta, gamma,
         )
-        c = compute_quotient_term_check_one_i(z_i, l1_alpha_sq)
+        c = compute_quotient_term_check_one_i(z_i, l1_alpha_sq,size)
 
         res =F.add_mod(a,b)
         res= F.add_mod(res,c)

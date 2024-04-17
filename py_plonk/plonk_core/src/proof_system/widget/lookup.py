@@ -5,7 +5,7 @@ from typing import List, Tuple
 import torch
 import torch.nn.functional as F
 from .....plonk_core.src.utils import lc
-from .....arithmetic import poly_add_poly,poly_mul_const,from_gmpy_list,from_list_gmpy,from_list_tensor,from_tensor_list,from_gmpy_list_1,neg
+from .....arithmetic import poly_add_poly,poly_mul_const,from_gmpy_list,from_list_gmpy,from_list_tensor,from_tensor_list,from_gmpy_list_1,neg,extend_tensor,neg_extend
 @dataclass
 class Lookup:
     # Lookup selector
@@ -212,7 +212,6 @@ class Lookup:
 
 
 def compute_quotient_i(
-        index: fr.Fr,
         w_l_i: fr.Fr,
         w_r_i: fr.Fr,
         w_o_i: fr.Fr,
@@ -230,12 +229,18 @@ def compute_quotient_i(
         epsilon: torch.tensor,
         zeta: torch.tensor,
         lookup_sep: torch.tensor,
-        proverkey_q_lookup: torch.tensor
+        proverkey_q_lookup: torch.tensor,
+        size
     ):
         # q_lookup(X) * (a(X) + zeta * b(X) + (zeta^2 * c(X)) + (zeta^3 * d(X) - f(X))) * α_1
 
         one= torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
+        one =extend_tensor(one,size)
 
+        delta=extend_tensor(delta,size)
+        epsilon =extend_tensor(epsilon,size)
+        zeta= extend_tensor(zeta,size)
+        lookup_sep=extend_tensor(lookup_sep,size)
 
         lookup_sep_sq = F.mul_mod(lookup_sep, lookup_sep)  # Calculate the square of lookup_sep
         lookup_sep_cu = F.mul_mod(lookup_sep_sq, lookup_sep)  # Calculate the cube of lookup_sep
@@ -243,7 +248,7 @@ def compute_quotient_i(
         epsilon_one_plus_delta = F.mul_mod(epsilon, one_plus_delta)  # Calculate ε * (1 + δ)
 
         # Calculate q_lookup_i * (compressed_tuple - f_i)
-        q_lookup_i = proverkey_q_lookup[index]
+        q_lookup_i = proverkey_q_lookup
         compressed_tuple = lc([w_l_i, w_r_i, w_o_i, w_4_i], zeta)
         mid1 = F.sub_mod(compressed_tuple,f_i)
         mid2 = F.mul_mod(q_lookup_i, mid1)
@@ -266,7 +271,7 @@ def compute_quotient_i(
         c_1_1 = F.add_mod(epsilon_one_plus_delta, h2_i)
         c_1_2 = F.mul_mod(delta, h1_i_next)
         c_1 = F.add_mod(c_1_1, c_1_2)
-        neg_z2_next = neg(z2_i_next)
+        neg_z2_next = neg_extend(z2_i_next,size)
         mid1 = F.mul_mod(neg_z2_next, c_0)
         mid2 = F.mul_mod(mid1, c_1)
         c = F.mul_mod(mid2, lookup_sep_sq)
@@ -373,32 +378,31 @@ def compute_lookup_quotient_term(
     delta=torch.tensor(from_gmpy_list_1(delta),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
     epsilon=torch.tensor(from_gmpy_list_1(epsilon),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
     zeta=torch.tensor(from_gmpy_list_1(zeta),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-
+    size= domain_8n.size
   
     # Calculate lookup quotient term for each index
-    for i in range(domain_8n.size):
-        quotient_i = compute_quotient_i(
-            i,
-            wl_eval_8n[i],
-            wr_eval_8n[i],
-            wo_eval_8n[i],
-            w4_eval_8n[i],
-            f_eval_8n[i],
-            table_eval_8n[i],
-            table_eval_8n[i + 8],
-            h1_eval_8n[i],
-            h1_eval_8n[i + 8],
-            h2_eval_8n[i],
-            z2_eval_8n[i],
-            z2_eval_8n[i + 8],
-            l1_eval_8n[i],
-            delta,
-            epsilon,
-            zeta,
-            lookup_sep,
-            pk_lookup_qlookup_evals
-        )
-        result.append(quotient_i)
+ 
+    quotient = compute_quotient_i(
+        wl_eval_8n[:size],
+        wr_eval_8n[:size],
+        wo_eval_8n[:size],
+        w4_eval_8n[:size],
+        f_eval_8n[:size],
+        table_eval_8n[:size],
+        table_eval_8n[8:],
+        h1_eval_8n[:size],
+        h1_eval_8n[8:],
+        h2_eval_8n[:size],
+        z2_eval_8n[:size],
+        z2_eval_8n[8:],
+        l1_eval_8n[:size],
+        delta,
+        epsilon,
+        zeta,
+        lookup_sep,
+        pk_lookup_qlookup_evals,
+        size
+    )
 
-    return result
 
+    return quotient
