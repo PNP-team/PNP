@@ -369,3 +369,12 @@ sweep/
 # Android build artifacts
 android/pytorch_android/.cxx
 android/pytorch_android_torchvision/.cxx
+
+
+
+# ##large
+# cs-3.npz
+# cs-17.npz
+# pk-3.npz
+# pp-3.npz
+# pp-17.npz
