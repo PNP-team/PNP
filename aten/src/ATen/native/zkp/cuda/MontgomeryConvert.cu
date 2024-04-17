@@ -212,7 +212,7 @@ Tensor& to_base_out_cuda(const Tensor& input, Tensor& output) {
 }
 
 Tensor add_mod_cuda(const Tensor& a, const Tensor& b) {
-  Tensor c = at::empty_like(a);
+  Tensor c = a.clone();
   add_cuda_template(c, b);
   return c;
 }
@@ -229,7 +229,7 @@ Tensor& add_mod_cuda_out(const Tensor& a, const Tensor& b, Tensor& c) {
 }
 
 Tensor sub_mod_cuda(const Tensor& a, const Tensor& b) {
-  Tensor c = at::empty_like(a);
+  Tensor c = a.clone();
   sub_cuda_template(c, b);
   return c;
 }
@@ -245,7 +245,7 @@ Tensor& sub_mod_cuda_out(const Tensor& a, const Tensor& b, Tensor& c) {
 }
 
 Tensor mul_mod_cuda(const Tensor& a, const Tensor& b) {
-  Tensor c = at::empty_like(a);
+  Tensor c = a.clone();
   mul_cuda_template(c, b);
   return c;
 }
@@ -260,16 +260,15 @@ Tensor& mul_mod_cuda_out(const Tensor& a, const Tensor& b, Tensor& c) {
 }
 
 Tensor div_mod_cuda(const Tensor& a, const Tensor& b) {
-  Tensor c = at::empty_like(a);
+  Tensor c = a.clone();
   div_cuda_template(c, b);
   return c;
 }
-Tensor div_mod_cuda_(Tensor& a, const Tensor& b) {
-  Tensor c = at::empty_like(a);
-  div_cuda_template(c, b);
-  return c;
+Tensor& div_mod_cuda_(Tensor& a, const Tensor& b) {
+  div_cuda_template(a, b);
+  return a;
 }
-Tensor div_mod_cuda_out(const Tensor& a, const Tensor& b, Tensor& c) {
+Tensor& div_mod_cuda_out(const Tensor& a, const Tensor& b, Tensor& c) {
   copy(c, a);
   div_cuda_template(c, b);
   return c;
