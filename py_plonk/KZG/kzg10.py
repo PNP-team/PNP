@@ -21,7 +21,7 @@ class Randomness:
 
     @classmethod
     def empty(cls):
-        return cls([])
+        return cls(torch.tensor([],dtype=torch.BLS12_381_Fr_G1_Mont))
 
     @classmethod
     def calculate_hiding_polynomial_degree(cls, hiding_bound):
@@ -116,7 +116,7 @@ def open(
     _rng=None
 ):
     
-    combined_polynomial = []
+    combined_polynomial = torch.tensor([],dtype=torch.BLS12_381_Fr_G1_Mont)
     combined_rand = Randomness.empty()
 
     opening_challenge_counter = 0
@@ -124,13 +124,16 @@ def open(
     curr_challenge = opening_challenges(opening_challenge, opening_challenge_counter)
     opening_challenge_counter += 1
    
-
+    i=0
     for polynomial, rand in zip(labeled_polynomials, rands):
+        if i==5:
+            pass
         combined_polynomial = poly_add_poly_mul_const(combined_polynomial,curr_challenge, polynomial.poly)  #polynomial.poly is tensor
-        
+        print(len(combined_polynomial))
         combined_rand.add_assign(curr_challenge, rand)
         curr_challenge = opening_challenges(opening_challenge, opening_challenge_counter)
         opening_challenge_counter += 1
+        i=i+1
 
     powers_of_g = torch.tensor(ck["powers_of_g"],dtype=torch.BLS12_381_Fq_G1_Mont)
     powers_of_gamma_g = torch.tensor(ck["powers_of_gamma_g"],dtype=torch.BLS12_381_Fq_G1_Mont)
@@ -210,7 +213,9 @@ def compute_witness_polynomial(p: List[fr.Fr], point: fr.Fr, randomness: Randomn
     input=[neg_p,one]
     input = torch.stack(input,dim=0)
     divisor = from_coeff_vec(input)
+    p=p.to('cuda')
     witness_polynomial = p[:]
+    divisor=divisor.to('cuda')
 
     if len(p) != 0:
         witness_polynomial = poly_div_poly(p, divisor)

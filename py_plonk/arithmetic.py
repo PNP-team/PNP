@@ -139,6 +139,8 @@ def domian_trans_tensor(domain_ele):
         return xx
 
 def extend_tensor(input:torch.tensor,size):
+    if size==0 :
+        return input
     res = torch.zeros(size, 4, dtype=torch.BLS12_381_Fr_G1_Mont)
     for i in range(len(res)):
         res[i] = input
@@ -292,12 +294,8 @@ def resize_1(self, target_len):
     if len(self) < target_len:
         
         output=torch.zeros(target_len,4,dtype=torch.BLS12_381_Fr_G1_Mont)
-        # num_to_pad = target_len - len(self)
         res = res.to('cpu')
-        # print(res.shape)
-        # print(output[:len(self)].shape)
         output[:len(self)]=res
-        # res.extend([padding for _ in range(num_to_pad)])
         return output.to('cuda') 
     else :
         return res
@@ -537,42 +535,50 @@ def from_coeff_vec_list(coeffs:list):
     return output
 
 def poly_add_poly(self: torch.tensor, other: torch.tensor):    #input tensor output tensor
-    if self.is_cuda:
-        self=self.to('cpu')
-    if other.is_cuda:
-        other=other.to('cpu')
-    if len(self) == 0 or torch.equal(self,torch.zeros(4,dtype=torch.BLS12_381_Fr_G1_Mont)):
+    maxlengh=max(len(self),len(other))
+    if not self.is_cuda:
+        self=self.to('cuda')
+    if not other.is_cuda:
+        other=other.to('cuda')
+    if len(self) == 0 or torch.equal(self,torch.zeros(4,dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')):
         res = other[:]
+      
         return res
-    if len(other) == 0 or torch.equal(other,torch.zeros(4,dtype=torch.BLS12_381_Fr_G1_Mont)):
+    if len(other) == 0 or torch.equal(other,torch.zeros(4,dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')):
         res =self[:]
+  
         return res
     elif len(self) >= len(other):
         result=self.clone()
-        for i in range(len(other)):
-            result[i] = F.add_mod(result[i],other[i])
-
+        # for i in range(len(other)):
+        #     result[i] = F.add_mod(result[i],other[i])
+        ##inplace for keep length
+        torch.add_mod_(result[:len(other)],other)
         result = from_coeff_vec(result)
+        
         return result
     else:
         result=other.clone()
-        for i in range(len(self)):
-            result[i] = F.add_mod(result[i],self[i])
-
+        # for i in range(len(self)):
+        #     result[i] = F.add_mod(result[i],self[i])
+        torch.add_mod_(result[:len(self)],self)
         result = from_coeff_vec(result)
+       
         return result
 
 def poly_mul_const(poly:torch.tensor,elem:torch.tensor):  
-    if elem.is_cuda:
-        elem=elem.to('cpu')
-    if poly.is_cuda:
-        poly=poly.to('cpu')
+    if not elem.is_cuda:
+        elem=elem.to('cuda')
+    if  not poly.is_cuda:
+        poly=poly.to('cuda')
     if len(poly) == 0 :
         return poly.to('cuda')
     else:
-        result =poly.clone().to('cuda')
-        for i in range(len(result)):
-            result[i] = F.mul_mod(result[i],elem.to('cuda'))
+        result =poly.clone()
+        # for i in range(len(result)):
+        #     result[i] = F.mul_mod(result[i],elem)
+        elem= extend_tensor(elem,len(result))
+        result=F.mul_mod(result,elem)
         return result
 
 
@@ -587,12 +593,12 @@ def divide_with_q_and_r(self: list[fr.Fr], divisor: list[fr.Fr]):
     elif len(divisor) == 0:
         raise ValueError("Dividing by zero polynomial")
     elif len(self) < len(divisor):
-        zero = torch.zeros(1,4,dtype=torch.BLS12_381_Fr_G1_Mont)
+        zero = torch.zeros(1,4,dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
         return zero
     else:
 
-        quotient = torch.zeros(len(self) - len(divisor) + 1,4,dtype=torch.BLS12_381_Fr_G1_Mont)
-        one = torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont)
+        quotient = torch.zeros(len(self) - len(divisor) + 1,4,dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
+        one = torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
         remainder = to_listtensor(self[:])
 
         divisor_leading = divisor[-1]
@@ -606,7 +612,7 @@ def divide_with_q_and_r(self: list[fr.Fr], divisor: list[fr.Fr]):
                 temp = F.mul_mod(cur_q_coeff,div_coeff)
                 remainder[cur_q_degree + i] =F.sub_mod(remainder[cur_q_degree + i],temp)
         
-            while torch.equal(remainder[-1],  torch.zeros(4,dtype=torch.BLS12_381_Fr_G1_Mont)):
+            while torch.equal(remainder[-1],  torch.zeros(4,dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')):
                 remainder.pop()
 
         res_quotient = from_coeff_vec(quotient)
@@ -652,26 +658,37 @@ def horner_evaluate(poly_coeffs: list, point: fr.Fr):
     return result
 
 def poly_add_poly_mul_const(self:torch.tensor, f: torch.tensor, other: torch.tensor):
+    if not other.is_cuda:
+        other=other.to('cuda')
+    if not self.is_cuda:
+        self=self.to('cuda')
     if len(self) == 0:
-            self = other[:]
-            for i in range(len(self)):
-                self[i] = F.mul_mod(self[i], f)
+            if len(other)==0 :
+                return torch.tensor([],dtype=torch.BLS12_381_Fr_G1_Mont)
+            f=extend_tensor(f,len(other))
+            self = other.clone()
+            self=F.mul_mod(self,f)
             return self
     elif len(other) == 0:
         return self
     elif len(self) >= len(other):
         pass
     else:
-        zero = fr.Fr.zero()
-        self = resize(self, len(other), zero)
+        # zero = fr.Fr.zero()
+        # self = resize(self, len(other), zero)
+        self = resize_1(self,len(other))
     
-    for i in range(len(other)):
-        temp = F.mul_mod(f, other[i])
-        self[i] = F.add_mod(self[i], temp)
-  
+    # for i in range(len(other)):
+    #     temp = F.mul_mod(f, other[i])
+    #     self[i] = F.add_mod(self[i], temp)
+
+    f=extend_tensor(f,len(other))
+    temp=F.mul_mod(f,other)
+    torch.add_mod_(self[:len(other)],temp)
 
     res=copy.deepcopy(self)
     res = from_coeff_vec(res)
+    
     return res
 
 # Given a vector of field elements {v_i}, compute the vector {coeff * v_i^(-1)}

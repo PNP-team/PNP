@@ -20,7 +20,7 @@ def delta(f:fr.Fr,size):
     two = torch.tensor(from_gmpy_list_1(two),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
     three = torch.tensor(from_gmpy_list_1(three),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
 
-    if size ==0 :
+    if size ==0 :###mean no need to extend
         pass
     else :
         one =extend_tensor(one,size)
