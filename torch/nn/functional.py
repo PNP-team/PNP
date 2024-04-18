@@ -4,6 +4,20 @@ import math
 import warnings
 import importlib
 
+import traceback
+import functools
+
+def trace(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+        print(f"Call stack for {func.__name__}:")
+        for line in stack:
+            print(line, end='')  # Print each line of the stack trace
+        print("\n")
+        return func(*args, **kwargs)
+    return wrapper
+
 try:
     import numpy as np
 except ModuleNotFoundError:
@@ -5453,6 +5467,7 @@ def multi_head_attention_forward(
         return attn_output, None
 
 # Below are for BigInteger
+@trace
 def to_mont(input: Tensor, inplace: bool = False) -> Tensor:
     r"""
         Convert input to Montgomery domain. Only for Elliptic Curve.
@@ -5463,6 +5478,7 @@ def to_mont(input: Tensor, inplace: bool = False) -> Tensor:
         result = torch.to_mont(input)
     return result
 
+@trace
 def to_base(input: Tensor, inplace: bool = False) -> Tensor:
     r"""
         Convert input to base domain. Only for Elliptic Curve.
@@ -5473,6 +5489,7 @@ def to_base(input: Tensor, inplace: bool = False) -> Tensor:
         result = torch.to_base(input)
     return result
 
+@trace
 def add_mod(input1: Tensor,input2: Tensor, inplace: bool = False) -> Tensor:
 
     if inplace:
@@ -5481,7 +5498,7 @@ def add_mod(input1: Tensor,input2: Tensor, inplace: bool = False) -> Tensor:
         result = torch.add_mod(input1,input2)
     return result
 
-
+@trace
 def sub_mod(input1: Tensor,input2: Tensor,inplace: bool = False) -> Tensor:
 
     if inplace:
@@ -5490,15 +5507,15 @@ def sub_mod(input1: Tensor,input2: Tensor,inplace: bool = False) -> Tensor:
         result = torch.sub_mod(input1,input2)
     return result
 
-
+@trace
 def mul_mod(input1: Tensor,input2: Tensor,inplace: bool = False) -> Tensor:
-    
     if inplace:
         result=torch.mul_mod_(input1,input2)
     else:
         result = torch.mul_mod(input1,input2)
     return result
 
+@trace
 def div_mod(input1: Tensor,input2: Tensor,inplace: bool = False) -> Tensor:
     on_cuda = (str(input1.device) != 'cpu')
     input1=input1.to('cpu')
@@ -5511,6 +5528,7 @@ def div_mod(input1: Tensor,input2: Tensor,inplace: bool = False) -> Tensor:
         result = result.to('cuda')
     return result
 
+@trace
 def multi_scalar_mult(points: Tensor, scalars: Tensor, device = "cuda") -> list:
     r"""
         Performs a multi-scalar multiplication(MSM) using Pippenger's algorithm, derived by sppark.
