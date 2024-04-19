@@ -429,6 +429,7 @@ def INTT_1(domain,evals:torch.Tensor):
     return evals
 
 def INTT(domain,evals:torch.Tensor):
+    print(1)
     temp=from_tensor_list(evals)
     from_list_gmpy(temp)
 
@@ -663,7 +664,6 @@ def evaluate(self, point: fr.Fr):
 # Horner's method for polynomial evaluation
 def horner_evaluate(poly_coeffs: list, point: fr.Fr):
 
-    # from_list_gmpy(poly_coeffs)
     result =torch.tensor([0,0,0,0],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
     repoly_coeffs=copy.deepcopy(poly_coeffs)
     repoly_coeffs=repoly_coeffs.to('cpu')
@@ -691,13 +691,7 @@ def poly_add_poly_mul_const(self:torch.tensor, f: torch.tensor, other: torch.ten
     elif len(self) >= len(other):
         pass
     else:
-        # zero = fr.Fr.zero()
-        # self = resize(self, len(other), zero)
         self = resize_1(self,len(other))
-    
-    # for i in range(len(other)):
-    #     temp = F.mul_mod(f, other[i])
-    #     self[i] = F.add_mod(self[i], temp)
 
     f=extend_tensor(f,len(other))
     temp=F.mul_mod(f,other)

@@ -72,33 +72,14 @@ class Commitment:
     @classmethod
     def commit_new(cls,powers_of_g,powers_of_gamma_g,polynomial:torch.tensor,hiding_bound,params):
         num_leading_zeros, plain_coeffs = skip_leading_zeros_and_convert_to_bigints_new(polynomial)
-        # min_size_1=min(len(plain_coeffs),len(powers_of_g[num_leading_zeros:]))
-
-        # if min_size_1==0:### empty msm return zero_point
-        #      res =[[],[],[]]
-        #      res[2]=torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont)
-        #      res[1]=torch.tensor([8505329371266088957, 17002214543764226050, 6865905132761471162, 8632934651105793861, 6631298214892334189, 1582556514881692819],dtype=torch.BLS12_381_Fq_G1_Mont)
-        #      res[0]=torch.tensor([8505329371266088957, 17002214543764226050, 6865905132761471162, 8632934651105793861, 6631298214892334189, 1582556514881692819],dtype=torch.BLS12_381_Fq_G1_Mont)
-        #      commitment=torch.stack(res,dim=0) ###cpu
-        # else:
-        #     powers_0 = powers_of_g[num_leading_zeros:min_size_1].view(-1, 6)# dim2 to 1
-        #     powers_0=powers_0.to('cuda')
-        #     plain_coeffs=plain_coeffs.to('cuda')
-        #     commitment:torch.tensor =torch.tensor(F.multi_scalar_mult(powers_0,plain_coeffs),dtype=torch.BLS12_381_Fq_G1_Mont) ###cpu
+     
         commitment=MSM_new(powers_of_g[num_leading_zeros:],plain_coeffs)
         randomness = Randomness.empty()
         if hiding_bound:
             randomness = Randomness.rand(hiding_bound)
-
         random_ints = convert_to_bigints_new(randomness.blind_poly)
-        # if random_ints.size(0)==0:
-        #     random_ints=torch.zeros(1024,4,dtype=torch.BLS12_381_Fr_G1_Mont)
-        
-        # powers_1=powers_of_gamma_g[:1024].view(-1, 6)
-        # powers_1=powers_1.to('cuda')
-        # random_ints=random_ints.to('cuda')
-        # random_commitment = torch.tensor(F.multi_scalar_mult(powers_1,random_ints),dtype=torch.BLS12_381_Fq_G1_Mont)
-        random_commitment:ProjectivePointG1 = MSM_new(powers_of_gamma_g[:1024],random_ints)
+
+        random_commitment:ProjectivePointG1 = MSM_new(powers_of_gamma_g[:],random_ints)
         random_commitment_affine = to_affine(random_commitment)
         commitment = add_assign_mixed(commitment,random_commitment_affine)
         commitment_affine = to_affine(commitment)

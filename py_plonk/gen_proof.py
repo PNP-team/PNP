@@ -11,17 +11,16 @@ from .plonk_core.src.proof_system.pi import into_dense_poly
 from .plonk_core.src.proof_system import quotient_poly
 from .plonk_core.src.proof_system import linearisation_poly
 import numpy as np
-from .arithmetic import INTT,from_coeff_vec,resize_1,\
-                        from_gmpy_list,from_list_gmpy,from_list_tensor,from_tensor_list,from_list_gmpy_1,from_coeff_vec_list,domian_trans_tensor,transtompz,INTT_new
+from .arithmetic import from_coeff_vec,resize_1,\
+                        from_list_gmpy_1,transtompz,INTT_new
 from .KZG import kzg10
 from .bls12_381 import fq,fr
 import torch
-import torch.nn as nn
-import torchviz
+
+
 
 def split_tx_poly(n,t_x ):
     buf:list =t_x [:]
-    #buf = resize(buf, n << 3, fr.Fr.zero())
     buf = resize_1(buf ,n<<3)
     return [
         from_coeff_vec(buf[0:n]),
@@ -75,7 +74,7 @@ class gen_proof:
         w_r_scalar_intt=INTT_new(domain,w_r_scalar)
         w_o_scalar_intt=INTT_new(domain,w_o_scalar)
         w_4_scalar_intt=INTT_new(domain,w_4_scalar)
-        w_l_poly = from_coeff_vec(w_l_scalar_intt) ###tensor
+        w_l_poly = from_coeff_vec(w_l_scalar_intt) 
         w_r_poly = from_coeff_vec(w_r_scalar_intt)
         w_o_poly = from_coeff_vec(w_o_scalar_intt)
         w_4_poly = from_coeff_vec(w_4_scalar_intt)
@@ -95,6 +94,7 @@ class gen_proof:
         transcript.append(b"w_r",w_c_2)
         transcript.append(b"w_o",w_c_3)
         transcript.append(b"w_4",w_c_4)
+        
         #2. Derive lookup polynomials
 
         # Generate table compression factor
@@ -114,7 +114,7 @@ class gen_proof:
         pk_lookup_table4], dim=0)
 
         t_multiset = multiset.MultiSet(concatenated_lookup)
-        compressed_t_multiset = t_multiset.compress(zeta)      ############## mpz 
+        compressed_t_multiset = t_multiset.compress(zeta)     
         # Compute table poly
 
         compressed_t_poly =INTT_new(domain,compressed_t_multiset.elements.to('cuda'))
@@ -146,6 +146,7 @@ class gen_proof:
                 f_scalars.elements[1][index]=w_r
                 f_scalars.elements[2][index]=w_o
                 f_scalars.elements[3][index]=w_4
+
             index=index+1
 
         # Compress all wires into a single vector
@@ -168,7 +169,8 @@ class gen_proof:
         f_p_c_0=transtompz(f_poly_commit[0].commitment.value)
         transcript.append(b"f",f_p_c_0)
 
-        # Compute s, as the sorted and concatenated version of f and t
+        # Compute s, as the sorted and concatenated version of f and t 
+        # work on cpu
         h_1, h_2 = compressed_t_multiset.combine_split(compressed_f_multiset)
 
         # Compute h polys
@@ -233,6 +235,7 @@ class gen_proof:
 
         z_polys = [kzg10.LabeledPoly.new(label="z_poly",hiding_bound=None,poly=z_poly)]
         z_poly_commit,_ = kzg10.commit_poly_new(pp,z_polys,Fr)
+
         # Add permutation polynomial commitment to transcript.
         f_p_c_0=transtompz(z_poly_commit[0].commitment.value)
         transcript.append(b"z", f_p_c_0)
@@ -249,7 +252,6 @@ class gen_proof:
             epsilon
         )
         # Commit to lookup permutation polynomial.
-
         z_2_polys = [kzg10.LabeledPoly.new(label="z_2_poly",hiding_bound=None,poly=z_2_poly)]
         z_2_poly_commit,_ = kzg10.commit_poly_new(pp,z_2_polys,Fr)
 
@@ -338,6 +340,7 @@ class gen_proof:
                 h_2_poly,
                 table_poly)
 
+        # for work on cpu append still uses gmp
         evaluations.wire_evals.a_eval = evaluations.wire_evals.a_eval.tolist()
         evaluations.wire_evals.b_eval = evaluations.wire_evals.b_eval.tolist()
         evaluations.wire_evals.c_eval = evaluations.wire_evals.c_eval.tolist()
@@ -422,10 +425,6 @@ class gen_proof:
         
 
         aw_commits, aw_rands = kzg10.commit_poly_new(pp,aw_polys,Fr)
-        
-
-        
-         
         aw_opening = kzg10.open(
             pp,
             itertools.chain(aw_polys, w_polys),
@@ -481,10 +480,10 @@ class gen_proof:
         def write_to_file(data, filename):
             try:
                 with open(filename, 'a') as file:
-                    file.write(str(data) + '\n')  # 添加换行符以区分不同的写入
-                print(f"数据成功写入文件 {filename}")
+                    file.write(str(data) + '\n')  
+                print(f"Data is successfully written to the file {filename}")
             except Exception as e:
-                print(f"写入文件时发生错误: {e}")
+                print(f"An error occurred while writing to the file: {e}")
 
 
         attributes = vars(Proof)
@@ -493,7 +492,7 @@ class gen_proof:
                 my_data = {f"{attribute}: {value[0]},{value[1]}"}
                 print(f"{attribute}: {value[0]},{value[1]}")
                 write_to_file(my_data, 'proof_data_new.txt')
-            except :  # 检查属性是否为 openproof 类型
+            except :  # Check whether the attribute is of openproof type
                 try:
                     my_data = {f"{attribute}: {value.w[0]},{value.w[1]}"}
                     print(f"{attribute}: {value.w[0]},{value.w[1]}")

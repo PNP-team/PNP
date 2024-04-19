@@ -286,8 +286,6 @@ def compute_quotient_identity_range_check_i(
     w_l_i: fr.Fr,w_r_i: fr.Fr,w_o_i: fr.Fr,w_4_i: fr.Fr,
     z_i: fr.Fr,alpha: fr.Fr,beta: fr.Fr,gamma: fr.Fr,size):
 
-
-    # x=torch.tensor(from_gmpy_list_1(x),dtype=torch.BLS12_381_Fr_G1_Mont)
     k1 = K1()
     k2 = K2()
     k3 = K3()
@@ -346,11 +344,6 @@ def compute_quotient_copy_range_check_i(
     gamma: fr.Fr,
 ):
     
-    # left_sigma_eval = torch.tensor(from_gmpy_list_1(self.left_sigma[1][index]),dtype=torch.BLS12_381_Fr_G1_Mont)
-    # right_sigma_eval = torch.tensor(from_gmpy_list_1(self.right_sigma[1][index]),dtype=torch.BLS12_381_Fr_G1_Mont)
-    # out_sigma_eval = torch.tensor(from_gmpy_list_1(self.out_sigma[1][index]),dtype=torch.BLS12_381_Fr_G1_Mont)
-    # fourth_sigma_eval = torch.tensor(from_gmpy_list_1(self.fourth_sigma[1][index]),dtype=torch.BLS12_381_Fr_G1_Mont)
-
     mid1_1 = F.mul_mod(beta, pk_left_sigma_evals)
     mid1_2 = F.add_mod(w_l_i, mid1_1)
     mid1 = F.add_mod(mid1_2, gamma)

@@ -38,10 +38,6 @@ def compute_gate_constraint_satisfiability(domain,
     #get Fr
     params = fr.Fr(gmpy2.mpz(0))
     domain_8n = Radix2EvaluationDomain.new(8 * domain.size,params)
-    
-    # domian_trans_tensor(domain_8n.group_gen_inv)
-    # domian_trans_tensor(domain_8n.size_inv)
-    # domian_trans_tensor(domain_8n.group_gen)
     pi_poly=pi_poly.to('cuda')
     pi_eval_8n = coset_NTT_new(domain_8n,pi_poly)
 
@@ -91,10 +87,10 @@ def compute_gate_constraint_satisfiability(domain,
     four= torch.tensor(from_gmpy_list_1(four),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
     four =extend_tensor(four,domain_8n.size)
     wit_vals = WitnessValues(
-        a_val=wl_eval_8n[:8192],
-        b_val=wr_eval_8n[:8192],
-        c_val=wo_eval_8n[:8192],
-        d_val=w4_eval_8n[:8192]
+        a_val=wl_eval_8n[:size],
+        b_val=wr_eval_8n[:size],
+        c_val=wo_eval_8n[:size],
+        d_val=w4_eval_8n[:size]
     )
     
     custom_vals = CustomEvaluations(
@@ -115,7 +111,7 @@ def compute_gate_constraint_satisfiability(domain,
     arithmetic = compute_quotient_i(prover_key_arithmetic, wit_vals)
     timings['compute_quotient_i'] += time.time() - start
 
-    # 计时开始 RangeGate.quotient_term
+ 
     start = time.time()
     range_term = RangeGate.quotient_term(
         four,
@@ -127,7 +123,7 @@ def compute_gate_constraint_satisfiability(domain,
     )
     timings['RangeGate_quotient_term'] += time.time() - start
 
-    # 计时开始 LogicGate.quotient_term
+  
     start = time.time()
     logic_term = LogicGate.quotient_term(
         four,
@@ -139,7 +135,7 @@ def compute_gate_constraint_satisfiability(domain,
     )
     timings['LogicGate_quotient_term'] += time.time() - start
 
-    # 计时开始 FBSMGate.quotient_term
+    
     start = time.time()
     fixed_base_scalar_mul_term = FBSMGate.quotient_term(
         prover_key_fixed_group_add_selector['evals'],
@@ -151,7 +147,7 @@ def compute_gate_constraint_satisfiability(domain,
     )
     timings['FBSMGate_quotient_term'] += time.time() - start
 
-    # 计时开始 CAGate.quotient_term
+ 
     start = time.time()
     curve_addition_term = CAGate.quotient_term(
         prover_key_variable_group_add_selector['evals'],
@@ -161,12 +157,11 @@ def compute_gate_constraint_satisfiability(domain,
         size
     )
     timings['CAGate_quotient_term'] += time.time() - start
-    mid1 = F.add_mod(arithmetic ,pi_eval_8n[:8192])
+    mid1 = F.add_mod(arithmetic ,pi_eval_8n[:size])
     mid2 = F.add_mod(mid1, range_term)
     mid3 = F.add_mod(mid2, logic_term)
     mid4 = F.add_mod(mid3, fixed_base_scalar_mul_term)
     gate_contributions = F.add_mod(mid4, curve_addition_term)
-    # gate_contributions.append(gate_i)
 
 
     for function, total_time in timings.items():
@@ -199,13 +194,7 @@ def compute_permutation_checks(
     l1_alpha_sq_evals = coset_NTT_new(domain_8n,l1_poly_alpha.to('cuda'))
 
     # Initialize result list
-    result = []
-
     pk_permutation = prover_key['permutation'].tolist()
-    # keys = ["left_sigma", "right_sigma", "out_sigma", "fourth_sigma"]
-    # for key in keys:
-    #     pk_permutation[key]= pk_permutation[key].tolist()
-
     pk_linear_evaluations=prover_key["linear_evaluations"].tolist()
 
     pk_linear_evaluations_evals = torch.tensor(pk_linear_evaluations['evals'], dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
@@ -253,16 +242,8 @@ def compute_quotient_poly(domain: Radix2EvaluationDomain,
     params = fr.Fr(gmpy2.mpz(0))
     #get NTT domain
     domain_8n = Radix2EvaluationDomain.new(8 * domain.size,params)
-    # domian_trans_tensor(domain_8n.group_gen_inv)
-    # domian_trans_tensor(domain_8n.size_inv)
-    # domian_trans_tensor(domain_8n.group_gen)
     l1_poly = compute_first_lagrange_poly_scaled(domain, torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont)) ########输出为Tensor
     
-    a=l1_poly.tolist()
-    with open('list_file.txt', 'w') as f:
-        for row in a:
-            row_str = ' '.join(map(str, row)) + '\n'
-            f.write(row_str)
 
     l1_eval_8n = coset_NTT_new(domain_8n,l1_poly.to('cuda'))
     z_eval_8n = coset_NTT_new(domain_8n,z_poly.to('cuda'))
@@ -344,16 +325,10 @@ def compute_quotient_poly(domain: Radix2EvaluationDomain,
     )
     lookup_time = time.time()
     print(f"permutation took {lookup_time - start_time} seconds")
-    quotient = torch.empty(domain_8n.size,4,dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
+   
     prover_key_v_h_coset_8n=prover_key["v_h_coset_8n"].tolist()
     prover_key_v_h_coset_8n_evals=torch.tensor(prover_key_v_h_coset_8n['evals'],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    #TODO 
-    # for i in range(domain_8n.size):
-    #     numerator = F.add_mod(gate_constraints[i],permutation[i])
-    #     numerator = F.add_mod(numerator,lookup[i])
-    #     denominator=F.div_mod(torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda'),prover_key_v_h_coset_8n_evals[i])
-    #     res =F.mul_mod(numerator,denominator)
-    #     quotient[i]=res
+    
     one=torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont)
     extend_one=extend_tensor(one,domain_8n.size)
     numerator = F.add_mod(gate_constraints,permutation)

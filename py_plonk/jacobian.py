@@ -270,7 +270,7 @@ def to_affine(input:torch.tensor):  ###fq->fq
             output=[[],[]]
             output[0]=torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont)
             output[1]=torch.tensor([8505329371266088957, 17002214543764226050, 6865905132761471162, 8632934651105793861, 6631298214892334189, 1582556514881692819],dtype=torch.BLS12_381_Fq_G1_Mont)
-            return output##fq 3380320199399472671518931668520476396067793891014375699959770179129436917079669831430077592723774664465579537268733
+            return output##fq y:3380320199399472671518931668520476396067793891014375699959770179129436917079669831430077592723774664465579537268733
         elif torch.equal(p[2] , one):
             # If Z is one, the point is already normalized.
             return [p[0], p[1]]
@@ -282,7 +282,7 @@ def to_affine(input:torch.tensor):  ###fq->fq
             x = F.mul_mod(p[0], zinv_squared)
             mid1 = F.mul_mod(zinv_squared, zinv)
             y = F.mul_mod(p[1], mid1)
-            #return AffinePointG1.new(x, y)
+         
             return [x,y]
 def add_assign(self, other: 'ProjectivePointG1'):
     if is_zero_AffinePointG1(self):
