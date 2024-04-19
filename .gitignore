@@ -371,7 +371,7 @@ android/pytorch_android/.cxx
 android/pytorch_android_torchvision/.cxx
 
 
-
+trace
 # ##large
 # cs-3.npz
 # cs-17.npz

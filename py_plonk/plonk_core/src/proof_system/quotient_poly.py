@@ -348,17 +348,19 @@ def compute_quotient_poly(domain: Radix2EvaluationDomain,
     prover_key_v_h_coset_8n=prover_key["v_h_coset_8n"].tolist()
     prover_key_v_h_coset_8n_evals=torch.tensor(prover_key_v_h_coset_8n['evals'],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
     #TODO 
-    for i in range(domain_8n.size):
-        numerator = F.add_mod(gate_constraints[i],permutation[i])
-        numerator = F.add_mod(numerator,lookup[i])
-        denominator=F.div_mod(torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda'),prover_key_v_h_coset_8n_evals[i])
-        res =F.mul_mod(numerator,denominator)
-        quotient[i]=res
-    # extend_one=extend_tensor(domain_8n.size)
-    # numerator = F.add_mod(gate_constraints,permutation)
-    # numerator = F.ad_mod(numerator,lookup)
-    # denominator = F.div_mod(extend_one,prover_key_v_h_coset_8n_evals)
-    quotient_poly = coset_INTT_new(quotient,domain_8n)
+    # for i in range(domain_8n.size):
+    #     numerator = F.add_mod(gate_constraints[i],permutation[i])
+    #     numerator = F.add_mod(numerator,lookup[i])
+    #     denominator=F.div_mod(torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda'),prover_key_v_h_coset_8n_evals[i])
+    #     res =F.mul_mod(numerator,denominator)
+    #     quotient[i]=res
+    one=torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont)
+    extend_one=extend_tensor(one,domain_8n.size)
+    numerator = F.add_mod(gate_constraints,permutation)
+    numerator = F.add_mod(numerator,lookup)
+    denominator = F.div_mod(extend_one,prover_key_v_h_coset_8n_evals)
+    res =F.mul_mod(numerator,denominator)
+    quotient_poly = coset_INTT_new(res,domain_8n)
     hx = from_coeff_vec(quotient_poly)
 
     return hx
