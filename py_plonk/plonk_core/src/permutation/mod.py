@@ -10,10 +10,16 @@ from ....arithmetic import INTT,from_coeff_vec,resize,\
 import gmpy2
 import torch.nn as nn
 def extend_tensor(input:torch.tensor,size):
-    res = torch.zeros(size, 4, dtype=torch.BLS12_381_Fr_G1_Mont)
-    for i in range(len(res)):
-        res[i] = input
-    return res.to('cuda')
+    if input.dim()==2:
+        res = torch.zeros(size, 4,len(input), dtype=torch.BLS12_381_Fr_G1_Mont)
+        for i in range(len(res)):
+            res[i] = input
+        return res.to('cuda')
+    else:
+        res = torch.zeros(size, 4, dtype=torch.BLS12_381_Fr_G1_Mont)
+        for i in range(len(res)):
+            res[i] = input
+        return res.to('cuda')
 
 def numerator_irreducible(root, w, k, beta, gamma):
     

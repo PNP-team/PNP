@@ -10,11 +10,11 @@ import functools
 def trace(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
-        print(f"Call stack for {func.__name__}:")
-        for line in stack:
-            print(line, end='')  # Print each line of the stack trace
-        print("\n")
+        # stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+        # print(f"Call stack for {func.__name__}:")
+        # for line in stack:
+        #     print(line, end='')  # Print each line of the stack trace
+        # print("\n")
         return func(*args, **kwargs)
     return wrapper
 

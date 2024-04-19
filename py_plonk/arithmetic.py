@@ -58,10 +58,25 @@ def neg(self):
         res= F.sub_mod(a,self)
         return res
     
+# def neg_extend(self,size):
+#     res=torch.zeros(size,4,dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
+#     for i in range(len(self)):
+#         res[i]=neg(self[i])
+
+#     return res 
 def neg_extend(self,size):
     res=torch.zeros(size,4,dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
+    ### 把是零的位置记下来然后先整体做sub再重新赋值0
+    one=torch.tensor([18446744069414584321, 6034159408538082302, 3691218898639771653, 8353516859464449352],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
+    extend_one=extend_tensor(one,size)
+    record=[]
     for i in range(len(self)):
-        res[i]=neg(self[i])
+        if torch.equal(self[i],torch.tensor([0,0,0,0],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')):
+            record.append(i)
+    res=F.sub_mod(extend_one,self)
+    #
+    for i in record:
+        res[i]=self[i]
 
     return res 
 
@@ -332,10 +347,12 @@ def convert_to_bigints_new(p: list[torch.tensor]):
         return torch.tensor([],dtype=torch.BLS12_381_Fr_G1_Mont)
     else:
         coeffs =torch.empty(len(p),4,dtype=torch.BLS12_381_Fr_G1_Base)
-        i=0
-        for s in p:
-            coeffs[i]=into_repr(s)
-            i+=1
+        # i=0
+        # for s in p:
+        #     coeffs[i]=into_repr(s)
+        #     i+=1
+        
+        coeffs=F.to_base(p)
         return coeffs
     
 def convert_to_bigints(p: list[fr.Fr]):
@@ -553,7 +570,7 @@ def poly_add_poly(self: torch.tensor, other: torch.tensor):    #input tensor out
         # for i in range(len(other)):
         #     result[i] = F.add_mod(result[i],other[i])
         ##inplace for keep length
-        torch.add_mod_(result[:len(other)],other)
+        F.add_mod(result[:len(other)],other,True)
         result = from_coeff_vec(result)
         
         return result
@@ -561,7 +578,7 @@ def poly_add_poly(self: torch.tensor, other: torch.tensor):    #input tensor out
         result=other.clone()
         # for i in range(len(self)):
         #     result[i] = F.add_mod(result[i],self[i])
-        torch.add_mod_(result[:len(self)],self)
+        F.add_mod(result[:len(self)],self,True)
         result = from_coeff_vec(result)
        
         return result

@@ -126,10 +126,7 @@ def open(
    
     i=0
     for polynomial, rand in zip(labeled_polynomials, rands):
-        if i==5:
-            pass
         combined_polynomial = poly_add_poly_mul_const(combined_polynomial,curr_challenge, polynomial.poly)  #polynomial.poly is tensor
-        print(len(combined_polynomial))
         combined_rand.add_assign(curr_challenge, rand)
         curr_challenge = opening_challenges(opening_challenge, opening_challenge_counter)
         opening_challenge_counter += 1
