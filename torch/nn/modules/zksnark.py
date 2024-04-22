@@ -113,7 +113,7 @@ class Ntt_coset(Module):
     def __init__(self, domain_size: int, dtype) -> None:
         super().__init__()
         self.Params = torch.params_zkp(
-            domain_size, is_intt=False, dtype=dtype, device="cuda"
+            domain_size, is_intt=False, dtype = dtype, device="cuda"
         )
 
     def forward(self, input: Tensor) -> Tensor:
