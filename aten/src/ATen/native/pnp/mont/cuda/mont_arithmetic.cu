@@ -1,15 +1,12 @@
 #include <ATen/Dispatch.h>
 #include <ATen/TensorOperators.h>
 #include <ATen/core/Tensor.h>
-
 #include <ATen/core/TensorBody.h>
 #include <ATen/core/interned_strings.h>
-#include <ATen/ops/copy.h>
-
 #include <ATen/cuda/CUDAContext.h>
 #include <ATen/native/cuda/thread_constants.h>
-
-#include "CurveDef.cuh"
+#include <ATen/native/pnp/mont/cuda/curve_def.cuh>
+#include <ATen/ops/copy.h>
 
 #pragma clang diagnostic ignored "-Wmissing-prototypes"
 

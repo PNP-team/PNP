@@ -1,11 +1,10 @@
 #include <ATen/Dispatch.h>
 #include <ATen/TensorOperators.h>
 #include <ATen/core/Tensor.h>
-
 #include <ATen/core/TensorBody.h>
 #include <ATen/core/interned_strings.h>
+#include <ATen/native/pnp/mont/cpu/curve_def.h>
 #include <ATen/ops/copy.h>
-#include "CurveDef.h"
 
 #pragma clang diagnostic ignored "-Wmissing-prototypes"
 
