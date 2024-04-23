@@ -48,7 +48,7 @@ def compute_gate_constraint_satisfiability(domain,
         for key, value in data.items():
             if isinstance(value, dict):
                 convert_to_tensors(value)  # Recursively apply conversion
-            elif isinstance(value, np.ndarray):
+            elif isinstance(value, np.ndarray):##4575657222473777152
                 if np.array_equal(value,np.array(4575657222473777152,dtype=np.uint64)):
                     value=[]
                 data[key] = torch.tensor(value, dtype=torch.BLS12_381_Fr_G1_Mont)  # Convert numpy array to tensor
@@ -333,6 +333,7 @@ def compute_quotient_poly(domain: Radix2EvaluationDomain,
     extend_one=extend_tensor(one,domain_8n.size)
     numerator = F.add_mod(gate_constraints,permutation)
     numerator = F.add_mod(numerator,lookup)
+    # multielement div_mod work on cuda
     denominator = F.div_mod(extend_one,prover_key_v_h_coset_8n_evals)
     res =F.mul_mod(numerator,denominator)
     quotient_poly = coset_INTT_new(res,domain_8n)

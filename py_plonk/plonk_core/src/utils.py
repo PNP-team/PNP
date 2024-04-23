@@ -3,11 +3,17 @@
 # v_0 + challenge * v_1 + ... + challenge^k  * v_k
 import torch.nn.functional as F
 import torch
+# def extend_tensor(input:torch.tensor,size):
+#     res= torch.zeros(size,4,dtype=torch.BLS12_381_Fr_G1_Mont)
+#     for i in res :
+#         i= input
+#     return res 
+
 def extend_tensor(input:torch.tensor,size):
-    res= torch.zeros(size,4,dtype=torch.BLS12_381_Fr_G1_Mont)
-    for i in res :
-        i= input
-    return res 
+    res = torch.zeros(size, 4, dtype=torch.BLS12_381_Fr_G1_Mont)
+    for i in range(len(res)):
+        res[i] = input
+    return res
 def Multiset_lc(values, challenge):
     kth_val = values.elements[-1]
     reverse_val=reversed(values.elements[:-1])

@@ -59,6 +59,7 @@ def lookup_ratio(one ,delta, epsilon, f, t, t_next,
     mid10= F.mul_mod(h_1_next,delta)
     mid11 = F.add_mod(mid9,mid10)
     mid12 = F.mul_mod(mid8,mid11)
+    # multielement on cuda
     mid12 = F.div_mod(one,mid12)
     result= F.mul_mod(result,mid12)
 
@@ -127,10 +128,7 @@ def compute_permutation_poly(domain, wires, beta, gamma, sigma_polys):
 
         # Initialize numerator and denominator products
 
-        
-
-   
-
+    
         # Now the ith element represents gate i and will have the form:
         # (root_i, ((w0_i, s0_i, k0), (w1_i, s1_i, k1), ..., (wm_i, sm_i,
         # km)))   for m different wires, which is all the
@@ -152,7 +150,7 @@ def compute_permutation_poly(domain, wires, beta, gamma, sigma_polys):
 
         # Calculate the product coefficient for the gate
         # denominator_product_under = fr.Fr.inverse(denominator_product)
-        
+    #div_mod work on CUDA
     denominator_product_under= F.div_mod(extend_one,extend_denominator_product)
    
     gate_coefficient = F.mul_mod(extend_numerator_product,denominator_product_under)

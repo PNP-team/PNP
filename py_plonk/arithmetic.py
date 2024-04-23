@@ -465,7 +465,10 @@ def INTT_new(domain,evals:torch.Tensor):
 
     inttclass = nn.Intt(domain.size, torch.BLS12_381_Fr_G1_Mont)
     evals_resize=resize_1(evals,domain.size)
-    evals_resize=evals_resize.to('cuda')
+    if evals_resize.device =='cuda':
+        pass
+    else:
+       evals_resize=evals_resize.to('cuda')
     res= inttclass.forward(evals_resize)
     return res
 
@@ -535,6 +538,7 @@ def from_coeff_vec(coeffs:torch.Tensor):
         result.pop()
     
     output=from_list_tensor(result,dtype=torch.BLS12_381_Fr_G1_Mont)
+    #return coeffs.to('cpu')
     return output
 
 def from_coeff_vec_list(coeffs:list):
@@ -616,11 +620,14 @@ def divide_with_q_and_r(self: list[fr.Fr], divisor: list[fr.Fr]):
     else:
 
         quotient = torch.zeros(len(self) - len(divisor) + 1,4,dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-        one = torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
+        one = torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont)
         remainder = to_listtensor(self[:])
 
         divisor_leading = divisor[-1]
+        divisor_leading=divisor_leading.to('cpu')
+        # single ele work on cpu
         divisor_leading_inv = F.div_mod(one,divisor_leading)
+        divisor_leading_inv=divisor_leading_inv.to('cuda')
         while len(remainder) != 0 and len(remainder) >= len(divisor):
             remainder_leading = remainder[-1]
             cur_q_coeff = F.mul_mod(remainder_leading,divisor_leading_inv)
@@ -716,9 +723,11 @@ def serial_batch_inversion_and_mul(v: list[fr.Fr], coeff: fr.Fr):
             tmp = F.mul_mod(tmp,v[index])
             prod.append(tmp)
             
-    # Invert `tmp`.
-    tmp= F.div_mod(torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda'),tmp)
+    # Invert `tmp`.individual ele div_mod on cpu
+    tmp=tmp.to('cpu')
+    tmp= F.div_mod(torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont),tmp)
     # Multiply product by coeff, so all inverses will be scaled by coeff
+    tmp=tmp.to('cuda')
     tmp = F.mul_mod(tmp,coeff)
     rev_prod=torch.zeros(len(prod),4,dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
     for i in range(0,len(prod)):
@@ -756,12 +765,14 @@ def batch_inversion(v: list[fr.Fr]):
 # L_0(X) = (X^n - 1) / n * (X - 1)
 def compute_first_lagrange_evaluation(
     domain: Radix2EvaluationDomain, z_h_eval: fr.Fr, z_challenge: fr.Fr):
-    one = torch.tensor([[8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911]],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
+    one = torch.tensor([[8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911]],dtype=torch.BLS12_381_Fr_G1_Mont)
     n_fr = fr.Fr.from_repr(domain.size)
-    n_fr =torch.tensor(from_gmpy_list_1(n_fr),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    z_challenge_sub_one =F.sub_mod(z_challenge.to('cuda'),one)
+    n_fr =torch.tensor(from_gmpy_list_1(n_fr),dtype=torch.BLS12_381_Fr_G1_Mont)
+    z_challenge_sub_one =F.sub_mod(z_challenge,one)
     denom=F.mul_mod(n_fr,z_challenge_sub_one)
+    # single work on cpu
     denom_in =  F.div_mod(one,denom)
+    denom_in=denom_in.to('cuda')
     res= F.mul_mod(z_h_eval,denom_in)
     return res  
 
@@ -831,5 +842,5 @@ def MSM_new(bases,scalar): #bases POINT scalar SCALAR
         base = base[:min_size_1].view(-1, 6)# dim2 to 1
         base=base.to('cuda')
         scalar=scalar.to('cuda')
-        commitment:torch.tensor =torch.tensor(F.multi_scalar_mult(base,scalar),dtype=torch.BLS12_381_Fq_G1_Mont) ###cpu
+        commitment:torch.tensor =torch.tensor(F.multi_scalar_mult(base,scalar),dtype=torch.BLS12_381_Fq_G1_Mont) #return cpu
         return commitment

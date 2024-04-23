@@ -16,6 +16,8 @@ from .arithmetic import from_coeff_vec,resize_1,\
 from .KZG import kzg10
 from .bls12_381 import fq,fr
 import torch
+date_set2=["../../data/pp-3.npz","../../data/pk-3.npz","../../data/cs-3.npz","../../data/w_l_scalar_scalar-3.npy","../../data/w_r_scalar_scalar-3.npy","../../data/w_o_scalar_scalar-3.npy","../../data/w_4_scalar_scalar-3.npy"]
+#date_set2=["../../data/pp-17.npz","../../data/pk-17.npz","../../data/cs-17.npz","../../data/w_l_scalar-17.npy","../../data/w_r_scalar-17.npy","../../data/w_o_scalar-17.npy","../../data/w_4_scalar-17.npy"]
 
 
 
@@ -44,6 +46,7 @@ class gen_proof:
         Fr=fr.Fr(value = gmpy2.mpz(0))
         domain=Radix2EvaluationDomain.new(cs.circuit_bound(),Fr)
         n=domain.size
+        print(n)
         transcript.append_pi(b"pi")
 
         pk_lookup=pk["lookup"].tolist()
@@ -59,10 +62,10 @@ class gen_proof:
         pk_lookup_table4], dim=0)
     
         #1. Compute witness Polynomials
-        w_l_scalar=torch.tensor(np.load("../../data/w_l_scalar_scalar-3.npy",allow_pickle=True),dtype=torch.BLS12_381_Fr_G1_Mont)
-        w_r_scalar=torch.tensor(np.load("../../data/w_r_scalar_scalar-3.npy",allow_pickle=True),dtype=torch.BLS12_381_Fr_G1_Mont)
-        w_o_scalar=torch.tensor(np.load("../../data/w_o_scalar_scalar-3.npy",allow_pickle=True),dtype=torch.BLS12_381_Fr_G1_Mont)
-        w_4_scalar=torch.tensor(np.load("../../data/w_4_scalar_scalar-3.npy",allow_pickle=True),dtype=torch.BLS12_381_Fr_G1_Mont)
+        w_l_scalar=torch.tensor(np.load(date_set2[3],allow_pickle=True),dtype=torch.BLS12_381_Fr_G1_Mont)
+        w_r_scalar=torch.tensor(np.load(date_set2[4],allow_pickle=True),dtype=torch.BLS12_381_Fr_G1_Mont)
+        w_o_scalar=torch.tensor(np.load(date_set2[5],allow_pickle=True),dtype=torch.BLS12_381_Fr_G1_Mont)
+        w_4_scalar=torch.tensor(np.load(date_set2[6],allow_pickle=True),dtype=torch.BLS12_381_Fr_G1_Mont)
 
         
 
@@ -171,6 +174,8 @@ class gen_proof:
 
         # Compute s, as the sorted and concatenated version of f and t 
         # work on cpu
+        print(compressed_f_multiset.elements.shape)
+        print(compressed_t_multiset.elements.shape)
         h_1, h_2 = compressed_t_multiset.combine_split(compressed_f_multiset)
 
         # Compute h polys

@@ -5517,15 +5517,11 @@ def mul_mod(input1: Tensor,input2: Tensor,inplace: bool = False) -> Tensor:
 
 @trace
 def div_mod(input1: Tensor,input2: Tensor,inplace: bool = False) -> Tensor:
-    on_cuda = (str(input1.device) != 'cpu')
-    input1=input1.to('cpu')
-    input2=input2.to('cpu')
+
     if inplace:
         result=torch.div_mod_(input1,input2)
     else:
         result = torch.div_mod(input1,input2)
-    if on_cuda:
-        result = result.to('cuda')
     return result
 
 @trace

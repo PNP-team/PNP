@@ -62,6 +62,7 @@ class Radix2EvaluationDomain:
     def new(cls,num_coeffs:int,params:fr.Fr):
         # Compute the size of our evaluation domain
         size = num_coeffs if num_coeffs & (num_coeffs - 1) == 0 else 2 ** num_coeffs.bit_length()
+        # print(size)
         log_size_of_group = size.bit_length()-1
         
         # Check if log_size_of_group exceeds TWO_ADICITY
@@ -118,7 +119,7 @@ class Radix2EvaluationDomain:
                 omega_i = F.mul_mod(omega_i, self.group_gen)
             return u
         else:
-            z_h_at_tau=z_h_at_tau.to('cuda')
+            
             # In this case we have to compute `Z_H(tau) * v_i / (tau - h g^i)`
             # for i in 0..size
             # We actually compute this by computing (Z_H(tau) * v_i)^{-1} * (tau - h g^i)
@@ -135,7 +136,9 @@ class Radix2EvaluationDomain:
             f_size=torch.tensor(from_gmpy_list_1(f_size),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
             pow_dof = pow_1(domain_offset, size - 1)
             v_0_inv = F.mul_mod(f_size, pow_dof)
-            z_h_at_tau_inv= F.div_mod(torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda'),z_h_at_tau)
+            # div_mod work on cpu
+            z_h_at_tau_inv= F.div_mod(torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont),z_h_at_tau)
+            z_h_at_tau_inv=z_h_at_tau_inv.to('cuda')
             l_i = F.mul_mod(z_h_at_tau_inv, v_0_inv)
             negative_cur_elem = neg(domain_offset)
             lagrange_coefficients_inverse = [zero for _ in range(size)]

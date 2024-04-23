@@ -124,6 +124,7 @@ class ProjectivePointG1:
             return AffinePointG1.new(p.x, p.y)
         else:
             # Z is nonzero, so it must have an inverse in a field.
+            #div_mod work on cpu
             zinv = F.div_mod(torch.tensor([8505329371266088957, 17002214543764226050, 6865905132761471162, 8632934651105793861],dtype=torch.BLS12_381_Fr_G1_Mont),p.z)
             zinv_squared = F.mul_mod(zinv, zinv)
 
@@ -276,6 +277,7 @@ def to_affine(input:torch.tensor):  ###fq->fq
             return [p[0], p[1]]
         else:
             # Z is nonzero, so it must have an inverse in a field.
+            #div_mod work on cpu
             zinv = F.div_mod(torch.tensor([8505329371266088957, 17002214543764226050, 6865905132761471162, 8632934651105793861, 6631298214892334189, 1582556514881692819],dtype=torch.BLS12_381_Fq_G1_Mont),p[2])
             zinv_squared = F.mul_mod(zinv, zinv)
 
