@@ -1,0 +1,132 @@
+[1/521] Building C object sleef/src/libm/CMakeFiles/sleefdetpurecfma_scalar.dir/sleefsimdsp.c.o
+[2/521] Building C object sleef/src/libm/CMakeFiles/sleefdetpurecfma_scalar.dir/sleefsimddp.c.o
+[3/521] Building C object sleef/src/libm/CMakeFiles/sleefpurecfma_scalar.dir/sleefsimddp.c.o
+[4/521] Building C object sleef/src/libm/CMakeFiles/sleefpurecfma_scalar.dir/sleefsimdsp.c.o
+[5/521] Building CXX object caffe2/CMakeFiles/thread_init_test.dir/__/aten/src/ATen/test/thread_init_test.cpp.o
+[6/521] Building CXX object caffe2/CMakeFiles/verify_api_visibility.dir/__/aten/src/ATen/test/verify_api_visibility.cpp.o
+[7/521] Building CXX object test_edge_op_registration/CMakeFiles/unbox_lib.dir/__/out/RegisterCodegenUnboxedKernelsEverything.cpp.o
+[8/521] Building CXX object caffe2/CMakeFiles/undefined_tensor_test.dir/__/aten/src/ATen/test/undefined_tensor_test.cpp.o
+[9/521] Building CXX object test_edge_op_registration/CMakeFiles/unbox_lib.dir/operator_registry.cpp.o
+[10/521] Building CUDA object caffe2/CMakeFiles/torch_cuda.dir/__/aten/src/ATen/native/zkp/cuda/zksnark_ntt.cu.o
+FAILED: caffe2/CMakeFiles/torch_cuda.dir/__/aten/src/ATen/native/zkp/cuda/zksnark_ntt.cu.o 
+/usr/local/cuda/bin/nvcc -forward-unknown-to-host-compiler -DAT_PER_OPERATOR_HEADERS -DHAVE_MALLOC_USABLE_SIZE=1 -DHAVE_MMAP=1 -DHAVE_SHM_OPEN=1 -DHAVE_SHM_UNLINK=1 -DMINIZ_DISABLE_ZIP_READER_CRC32_CHECKS -DONNXIFI_ENABLE_EXT=1 -DONNX_ML=1 -DONNX_NAMESPACE=onnx_torch -DTORCH_CUDA_BUILD_MAIN_LIB -DUSE_C10D_GLOO -DUSE_C10D_NCCL -DUSE_CUDA -DUSE_DISTRIBUTED -DUSE_EXTERNAL_MZCRC -DUSE_FLASH_ATTENTION -DUSE_MEM_EFF_ATTENTION -DUSE_NCCL -DUSE_RPC -DUSE_TENSORPIPE -D_FILE_OFFSET_BITS=64 -Dtorch_cuda_EXPORTS -I/home/zrji/pyZKP/build/aten/src -I/home/zrji/pyZKP/aten/src -I/home/zrji/pyZKP/build -I/home/zrji/pyZKP -I/home/zrji/pyZKP/cmake/../third_party/benchmark/include -I/home/zrji/pyZKP/third_party/onnx -I/home/zrji/pyZKP/build/third_party/onnx -I/home/zrji/pyZKP/third_party/foxi -I/home/zrji/pyZKP/build/third_party/foxi -I/home/zrji/pyZKP/aten/src/THC -I/home/zrji/pyZKP/aten/src/ATen/cuda -I/home/zrji/pyZKP/aten/src/ATen/../../../third_party/cutlass/include -I/home/zrji/pyZKP/build/caffe2/aten/src -I/home/zrji/pyZKP/aten/src/ATen/.. -I/home/zrji/pyZKP/build/nccl/include -I/home/zrji/pyZKP/c10/cuda/../.. -I/home/zrji/pyZKP/c10/.. -I/home/zrji/pyZKP/third_party/tensorpipe -I/home/zrji/pyZKP/build/third_party/tensorpipe -I/home/zrji/pyZKP/third_party/tensorpipe/third_party/libnop/include -I/home/zrji/pyZKP/torch/csrc/api -I/home/zrji/pyZKP/torch/csrc/api/include -isystem /home/zrji/pyZKP/build/third_party/gloo -isystem /home/zrji/pyZKP/cmake/../third_party/gloo -isystem /home/zrji/pyZKP/cmake/../third_party/tensorpipe/third_party/libuv/include -isystem /home/zrji/pyZKP/cmake/../third_party/googletest/googlemock/include -isystem /home/zrji/pyZKP/cmake/../third_party/googletest/googletest/include -isystem /home/zrji/pyZKP/third_party/protobuf/src -isystem /home/zrji/pyZKP/third_party/gemmlowp -isystem /home/zrji/pyZKP/third_party/neon2sse -isystem /home/zrji/pyZKP/third_party/XNNPACK/include -isystem /home/zrji/pyZKP/third_party/ittapi/include -isystem /home/zrji/pyZKP/cmake/../third_party/eigen -isystem /usr/local/cuda/include -isystem /home/zrji/pyZKP/torch/include -isystem /home/zrji/pyZKP/third_party/ideep/include -isystem /home/zrji/pyZKP/torch/include/oneapi/dnnl -D_GLIBCXX_USE_CXX11_ABI=1 -Xfatbin -compress-all -DONNX_NAMESPACE=onnx_torch -gencode arch=compute_89,code=sm_89 -Xcudafe --diag_suppress=cc_clobber_ignored,--diag_suppress=field_without_dll_interface,--diag_suppress=base_class_has_different_dll_interface,--diag_suppress=dll_interface_conflict_none_assumed,--diag_suppress=dll_interface_conflict_dllexport_assumed,--diag_suppress=bad_friend_decl --expt-relaxed-constexpr --expt-extended-lambda  -Wno-deprecated-gpu-targets --expt-extended-lambda -DCUB_WRAPPED_NAMESPACE=at_cuda_detail -DCUDA_HAS_FP16=1 -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -g -std=c++17 -Xcompiler=-fPIC -DTORCH_USE_LIBUV -DCAFFE2_USE_GLOO -Xcompiler=-Wall,-Wextra,-Wdeprecated,-Wno-unused-parameter,-Wno-unused-function,-Wno-missing-field-initializers,-Wno-unknown-pragmas,-Wno-type-limits,-Wno-array-bounds,-Wno-unknown-pragmas,-Wno-strict-overflow,-Wno-strict-aliasing,-Wno-maybe-uninitialized -MD -MT caffe2/CMakeFiles/torch_cuda.dir/__/aten/src/ATen/native/zkp/cuda/zksnark_ntt.cu.o -MF caffe2/CMakeFiles/torch_cuda.dir/__/aten/src/ATen/native/zkp/cuda/zksnark_ntt.cu.o.d -x cu -c /home/zrji/pyZKP/aten/src/ATen/native/zkp/cuda/zksnark_ntt.cu -o caffe2/CMakeFiles/torch_cuda.dir/__/aten/src/ATen/native/zkp/cuda/zksnark_ntt.cu.o
+In file included from /home/zrji/pyZKP/aten/src/ATen/native/zkp/cuda/CurveDef.cuh:6,
+                 from /home/zrji/pyZKP/aten/src/ATen/native/zkp/cuda/zksnark_ntt/ntt_kernel/ntt.cuh:8,
+                 from /home/zrji/pyZKP/aten/src/ATen/native/zkp/cuda/zksnark_ntt.cu:13:
+/home/zrji/pyZKP/aten/src/ATen/native/zkp/cuda/ff/mnt4753.hpp:8: warning: "TO_CUDA_T" redefined
+    8 | #define TO_CUDA_T(limb64) (uint32_t)(limb64), (uint32_t)(limb64>>32)
+      | 
+In file included from /home/zrji/pyZKP/aten/src/ATen/native/zkp/cuda/CurveDef.cuh:5,
+                 from /home/zrji/pyZKP/aten/src/ATen/native/zkp/cuda/zksnark_ntt/ntt_kernel/ntt.cuh:8,
+                 from /home/zrji/pyZKP/aten/src/ATen/native/zkp/cuda/zksnark_ntt.cu:13:
+/home/zrji/pyZKP/aten/src/ATen/native/zkp/cuda/ff/bls12-381.hpp:8: note: this is the location of the previous definition
+    8 | #define TO_CUDA_T(limb64) (uint32_t)(limb64), (uint32_t)(limb64 >> 32)
+      | 
+In file included from /home/zrji/pyZKP/aten/src/ATen/native/zkp/cuda/CurveDef.cuh:6,
+                 from /home/zrji/pyZKP/aten/src/ATen/native/zkp/cuda/zksnark_ntt/ntt_kernel/ntt.cuh:8,
+                 from /home/zrji/pyZKP/aten/src/ATen/native/zkp/cuda/zksnark_ntt.cu:13:
+/home/zrji/pyZKP/aten/src/ATen/native/zkp/cuda/ff/mnt4753.hpp:8: warning: "TO_CUDA_T" redefined
+    8 | #define TO_CUDA_T(limb64) (uint32_t)(limb64), (uint32_t)(limb64>>32)
+      | 
+In file included from /home/zrji/pyZKP/aten/src/ATen/native/zkp/cuda/CurveDef.cuh:5,
+                 from /home/zrji/pyZKP/aten/src/ATen/native/zkp/cuda/zksnark_ntt/ntt_kernel/ntt.cuh:8,
+                 from /home/zrji/pyZKP/aten/src/ATen/native/zkp/cuda/zksnark_ntt.cu:13:
+/home/zrji/pyZKP/aten/src/ATen/native/zkp/cuda/ff/bls12-381.hpp:8: note: this is the location of the previous definition
+    8 | #define TO_CUDA_T(limb64) (uint32_t)(limb64), (uint32_t)(limb64 >> 32)
+      | 
+/home/zrji/pyZKP/aten/src/ATen/native/zkp/cuda/zksnark_ntt/parameters/parameters.cuh(165): error: incomplete type is not allowed
+    const size_t inverse_sz = NTTHyperParam<fr_t>::S + 1;
+                              ^
+          detected during instantiation of "void at::native::NTTParameters(__nv_bool, fr_t *, fr_t *) [with fr_t=c10::MNT4753_Fr_G1_Mont::compute_type]" at line 25 of /home/zrji/pyZKP/aten/src/ATen/native/zkp/cuda/zksnark_ntt.cu
+
+/home/zrji/pyZKP/aten/src/ATen/native/zkp/cuda/zksnark_ntt/parameters/parameters.cuh(169): error: incomplete type is not allowed
+        NTTHyperParam<fr_t>::inverse_roots_of_unity.data(),
+        ^
+          detected during instantiation of "void at::native::NTTParameters(__nv_bool, fr_t *, fr_t *) [with fr_t=c10::MNT4753_Fr_G1_Mont::compute_type]" at line 25 of /home/zrji/pyZKP/aten/src/ATen/native/zkp/cuda/zksnark_ntt.cu
+
+/home/zrji/pyZKP/aten/src/ATen/native/zkp/cuda/zksnark_ntt/parameters/parameters.cuh(176): error: incomplete type is not allowed
+        NTTHyperParam<fr_t>::forward_roots_of_unity.data(),
+        ^
+          detected during instantiation of "void at::native::NTTParameters(__nv_bool, fr_t *, fr_t *) [with fr_t=c10::MNT4753_Fr_G1_Mont::compute_type]" at line 25 of /home/zrji/pyZKP/aten/src/ATen/native/zkp/cuda/zksnark_ntt.cu
+
+/home/zrji/pyZKP/aten/src/ATen/native/zkp/cuda/zksnark_ntt/parameters/parameters.cuh(190): error: incomplete type is not allowed
+        NTTHyperParam<fr_t>::group_gen_inverse.data(),
+        ^
+          detected during instantiation of "void at::native::NTTParameters(__nv_bool, fr_t *, fr_t *) [with fr_t=c10::MNT4753_Fr_G1_Mont::compute_type]" at line 25 of /home/zrji/pyZKP/aten/src/ATen/native/zkp/cuda/zksnark_ntt.cu
+
+/home/zrji/pyZKP/aten/src/ATen/native/zkp/cuda/zksnark_ntt/parameters/parameters.cuh(197): error: incomplete type is not allowed
+        NTTHyperParam<fr_t>::group_gen.data(),
+        ^
+          detected during instantiation of "void at::native::NTTParameters(__nv_bool, fr_t *, fr_t *) [with fr_t=c10::MNT4753_Fr_G1_Mont::compute_type]" at line 25 of /home/zrji/pyZKP/aten/src/ATen/native/zkp/cuda/zksnark_ntt.cu
+
+/home/zrji/pyZKP/aten/src/ATen/native/zkp/cuda/zksnark_ntt/parameters/parameters.cuh(202): error: no instance of function template "at::native::generate_partial_twiddles" matches the argument list
+            argument types are: (c10::MNT4753_Fr_G1_Mont::compute_type *, <error-type>)
+    generate_partial_twiddles<<<(1 << ((28 + 1) / 2)) / 32, 32, 0>>>(
+    ^
+          detected during instantiation of "void at::native::NTTParameters(__nv_bool, fr_t *, fr_t *) [with fr_t=c10::MNT4753_Fr_G1_Mont::compute_type]" at line 25 of /home/zrji/pyZKP/aten/src/ATen/native/zkp/cuda/zksnark_ntt.cu
+
+/home/zrji/pyZKP/aten/src/ATen/native/zkp/cuda/zksnark_ntt/parameters/parameters.cuh(238): error: incomplete type is not allowed
+        NTTHyperParam<fr_t>::domain_size_inverse.data(),
+        ^
+          detected during instantiation of "void at::native::NTTParameters(__nv_bool, fr_t *, fr_t *) [with fr_t=c10::MNT4753_Fr_G1_Mont::compute_type]" at line 25 of /home/zrji/pyZKP/aten/src/ATen/native/zkp/cuda/zksnark_ntt.cu
+
+7 errors detected in the compilation of "/home/zrji/pyZKP/aten/src/ATen/native/zkp/cuda/zksnark_ntt.cu".
+[11/521] Building CXX object caffe2/CMakeFiles/legacy_vmap_test.dir/__/aten/src/ATen/test/legacy_vmap_test.cpp.o
+[12/521] Building CXX object caffe2/CMakeFiles/wrapdim_test.dir/__/aten/src/ATen/test/wrapdim_test.cpp.o
+[13/521] Building CXX object caffe2/CMakeFiles/xla_tensor_test.dir/__/aten/src/ATen/test/xla_tensor_test.cpp.o
+[14/521] Building CXX object test_edge_op_registration/CMakeFiles/test_edge_op_registration.dir/test_operator_registration.cpp.o
+[15/521] Building CXX object caffe2/CMakeFiles/weakref_test.dir/__/aten/src/ATen/test/weakref_test.cpp.o
+[16/521] Building CXX object caffe2/CMakeFiles/cuda_reportMemoryUsage_test.dir/__/aten/src/ATen/test/cuda_reportMemoryUsage_test.cpp.o
+[17/521] Building CXX object caffe2/CMakeFiles/cuda_dlconvertor_test.dir/__/aten/src/ATen/test/cuda_dlconvertor_test.cpp.o
+[18/521] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_upgrader_utils.cpp.o
+[19/521] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_fuser.cpp.o
+[20/521] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_add_if_then_else.cpp.o
+[21/521] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_ir.cpp.o
+[22/521] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_concat_opt.cpp.o
+[23/521] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_create_autodiff_subgraphs.cpp.o
+[24/521] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_mobile_type_parser.cpp.o
+[25/521] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_custom_class.cpp.o
+[26/521] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_code_template.cpp.o
+[27/521] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_jit_type.cpp.o
+[28/521] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_alias_analysis.cpp.o
+[29/521] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_op_replacement.cpp.o
+[30/521] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_argument_spec.cpp.o
+[31/521] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_load_upgraders.cpp.o
+[32/521] Building CXX object test_jit/CMakeFiles/torchbind_test.dir/test_custom_class_registrations.cpp.o
+[33/521] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_custom_operators.cpp.o
+[34/521] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_custom_class_registrations.cpp.o
+[35/521] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_schema_info.cpp.o
+[36/521] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_class_type.cpp.o
+[37/521] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_graph_executor.cpp.o
+[38/521] Building CUDA object caffe2/CMakeFiles/cuda_packedtensoraccessor_test.dir/__/aten/src/ATen/test/cuda_packedtensoraccessor_test.cu.o
+[39/521] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_peephole_optimize.cpp.o
+[40/521] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_graph_iterator.cpp.o
+[41/521] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_subgraph_matcher.cpp.o
+[42/521] Building CXX object caffe2/CMakeFiles/type_test.dir/__/aten/src/ATen/test/type_test.cpp.o
+[43/521] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_class_import.cpp.o
+[44/521] Building CUDA object caffe2/CMakeFiles/cuda_half_test.dir/__/aten/src/ATen/test/cuda_half_test.cu.o
+[45/521] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_cs_debug_info_serialization.cpp.o
+[46/521] Building CUDA object caffe2/CMakeFiles/cuda_optional_test.dir/__/aten/src/ATen/test/cuda_optional_test.cu.o
+[47/521] Building CUDA object caffe2/CMakeFiles/cuda_generator_test.dir/__/aten/src/ATen/test/cuda_generator_test.cu.o
+[48/521] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_interface.cpp.o
+[49/521] Building CUDA object caffe2/CMakeFiles/cuda_distributions_test.dir/__/aten/src/ATen/test/cuda_distributions_test.cu.o
+/home/zrji/pyZKP/aten/src/ATen/test/cuda_distributions_test.cu(122): warning #177-D: variable "dim_block" was declared but never referenced
+    dim3 dim_block(block_size);
+         ^
+
+Remark: The warnings can be suppressed with "-diag-suppress <warning-number>"
+
+[50/521] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_interpreter.cpp.o
+[51/521] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_lite_trainer.cpp.o
+[52/521] Building CUDA object caffe2/CMakeFiles/cuda_vectorized_test.dir/__/aten/src/ATen/test/cuda_vectorized_test.cu.o
+[53/521] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_lite_interpreter_direct.cpp.o
+[54/521] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_autodiff.cpp.o
+[55/521] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_backend.cpp.o
+[56/521] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_lite_interpreter.cpp.o
+[57/521] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_misc.cpp.o
+[58/521] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_save_load.cpp.o
+[59/521] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_module_api.cpp.o
+ninja: build stopped: subcommand failed.
+Building wheel torch-2.2.0a0+git0dd134a
+-- Building version 2.2.0a0+git0dd134a
+cmake --build . --target install --config Debug

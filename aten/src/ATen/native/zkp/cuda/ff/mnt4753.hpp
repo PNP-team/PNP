@@ -5,7 +5,8 @@
 namespace at { 
 namespace native {
 
-#define TO_CUDA_T(limb64) (uint32_t)(limb64), (uint32_t)(limb64>>32)
+#define TO_CUDA_T(limb64) (uint32_t)(limb64), (uint32_t)(limb64 >> 32)
+
 
 static __device__ __constant__ __align__(16) const uint32_t MNT4753_r[24] = { 
     TO_CUDA_T(0xd90776e240000001), TO_CUDA_T(0x4ea099170fa13a4f),
@@ -73,7 +74,7 @@ static __device__ __constant__ __align__(16) const uint32_t MNT4753_ONE[24] = { 
     TO_CUDA_T(0x4074c9cbfd8ca621), TO_CUDA_T(0x0fa47edb3865e88c), 
     TO_CUDA_T(0x95455fb31ff9a195), TO_CUDA_T(0x00007b479ec8e242)
 };
-static __device__ __constant__ __align__(16) const uint32_t MNT4753_Px32768[12] = { /* left-aligned value of the modulus */
+static __device__ __constant__ __align__(16) const uint32_t MNT4753_Px32768[24] = { /* left-aligned value of the modulus */
     TO_CUDA_T(0x31ef122f40008000), TO_CUDA_T(0xaa29166e88cfaf48), 
     TO_CUDA_T(0x0838cd6212f871ce), TO_CUDA_T(0x6674bb392a5231c4), 
     TO_CUDA_T(0x86d2e5a9bf1c342d), TO_CUDA_T(0xf3bb790c02cedc07), 
