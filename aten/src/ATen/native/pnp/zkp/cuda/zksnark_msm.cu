@@ -9,8 +9,8 @@
 #include <ATen/ops/empty.h>
 #include <math.h>
 #include <stdint.h>
+#include <ATen/native/pnp/mont/cuda/curve_def.cuh>
 #include <cstdio>
-#include "CurveDef.cuh"
 #include "ec/jacobian_t.hpp"
 #include "ec/xyzz_t.hpp"
 #include "sppark_msm/pippenger.cuh"
