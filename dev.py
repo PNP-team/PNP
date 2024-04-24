@@ -1,15 +1,16 @@
 import torch
 import torch.nn.functional as F
 
-a = torch.tensor([1, 2, 3], dtype=torch.FHE_PRIME_0, device='cuda:0')
-b = torch.tensor([4, 5, 6], dtype=torch.FHE_PRIME_0, device='cuda:0')
+a = torch.tensor([1 for _ in range(256)], dtype=torch.FHE_PRIME_0, device='cuda:0')
+b = torch.tensor([4 for _ in range(256)], dtype=torch.FHE_PRIME_0, device='cuda:0')
 
-a = F.to_mont(a)
-print(a)
-a = F.to_base(a)
-print(a)
-print(b)
+aa = F.to_mont(a)
+bb = F.to_mont(b)
 
-c = F.add_mod(a, b)
+print(aa)
 
-print(c)
+dd = F.div_mod(bb, aa)
+ddd = F.to_base(dd)
+
+
+print(ddd)
