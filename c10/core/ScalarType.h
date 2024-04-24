@@ -1,6 +1,7 @@
 #pragma once
 
 #include <c10/util/BFloat16.h>
+#include <c10/util/BigInteger.h>
 #include <c10/util/Deprecated.h>
 #include <c10/util/Exception.h>
 #include <c10/util/Float8_e4m3fn.h>
@@ -13,7 +14,6 @@
 #include <c10/util/quint2x4.h>
 #include <c10/util/quint4x2.h>
 #include <c10/util/quint8.h>
-#include <c10/util/BigInteger.h>
 
 #include <complex>
 #include <cstdint>
@@ -30,87 +30,194 @@ namespace c10 {
 
 // NB: Order matters for this macro; it is relied upon in
 // _promoteTypesLookup and the serialization format.
-#define AT_FORALL_SCALAR_TYPES_WITH_COMPLEX_AND_QINTS(_)         \
-  _(uint8_t, Byte) /* 0 */                                       \
-  _(int8_t, Char) /* 1 */                                        \
-  _(int16_t, Short) /* 2 */                                      \
-  _(int, Int) /* 3 */                                            \
-  _(int64_t, Long) /* 4 */                                       \
-  _(at::Half, Half) /* 5 */                                      \
-  _(float, Float) /* 6 */                                        \
-  _(double, Double) /* 7 */                                      \
-  _(c10::complex<c10::Half>, ComplexHalf) /* 8 */                \
-  _(c10::complex<float>, ComplexFloat) /* 9 */                   \
-  _(c10::complex<double>, ComplexDouble) /* 10 */                \
-  _(bool, Bool) /* 11 */                                         \
-  _(c10::qint8, QInt8) /* 12 */                                  \
-  _(c10::quint8, QUInt8) /* 13 */                                \
-  _(c10::qint32, QInt32) /* 14 */                                \
-  _(at::BFloat16, BFloat16) /* 15 */                             \
-  _(c10::quint4x2, QUInt4x2) /* 16 */                            \
-  _(c10::quint2x4, QUInt2x4) /* 17 */                            \
-  _(c10::bits1x8, Bits1x8) /* 18 */                              \
-  _(c10::bits2x4, Bits2x4) /* 19 */                              \
-  _(c10::bits4x2, Bits4x2) /* 20 */                              \
-  _(c10::bits8, Bits8) /* 21 */                                  \
-  _(c10::bits16, Bits16) /* 22 */                                \
-  _(c10::Float8_e5m2, Float8_e5m2) /* 23 */                      \
-  _(c10::Float8_e4m3fn, Float8_e4m3fn) /* 24 */                  \
-  _(uint64_t, ULong) /* 25 */                                    \
-  _(c10::Field64, Field64) /* 26 */                              \
-  _(c10::BigInteger, BigInteger) /* 27 */                        \
-  _(c10::BigInteger_Mont, BigInteger_Mont) /* 28 */              \
-  _(c10::FiniteField, FiniteField) /* 29 */                      \
-  _(c10::NOT_CURVE, NOT_CURVE) /* 30 */                          \
-  _(c10::ALT_BN128_Fr_G1_Base, ALT_BN128_Fr_G1_Base) /* 31.1 */  \
-  _(c10::ALT_BN128_Fr_G2_Base, ALT_BN128_Fr_G2_Base) /* 31.2 */  \
-  _(c10::ALT_BN128_Fq_G1_Base, ALT_BN128_Fq_G1_Base) /* 31.3 */  \
-  _(c10::ALT_BN128_Fq_G2_Base, ALT_BN128_Fq_G2_Base) /* 31.4 */  \
-  _(c10::ALT_BN128_Fr_G1_Mont, ALT_BN128_Fr_G1_Mont) /* 31.5 */  \
-  _(c10::ALT_BN128_Fr_G2_Mont, ALT_BN128_Fr_G2_Mont) /* 31.6 */  \
-  _(c10::ALT_BN128_Fq_G1_Mont, ALT_BN128_Fq_G1_Mont) /* 31.7 */  \
-  _(c10::ALT_BN128_Fq_G2_Mont, ALT_BN128_Fq_G2_Mont) /* 31.8 */  \
-  _(c10::BLS12_377_Fr_G1_Base, BLS12_377_Fr_G1_Base) /* 32.1 */  \
-  _(c10::BLS12_377_Fr_G2_Base, BLS12_377_Fr_G2_Base) /* 32.2 */  \
-  _(c10::BLS12_377_Fq_G1_Base, BLS12_377_Fq_G1_Base) /* 32.3 */  \
-  _(c10::BLS12_377_Fq_G2_Base, BLS12_377_Fq_G2_Base) /* 32.4 */  \
-  _(c10::BLS12_377_Fr_G1_Mont, BLS12_377_Fr_G1_Mont) /* 32.5 */  \
-  _(c10::BLS12_377_Fr_G2_Mont, BLS12_377_Fr_G2_Mont) /* 32.6 */  \
-  _(c10::BLS12_377_Fq_G1_Mont, BLS12_377_Fq_G1_Mont) /* 32.7 */  \
-  _(c10::BLS12_377_Fq_G2_Mont, BLS12_377_Fq_G2_Mont) /* 32.8 */  \
-  _(c10::BLS12_381_Fr_G1_Base, BLS12_381_Fr_G1_Base) /* 33.1 */  \
-  _(c10::BLS12_381_Fr_G2_Base, BLS12_381_Fr_G2_Base) /* 33.2 */  \
-  _(c10::BLS12_381_Fq_G1_Base, BLS12_381_Fq_G1_Base) /* 33.3 */  \
-  _(c10::BLS12_381_Fq_G2_Base, BLS12_381_Fq_G2_Base) /* 33.4 */  \
-  _(c10::BLS12_381_Fr_G1_Mont, BLS12_381_Fr_G1_Mont) /* 33.5 */  \
-  _(c10::BLS12_381_Fr_G2_Mont, BLS12_381_Fr_G2_Mont) /* 33.6 */  \
-  _(c10::BLS12_381_Fq_G1_Mont, BLS12_381_Fq_G1_Mont) /* 33.7 */  \
-  _(c10::BLS12_381_Fq_G2_Mont, BLS12_381_Fq_G2_Mont) /* 33.8 */  \
-  _(c10::MNT4753_Fr_G1_Base, MNT4753_Fr_G1_Base) /* 34.1 */      \
-  _(c10::MNT4753_Fr_G2_Base, MNT4753_Fr_G2_Base) /* 34.2 */      \
-  _(c10::MNT4753_Fq_G1_Base, MNT4753_Fq_G1_Base) /* 34.3 */      \
-  _(c10::MNT4753_Fq_G2_Base, MNT4753_Fq_G2_Base) /* 34.4 */      \
-  _(c10::MNT4753_Fr_G1_Mont, MNT4753_Fr_G1_Mont) /* 34.5 */      \
-  _(c10::MNT4753_Fr_G2_Mont, MNT4753_Fr_G2_Mont) /* 34.6 */      \
-  _(c10::MNT4753_Fq_G1_Mont, MNT4753_Fq_G1_Mont) /* 34.7 */      \
-  _(c10::MNT4753_Fq_G2_Mont, MNT4753_Fq_G2_Mont) /* 34.8 */      \
-  _(c10::PALLAS_Fr_G1_Base, PALLAS_Fr_G1_Base) /* 35.1 */        \
-  _(c10::PALLAS_Fr_G2_Base, PALLAS_Fr_G2_Base) /* 35.2 */        \
-  _(c10::PALLAS_Fq_G1_Base, PALLAS_Fq_G1_Base) /* 35.3 */        \
-  _(c10::PALLAS_Fq_G2_Base, PALLAS_Fq_G2_Base) /* 35.4 */        \
-  _(c10::PALLAS_Fr_G1_Mont, PALLAS_Fr_G1_Mont) /* 35.5 */        \
-  _(c10::PALLAS_Fr_G2_Mont, PALLAS_Fr_G2_Mont) /* 35.6 */        \
-  _(c10::PALLAS_Fq_G1_Mont, PALLAS_Fq_G1_Mont) /* 35.7 */        \
-  _(c10::PALLAS_Fq_G2_Mont, PALLAS_Fq_G2_Mont) /* 35.8 */        \
-  _(c10::VESTA_Fr_G1_Base, VESTA_Fr_G1_Base) /* 36.1 */          \
-  _(c10::VESTA_Fr_G2_Base, VESTA_Fr_G2_Base) /* 36.2 */          \
-  _(c10::VESTA_Fq_G1_Base, VESTA_Fq_G1_Base) /* 36.3 */          \
-  _(c10::VESTA_Fq_G2_Base, VESTA_Fq_G2_Base) /* 36.4 */          \
-  _(c10::VESTA_Fr_G1_Mont, VESTA_Fr_G1_Mont) /* 36.5 */          \
-  _(c10::VESTA_Fr_G2_Mont, VESTA_Fr_G2_Mont) /* 36.6 */          \
-  _(c10::VESTA_Fq_G1_Mont, VESTA_Fq_G1_Mont) /* 36.7 */          \
-  _(c10::VESTA_Fq_G2_Mont, VESTA_Fq_G2_Mont) /* 36.8 */
-
+#define AT_FORALL_SCALAR_TYPES_WITH_COMPLEX_AND_QINTS(_)        \
+  _(uint8_t, Byte) /* 0 */                                      \
+  _(int8_t, Char) /* 1 */                                       \
+  _(int16_t, Short) /* 2 */                                     \
+  _(int, Int) /* 3 */                                           \
+  _(int64_t, Long) /* 4 */                                      \
+  _(at::Half, Half) /* 5 */                                     \
+  _(float, Float) /* 6 */                                       \
+  _(double, Double) /* 7 */                                     \
+  _(c10::complex<c10::Half>, ComplexHalf) /* 8 */               \
+  _(c10::complex<float>, ComplexFloat) /* 9 */                  \
+  _(c10::complex<double>, ComplexDouble) /* 10 */               \
+  _(bool, Bool) /* 11 */                                        \
+  _(c10::qint8, QInt8) /* 12 */                                 \
+  _(c10::quint8, QUInt8) /* 13 */                               \
+  _(c10::qint32, QInt32) /* 14 */                               \
+  _(at::BFloat16, BFloat16) /* 15 */                            \
+  _(c10::quint4x2, QUInt4x2) /* 16 */                           \
+  _(c10::quint2x4, QUInt2x4) /* 17 */                           \
+  _(c10::bits1x8, Bits1x8) /* 18 */                             \
+  _(c10::bits2x4, Bits2x4) /* 19 */                             \
+  _(c10::bits4x2, Bits4x2) /* 20 */                             \
+  _(c10::bits8, Bits8) /* 21 */                                 \
+  _(c10::bits16, Bits16) /* 22 */                               \
+  _(c10::Float8_e5m2, Float8_e5m2) /* 23 */                     \
+  _(c10::Float8_e4m3fn, Float8_e4m3fn) /* 24 */                 \
+  _(uint64_t, ULong) /* 25 */                                   \
+  _(c10::Field64, Field64) /* 26 */                             \
+  _(c10::BigInteger, BigInteger) /* 27 */                       \
+  _(c10::BigInteger_Mont, BigInteger_Mont) /* 28 */             \
+  _(c10::FiniteField, FiniteField) /* 29 */                     \
+  _(c10::NOT_CURVE, NOT_CURVE) /* 30 */                         \
+  _(c10::ALT_BN128_Fr_G1_Base, ALT_BN128_Fr_G1_Base) /* 31.1 */ \
+  _(c10::ALT_BN128_Fr_G2_Base, ALT_BN128_Fr_G2_Base) /* 31.2 */ \
+  _(c10::ALT_BN128_Fq_G1_Base, ALT_BN128_Fq_G1_Base) /* 31.3 */ \
+  _(c10::ALT_BN128_Fq_G2_Base, ALT_BN128_Fq_G2_Base) /* 31.4 */ \
+  _(c10::ALT_BN128_Fr_G1_Mont, ALT_BN128_Fr_G1_Mont) /* 31.5 */ \
+  _(c10::ALT_BN128_Fr_G2_Mont, ALT_BN128_Fr_G2_Mont) /* 31.6 */ \
+  _(c10::ALT_BN128_Fq_G1_Mont, ALT_BN128_Fq_G1_Mont) /* 31.7 */ \
+  _(c10::ALT_BN128_Fq_G2_Mont, ALT_BN128_Fq_G2_Mont) /* 31.8 */ \
+  _(c10::BLS12_377_Fr_G1_Base, BLS12_377_Fr_G1_Base) /* 32.1 */ \
+  _(c10::BLS12_377_Fr_G2_Base, BLS12_377_Fr_G2_Base) /* 32.2 */ \
+  _(c10::BLS12_377_Fq_G1_Base, BLS12_377_Fq_G1_Base) /* 32.3 */ \
+  _(c10::BLS12_377_Fq_G2_Base, BLS12_377_Fq_G2_Base) /* 32.4 */ \
+  _(c10::BLS12_377_Fr_G1_Mont, BLS12_377_Fr_G1_Mont) /* 32.5 */ \
+  _(c10::BLS12_377_Fr_G2_Mont, BLS12_377_Fr_G2_Mont) /* 32.6 */ \
+  _(c10::BLS12_377_Fq_G1_Mont, BLS12_377_Fq_G1_Mont) /* 32.7 */ \
+  _(c10::BLS12_377_Fq_G2_Mont, BLS12_377_Fq_G2_Mont) /* 32.8 */ \
+  _(c10::BLS12_381_Fr_G1_Base, BLS12_381_Fr_G1_Base) /* 33.1 */ \
+  _(c10::BLS12_381_Fr_G2_Base, BLS12_381_Fr_G2_Base) /* 33.2 */ \
+  _(c10::BLS12_381_Fq_G1_Base, BLS12_381_Fq_G1_Base) /* 33.3 */ \
+  _(c10::BLS12_381_Fq_G2_Base, BLS12_381_Fq_G2_Base) /* 33.4 */ \
+  _(c10::BLS12_381_Fr_G1_Mont, BLS12_381_Fr_G1_Mont) /* 33.5 */ \
+  _(c10::BLS12_381_Fr_G2_Mont, BLS12_381_Fr_G2_Mont) /* 33.6 */ \
+  _(c10::BLS12_381_Fq_G1_Mont, BLS12_381_Fq_G1_Mont) /* 33.7 */ \
+  _(c10::BLS12_381_Fq_G2_Mont, BLS12_381_Fq_G2_Mont) /* 33.8 */ \
+  _(c10::MNT4753_Fr_G1_Base, MNT4753_Fr_G1_Base) /* 34.1 */     \
+  _(c10::MNT4753_Fr_G2_Base, MNT4753_Fr_G2_Base) /* 34.2 */     \
+  _(c10::MNT4753_Fq_G1_Base, MNT4753_Fq_G1_Base) /* 34.3 */     \
+  _(c10::MNT4753_Fq_G2_Base, MNT4753_Fq_G2_Base) /* 34.4 */     \
+  _(c10::MNT4753_Fr_G1_Mont, MNT4753_Fr_G1_Mont) /* 34.5 */     \
+  _(c10::MNT4753_Fr_G2_Mont, MNT4753_Fr_G2_Mont) /* 34.6 */     \
+  _(c10::MNT4753_Fq_G1_Mont, MNT4753_Fq_G1_Mont) /* 34.7 */     \
+  _(c10::MNT4753_Fq_G2_Mont, MNT4753_Fq_G2_Mont) /* 34.8 */     \
+  _(c10::PALLAS_Fr_G1_Base, PALLAS_Fr_G1_Base) /* 35.1 */       \
+  _(c10::PALLAS_Fr_G2_Base, PALLAS_Fr_G2_Base) /* 35.2 */       \
+  _(c10::PALLAS_Fq_G1_Base, PALLAS_Fq_G1_Base) /* 35.3 */       \
+  _(c10::PALLAS_Fq_G2_Base, PALLAS_Fq_G2_Base) /* 35.4 */       \
+  _(c10::PALLAS_Fr_G1_Mont, PALLAS_Fr_G1_Mont) /* 35.5 */       \
+  _(c10::PALLAS_Fr_G2_Mont, PALLAS_Fr_G2_Mont) /* 35.6 */       \
+  _(c10::PALLAS_Fq_G1_Mont, PALLAS_Fq_G1_Mont) /* 35.7 */       \
+  _(c10::PALLAS_Fq_G2_Mont, PALLAS_Fq_G2_Mont) /* 35.8 */       \
+  _(c10::VESTA_Fr_G1_Base, VESTA_Fr_G1_Base) /* 36.1 */         \
+  _(c10::VESTA_Fr_G2_Base, VESTA_Fr_G2_Base) /* 36.2 */         \
+  _(c10::VESTA_Fq_G1_Base, VESTA_Fq_G1_Base) /* 36.3 */         \
+  _(c10::VESTA_Fq_G2_Base, VESTA_Fq_G2_Base) /* 36.4 */         \
+  _(c10::VESTA_Fr_G1_Mont, VESTA_Fr_G1_Mont) /* 36.5 */         \
+  _(c10::VESTA_Fr_G2_Mont, VESTA_Fr_G2_Mont) /* 36.6 */         \
+  _(c10::VESTA_Fq_G1_Mont, VESTA_Fq_G1_Mont) /* 36.7 */         \
+  _(c10::VESTA_Fq_G2_Mont, VESTA_Fq_G2_Mont) /* 36.8 */         \
+  _(c10::FHE_PRIME_0, FHE_PRIME_0) /* 37.0 */                   \
+  _(c10::FHE_PRIME_1, FHE_PRIME_1) /* 37.1 */                   \
+  _(c10::FHE_PRIME_2, FHE_PRIME_2) /* 37.2 */                   \
+  _(c10::FHE_PRIME_3, FHE_PRIME_3) /* 37.3 */                   \
+  _(c10::FHE_PRIME_4, FHE_PRIME_4) /* 37.4 */                   \
+  _(c10::FHE_PRIME_5, FHE_PRIME_5) /* 37.5 */                   \
+  _(c10::FHE_PRIME_6, FHE_PRIME_6) /* 37.6 */                   \
+  _(c10::FHE_PRIME_7, FHE_PRIME_7) /* 37.7 */                   \
+  _(c10::FHE_PRIME_8, FHE_PRIME_8) /* 37.8 */                   \
+  _(c10::FHE_PRIME_9, FHE_PRIME_9) /* 37.9 */                   \
+  _(c10::FHE_PRIME_10, FHE_PRIME_10) /* 37.10 */                \
+  _(c10::FHE_PRIME_11, FHE_PRIME_11) /* 37.11 */                \
+  _(c10::FHE_PRIME_12, FHE_PRIME_12) /* 37.12 */                \
+  _(c10::FHE_PRIME_13, FHE_PRIME_13) /* 37.13 */                \
+  _(c10::FHE_PRIME_14, FHE_PRIME_14) /* 37.14 */                \
+  _(c10::FHE_PRIME_15, FHE_PRIME_15) /* 37.15 */                \
+  _(c10::FHE_PRIME_16, FHE_PRIME_16) /* 37.16 */                \
+  _(c10::FHE_PRIME_17, FHE_PRIME_17) /* 37.17 */                \
+  _(c10::FHE_PRIME_18, FHE_PRIME_18) /* 37.18 */                \
+  _(c10::FHE_PRIME_19, FHE_PRIME_19) /* 37.19 */                \
+  _(c10::FHE_PRIME_20, FHE_PRIME_20) /* 37.20 */                \
+  _(c10::FHE_PRIME_21, FHE_PRIME_21) /* 37.21 */                \
+  _(c10::FHE_PRIME_22, FHE_PRIME_22) /* 37.22 */                \
+  _(c10::FHE_PRIME_23, FHE_PRIME_23) /* 37.23 */                \
+  _(c10::FHE_PRIME_24, FHE_PRIME_24) /* 37.24 */                \
+  _(c10::FHE_PRIME_25, FHE_PRIME_25) /* 37.25 */                \
+  _(c10::FHE_PRIME_26, FHE_PRIME_26) /* 37.26 */                \
+  _(c10::FHE_PRIME_27, FHE_PRIME_27) /* 37.27 */                \
+  _(c10::FHE_PRIME_28, FHE_PRIME_28) /* 37.28 */                \
+  _(c10::FHE_PRIME_29, FHE_PRIME_29) /* 37.29 */                \
+  _(c10::FHE_PRIME_30, FHE_PRIME_30) /* 37.30 */                \
+  _(c10::FHE_PRIME_31, FHE_PRIME_31) /* 37.31 */                \
+  _(c10::FHE_PRIME_32, FHE_PRIME_32) /* 37.32 */                \
+  _(c10::FHE_PRIME_33, FHE_PRIME_33) /* 37.33 */                \
+  _(c10::FHE_PRIME_34, FHE_PRIME_34) /* 37.34 */                \
+  _(c10::FHE_PRIME_35, FHE_PRIME_35) /* 37.35 */                \
+  _(c10::FHE_PRIME_36, FHE_PRIME_36) /* 37.36 */                \
+  _(c10::FHE_PRIME_37, FHE_PRIME_37) /* 37.37 */                \
+  _(c10::FHE_PRIME_38, FHE_PRIME_38) /* 37.38 */                \
+  _(c10::FHE_PRIME_39, FHE_PRIME_39) /* 37.39 */                \
+  _(c10::FHE_PRIME_40, FHE_PRIME_40) /* 37.40 */                \
+  _(c10::FHE_PRIME_41, FHE_PRIME_41) /* 37.41 */                \
+  _(c10::FHE_PRIME_42, FHE_PRIME_42) /* 37.42 */                \
+  _(c10::FHE_PRIME_43, FHE_PRIME_43) /* 37.43 */                \
+  _(c10::FHE_PRIME_44, FHE_PRIME_44) /* 37.44 */                \
+  _(c10::FHE_PRIME_45, FHE_PRIME_45) /* 37.45 */                \
+  _(c10::FHE_PRIME_46, FHE_PRIME_46) /* 37.46 */                \
+  _(c10::FHE_PRIME_47, FHE_PRIME_47) /* 37.47 */                \
+  _(c10::FHE_PRIME_48, FHE_PRIME_48) /* 37.48 */                \
+  _(c10::FHE_PRIME_49, FHE_PRIME_49) /* 37.49 */                \
+  _(c10::FHE_PRIME_50, FHE_PRIME_50) /* 37.50 */                \
+  _(c10::FHE_PRIME_51, FHE_PRIME_51) /* 37.51 */                \
+  _(c10::FHE_PRIME_52, FHE_PRIME_52) /* 37.52 */                \
+  _(c10::FHE_PRIME_53, FHE_PRIME_53) /* 37.53 */                \
+  _(c10::FHE_PRIME_54, FHE_PRIME_54) /* 37.54 */                \
+  _(c10::FHE_PRIME_55, FHE_PRIME_55) /* 37.55 */                \
+  _(c10::FHE_PRIME_56, FHE_PRIME_56) /* 37.56 */                \
+  _(c10::FHE_PRIME_57, FHE_PRIME_57) /* 37.57 */                \
+  _(c10::FHE_PRIME_58, FHE_PRIME_58) /* 37.58 */                \
+  _(c10::FHE_PRIME_59, FHE_PRIME_59) /* 37.59 */                \
+  _(c10::FHE_PRIME_60, FHE_PRIME_60) /* 37.60 */                \
+  _(c10::FHE_PRIME_61, FHE_PRIME_61) /* 37.61 */                \
+  _(c10::FHE_PRIME_62, FHE_PRIME_62) /* 37.62 */                \
+  _(c10::FHE_PRIME_63, FHE_PRIME_63) /* 37.63 */                \
+  _(c10::FHE_PRIME_64, FHE_PRIME_64) /* 37.64 */                \
+  _(c10::FHE_PRIME_65, FHE_PRIME_65) /* 37.65 */                \
+  _(c10::FHE_PRIME_66, FHE_PRIME_66) /* 37.66 */                \
+  _(c10::FHE_PRIME_67, FHE_PRIME_67) /* 37.67 */                \
+  _(c10::FHE_PRIME_68, FHE_PRIME_68) /* 37.68 */                \
+  _(c10::FHE_PRIME_69, FHE_PRIME_69) /* 37.69 */                \
+  _(c10::FHE_PRIME_70, FHE_PRIME_70) /* 37.70 */                \
+  _(c10::FHE_PRIME_71, FHE_PRIME_71) /* 37.71 */                \
+  _(c10::FHE_PRIME_72, FHE_PRIME_72) /* 37.72 */                \
+  _(c10::FHE_PRIME_73, FHE_PRIME_73) /* 37.73 */                \
+  _(c10::FHE_PRIME_74, FHE_PRIME_74) /* 37.74 */                \
+  _(c10::FHE_PRIME_75, FHE_PRIME_75) /* 37.75 */                \
+  _(c10::FHE_PRIME_76, FHE_PRIME_76) /* 37.76 */                \
+  _(c10::FHE_PRIME_77, FHE_PRIME_77) /* 37.77 */                \
+  _(c10::FHE_PRIME_78, FHE_PRIME_78) /* 37.78 */                \
+  _(c10::FHE_PRIME_79, FHE_PRIME_79) /* 37.79 */                \
+  _(c10::FHE_PRIME_80, FHE_PRIME_80) /* 37.80 */                \
+  _(c10::FHE_PRIME_81, FHE_PRIME_81) /* 37.81 */                \
+  _(c10::FHE_PRIME_82, FHE_PRIME_82) /* 37.82 */                \
+  _(c10::FHE_PRIME_83, FHE_PRIME_83) /* 37.83 */                \
+  _(c10::FHE_PRIME_84, FHE_PRIME_84) /* 37.84 */                \
+  _(c10::FHE_PRIME_85, FHE_PRIME_85) /* 37.85 */                \
+  _(c10::FHE_PRIME_86, FHE_PRIME_86) /* 37.86 */                \
+  _(c10::FHE_PRIME_87, FHE_PRIME_87) /* 37.87 */                \
+  _(c10::FHE_PRIME_88, FHE_PRIME_88) /* 37.88 */                \
+  _(c10::FHE_PRIME_89, FHE_PRIME_89) /* 37.89 */                \
+  _(c10::FHE_PRIME_90, FHE_PRIME_90) /* 37.90 */                \
+  _(c10::FHE_PRIME_91, FHE_PRIME_91) /* 37.91 */                \
+  _(c10::FHE_PRIME_92, FHE_PRIME_92) /* 37.92 */                \
+  _(c10::FHE_PRIME_93, FHE_PRIME_93) /* 37.93 */                \
+  _(c10::FHE_PRIME_94, FHE_PRIME_94) /* 37.94 */                \
+  _(c10::FHE_PRIME_95, FHE_PRIME_95) /* 37.95 */                \
+  _(c10::FHE_PRIME_96, FHE_PRIME_96) /* 37.96 */                \
+  _(c10::FHE_PRIME_97, FHE_PRIME_97) /* 37.97 */                \
+  _(c10::FHE_PRIME_98, FHE_PRIME_98) /* 37.98 */                \
+  _(c10::FHE_PRIME_99, FHE_PRIME_99) /* 37.99 */                \
+  _(c10::FHE_PRIME_100, FHE_PRIME_100) /* 37.100 */             \
+  _(c10::FHE_PRIME_101, FHE_PRIME_101) /* 37.101 */             \
+  _(c10::FHE_PRIME_102, FHE_PRIME_102) /* 37.102 */             \
+  _(c10::FHE_PRIME_103, FHE_PRIME_103) /* 37.103 */             \
+  _(c10::FHE_PRIME_104, FHE_PRIME_104) /* 37.104 */             \
+  _(c10::FHE_PRIME_105, FHE_PRIME_105) /* 37.105 */             \
+  _(c10::FHE_PRIME_106, FHE_PRIME_106) /* 37.106 */             \
+  _(c10::FHE_PRIME_107, FHE_PRIME_107) /* 37.107 */
 
 // If you want to support ComplexHalf for real, add ComplexHalf
 // into this macro (and change the name).  But beware: convert()
@@ -148,7 +255,7 @@ namespace c10 {
   _(at::Float8_e5m2, Float8_e5m2)              \
   _(at::Float8_e4m3fn, Float8_e4m3fn)
 
-enum class ScalarType : int8_t {
+enum class ScalarType : int16_t {
 #define DEFINE_ST_ENUM_VAL_(_1, n) n,
   AT_FORALL_SCALAR_TYPES_WITH_COMPLEX_AND_QINTS(DEFINE_ST_ENUM_VAL_)
 #undef DEFINE_ENUM_ST_ENUM_VAL_
@@ -220,31 +327,31 @@ AT_FORALL_SCALAR_TYPES_WITH_COMPLEX_AND_QINTS(SPECIALIZE_CppTypeToScalarType)
   _(float, Float)                 \
   _(double, Double)
 
-#define AT_FORALL_SCALAR_TYPES_AND(SCALARTYPE, _) \
-  _(uint8_t, Byte)                                \
-  _(int8_t, Char)                                 \
-  _(int16_t, Short)                               \
-  _(int, Int)                                     \
-  _(int64_t, Long)                                \
-  _(float, Float)                                 \
-  _(double, Double)                               \
-  _(decltype(::c10::impl::ScalarTypeToCPPType<    \
-             ::c10::ScalarType::SCALARTYPE>::t),  \
+#define AT_FORALL_SCALAR_TYPES_AND(SCALARTYPE, _)                            \
+  _(uint8_t, Byte)                                                           \
+  _(int8_t, Char)                                                            \
+  _(int16_t, Short)                                                          \
+  _(int, Int)                                                                \
+  _(int64_t, Long)                                                           \
+  _(float, Float)                                                            \
+  _(double, Double)                                                          \
+  _(decltype(                                                                \
+        ::c10::impl::ScalarTypeToCPPType<::c10::ScalarType::SCALARTYPE>::t), \
     SCALARTYPE)
 
-#define AT_FORALL_SCALAR_TYPES_AND2(SCALARTYPE1, SCALARTYPE2, _) \
-  _(uint8_t, Byte)                                               \
-  _(int8_t, Char)                                                \
-  _(int16_t, Short)                                              \
-  _(int, Int)                                                    \
-  _(int64_t, Long)                                               \
-  _(float, Float)                                                \
-  _(double, Double)                                              \
-  _(decltype(::c10::impl::ScalarTypeToCPPType<                   \
-             ::c10::ScalarType::SCALARTYPE1>::t),                \
-    SCALARTYPE1)                                                 \
-  _(decltype(::c10::impl::ScalarTypeToCPPType<                   \
-             ::c10::ScalarType::SCALARTYPE2>::t),                \
+#define AT_FORALL_SCALAR_TYPES_AND2(SCALARTYPE1, SCALARTYPE2, _)              \
+  _(uint8_t, Byte)                                                            \
+  _(int8_t, Char)                                                             \
+  _(int16_t, Short)                                                           \
+  _(int, Int)                                                                 \
+  _(int64_t, Long)                                                            \
+  _(float, Float)                                                             \
+  _(double, Double)                                                           \
+  _(decltype(                                                                 \
+        ::c10::impl::ScalarTypeToCPPType<::c10::ScalarType::SCALARTYPE1>::t), \
+    SCALARTYPE1)                                                              \
+  _(decltype(                                                                 \
+        ::c10::impl::ScalarTypeToCPPType<::c10::ScalarType::SCALARTYPE2>::t), \
     SCALARTYPE2)
 
 #define AT_FORALL_SCALAR_TYPES_AND3(SCALARTYPE1, SCALARTYPE2, SCALARTYPE3, _) \
@@ -255,61 +362,61 @@ AT_FORALL_SCALAR_TYPES_WITH_COMPLEX_AND_QINTS(SPECIALIZE_CppTypeToScalarType)
   _(int64_t, Long)                                                            \
   _(float, Float)                                                             \
   _(double, Double)                                                           \
-  _(decltype(::c10::impl::ScalarTypeToCPPType<                                \
-             ::c10::ScalarType::SCALARTYPE1>::t),                             \
+  _(decltype(                                                                 \
+        ::c10::impl::ScalarTypeToCPPType<::c10::ScalarType::SCALARTYPE1>::t), \
     SCALARTYPE1)                                                              \
-  _(decltype(::c10::impl::ScalarTypeToCPPType<                                \
-             ::c10::ScalarType::SCALARTYPE2>::t),                             \
+  _(decltype(                                                                 \
+        ::c10::impl::ScalarTypeToCPPType<::c10::ScalarType::SCALARTYPE2>::t), \
     SCALARTYPE2)                                                              \
-  _(decltype(::c10::impl::ScalarTypeToCPPType<                                \
-             ::c10::ScalarType::SCALARTYPE3>::t),                             \
+  _(decltype(                                                                 \
+        ::c10::impl::ScalarTypeToCPPType<::c10::ScalarType::SCALARTYPE3>::t), \
     SCALARTYPE3)
 
-#define AT_FORALL_SCALAR_TYPES_AND4(                       \
-    SCALARTYPE1, SCALARTYPE2, SCALARTYPE3, SCALARTYPE4, _) \
-  _(uint8_t, Byte)                                         \
-  _(int8_t, Char)                                          \
-  _(int16_t, Short)                                        \
-  _(int, Int)                                              \
-  _(int64_t, Long)                                         \
-  _(float, Float)                                          \
-  _(double, Double)                                        \
-  _(decltype(::c10::impl::ScalarTypeToCPPType<             \
-             ::c10::ScalarType::SCALARTYPE1>::t),          \
-    SCALARTYPE1)                                           \
-  _(decltype(::c10::impl::ScalarTypeToCPPType<             \
-             ::c10::ScalarType::SCALARTYPE2>::t),          \
-    SCALARTYPE2)                                           \
-  _(decltype(::c10::impl::ScalarTypeToCPPType<             \
-             ::c10::ScalarType::SCALARTYPE3>::t),          \
-    SCALARTYPE3)                                           \
-  _(decltype(::c10::impl::ScalarTypeToCPPType<             \
-             ::c10::ScalarType::SCALARTYPE4>::t),          \
+#define AT_FORALL_SCALAR_TYPES_AND4(                                          \
+    SCALARTYPE1, SCALARTYPE2, SCALARTYPE3, SCALARTYPE4, _)                    \
+  _(uint8_t, Byte)                                                            \
+  _(int8_t, Char)                                                             \
+  _(int16_t, Short)                                                           \
+  _(int, Int)                                                                 \
+  _(int64_t, Long)                                                            \
+  _(float, Float)                                                             \
+  _(double, Double)                                                           \
+  _(decltype(                                                                 \
+        ::c10::impl::ScalarTypeToCPPType<::c10::ScalarType::SCALARTYPE1>::t), \
+    SCALARTYPE1)                                                              \
+  _(decltype(                                                                 \
+        ::c10::impl::ScalarTypeToCPPType<::c10::ScalarType::SCALARTYPE2>::t), \
+    SCALARTYPE2)                                                              \
+  _(decltype(                                                                 \
+        ::c10::impl::ScalarTypeToCPPType<::c10::ScalarType::SCALARTYPE3>::t), \
+    SCALARTYPE3)                                                              \
+  _(decltype(                                                                 \
+        ::c10::impl::ScalarTypeToCPPType<::c10::ScalarType::SCALARTYPE4>::t), \
     SCALARTYPE4)
 
-#define AT_FORALL_SCALAR_TYPES_AND5(                                    \
-    SCALARTYPE1, SCALARTYPE2, SCALARTYPE3, SCALARTYPE4, SCALARTYPE5, _) \
-  _(uint8_t, Byte)                                                      \
-  _(int8_t, Char)                                                       \
-  _(int16_t, Short)                                                     \
-  _(int, Int)                                                           \
-  _(int64_t, Long)                                                      \
-  _(float, Float)                                                       \
-  _(double, Double)                                                     \
-  _(decltype(::c10::impl::ScalarTypeToCPPType<                          \
-             ::c10::ScalarType::SCALARTYPE1>::t),                       \
-    SCALARTYPE1)                                                        \
-  _(decltype(::c10::impl::ScalarTypeToCPPType<                          \
-             ::c10::ScalarType::SCALARTYPE2>::t),                       \
-    SCALARTYPE2)                                                        \
-  _(decltype(::c10::impl::ScalarTypeToCPPType<                          \
-             ::c10::ScalarType::SCALARTYPE3>::t),                       \
-    SCALARTYPE3)                                                        \
-  _(decltype(::c10::impl::ScalarTypeToCPPType<                          \
-             ::c10::ScalarType::SCALARTYPE4>::t),                       \
-    SCALARTYPE4)                                                        \
-  _(decltype(::c10::impl::ScalarTypeToCPPType<                          \
-             ::c10::ScalarType::SCALARTYPE5>::t),                       \
+#define AT_FORALL_SCALAR_TYPES_AND5(                                          \
+    SCALARTYPE1, SCALARTYPE2, SCALARTYPE3, SCALARTYPE4, SCALARTYPE5, _)       \
+  _(uint8_t, Byte)                                                            \
+  _(int8_t, Char)                                                             \
+  _(int16_t, Short)                                                           \
+  _(int, Int)                                                                 \
+  _(int64_t, Long)                                                            \
+  _(float, Float)                                                             \
+  _(double, Double)                                                           \
+  _(decltype(                                                                 \
+        ::c10::impl::ScalarTypeToCPPType<::c10::ScalarType::SCALARTYPE1>::t), \
+    SCALARTYPE1)                                                              \
+  _(decltype(                                                                 \
+        ::c10::impl::ScalarTypeToCPPType<::c10::ScalarType::SCALARTYPE2>::t), \
+    SCALARTYPE2)                                                              \
+  _(decltype(                                                                 \
+        ::c10::impl::ScalarTypeToCPPType<::c10::ScalarType::SCALARTYPE3>::t), \
+    SCALARTYPE3)                                                              \
+  _(decltype(                                                                 \
+        ::c10::impl::ScalarTypeToCPPType<::c10::ScalarType::SCALARTYPE4>::t), \
+    SCALARTYPE4)                                                              \
+  _(decltype(                                                                 \
+        ::c10::impl::ScalarTypeToCPPType<::c10::ScalarType::SCALARTYPE5>::t), \
     SCALARTYPE5)
 
 #define AT_FORALL_QINT_TYPES(_) \
@@ -371,9 +478,115 @@ AT_FORALL_SCALAR_TYPES_WITH_COMPLEX_AND_QINTS(SPECIALIZE_CppTypeToScalarType)
   _(c10::VESTA_Fr_G1_Mont, VESTA_Fr_G1_Mont)         \
   _(c10::VESTA_Fr_G2_Mont, VESTA_Fr_G2_Mont)         \
   _(c10::VESTA_Fq_G1_Mont, VESTA_Fq_G1_Mont)         \
-  _(c10::VESTA_Fq_G2_Mont, VESTA_Fq_G2_Mont)
-
-
+  _(c10::VESTA_Fq_G2_Mont, VESTA_Fq_G2_Mont)         \
+  _(c10::FHE_PRIME_0, FHE_PRIME_0)                   \
+  _(c10::FHE_PRIME_1, FHE_PRIME_1)                   \
+  _(c10::FHE_PRIME_2, FHE_PRIME_2)                   \
+  _(c10::FHE_PRIME_3, FHE_PRIME_3)                   \
+  _(c10::FHE_PRIME_4, FHE_PRIME_4)                   \
+  _(c10::FHE_PRIME_5, FHE_PRIME_5)                   \
+  _(c10::FHE_PRIME_6, FHE_PRIME_6)                   \
+  _(c10::FHE_PRIME_7, FHE_PRIME_7)                   \
+  _(c10::FHE_PRIME_8, FHE_PRIME_8)                   \
+  _(c10::FHE_PRIME_9, FHE_PRIME_9)                   \
+  _(c10::FHE_PRIME_10, FHE_PRIME_10)                 \
+  _(c10::FHE_PRIME_11, FHE_PRIME_11)                 \
+  _(c10::FHE_PRIME_12, FHE_PRIME_12)                 \
+  _(c10::FHE_PRIME_13, FHE_PRIME_13)                 \
+  _(c10::FHE_PRIME_14, FHE_PRIME_14)                 \
+  _(c10::FHE_PRIME_15, FHE_PRIME_15)                 \
+  _(c10::FHE_PRIME_16, FHE_PRIME_16)                 \
+  _(c10::FHE_PRIME_17, FHE_PRIME_17)                 \
+  _(c10::FHE_PRIME_18, FHE_PRIME_18)                 \
+  _(c10::FHE_PRIME_19, FHE_PRIME_19)                 \
+  _(c10::FHE_PRIME_20, FHE_PRIME_20)                 \
+  _(c10::FHE_PRIME_21, FHE_PRIME_21)                 \
+  _(c10::FHE_PRIME_22, FHE_PRIME_22)                 \
+  _(c10::FHE_PRIME_23, FHE_PRIME_23)                 \
+  _(c10::FHE_PRIME_24, FHE_PRIME_24)                 \
+  _(c10::FHE_PRIME_25, FHE_PRIME_25)                 \
+  _(c10::FHE_PRIME_26, FHE_PRIME_26)                 \
+  _(c10::FHE_PRIME_27, FHE_PRIME_27)                 \
+  _(c10::FHE_PRIME_28, FHE_PRIME_28)                 \
+  _(c10::FHE_PRIME_29, FHE_PRIME_29)                 \
+  _(c10::FHE_PRIME_30, FHE_PRIME_30)                 \
+  _(c10::FHE_PRIME_31, FHE_PRIME_31)                 \
+  _(c10::FHE_PRIME_32, FHE_PRIME_32)                 \
+  _(c10::FHE_PRIME_33, FHE_PRIME_33)                 \
+  _(c10::FHE_PRIME_34, FHE_PRIME_34)                 \
+  _(c10::FHE_PRIME_35, FHE_PRIME_35)                 \
+  _(c10::FHE_PRIME_36, FHE_PRIME_36)                 \
+  _(c10::FHE_PRIME_37, FHE_PRIME_37)                 \
+  _(c10::FHE_PRIME_38, FHE_PRIME_38)                 \
+  _(c10::FHE_PRIME_39, FHE_PRIME_39)                 \
+  _(c10::FHE_PRIME_40, FHE_PRIME_40)                 \
+  _(c10::FHE_PRIME_41, FHE_PRIME_41)                 \
+  _(c10::FHE_PRIME_42, FHE_PRIME_42)                 \
+  _(c10::FHE_PRIME_43, FHE_PRIME_43)                 \
+  _(c10::FHE_PRIME_44, FHE_PRIME_44)                 \
+  _(c10::FHE_PRIME_45, FHE_PRIME_45)                 \
+  _(c10::FHE_PRIME_46, FHE_PRIME_46)                 \
+  _(c10::FHE_PRIME_47, FHE_PRIME_47)                 \
+  _(c10::FHE_PRIME_48, FHE_PRIME_48)                 \
+  _(c10::FHE_PRIME_49, FHE_PRIME_49)                 \
+  _(c10::FHE_PRIME_50, FHE_PRIME_50)                 \
+  _(c10::FHE_PRIME_51, FHE_PRIME_51)                 \
+  _(c10::FHE_PRIME_52, FHE_PRIME_52)                 \
+  _(c10::FHE_PRIME_53, FHE_PRIME_53)                 \
+  _(c10::FHE_PRIME_54, FHE_PRIME_54)                 \
+  _(c10::FHE_PRIME_55, FHE_PRIME_55)                 \
+  _(c10::FHE_PRIME_56, FHE_PRIME_56)                 \
+  _(c10::FHE_PRIME_57, FHE_PRIME_57)                 \
+  _(c10::FHE_PRIME_58, FHE_PRIME_58)                 \
+  _(c10::FHE_PRIME_59, FHE_PRIME_59)                 \
+  _(c10::FHE_PRIME_60, FHE_PRIME_60)                 \
+  _(c10::FHE_PRIME_61, FHE_PRIME_61)                 \
+  _(c10::FHE_PRIME_62, FHE_PRIME_62)                 \
+  _(c10::FHE_PRIME_63, FHE_PRIME_63)                 \
+  _(c10::FHE_PRIME_64, FHE_PRIME_64)                 \
+  _(c10::FHE_PRIME_65, FHE_PRIME_65)                 \
+  _(c10::FHE_PRIME_66, FHE_PRIME_66)                 \
+  _(c10::FHE_PRIME_67, FHE_PRIME_67)                 \
+  _(c10::FHE_PRIME_68, FHE_PRIME_68)                 \
+  _(c10::FHE_PRIME_69, FHE_PRIME_69)                 \
+  _(c10::FHE_PRIME_70, FHE_PRIME_70)                 \
+  _(c10::FHE_PRIME_71, FHE_PRIME_71)                 \
+  _(c10::FHE_PRIME_72, FHE_PRIME_72)                 \
+  _(c10::FHE_PRIME_73, FHE_PRIME_73)                 \
+  _(c10::FHE_PRIME_74, FHE_PRIME_74)                 \
+  _(c10::FHE_PRIME_75, FHE_PRIME_75)                 \
+  _(c10::FHE_PRIME_76, FHE_PRIME_76)                 \
+  _(c10::FHE_PRIME_77, FHE_PRIME_77)                 \
+  _(c10::FHE_PRIME_78, FHE_PRIME_78)                 \
+  _(c10::FHE_PRIME_79, FHE_PRIME_79)                 \
+  _(c10::FHE_PRIME_80, FHE_PRIME_80)                 \
+  _(c10::FHE_PRIME_81, FHE_PRIME_81)                 \
+  _(c10::FHE_PRIME_82, FHE_PRIME_82)                 \
+  _(c10::FHE_PRIME_83, FHE_PRIME_83)                 \
+  _(c10::FHE_PRIME_84, FHE_PRIME_84)                 \
+  _(c10::FHE_PRIME_85, FHE_PRIME_85)                 \
+  _(c10::FHE_PRIME_86, FHE_PRIME_86)                 \
+  _(c10::FHE_PRIME_87, FHE_PRIME_87)                 \
+  _(c10::FHE_PRIME_88, FHE_PRIME_88)                 \
+  _(c10::FHE_PRIME_89, FHE_PRIME_89)                 \
+  _(c10::FHE_PRIME_90, FHE_PRIME_90)                 \
+  _(c10::FHE_PRIME_91, FHE_PRIME_91)                 \
+  _(c10::FHE_PRIME_92, FHE_PRIME_92)                 \
+  _(c10::FHE_PRIME_93, FHE_PRIME_93)                 \
+  _(c10::FHE_PRIME_94, FHE_PRIME_94)                 \
+  _(c10::FHE_PRIME_95, FHE_PRIME_95)                 \
+  _(c10::FHE_PRIME_96, FHE_PRIME_96)                 \
+  _(c10::FHE_PRIME_97, FHE_PRIME_97)                 \
+  _(c10::FHE_PRIME_98, FHE_PRIME_98)                 \
+  _(c10::FHE_PRIME_99, FHE_PRIME_99)                 \
+  _(c10::FHE_PRIME_100, FHE_PRIME_100)               \
+  _(c10::FHE_PRIME_101, FHE_PRIME_101)               \
+  _(c10::FHE_PRIME_102, FHE_PRIME_102)               \
+  _(c10::FHE_PRIME_103, FHE_PRIME_103)               \
+  _(c10::FHE_PRIME_104, FHE_PRIME_104)               \
+  _(c10::FHE_PRIME_105, FHE_PRIME_105)               \
+  _(c10::FHE_PRIME_106, FHE_PRIME_106)               \
+  _(c10::FHE_PRIME_107, FHE_PRIME_107)
 
 #define AT_FORALL_COMPLEX_TYPES(_)     \
   _(c10::complex<float>, ComplexFloat) \
@@ -454,23 +667,147 @@ static inline bool isQIntType(ScalarType t) {
 }
 
 static inline bool isEllipticCurveType(ScalarType t) {
-  return t == ScalarType::ALT_BN128_Fr_G1_Base || t == ScalarType::ALT_BN128_Fr_G2_Base || t == ScalarType::ALT_BN128_Fq_G1_Base || t == ScalarType::ALT_BN128_Fq_G2_Base || t == ScalarType::ALT_BN128_Fr_G1_Mont || t == ScalarType::ALT_BN128_Fr_G2_Mont || t == ScalarType::ALT_BN128_Fq_G1_Mont || t == ScalarType::ALT_BN128_Fq_G2_Mont || t == ScalarType::BLS12_377_Fr_G1_Base || t == ScalarType::BLS12_377_Fr_G2_Base || t == ScalarType::BLS12_377_Fq_G1_Base || t == ScalarType::BLS12_377_Fq_G2_Base || t == ScalarType::BLS12_377_Fr_G1_Mont || t == ScalarType::BLS12_377_Fr_G2_Mont || t == ScalarType::BLS12_377_Fq_G1_Mont || t == ScalarType::BLS12_377_Fq_G2_Mont || t == ScalarType::BLS12_381_Fr_G1_Base || t == ScalarType::BLS12_381_Fr_G2_Base || t == ScalarType::BLS12_381_Fq_G1_Base || t == ScalarType::BLS12_381_Fq_G2_Base || t == ScalarType::BLS12_381_Fr_G1_Mont || t == ScalarType::BLS12_381_Fr_G2_Mont || t == ScalarType::BLS12_381_Fq_G1_Mont || t == ScalarType::BLS12_381_Fq_G2_Mont || t == ScalarType::MNT4753_Fr_G1_Base || t == ScalarType::MNT4753_Fr_G2_Base || t == ScalarType::MNT4753_Fq_G1_Base || t == ScalarType::MNT4753_Fq_G2_Base || t == ScalarType::MNT4753_Fr_G1_Mont || t == ScalarType::MNT4753_Fr_G2_Mont || t == ScalarType::MNT4753_Fq_G1_Mont || t == ScalarType::MNT4753_Fq_G2_Mont || t == ScalarType::PALLAS_Fr_G1_Base || t == ScalarType::PALLAS_Fr_G2_Base || t == ScalarType::PALLAS_Fq_G1_Base || t == ScalarType::PALLAS_Fq_G2_Base || t == ScalarType::PALLAS_Fr_G1_Mont || t == ScalarType::PALLAS_Fr_G2_Mont || t == ScalarType::PALLAS_Fq_G1_Mont || t == ScalarType::MNT4753_Fq_G2_Mont || t == ScalarType::VESTA_Fr_G1_Base || t == ScalarType::VESTA_Fr_G2_Base || t == ScalarType::VESTA_Fq_G1_Base || t == ScalarType::VESTA_Fq_G2_Base || t == ScalarType::VESTA_Fr_G1_Mont || t == ScalarType::VESTA_Fr_G2_Mont || t == ScalarType::VESTA_Fq_G1_Mont || t == ScalarType::VESTA_Fq_G2_Mont;
+  return t == ScalarType::ALT_BN128_Fr_G1_Base ||
+      t == ScalarType::ALT_BN128_Fr_G2_Base ||
+      t == ScalarType::ALT_BN128_Fq_G1_Base ||
+      t == ScalarType::ALT_BN128_Fq_G2_Base ||
+      t == ScalarType::ALT_BN128_Fr_G1_Mont ||
+      t == ScalarType::ALT_BN128_Fr_G2_Mont ||
+      t == ScalarType::ALT_BN128_Fq_G1_Mont ||
+      t == ScalarType::ALT_BN128_Fq_G2_Mont ||
+      t == ScalarType::BLS12_377_Fr_G1_Base ||
+      t == ScalarType::BLS12_377_Fr_G2_Base ||
+      t == ScalarType::BLS12_377_Fq_G1_Base ||
+      t == ScalarType::BLS12_377_Fq_G2_Base ||
+      t == ScalarType::BLS12_377_Fr_G1_Mont ||
+      t == ScalarType::BLS12_377_Fr_G2_Mont ||
+      t == ScalarType::BLS12_377_Fq_G1_Mont ||
+      t == ScalarType::BLS12_377_Fq_G2_Mont ||
+      t == ScalarType::BLS12_381_Fr_G1_Base ||
+      t == ScalarType::BLS12_381_Fr_G2_Base ||
+      t == ScalarType::BLS12_381_Fq_G1_Base ||
+      t == ScalarType::BLS12_381_Fq_G2_Base ||
+      t == ScalarType::BLS12_381_Fr_G1_Mont ||
+      t == ScalarType::BLS12_381_Fr_G2_Mont ||
+      t == ScalarType::BLS12_381_Fq_G1_Mont ||
+      t == ScalarType::BLS12_381_Fq_G2_Mont ||
+      t == ScalarType::MNT4753_Fr_G1_Base ||
+      t == ScalarType::MNT4753_Fr_G2_Base ||
+      t == ScalarType::MNT4753_Fq_G1_Base ||
+      t == ScalarType::MNT4753_Fq_G2_Base ||
+      t == ScalarType::MNT4753_Fr_G1_Mont ||
+      t == ScalarType::MNT4753_Fr_G2_Mont ||
+      t == ScalarType::MNT4753_Fq_G1_Mont ||
+      t == ScalarType::MNT4753_Fq_G2_Mont ||
+      t == ScalarType::PALLAS_Fr_G1_Base ||
+      t == ScalarType::PALLAS_Fr_G2_Base ||
+      t == ScalarType::PALLAS_Fq_G1_Base ||
+      t == ScalarType::PALLAS_Fq_G2_Base ||
+      t == ScalarType::PALLAS_Fr_G1_Mont ||
+      t == ScalarType::PALLAS_Fr_G2_Mont ||
+      t == ScalarType::PALLAS_Fq_G1_Mont ||
+      t == ScalarType::MNT4753_Fq_G2_Mont ||
+      t == ScalarType::VESTA_Fr_G1_Base || t == ScalarType::VESTA_Fr_G2_Base ||
+      t == ScalarType::VESTA_Fq_G1_Base || t == ScalarType::VESTA_Fq_G2_Base ||
+      t == ScalarType::VESTA_Fr_G1_Mont || t == ScalarType::VESTA_Fr_G2_Mont ||
+      t == ScalarType::VESTA_Fq_G1_Mont || t == ScalarType::VESTA_Fq_G2_Mont;
+}
+
+static inline bool isFHEPrimeType(ScalarType t) {
+  return t == ScalarType::FHE_PRIME_0 || t == ScalarType::FHE_PRIME_1 ||
+t == ScalarType::FHE_PRIME_2 || t == ScalarType::FHE_PRIME_3 ||
+t == ScalarType::FHE_PRIME_4 || t == ScalarType::FHE_PRIME_5 ||
+t == ScalarType::FHE_PRIME_6 || t == ScalarType::FHE_PRIME_7 ||
+t == ScalarType::FHE_PRIME_8 || t == ScalarType::FHE_PRIME_9 ||
+t == ScalarType::FHE_PRIME_10 || t == ScalarType::FHE_PRIME_11 ||
+t == ScalarType::FHE_PRIME_12 || t == ScalarType::FHE_PRIME_13 ||
+t == ScalarType::FHE_PRIME_14 || t == ScalarType::FHE_PRIME_15 ||
+t == ScalarType::FHE_PRIME_16 || t == ScalarType::FHE_PRIME_17 ||
+t == ScalarType::FHE_PRIME_18 || t == ScalarType::FHE_PRIME_19 ||
+t == ScalarType::FHE_PRIME_20 || t == ScalarType::FHE_PRIME_21 ||
+t == ScalarType::FHE_PRIME_22 || t == ScalarType::FHE_PRIME_23 ||
+t == ScalarType::FHE_PRIME_24 || t == ScalarType::FHE_PRIME_25 ||
+t == ScalarType::FHE_PRIME_26 || t == ScalarType::FHE_PRIME_27 ||
+t == ScalarType::FHE_PRIME_28 || t == ScalarType::FHE_PRIME_29 ||
+t == ScalarType::FHE_PRIME_30 || t == ScalarType::FHE_PRIME_31 ||
+t == ScalarType::FHE_PRIME_32 || t == ScalarType::FHE_PRIME_33 ||
+t == ScalarType::FHE_PRIME_34 || t == ScalarType::FHE_PRIME_35 ||
+t == ScalarType::FHE_PRIME_36 || t == ScalarType::FHE_PRIME_37 ||
+t == ScalarType::FHE_PRIME_38 || t == ScalarType::FHE_PRIME_39 ||
+t == ScalarType::FHE_PRIME_40 || t == ScalarType::FHE_PRIME_41 ||
+t == ScalarType::FHE_PRIME_42 || t == ScalarType::FHE_PRIME_43 ||
+t == ScalarType::FHE_PRIME_44 || t == ScalarType::FHE_PRIME_45 ||
+t == ScalarType::FHE_PRIME_46 || t == ScalarType::FHE_PRIME_47 ||
+t == ScalarType::FHE_PRIME_48 || t == ScalarType::FHE_PRIME_49 ||
+t == ScalarType::FHE_PRIME_50 || t == ScalarType::FHE_PRIME_51 ||
+t == ScalarType::FHE_PRIME_52 || t == ScalarType::FHE_PRIME_53 ||
+t == ScalarType::FHE_PRIME_54 || t == ScalarType::FHE_PRIME_55 ||
+t == ScalarType::FHE_PRIME_56 || t == ScalarType::FHE_PRIME_57 ||
+t == ScalarType::FHE_PRIME_58 || t == ScalarType::FHE_PRIME_59 ||
+t == ScalarType::FHE_PRIME_60 || t == ScalarType::FHE_PRIME_61 ||
+t == ScalarType::FHE_PRIME_62 || t == ScalarType::FHE_PRIME_63 ||
+t == ScalarType::FHE_PRIME_64 || t == ScalarType::FHE_PRIME_65 ||
+t == ScalarType::FHE_PRIME_66 || t == ScalarType::FHE_PRIME_67 ||
+t == ScalarType::FHE_PRIME_68 || t == ScalarType::FHE_PRIME_69 ||
+t == ScalarType::FHE_PRIME_70 || t == ScalarType::FHE_PRIME_71 ||
+t == ScalarType::FHE_PRIME_72 || t == ScalarType::FHE_PRIME_73 ||
+t == ScalarType::FHE_PRIME_74 || t == ScalarType::FHE_PRIME_75 ||
+t == ScalarType::FHE_PRIME_76 || t == ScalarType::FHE_PRIME_77 ||
+t == ScalarType::FHE_PRIME_78 || t == ScalarType::FHE_PRIME_79 ||
+t == ScalarType::FHE_PRIME_80 || t == ScalarType::FHE_PRIME_81 ||
+t == ScalarType::FHE_PRIME_82 || t == ScalarType::FHE_PRIME_83 ||
+t == ScalarType::FHE_PRIME_84 || t == ScalarType::FHE_PRIME_85 ||
+t == ScalarType::FHE_PRIME_86 || t == ScalarType::FHE_PRIME_87 ||
+t == ScalarType::FHE_PRIME_88 || t == ScalarType::FHE_PRIME_89 ||
+t == ScalarType::FHE_PRIME_90 || t == ScalarType::FHE_PRIME_91 ||
+t == ScalarType::FHE_PRIME_92 || t == ScalarType::FHE_PRIME_93 ||
+t == ScalarType::FHE_PRIME_94 || t == ScalarType::FHE_PRIME_95 ||
+t == ScalarType::FHE_PRIME_96 || t == ScalarType::FHE_PRIME_97 ||
+t == ScalarType::FHE_PRIME_98 || t == ScalarType::FHE_PRIME_99 ||
+t == ScalarType::FHE_PRIME_100 || t == ScalarType::FHE_PRIME_101 ||
+t == ScalarType::FHE_PRIME_102 || t == ScalarType::FHE_PRIME_103 ||
+t == ScalarType::FHE_PRIME_104 || t == ScalarType::FHE_PRIME_105 ||
+t == ScalarType::FHE_PRIME_106 || t == ScalarType::FHE_PRIME_107;
 
 }
 
 static inline bool isBigIntegerType(ScalarType t) {
   // Don't forget to extend this when adding new BigInteger types
-  return t == ScalarType::ULong || t == ScalarType::Field64 || t == ScalarType::BigInteger || t == ScalarType::BigInteger_Mont || t == ScalarType::FiniteField || isEllipticCurveType(t);
+  return t == ScalarType::ULong || t == ScalarType::Field64 ||
+      t == ScalarType::BigInteger || t == ScalarType::BigInteger_Mont ||
+      t == ScalarType::FiniteField || isEllipticCurveType(t);
 }
 
 static inline bool isMontgomeryField(ScalarType t) {
   // Don't forget to extend this when adding new BigInteger types
-  return t == ScalarType::BigInteger_Mont || t == ScalarType::ALT_BN128_Fr_G1_Mont || t == ScalarType::ALT_BN128_Fr_G2_Mont || t == ScalarType::ALT_BN128_Fq_G1_Mont || t == ScalarType::ALT_BN128_Fq_G2_Mont || t == ScalarType::BLS12_377_Fr_G1_Mont || t == ScalarType::BLS12_377_Fr_G2_Mont || t == ScalarType::BLS12_377_Fq_G1_Mont || t == ScalarType::BLS12_377_Fq_G2_Mont || t == ScalarType::BLS12_381_Fr_G1_Mont || t == ScalarType::BLS12_381_Fr_G2_Mont || t == ScalarType::BLS12_381_Fq_G1_Mont || t == ScalarType::BLS12_381_Fq_G2_Mont || t == ScalarType::MNT4753_Fr_G1_Mont || t == ScalarType::MNT4753_Fr_G2_Mont || t == ScalarType::MNT4753_Fq_G1_Mont || t == ScalarType::MNT4753_Fq_G2_Mont || t == ScalarType::PALLAS_Fr_G1_Mont || t == ScalarType::PALLAS_Fr_G2_Mont || t == ScalarType::PALLAS_Fq_G1_Mont || t == ScalarType::PALLAS_Fq_G2_Mont || t == ScalarType::VESTA_Fr_G1_Mont || t == ScalarType::VESTA_Fr_G2_Mont || t == ScalarType::VESTA_Fq_G1_Mont || t == ScalarType::VESTA_Fq_G2_Mont;
+  return t == ScalarType::BigInteger_Mont ||
+      t == ScalarType::ALT_BN128_Fr_G1_Mont ||
+      t == ScalarType::ALT_BN128_Fr_G2_Mont ||
+      t == ScalarType::ALT_BN128_Fq_G1_Mont ||
+      t == ScalarType::ALT_BN128_Fq_G2_Mont ||
+      t == ScalarType::BLS12_377_Fr_G1_Mont ||
+      t == ScalarType::BLS12_377_Fr_G2_Mont ||
+      t == ScalarType::BLS12_377_Fq_G1_Mont ||
+      t == ScalarType::BLS12_377_Fq_G2_Mont ||
+      t == ScalarType::BLS12_381_Fr_G1_Mont ||
+      t == ScalarType::BLS12_381_Fr_G2_Mont ||
+      t == ScalarType::BLS12_381_Fq_G1_Mont ||
+      t == ScalarType::BLS12_381_Fq_G2_Mont ||
+      t == ScalarType::MNT4753_Fr_G1_Mont ||
+      t == ScalarType::MNT4753_Fr_G2_Mont ||
+      t == ScalarType::MNT4753_Fq_G1_Mont ||
+      t == ScalarType::MNT4753_Fq_G2_Mont ||
+      t == ScalarType::PALLAS_Fr_G1_Mont ||
+      t == ScalarType::PALLAS_Fr_G2_Mont ||
+      t == ScalarType::PALLAS_Fq_G1_Mont ||
+      t == ScalarType::PALLAS_Fq_G2_Mont || t == ScalarType::VESTA_Fr_G1_Mont ||
+      t == ScalarType::VESTA_Fr_G2_Mont || t == ScalarType::VESTA_Fq_G1_Mont ||
+      t == ScalarType::VESTA_Fq_G2_Mont;
 }
 
 static inline uint16_t bit_length(ScalarType t) {
   switch (t) {
-    case ScalarType::ALT_BN128_Fr_G1_Base: 
+    case ScalarType::ALT_BN128_Fr_G1_Base:
     case ScalarType::ALT_BN128_Fr_G1_Mont:
     case ScalarType::ALT_BN128_Fr_G2_Base:
     case ScalarType::ALT_BN128_Fr_G2_Mont:
@@ -527,6 +864,8 @@ static inline uint16_t bit_length(ScalarType t) {
     case ScalarType::VESTA_Fq_G2_Base:
     case ScalarType::VESTA_Fq_G2_Mont:
       return 255;
+    ALL_FHE_PRIME_CASE
+      return 61;
     default:
       TORCH_CHECK(false, "not a elliptic curve type");
   }
@@ -693,7 +1032,8 @@ static inline ScalarType promoteTypes(ScalarType a, ScalarType b) {
     return a;
   }
 
-  if (isQIntType(a) || isQIntType(b) || isBigIntegerType(a) || isBigIntegerType(b)) {
+  if (isQIntType(a) || isQIntType(b) || isBigIntegerType(a) ||
+      isBigIntegerType(b)) {
     TORCH_CHECK(
         false,
         "promoteTypes with quantized numbers and big integers is not handled yet; figure out what the correct rules should be, offending types: ",
@@ -755,9 +1095,6 @@ static inline ScalarType promoteTypes(ScalarType a, ScalarType b) {
       /* b8 */ {b8, b8, b8, b8, b8, f4, f4, f8, c4, c4, c8, b8, ud, ud, ud, bf, b8, ud},
       /* h8 */ {h8, h8, h8, h8, h8, f4, f4, f8, c4, c4, c8, h8, ud, ud, ud, bf, ud, h8},
   };
-
-
-
 
   // clang-format on
   return _promoteTypesLookup[static_cast<int>(a)][static_cast<int>(b)];

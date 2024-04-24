@@ -411,6 +411,118 @@ inline void deprecated_AT_DISPATCH_ALL_TYPES_AND_HALF_AND_COMPLEX() {}
 #define AT_DISPATCH_BIGINTEGER_TYPES(TYPE, NAME, ...) \
   AT_DISPATCH_SWITCH(TYPE, NAME, AT_DISPATCH_CASE_BIGINTEGER_TYPES(__VA_ARGS__))
 
+#define AT_DISPATCH_CASE_FHE_PRIME_TYPES(...)   \
+  AT_DISPATCH_CASE(kFHE_PRIME_0, __VA_ARGS__)   \
+  AT_DISPATCH_CASE(kFHE_PRIME_1, __VA_ARGS__)   \
+  AT_DISPATCH_CASE(kFHE_PRIME_2, __VA_ARGS__)   \
+  AT_DISPATCH_CASE(kFHE_PRIME_3, __VA_ARGS__)   \
+  AT_DISPATCH_CASE(kFHE_PRIME_4, __VA_ARGS__)   \
+  AT_DISPATCH_CASE(kFHE_PRIME_5, __VA_ARGS__)   \
+  AT_DISPATCH_CASE(kFHE_PRIME_6, __VA_ARGS__)   \
+  AT_DISPATCH_CASE(kFHE_PRIME_7, __VA_ARGS__)   \
+  AT_DISPATCH_CASE(kFHE_PRIME_8, __VA_ARGS__)   \
+  AT_DISPATCH_CASE(kFHE_PRIME_9, __VA_ARGS__)   \
+  AT_DISPATCH_CASE(kFHE_PRIME_10, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_11, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_12, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_13, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_14, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_15, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_16, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_17, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_18, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_19, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_20, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_21, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_22, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_23, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_24, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_25, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_26, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_27, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_28, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_29, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_30, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_31, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_32, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_33, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_34, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_35, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_36, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_37, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_38, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_39, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_40, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_41, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_42, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_43, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_44, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_45, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_46, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_47, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_48, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_49, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_50, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_51, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_52, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_53, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_54, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_55, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_56, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_57, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_58, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_59, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_60, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_61, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_62, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_63, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_64, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_65, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_66, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_67, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_68, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_69, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_70, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_71, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_72, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_73, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_74, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_75, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_76, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_77, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_78, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_79, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_80, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_81, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_82, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_83, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_84, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_85, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_86, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_87, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_88, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_89, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_90, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_91, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_92, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_93, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_94, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_95, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_96, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_97, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_98, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_99, __VA_ARGS__)  \
+  AT_DISPATCH_CASE(kFHE_PRIME_100, __VA_ARGS__) \
+  AT_DISPATCH_CASE(kFHE_PRIME_101, __VA_ARGS__) \
+  AT_DISPATCH_CASE(kFHE_PRIME_102, __VA_ARGS__) \
+  AT_DISPATCH_CASE(kFHE_PRIME_103, __VA_ARGS__) \
+  AT_DISPATCH_CASE(kFHE_PRIME_104, __VA_ARGS__) \
+  AT_DISPATCH_CASE(kFHE_PRIME_105, __VA_ARGS__) \
+  AT_DISPATCH_CASE(kFHE_PRIME_106, __VA_ARGS__) \
+  AT_DISPATCH_CASE(kFHE_PRIME_107, __VA_ARGS__)
+
+#define AT_DISPATCH_FHE_PRIME_TYPES(TYPE, NAME, ...) \
+  AT_DISPATCH_SWITCH(TYPE, NAME, AT_DISPATCH_CASE_FHE_PRIME_TYPES(__VA_ARGS__))
 #define AT_DISPATCH_CASE_FR_BASE_TYPES(...)            \
   AT_DISPATCH_CASE(kALT_BN128_Fr_G1_Base, __VA_ARGS__) \
   AT_DISPATCH_CASE(kBLS12_377_Fr_G1_Base, __VA_ARGS__) \
@@ -444,7 +556,8 @@ inline void deprecated_AT_DISPATCH_ALL_TYPES_AND_HALF_AND_COMPLEX() {}
 
 #define AT_DISPATCH_CASE_BASE_TYPES(...)      \
   AT_DISPATCH_CASE_FQ_BASE_TYPES(__VA_ARGS__) \
-  AT_DISPATCH_CASE_FR_BASE_TYPES(__VA_ARGS__)
+  AT_DISPATCH_CASE_FR_BASE_TYPES(__VA_ARGS__) \
+  AT_DISPATCH_CASE_FHE_PRIME_TYPES(__VA_ARGS__)
 
 #define AT_DISPATCH_BASE_TYPES(TYPE, NAME, ...) \
   AT_DISPATCH_SWITCH(TYPE, NAME, AT_DISPATCH_CASE_BASE_TYPES(__VA_ARGS__))
@@ -461,7 +574,8 @@ inline void deprecated_AT_DISPATCH_ALL_TYPES_AND_HALF_AND_COMPLEX() {}
 
 #define AT_DISPATCH_CASE_MONT_TYPES(...)      \
   AT_DISPATCH_CASE_FQ_MONT_TYPES(__VA_ARGS__) \
-  AT_DISPATCH_CASE_FR_MONT_TYPES(__VA_ARGS__)
+  AT_DISPATCH_CASE_FR_MONT_TYPES(__VA_ARGS__) \
+  AT_DISPATCH_CASE_FHE_PRIME_TYPES(__VA_ARGS__)
 
 #define AT_DISPATCH_MONT_TYPES(TYPE, NAME, ...) \
   AT_DISPATCH_SWITCH(TYPE, NAME, AT_DISPATCH_CASE_MONT_TYPES(__VA_ARGS__))
@@ -824,6 +938,143 @@ inline void deprecated_AT_DISPATCH_ALL_TYPES_AND_HALF_AND_COMPLEX() {}
           SCALARTYPE4,                                       \
           SCALARTYPE5,                                       \
           SCALARTYPE6,                                       \
+          __VA_ARGS__))
+
+#define AT_DISPATCH_CASE_ALL_TYPES_AND_COMPLEX_AND_FIELD_AND_FHE_AND( \
+    SCALARTYPE1, ...)                                                 \
+  AT_DISPATCH_CASE_ALL_TYPES_AND_COMPLEX(__VA_ARGS__)                 \
+  AT_DISPATCH_CASE_BIGINTEGER_TYPES(__VA_ARGS__)                      \
+  AT_DISPATCH_CASE_FHE_PRIME_TYPES(__VA_ARGS__)                       \
+  AT_DISPATCH_CASE(SCALARTYPE1, __VA_ARGS__)
+
+#define AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_FIELD_AND_FHE_AND(    \
+    SCALARTYPE1, TYPE, NAME, ...)                                   \
+  AT_DISPATCH_SWITCH(                                               \
+      TYPE,                                                         \
+      NAME,                                                         \
+      AT_DISPATCH_CASE_ALL_TYPES_AND_COMPLEX_AND_FIELD_AND_FHE_AND( \
+          SCALARTYPE1, __VA_ARGS__))
+
+#define AT_DISPATCH_CASE_ALL_TYPES_AND_COMPLEX_AND_FIELD_AND_FHE_AND2( \
+    SCALARTYPE1, SCALARTYPE2, ...)                                     \
+  AT_DISPATCH_CASE_ALL_TYPES_AND_COMPLEX(__VA_ARGS__)                  \
+  AT_DISPATCH_CASE_BIGINTEGER_TYPES(__VA_ARGS__)                       \
+  AT_DISPATCH_CASE_FHE_PRIME_TYPES(__VA_ARGS__)                        \
+  AT_DISPATCH_CASE(SCALARTYPE1, __VA_ARGS__)                           \
+  AT_DISPATCH_CASE(SCALARTYPE2, __VA_ARGS__)
+
+#define AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_FIELD_AND_FHE_AND2(    \
+    SCALARTYPE1, SCALARTYPE2, TYPE, NAME, ...)                       \
+  AT_DISPATCH_SWITCH(                                                \
+      TYPE,                                                          \
+      NAME,                                                          \
+      AT_DISPATCH_CASE_ALL_TYPES_AND_COMPLEX_AND_FIELD_AND_FHE_AND2( \
+          SCALARTYPE1, SCALARTYPE2, __VA_ARGS__))
+
+#define AT_DISPATCH_CASE_ALL_TYPES_AND_COMPLEX_AND_FIELD_AND_FHE_AND3( \
+    SCALARTYPE1, SCALARTYPE2, SCALARTYPE3, ...)                        \
+  AT_DISPATCH_CASE_ALL_TYPES_AND_COMPLEX(__VA_ARGS__)                  \
+  AT_DISPATCH_CASE_BIGINTEGER_TYPES(__VA_ARGS__)                       \
+  AT_DISPATCH_CASE_FHE_PRIME_TYPES(__VA_ARGS__)                        \
+  AT_DISPATCH_CASE(SCALARTYPE1, __VA_ARGS__)                           \
+  AT_DISPATCH_CASE(SCALARTYPE2, __VA_ARGS__)                           \
+  AT_DISPATCH_CASE(SCALARTYPE3, __VA_ARGS__)
+
+#define AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_FIELD_AND_FHE_AND3(    \
+    SCALARTYPE1, SCALARTYPE2, SCALARTYPE3, TYPE, NAME, ...)          \
+  AT_DISPATCH_SWITCH(                                                \
+      TYPE,                                                          \
+      NAME,                                                          \
+      AT_DISPATCH_CASE_ALL_TYPES_AND_COMPLEX_AND_FIELD_AND_FHE_AND3( \
+          SCALARTYPE1, SCALARTYPE2, SCALARTYPE3, __VA_ARGS__))
+
+#define AT_DISPATCH_CASE_ALL_TYPES_AND_COMPLEX_AND_FIELD_AND_FHE_AND4( \
+    SCALARTYPE1, SCALARTYPE2, SCALARTYPE3, SCALARTYPE4, ...)           \
+  AT_DISPATCH_CASE_ALL_TYPES_AND_COMPLEX(__VA_ARGS__)                  \
+  AT_DISPATCH_CASE_BIGINTEGER_TYPES(__VA_ARGS__)                       \
+  AT_DISPATCH_CASE_FHE_PRIME_TYPES(__VA_ARGS__)                        \
+  AT_DISPATCH_CASE(SCALARTYPE1, __VA_ARGS__)                           \
+  AT_DISPATCH_CASE(SCALARTYPE2, __VA_ARGS__)                           \
+  AT_DISPATCH_CASE(SCALARTYPE3, __VA_ARGS__)                           \
+  AT_DISPATCH_CASE(SCALARTYPE4, __VA_ARGS__)
+
+#define AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_FIELD_AND_FHE_AND4(        \
+    SCALARTYPE1, SCALARTYPE2, SCALARTYPE3, SCALARTYPE4, TYPE, NAME, ...) \
+  AT_DISPATCH_SWITCH(                                                    \
+      TYPE,                                                              \
+      NAME,                                                              \
+      AT_DISPATCH_CASE_ALL_TYPES_AND_COMPLEX_AND_FIELD_AND_FHE_AND4(     \
+          SCALARTYPE1, SCALARTYPE2, SCALARTYPE3, SCALARTYPE4, __VA_ARGS__))
+
+#define AT_DISPATCH_CASE_ALL_TYPES_AND_COMPLEX_AND_FIELD_AND_FHE_AND5(    \
+    SCALARTYPE1, SCALARTYPE2, SCALARTYPE3, SCALARTYPE4, SCALARTYPE5, ...) \
+  AT_DISPATCH_CASE_ALL_TYPES_AND_COMPLEX(__VA_ARGS__)                     \
+  AT_DISPATCH_CASE_BIGINTEGER_TYPES(__VA_ARGS__)                          \
+  AT_DISPATCH_CASE_FHE_PRIME_TYPES(__VA_ARGS__)                           \
+  AT_DISPATCH_CASE(SCALARTYPE1, __VA_ARGS__)                              \
+  AT_DISPATCH_CASE(SCALARTYPE2, __VA_ARGS__)                              \
+  AT_DISPATCH_CASE(SCALARTYPE3, __VA_ARGS__)                              \
+  AT_DISPATCH_CASE(SCALARTYPE4, __VA_ARGS__)                              \
+  AT_DISPATCH_CASE(SCALARTYPE5, __VA_ARGS__)
+
+#define AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_FIELD_AND_FHE_AND5(    \
+    SCALARTYPE1,                                                     \
+    SCALARTYPE2,                                                     \
+    SCALARTYPE3,                                                     \
+    SCALARTYPE4,                                                     \
+    SCALARTYPE5,                                                     \
+    TYPE,                                                            \
+    NAME,                                                            \
+    ...)                                                             \
+  AT_DISPATCH_SWITCH(                                                \
+      TYPE,                                                          \
+      NAME,                                                          \
+      AT_DISPATCH_CASE_ALL_TYPES_AND_COMPLEX_AND_FIELD_AND_FHE_AND5( \
+          SCALARTYPE1,                                               \
+          SCALARTYPE2,                                               \
+          SCALARTYPE3,                                               \
+          SCALARTYPE4,                                               \
+          SCALARTYPE5,                                               \
+          __VA_ARGS__))
+
+#define AT_DISPATCH_CASE_ALL_TYPES_AND_COMPLEX_AND_FIELD_AND_FHE_AND6( \
+    SCALARTYPE1,                                                       \
+    SCALARTYPE2,                                                       \
+    SCALARTYPE3,                                                       \
+    SCALARTYPE4,                                                       \
+    SCALARTYPE5,                                                       \
+    SCALARTYPE6,                                                       \
+    ...)                                                               \
+  AT_DISPATCH_CASE_ALL_TYPES_AND_COMPLEX(__VA_ARGS__)                  \
+  AT_DISPATCH_CASE_BIGINTEGER_TYPES(__VA_ARGS__)                       \
+  AT_DISPATCH_CASE_FHE_PRIME_TYPES(__VA_ARGS__)                        \
+  AT_DISPATCH_CASE(SCALARTYPE1, __VA_ARGS__)                           \
+  AT_DISPATCH_CASE(SCALARTYPE2, __VA_ARGS__)                           \
+  AT_DISPATCH_CASE(SCALARTYPE3, __VA_ARGS__)                           \
+  AT_DISPATCH_CASE(SCALARTYPE4, __VA_ARGS__)                           \
+  AT_DISPATCH_CASE(SCALARTYPE5, __VA_ARGS__)                           \
+  AT_DISPATCH_CASE(SCALARTYPE6, __VA_ARGS__)
+
+#define AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_FIELD_AND_FHE_AND6(    \
+    SCALARTYPE1,                                                     \
+    SCALARTYPE2,                                                     \
+    SCALARTYPE3,                                                     \
+    SCALARTYPE4,                                                     \
+    SCALARTYPE5,                                                     \
+    SCALARTYPE6,                                                     \
+    TYPE,                                                            \
+    NAME,                                                            \
+    ...)                                                             \
+  AT_DISPATCH_SWITCH(                                                \
+      TYPE,                                                          \
+      NAME,                                                          \
+      AT_DISPATCH_CASE_ALL_TYPES_AND_COMPLEX_AND_FIELD_AND_FHE_AND6( \
+          SCALARTYPE1,                                               \
+          SCALARTYPE2,                                               \
+          SCALARTYPE3,                                               \
+          SCALARTYPE4,                                               \
+          SCALARTYPE5,                                               \
+          SCALARTYPE6,                                               \
           __VA_ARGS__))
 
 #define AT_DISPATCH_INDEX_TYPES(TYPE, NAME, ...)     \

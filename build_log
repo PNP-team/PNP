@@ -1,0 +1,1247 @@
+[1/507] Linking CXX static library lib/libunbox_lib.a
+[2/507] Linking CXX executable bin/test_edge_op_registration
+[3/507] Building CUDA object caffe2/CMakeFiles/torch_cuda.dir/__/aten/src/ATen/native/pnp/zkp/cuda/zksnark_msm.cu.o
+FAILED: caffe2/CMakeFiles/torch_cuda.dir/__/aten/src/ATen/native/pnp/zkp/cuda/zksnark_msm.cu.o 
+/usr/local/cuda/bin/nvcc -forward-unknown-to-host-compiler -DAT_PER_OPERATOR_HEADERS -DHAVE_MALLOC_USABLE_SIZE=1 -DHAVE_MMAP=1 -DHAVE_SHM_OPEN=1 -DHAVE_SHM_UNLINK=1 -DMINIZ_DISABLE_ZIP_READER_CRC32_CHECKS -DONNXIFI_ENABLE_EXT=1 -DONNX_ML=1 -DONNX_NAMESPACE=onnx_torch -DTORCH_CUDA_BUILD_MAIN_LIB -DUSE_C10D_GLOO -DUSE_C10D_NCCL -DUSE_CUDA -DUSE_DISTRIBUTED -DUSE_EXTERNAL_MZCRC -DUSE_FLASH_ATTENTION -DUSE_MEM_EFF_ATTENTION -DUSE_NCCL -DUSE_RPC -DUSE_TENSORPIPE -D_FILE_OFFSET_BITS=64 -Dtorch_cuda_EXPORTS -I/home/zrji/pyZKP/build/aten/src -I/home/zrji/pyZKP/aten/src -I/home/zrji/pyZKP/build -I/home/zrji/pyZKP -I/home/zrji/pyZKP/cmake/../third_party/benchmark/include -I/home/zrji/pyZKP/third_party/onnx -I/home/zrji/pyZKP/build/third_party/onnx -I/home/zrji/pyZKP/third_party/foxi -I/home/zrji/pyZKP/build/third_party/foxi -I/home/zrji/pyZKP/aten/src/THC -I/home/zrji/pyZKP/aten/src/ATen/cuda -I/home/zrji/pyZKP/aten/src/ATen/../../../third_party/cutlass/include -I/home/zrji/pyZKP/build/caffe2/aten/src -I/home/zrji/pyZKP/aten/src/ATen/.. -I/home/zrji/pyZKP/build/nccl/include -I/home/zrji/pyZKP/c10/cuda/../.. -I/home/zrji/pyZKP/c10/.. -I/home/zrji/pyZKP/third_party/tensorpipe -I/home/zrji/pyZKP/build/third_party/tensorpipe -I/home/zrji/pyZKP/third_party/tensorpipe/third_party/libnop/include -I/home/zrji/pyZKP/torch/csrc/api -I/home/zrji/pyZKP/torch/csrc/api/include -isystem /home/zrji/pyZKP/build/third_party/gloo -isystem /home/zrji/pyZKP/cmake/../third_party/gloo -isystem /home/zrji/pyZKP/cmake/../third_party/tensorpipe/third_party/libuv/include -isystem /home/zrji/pyZKP/cmake/../third_party/googletest/googlemock/include -isystem /home/zrji/pyZKP/cmake/../third_party/googletest/googletest/include -isystem /home/zrji/pyZKP/third_party/protobuf/src -isystem /home/zrji/pyZKP/third_party/gemmlowp -isystem /home/zrji/pyZKP/third_party/neon2sse -isystem /home/zrji/pyZKP/third_party/XNNPACK/include -isystem /home/zrji/pyZKP/third_party/ittapi/include -isystem /home/zrji/pyZKP/cmake/../third_party/eigen -isystem /usr/local/cuda/include -isystem /home/zrji/pyZKP/torch/include -isystem /home/zrji/pyZKP/third_party/ideep/include -isystem /home/zrji/pyZKP/torch/include/oneapi/dnnl -D_GLIBCXX_USE_CXX11_ABI=1 -Xfatbin -compress-all -DONNX_NAMESPACE=onnx_torch -gencode arch=compute_89,code=sm_89 -Xcudafe --diag_suppress=cc_clobber_ignored,--diag_suppress=field_without_dll_interface,--diag_suppress=base_class_has_different_dll_interface,--diag_suppress=dll_interface_conflict_none_assumed,--diag_suppress=dll_interface_conflict_dllexport_assumed,--diag_suppress=bad_friend_decl --expt-relaxed-constexpr --expt-extended-lambda  -Wno-deprecated-gpu-targets --expt-extended-lambda -DCUB_WRAPPED_NAMESPACE=at_cuda_detail -DCUDA_HAS_FP16=1 -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -O3 -DNDEBUG -std=c++17 -Xcompiler=-fPIC -DTORCH_USE_LIBUV -DCAFFE2_USE_GLOO -Xcompiler=-Wall,-Wextra,-Wdeprecated,-Wno-unused-parameter,-Wno-unused-function,-Wno-missing-field-initializers,-Wno-unknown-pragmas,-Wno-type-limits,-Wno-array-bounds,-Wno-unknown-pragmas,-Wno-strict-overflow,-Wno-strict-aliasing,-Wno-maybe-uninitialized -MD -MT caffe2/CMakeFiles/torch_cuda.dir/__/aten/src/ATen/native/pnp/zkp/cuda/zksnark_msm.cu.o -MF caffe2/CMakeFiles/torch_cuda.dir/__/aten/src/ATen/native/pnp/zkp/cuda/zksnark_msm.cu.o.d -x cu -c /home/zrji/pyZKP/aten/src/ATen/native/pnp/zkp/cuda/zksnark_msm.cu -o caffe2/CMakeFiles/torch_cuda.dir/__/aten/src/ATen/native/pnp/zkp/cuda/zksnark_msm.cu.o
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_0_r" is undefined
+  typedef mont_t<61, FHE_PRIME_0_r, FHE_PRIME_0_m0, FHE_PRIME_0_rRR, FHE_PRIME_0_rone, FHE_PRIME_0_rx8> FHE_PRIME_0_mont; struct FHE_PRIME_0 : public FHE_PRIME_0_mont { using mem_t = FHE_PRIME_0; 
+                     ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_0_m0" is undefined
+  typedef mont_t<61, FHE_PRIME_0_r, FHE_PRIME_0_m0, FHE_PRIME_0_rRR, FHE_PRIME_0_rone, FHE_PRIME_0_rx8> FHE_PRIME_0_mont; struct FHE_PRIME_0 : public FHE_PRIME_0_mont { using mem_t = FHE_PRIME_0; 
+                                    ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_0_rRR" is undefined
+  typedef mont_t<61, FHE_PRIME_0_r, FHE_PRIME_0_m0, FHE_PRIME_0_rRR, FHE_PRIME_0_rone, FHE_PRIME_0_rx8> FHE_PRIME_0_mont; struct FHE_PRIME_0 : public FHE_PRIME_0_mont { using mem_t = FHE_PRIME_0; 
+                                                    ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_0_rone" is undefined
+  typedef mont_t<61, FHE_PRIME_0_r, FHE_PRIME_0_m0, FHE_PRIME_0_rRR, FHE_PRIME_0_rone, FHE_PRIME_0_rx8> FHE_PRIME_0_mont; struct FHE_PRIME_0 : public FHE_PRIME_0_mont { using mem_t = FHE_PRIME_0; 
+                                                                     ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_0_rx8" is undefined
+  typedef mont_t<61, FHE_PRIME_0_r, FHE_PRIME_0_m0, FHE_PRIME_0_rRR, FHE_PRIME_0_rone, FHE_PRIME_0_rx8> FHE_PRIME_0_mont; struct FHE_PRIME_0 : public FHE_PRIME_0_mont { using mem_t = FHE_PRIME_0; 
+                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/mont_t.cuh(34): error: bad attribute argument substitution
+       ((N + 63) / 64) & 1 ? 8 : 16
+       ^
+          detected during instantiation of class "mont_t<N, MOD, M0, RR, ONE, MODx> [with N=61UL, MOD=<error-constant>, M0=<error-constant>, RR=<error-constant>, ONE=<error-constant>, MODx=<error-constant>]" at line 41 of /home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_1_r" is undefined
+  FHE_PRIME_0(const FHE_PRIME_0_mont& a) : FHE_PRIME_0_mont(a) {} }; typedef mont_t<61, FHE_PRIME_1_r, FHE_PRIME_1_m0, FHE_PRIME_1_rRR, FHE_PRIME_1_rone, FHE_PRIME_1_rx8> FHE_PRIME_1_mont; struct FHE_PRIME_1 : public FHE_PRIME_1_mont { using mem_t = FHE_PRIME_1; 
+                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_1_m0" is undefined
+  FHE_PRIME_0(const FHE_PRIME_0_mont& a) : FHE_PRIME_0_mont(a) {} }; typedef mont_t<61, FHE_PRIME_1_r, FHE_PRIME_1_m0, FHE_PRIME_1_rRR, FHE_PRIME_1_rone, FHE_PRIME_1_rx8> FHE_PRIME_1_mont; struct FHE_PRIME_1 : public FHE_PRIME_1_mont { using mem_t = FHE_PRIME_1; 
+                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_1_rRR" is undefined
+  FHE_PRIME_0(const FHE_PRIME_0_mont& a) : FHE_PRIME_0_mont(a) {} }; typedef mont_t<61, FHE_PRIME_1_r, FHE_PRIME_1_m0, FHE_PRIME_1_rRR, FHE_PRIME_1_rone, FHE_PRIME_1_rx8> FHE_PRIME_1_mont; struct FHE_PRIME_1 : public FHE_PRIME_1_mont { using mem_t = FHE_PRIME_1; 
+                                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_1_rone" is undefined
+  FHE_PRIME_0(const FHE_PRIME_0_mont& a) : FHE_PRIME_0_mont(a) {} }; typedef mont_t<61, FHE_PRIME_1_r, FHE_PRIME_1_m0, FHE_PRIME_1_rRR, FHE_PRIME_1_rone, FHE_PRIME_1_rx8> FHE_PRIME_1_mont; struct FHE_PRIME_1 : public FHE_PRIME_1_mont { using mem_t = FHE_PRIME_1; 
+                                                                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_1_rx8" is undefined
+  FHE_PRIME_0(const FHE_PRIME_0_mont& a) : FHE_PRIME_0_mont(a) {} }; typedef mont_t<61, FHE_PRIME_1_r, FHE_PRIME_1_m0, FHE_PRIME_1_rRR, FHE_PRIME_1_rone, FHE_PRIME_1_rx8> FHE_PRIME_1_mont; struct FHE_PRIME_1 : public FHE_PRIME_1_mont { using mem_t = FHE_PRIME_1; 
+                                                                                                                                                          ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_2_r" is undefined
+  FHE_PRIME_1(const FHE_PRIME_1_mont& a) : FHE_PRIME_1_mont(a) {} }; typedef mont_t<61, FHE_PRIME_2_r, FHE_PRIME_2_m0, FHE_PRIME_2_rRR, FHE_PRIME_2_rone, FHE_PRIME_2_rx8> FHE_PRIME_2_mont; struct FHE_PRIME_2 : public FHE_PRIME_2_mont { using mem_t = FHE_PRIME_2; 
+                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_2_m0" is undefined
+  FHE_PRIME_1(const FHE_PRIME_1_mont& a) : FHE_PRIME_1_mont(a) {} }; typedef mont_t<61, FHE_PRIME_2_r, FHE_PRIME_2_m0, FHE_PRIME_2_rRR, FHE_PRIME_2_rone, FHE_PRIME_2_rx8> FHE_PRIME_2_mont; struct FHE_PRIME_2 : public FHE_PRIME_2_mont { using mem_t = FHE_PRIME_2; 
+                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_2_rRR" is undefined
+  FHE_PRIME_1(const FHE_PRIME_1_mont& a) : FHE_PRIME_1_mont(a) {} }; typedef mont_t<61, FHE_PRIME_2_r, FHE_PRIME_2_m0, FHE_PRIME_2_rRR, FHE_PRIME_2_rone, FHE_PRIME_2_rx8> FHE_PRIME_2_mont; struct FHE_PRIME_2 : public FHE_PRIME_2_mont { using mem_t = FHE_PRIME_2; 
+                                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_2_rone" is undefined
+  FHE_PRIME_1(const FHE_PRIME_1_mont& a) : FHE_PRIME_1_mont(a) {} }; typedef mont_t<61, FHE_PRIME_2_r, FHE_PRIME_2_m0, FHE_PRIME_2_rRR, FHE_PRIME_2_rone, FHE_PRIME_2_rx8> FHE_PRIME_2_mont; struct FHE_PRIME_2 : public FHE_PRIME_2_mont { using mem_t = FHE_PRIME_2; 
+                                                                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_2_rx8" is undefined
+  FHE_PRIME_1(const FHE_PRIME_1_mont& a) : FHE_PRIME_1_mont(a) {} }; typedef mont_t<61, FHE_PRIME_2_r, FHE_PRIME_2_m0, FHE_PRIME_2_rRR, FHE_PRIME_2_rone, FHE_PRIME_2_rx8> FHE_PRIME_2_mont; struct FHE_PRIME_2 : public FHE_PRIME_2_mont { using mem_t = FHE_PRIME_2; 
+                                                                                                                                                          ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_3_r" is undefined
+  FHE_PRIME_2(const FHE_PRIME_2_mont& a) : FHE_PRIME_2_mont(a) {} }; typedef mont_t<61, FHE_PRIME_3_r, FHE_PRIME_3_m0, FHE_PRIME_3_rRR, FHE_PRIME_3_rone, FHE_PRIME_3_rx8> FHE_PRIME_3_mont; struct FHE_PRIME_3 : public FHE_PRIME_3_mont { using mem_t = FHE_PRIME_3; 
+                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_3_m0" is undefined
+  FHE_PRIME_2(const FHE_PRIME_2_mont& a) : FHE_PRIME_2_mont(a) {} }; typedef mont_t<61, FHE_PRIME_3_r, FHE_PRIME_3_m0, FHE_PRIME_3_rRR, FHE_PRIME_3_rone, FHE_PRIME_3_rx8> FHE_PRIME_3_mont; struct FHE_PRIME_3 : public FHE_PRIME_3_mont { using mem_t = FHE_PRIME_3; 
+                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_3_rRR" is undefined
+  FHE_PRIME_2(const FHE_PRIME_2_mont& a) : FHE_PRIME_2_mont(a) {} }; typedef mont_t<61, FHE_PRIME_3_r, FHE_PRIME_3_m0, FHE_PRIME_3_rRR, FHE_PRIME_3_rone, FHE_PRIME_3_rx8> FHE_PRIME_3_mont; struct FHE_PRIME_3 : public FHE_PRIME_3_mont { using mem_t = FHE_PRIME_3; 
+                                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_3_rone" is undefined
+  FHE_PRIME_2(const FHE_PRIME_2_mont& a) : FHE_PRIME_2_mont(a) {} }; typedef mont_t<61, FHE_PRIME_3_r, FHE_PRIME_3_m0, FHE_PRIME_3_rRR, FHE_PRIME_3_rone, FHE_PRIME_3_rx8> FHE_PRIME_3_mont; struct FHE_PRIME_3 : public FHE_PRIME_3_mont { using mem_t = FHE_PRIME_3; 
+                                                                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_3_rx8" is undefined
+  FHE_PRIME_2(const FHE_PRIME_2_mont& a) : FHE_PRIME_2_mont(a) {} }; typedef mont_t<61, FHE_PRIME_3_r, FHE_PRIME_3_m0, FHE_PRIME_3_rRR, FHE_PRIME_3_rone, FHE_PRIME_3_rx8> FHE_PRIME_3_mont; struct FHE_PRIME_3 : public FHE_PRIME_3_mont { using mem_t = FHE_PRIME_3; 
+                                                                                                                                                          ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_4_r" is undefined
+  FHE_PRIME_3(const FHE_PRIME_3_mont& a) : FHE_PRIME_3_mont(a) {} }; typedef mont_t<61, FHE_PRIME_4_r, FHE_PRIME_4_m0, FHE_PRIME_4_rRR, FHE_PRIME_4_rone, FHE_PRIME_4_rx8> FHE_PRIME_4_mont; struct FHE_PRIME_4 : public FHE_PRIME_4_mont { using mem_t = FHE_PRIME_4; 
+                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_4_m0" is undefined
+  FHE_PRIME_3(const FHE_PRIME_3_mont& a) : FHE_PRIME_3_mont(a) {} }; typedef mont_t<61, FHE_PRIME_4_r, FHE_PRIME_4_m0, FHE_PRIME_4_rRR, FHE_PRIME_4_rone, FHE_PRIME_4_rx8> FHE_PRIME_4_mont; struct FHE_PRIME_4 : public FHE_PRIME_4_mont { using mem_t = FHE_PRIME_4; 
+                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_4_rRR" is undefined
+  FHE_PRIME_3(const FHE_PRIME_3_mont& a) : FHE_PRIME_3_mont(a) {} }; typedef mont_t<61, FHE_PRIME_4_r, FHE_PRIME_4_m0, FHE_PRIME_4_rRR, FHE_PRIME_4_rone, FHE_PRIME_4_rx8> FHE_PRIME_4_mont; struct FHE_PRIME_4 : public FHE_PRIME_4_mont { using mem_t = FHE_PRIME_4; 
+                                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_4_rone" is undefined
+  FHE_PRIME_3(const FHE_PRIME_3_mont& a) : FHE_PRIME_3_mont(a) {} }; typedef mont_t<61, FHE_PRIME_4_r, FHE_PRIME_4_m0, FHE_PRIME_4_rRR, FHE_PRIME_4_rone, FHE_PRIME_4_rx8> FHE_PRIME_4_mont; struct FHE_PRIME_4 : public FHE_PRIME_4_mont { using mem_t = FHE_PRIME_4; 
+                                                                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_4_rx8" is undefined
+  FHE_PRIME_3(const FHE_PRIME_3_mont& a) : FHE_PRIME_3_mont(a) {} }; typedef mont_t<61, FHE_PRIME_4_r, FHE_PRIME_4_m0, FHE_PRIME_4_rRR, FHE_PRIME_4_rone, FHE_PRIME_4_rx8> FHE_PRIME_4_mont; struct FHE_PRIME_4 : public FHE_PRIME_4_mont { using mem_t = FHE_PRIME_4; 
+                                                                                                                                                          ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_5_r" is undefined
+  FHE_PRIME_4(const FHE_PRIME_4_mont& a) : FHE_PRIME_4_mont(a) {} }; typedef mont_t<61, FHE_PRIME_5_r, FHE_PRIME_5_m0, FHE_PRIME_5_rRR, FHE_PRIME_5_rone, FHE_PRIME_5_rx8> FHE_PRIME_5_mont; struct FHE_PRIME_5 : public FHE_PRIME_5_mont { using mem_t = FHE_PRIME_5; 
+                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_5_m0" is undefined
+  FHE_PRIME_4(const FHE_PRIME_4_mont& a) : FHE_PRIME_4_mont(a) {} }; typedef mont_t<61, FHE_PRIME_5_r, FHE_PRIME_5_m0, FHE_PRIME_5_rRR, FHE_PRIME_5_rone, FHE_PRIME_5_rx8> FHE_PRIME_5_mont; struct FHE_PRIME_5 : public FHE_PRIME_5_mont { using mem_t = FHE_PRIME_5; 
+                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_5_rRR" is undefined
+  FHE_PRIME_4(const FHE_PRIME_4_mont& a) : FHE_PRIME_4_mont(a) {} }; typedef mont_t<61, FHE_PRIME_5_r, FHE_PRIME_5_m0, FHE_PRIME_5_rRR, FHE_PRIME_5_rone, FHE_PRIME_5_rx8> FHE_PRIME_5_mont; struct FHE_PRIME_5 : public FHE_PRIME_5_mont { using mem_t = FHE_PRIME_5; 
+                                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_5_rone" is undefined
+  FHE_PRIME_4(const FHE_PRIME_4_mont& a) : FHE_PRIME_4_mont(a) {} }; typedef mont_t<61, FHE_PRIME_5_r, FHE_PRIME_5_m0, FHE_PRIME_5_rRR, FHE_PRIME_5_rone, FHE_PRIME_5_rx8> FHE_PRIME_5_mont; struct FHE_PRIME_5 : public FHE_PRIME_5_mont { using mem_t = FHE_PRIME_5; 
+                                                                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_5_rx8" is undefined
+  FHE_PRIME_4(const FHE_PRIME_4_mont& a) : FHE_PRIME_4_mont(a) {} }; typedef mont_t<61, FHE_PRIME_5_r, FHE_PRIME_5_m0, FHE_PRIME_5_rRR, FHE_PRIME_5_rone, FHE_PRIME_5_rx8> FHE_PRIME_5_mont; struct FHE_PRIME_5 : public FHE_PRIME_5_mont { using mem_t = FHE_PRIME_5; 
+                                                                                                                                                          ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_6_r" is undefined
+  FHE_PRIME_5(const FHE_PRIME_5_mont& a) : FHE_PRIME_5_mont(a) {} }; typedef mont_t<61, FHE_PRIME_6_r, FHE_PRIME_6_m0, FHE_PRIME_6_rRR, FHE_PRIME_6_rone, FHE_PRIME_6_rx8> FHE_PRIME_6_mont; struct FHE_PRIME_6 : public FHE_PRIME_6_mont { using mem_t = FHE_PRIME_6; 
+                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_6_m0" is undefined
+  FHE_PRIME_5(const FHE_PRIME_5_mont& a) : FHE_PRIME_5_mont(a) {} }; typedef mont_t<61, FHE_PRIME_6_r, FHE_PRIME_6_m0, FHE_PRIME_6_rRR, FHE_PRIME_6_rone, FHE_PRIME_6_rx8> FHE_PRIME_6_mont; struct FHE_PRIME_6 : public FHE_PRIME_6_mont { using mem_t = FHE_PRIME_6; 
+                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_6_rRR" is undefined
+  FHE_PRIME_5(const FHE_PRIME_5_mont& a) : FHE_PRIME_5_mont(a) {} }; typedef mont_t<61, FHE_PRIME_6_r, FHE_PRIME_6_m0, FHE_PRIME_6_rRR, FHE_PRIME_6_rone, FHE_PRIME_6_rx8> FHE_PRIME_6_mont; struct FHE_PRIME_6 : public FHE_PRIME_6_mont { using mem_t = FHE_PRIME_6; 
+                                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_6_rone" is undefined
+  FHE_PRIME_5(const FHE_PRIME_5_mont& a) : FHE_PRIME_5_mont(a) {} }; typedef mont_t<61, FHE_PRIME_6_r, FHE_PRIME_6_m0, FHE_PRIME_6_rRR, FHE_PRIME_6_rone, FHE_PRIME_6_rx8> FHE_PRIME_6_mont; struct FHE_PRIME_6 : public FHE_PRIME_6_mont { using mem_t = FHE_PRIME_6; 
+                                                                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_6_rx8" is undefined
+  FHE_PRIME_5(const FHE_PRIME_5_mont& a) : FHE_PRIME_5_mont(a) {} }; typedef mont_t<61, FHE_PRIME_6_r, FHE_PRIME_6_m0, FHE_PRIME_6_rRR, FHE_PRIME_6_rone, FHE_PRIME_6_rx8> FHE_PRIME_6_mont; struct FHE_PRIME_6 : public FHE_PRIME_6_mont { using mem_t = FHE_PRIME_6; 
+                                                                                                                                                          ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_7_r" is undefined
+  FHE_PRIME_6(const FHE_PRIME_6_mont& a) : FHE_PRIME_6_mont(a) {} }; typedef mont_t<61, FHE_PRIME_7_r, FHE_PRIME_7_m0, FHE_PRIME_7_rRR, FHE_PRIME_7_rone, FHE_PRIME_7_rx8> FHE_PRIME_7_mont; struct FHE_PRIME_7 : public FHE_PRIME_7_mont { using mem_t = FHE_PRIME_7; 
+                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_7_m0" is undefined
+  FHE_PRIME_6(const FHE_PRIME_6_mont& a) : FHE_PRIME_6_mont(a) {} }; typedef mont_t<61, FHE_PRIME_7_r, FHE_PRIME_7_m0, FHE_PRIME_7_rRR, FHE_PRIME_7_rone, FHE_PRIME_7_rx8> FHE_PRIME_7_mont; struct FHE_PRIME_7 : public FHE_PRIME_7_mont { using mem_t = FHE_PRIME_7; 
+                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_7_rRR" is undefined
+  FHE_PRIME_6(const FHE_PRIME_6_mont& a) : FHE_PRIME_6_mont(a) {} }; typedef mont_t<61, FHE_PRIME_7_r, FHE_PRIME_7_m0, FHE_PRIME_7_rRR, FHE_PRIME_7_rone, FHE_PRIME_7_rx8> FHE_PRIME_7_mont; struct FHE_PRIME_7 : public FHE_PRIME_7_mont { using mem_t = FHE_PRIME_7; 
+                                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_7_rone" is undefined
+  FHE_PRIME_6(const FHE_PRIME_6_mont& a) : FHE_PRIME_6_mont(a) {} }; typedef mont_t<61, FHE_PRIME_7_r, FHE_PRIME_7_m0, FHE_PRIME_7_rRR, FHE_PRIME_7_rone, FHE_PRIME_7_rx8> FHE_PRIME_7_mont; struct FHE_PRIME_7 : public FHE_PRIME_7_mont { using mem_t = FHE_PRIME_7; 
+                                                                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_7_rx8" is undefined
+  FHE_PRIME_6(const FHE_PRIME_6_mont& a) : FHE_PRIME_6_mont(a) {} }; typedef mont_t<61, FHE_PRIME_7_r, FHE_PRIME_7_m0, FHE_PRIME_7_rRR, FHE_PRIME_7_rone, FHE_PRIME_7_rx8> FHE_PRIME_7_mont; struct FHE_PRIME_7 : public FHE_PRIME_7_mont { using mem_t = FHE_PRIME_7; 
+                                                                                                                                                          ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_8_r" is undefined
+  FHE_PRIME_7(const FHE_PRIME_7_mont& a) : FHE_PRIME_7_mont(a) {} }; typedef mont_t<61, FHE_PRIME_8_r, FHE_PRIME_8_m0, FHE_PRIME_8_rRR, FHE_PRIME_8_rone, FHE_PRIME_8_rx8> FHE_PRIME_8_mont; struct FHE_PRIME_8 : public FHE_PRIME_8_mont { using mem_t = FHE_PRIME_8; 
+                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_8_m0" is undefined
+  FHE_PRIME_7(const FHE_PRIME_7_mont& a) : FHE_PRIME_7_mont(a) {} }; typedef mont_t<61, FHE_PRIME_8_r, FHE_PRIME_8_m0, FHE_PRIME_8_rRR, FHE_PRIME_8_rone, FHE_PRIME_8_rx8> FHE_PRIME_8_mont; struct FHE_PRIME_8 : public FHE_PRIME_8_mont { using mem_t = FHE_PRIME_8; 
+                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_8_rRR" is undefined
+  FHE_PRIME_7(const FHE_PRIME_7_mont& a) : FHE_PRIME_7_mont(a) {} }; typedef mont_t<61, FHE_PRIME_8_r, FHE_PRIME_8_m0, FHE_PRIME_8_rRR, FHE_PRIME_8_rone, FHE_PRIME_8_rx8> FHE_PRIME_8_mont; struct FHE_PRIME_8 : public FHE_PRIME_8_mont { using mem_t = FHE_PRIME_8; 
+                                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_8_rone" is undefined
+  FHE_PRIME_7(const FHE_PRIME_7_mont& a) : FHE_PRIME_7_mont(a) {} }; typedef mont_t<61, FHE_PRIME_8_r, FHE_PRIME_8_m0, FHE_PRIME_8_rRR, FHE_PRIME_8_rone, FHE_PRIME_8_rx8> FHE_PRIME_8_mont; struct FHE_PRIME_8 : public FHE_PRIME_8_mont { using mem_t = FHE_PRIME_8; 
+                                                                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_8_rx8" is undefined
+  FHE_PRIME_7(const FHE_PRIME_7_mont& a) : FHE_PRIME_7_mont(a) {} }; typedef mont_t<61, FHE_PRIME_8_r, FHE_PRIME_8_m0, FHE_PRIME_8_rRR, FHE_PRIME_8_rone, FHE_PRIME_8_rx8> FHE_PRIME_8_mont; struct FHE_PRIME_8 : public FHE_PRIME_8_mont { using mem_t = FHE_PRIME_8; 
+                                                                                                                                                          ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_9_r" is undefined
+  FHE_PRIME_8(const FHE_PRIME_8_mont& a) : FHE_PRIME_8_mont(a) {} }; typedef mont_t<61, FHE_PRIME_9_r, FHE_PRIME_9_m0, FHE_PRIME_9_rRR, FHE_PRIME_9_rone, FHE_PRIME_9_rx8> FHE_PRIME_9_mont; struct FHE_PRIME_9 : public FHE_PRIME_9_mont { using mem_t = FHE_PRIME_9; 
+                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_9_m0" is undefined
+  FHE_PRIME_8(const FHE_PRIME_8_mont& a) : FHE_PRIME_8_mont(a) {} }; typedef mont_t<61, FHE_PRIME_9_r, FHE_PRIME_9_m0, FHE_PRIME_9_rRR, FHE_PRIME_9_rone, FHE_PRIME_9_rx8> FHE_PRIME_9_mont; struct FHE_PRIME_9 : public FHE_PRIME_9_mont { using mem_t = FHE_PRIME_9; 
+                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_9_rRR" is undefined
+  FHE_PRIME_8(const FHE_PRIME_8_mont& a) : FHE_PRIME_8_mont(a) {} }; typedef mont_t<61, FHE_PRIME_9_r, FHE_PRIME_9_m0, FHE_PRIME_9_rRR, FHE_PRIME_9_rone, FHE_PRIME_9_rx8> FHE_PRIME_9_mont; struct FHE_PRIME_9 : public FHE_PRIME_9_mont { using mem_t = FHE_PRIME_9; 
+                                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_9_rone" is undefined
+  FHE_PRIME_8(const FHE_PRIME_8_mont& a) : FHE_PRIME_8_mont(a) {} }; typedef mont_t<61, FHE_PRIME_9_r, FHE_PRIME_9_m0, FHE_PRIME_9_rRR, FHE_PRIME_9_rone, FHE_PRIME_9_rx8> FHE_PRIME_9_mont; struct FHE_PRIME_9 : public FHE_PRIME_9_mont { using mem_t = FHE_PRIME_9; 
+                                                                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_9_rx8" is undefined
+  FHE_PRIME_8(const FHE_PRIME_8_mont& a) : FHE_PRIME_8_mont(a) {} }; typedef mont_t<61, FHE_PRIME_9_r, FHE_PRIME_9_m0, FHE_PRIME_9_rRR, FHE_PRIME_9_rone, FHE_PRIME_9_rx8> FHE_PRIME_9_mont; struct FHE_PRIME_9 : public FHE_PRIME_9_mont { using mem_t = FHE_PRIME_9; 
+                                                                                                                                                          ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_10_r" is undefined
+  FHE_PRIME_9(const FHE_PRIME_9_mont& a) : FHE_PRIME_9_mont(a) {} }; typedef mont_t<61, FHE_PRIME_10_r, FHE_PRIME_10_m0, FHE_PRIME_10_rRR, FHE_PRIME_10_rone, FHE_PRIME_10_rx8> FHE_PRIME_10_mont; struct FHE_PRIME_10 : public FHE_PRIME_10_mont { using mem_t = FHE_PRIME_10; 
+                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_10_m0" is undefined
+  FHE_PRIME_9(const FHE_PRIME_9_mont& a) : FHE_PRIME_9_mont(a) {} }; typedef mont_t<61, FHE_PRIME_10_r, FHE_PRIME_10_m0, FHE_PRIME_10_rRR, FHE_PRIME_10_rone, FHE_PRIME_10_rx8> FHE_PRIME_10_mont; struct FHE_PRIME_10 : public FHE_PRIME_10_mont { using mem_t = FHE_PRIME_10; 
+                                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_10_rRR" is undefined
+  FHE_PRIME_9(const FHE_PRIME_9_mont& a) : FHE_PRIME_9_mont(a) {} }; typedef mont_t<61, FHE_PRIME_10_r, FHE_PRIME_10_m0, FHE_PRIME_10_rRR, FHE_PRIME_10_rone, FHE_PRIME_10_rx8> FHE_PRIME_10_mont; struct FHE_PRIME_10 : public FHE_PRIME_10_mont { using mem_t = FHE_PRIME_10; 
+                                                                                                                         ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_10_rone" is undefined
+  FHE_PRIME_9(const FHE_PRIME_9_mont& a) : FHE_PRIME_9_mont(a) {} }; typedef mont_t<61, FHE_PRIME_10_r, FHE_PRIME_10_m0, FHE_PRIME_10_rRR, FHE_PRIME_10_rone, FHE_PRIME_10_rx8> FHE_PRIME_10_mont; struct FHE_PRIME_10 : public FHE_PRIME_10_mont { using mem_t = FHE_PRIME_10; 
+                                                                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_10_rx8" is undefined
+  FHE_PRIME_9(const FHE_PRIME_9_mont& a) : FHE_PRIME_9_mont(a) {} }; typedef mont_t<61, FHE_PRIME_10_r, FHE_PRIME_10_m0, FHE_PRIME_10_rRR, FHE_PRIME_10_rone, FHE_PRIME_10_rx8> FHE_PRIME_10_mont; struct FHE_PRIME_10 : public FHE_PRIME_10_mont { using mem_t = FHE_PRIME_10; 
+                                                                                                                                                              ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_11_r" is undefined
+  FHE_PRIME_10(const FHE_PRIME_10_mont& a) : FHE_PRIME_10_mont(a) {} }; typedef mont_t<61, FHE_PRIME_11_r, FHE_PRIME_11_m0, FHE_PRIME_11_rRR, FHE_PRIME_11_rone, FHE_PRIME_11_rx8> FHE_PRIME_11_mont; struct FHE_PRIME_11 : public FHE_PRIME_11_mont { using mem_t = FHE_PRIME_11; 
+                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_11_m0" is undefined
+  FHE_PRIME_10(const FHE_PRIME_10_mont& a) : FHE_PRIME_10_mont(a) {} }; typedef mont_t<61, FHE_PRIME_11_r, FHE_PRIME_11_m0, FHE_PRIME_11_rRR, FHE_PRIME_11_rone, FHE_PRIME_11_rx8> FHE_PRIME_11_mont; struct FHE_PRIME_11 : public FHE_PRIME_11_mont { using mem_t = FHE_PRIME_11; 
+                                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_11_rRR" is undefined
+  FHE_PRIME_10(const FHE_PRIME_10_mont& a) : FHE_PRIME_10_mont(a) {} }; typedef mont_t<61, FHE_PRIME_11_r, FHE_PRIME_11_m0, FHE_PRIME_11_rRR, FHE_PRIME_11_rone, FHE_PRIME_11_rx8> FHE_PRIME_11_mont; struct FHE_PRIME_11 : public FHE_PRIME_11_mont { using mem_t = FHE_PRIME_11; 
+                                                                                                                            ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_11_rone" is undefined
+  FHE_PRIME_10(const FHE_PRIME_10_mont& a) : FHE_PRIME_10_mont(a) {} }; typedef mont_t<61, FHE_PRIME_11_r, FHE_PRIME_11_m0, FHE_PRIME_11_rRR, FHE_PRIME_11_rone, FHE_PRIME_11_rx8> FHE_PRIME_11_mont; struct FHE_PRIME_11 : public FHE_PRIME_11_mont { using mem_t = FHE_PRIME_11; 
+                                                                                                                                              ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_11_rx8" is undefined
+  FHE_PRIME_10(const FHE_PRIME_10_mont& a) : FHE_PRIME_10_mont(a) {} }; typedef mont_t<61, FHE_PRIME_11_r, FHE_PRIME_11_m0, FHE_PRIME_11_rRR, FHE_PRIME_11_rone, FHE_PRIME_11_rx8> FHE_PRIME_11_mont; struct FHE_PRIME_11 : public FHE_PRIME_11_mont { using mem_t = FHE_PRIME_11; 
+                                                                                                                                                                 ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_12_r" is undefined
+  FHE_PRIME_11(const FHE_PRIME_11_mont& a) : FHE_PRIME_11_mont(a) {} }; typedef mont_t<61, FHE_PRIME_12_r, FHE_PRIME_12_m0, FHE_PRIME_12_rRR, FHE_PRIME_12_rone, FHE_PRIME_12_rx8> FHE_PRIME_12_mont; struct FHE_PRIME_12 : public FHE_PRIME_12_mont { using mem_t = FHE_PRIME_12; 
+                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_12_m0" is undefined
+  FHE_PRIME_11(const FHE_PRIME_11_mont& a) : FHE_PRIME_11_mont(a) {} }; typedef mont_t<61, FHE_PRIME_12_r, FHE_PRIME_12_m0, FHE_PRIME_12_rRR, FHE_PRIME_12_rone, FHE_PRIME_12_rx8> FHE_PRIME_12_mont; struct FHE_PRIME_12 : public FHE_PRIME_12_mont { using mem_t = FHE_PRIME_12; 
+                                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_12_rRR" is undefined
+  FHE_PRIME_11(const FHE_PRIME_11_mont& a) : FHE_PRIME_11_mont(a) {} }; typedef mont_t<61, FHE_PRIME_12_r, FHE_PRIME_12_m0, FHE_PRIME_12_rRR, FHE_PRIME_12_rone, FHE_PRIME_12_rx8> FHE_PRIME_12_mont; struct FHE_PRIME_12 : public FHE_PRIME_12_mont { using mem_t = FHE_PRIME_12; 
+                                                                                                                            ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_12_rone" is undefined
+  FHE_PRIME_11(const FHE_PRIME_11_mont& a) : FHE_PRIME_11_mont(a) {} }; typedef mont_t<61, FHE_PRIME_12_r, FHE_PRIME_12_m0, FHE_PRIME_12_rRR, FHE_PRIME_12_rone, FHE_PRIME_12_rx8> FHE_PRIME_12_mont; struct FHE_PRIME_12 : public FHE_PRIME_12_mont { using mem_t = FHE_PRIME_12; 
+                                                                                                                                              ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_12_rx8" is undefined
+  FHE_PRIME_11(const FHE_PRIME_11_mont& a) : FHE_PRIME_11_mont(a) {} }; typedef mont_t<61, FHE_PRIME_12_r, FHE_PRIME_12_m0, FHE_PRIME_12_rRR, FHE_PRIME_12_rone, FHE_PRIME_12_rx8> FHE_PRIME_12_mont; struct FHE_PRIME_12 : public FHE_PRIME_12_mont { using mem_t = FHE_PRIME_12; 
+                                                                                                                                                                 ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_13_r" is undefined
+  FHE_PRIME_12(const FHE_PRIME_12_mont& a) : FHE_PRIME_12_mont(a) {} }; typedef mont_t<61, FHE_PRIME_13_r, FHE_PRIME_13_m0, FHE_PRIME_13_rRR, FHE_PRIME_13_rone, FHE_PRIME_13_rx8> FHE_PRIME_13_mont; struct FHE_PRIME_13 : public FHE_PRIME_13_mont { using mem_t = FHE_PRIME_13; 
+                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_13_m0" is undefined
+  FHE_PRIME_12(const FHE_PRIME_12_mont& a) : FHE_PRIME_12_mont(a) {} }; typedef mont_t<61, FHE_PRIME_13_r, FHE_PRIME_13_m0, FHE_PRIME_13_rRR, FHE_PRIME_13_rone, FHE_PRIME_13_rx8> FHE_PRIME_13_mont; struct FHE_PRIME_13 : public FHE_PRIME_13_mont { using mem_t = FHE_PRIME_13; 
+                                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_13_rRR" is undefined
+  FHE_PRIME_12(const FHE_PRIME_12_mont& a) : FHE_PRIME_12_mont(a) {} }; typedef mont_t<61, FHE_PRIME_13_r, FHE_PRIME_13_m0, FHE_PRIME_13_rRR, FHE_PRIME_13_rone, FHE_PRIME_13_rx8> FHE_PRIME_13_mont; struct FHE_PRIME_13 : public FHE_PRIME_13_mont { using mem_t = FHE_PRIME_13; 
+                                                                                                                            ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_13_rone" is undefined
+  FHE_PRIME_12(const FHE_PRIME_12_mont& a) : FHE_PRIME_12_mont(a) {} }; typedef mont_t<61, FHE_PRIME_13_r, FHE_PRIME_13_m0, FHE_PRIME_13_rRR, FHE_PRIME_13_rone, FHE_PRIME_13_rx8> FHE_PRIME_13_mont; struct FHE_PRIME_13 : public FHE_PRIME_13_mont { using mem_t = FHE_PRIME_13; 
+                                                                                                                                              ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_13_rx8" is undefined
+  FHE_PRIME_12(const FHE_PRIME_12_mont& a) : FHE_PRIME_12_mont(a) {} }; typedef mont_t<61, FHE_PRIME_13_r, FHE_PRIME_13_m0, FHE_PRIME_13_rRR, FHE_PRIME_13_rone, FHE_PRIME_13_rx8> FHE_PRIME_13_mont; struct FHE_PRIME_13 : public FHE_PRIME_13_mont { using mem_t = FHE_PRIME_13; 
+                                                                                                                                                                 ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_14_r" is undefined
+  FHE_PRIME_13(const FHE_PRIME_13_mont& a) : FHE_PRIME_13_mont(a) {} }; typedef mont_t<61, FHE_PRIME_14_r, FHE_PRIME_14_m0, FHE_PRIME_14_rRR, FHE_PRIME_14_rone, FHE_PRIME_14_rx8> FHE_PRIME_14_mont; struct FHE_PRIME_14 : public FHE_PRIME_14_mont { using mem_t = FHE_PRIME_14; 
+                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_14_m0" is undefined
+  FHE_PRIME_13(const FHE_PRIME_13_mont& a) : FHE_PRIME_13_mont(a) {} }; typedef mont_t<61, FHE_PRIME_14_r, FHE_PRIME_14_m0, FHE_PRIME_14_rRR, FHE_PRIME_14_rone, FHE_PRIME_14_rx8> FHE_PRIME_14_mont; struct FHE_PRIME_14 : public FHE_PRIME_14_mont { using mem_t = FHE_PRIME_14; 
+                                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_14_rRR" is undefined
+  FHE_PRIME_13(const FHE_PRIME_13_mont& a) : FHE_PRIME_13_mont(a) {} }; typedef mont_t<61, FHE_PRIME_14_r, FHE_PRIME_14_m0, FHE_PRIME_14_rRR, FHE_PRIME_14_rone, FHE_PRIME_14_rx8> FHE_PRIME_14_mont; struct FHE_PRIME_14 : public FHE_PRIME_14_mont { using mem_t = FHE_PRIME_14; 
+                                                                                                                            ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_14_rone" is undefined
+  FHE_PRIME_13(const FHE_PRIME_13_mont& a) : FHE_PRIME_13_mont(a) {} }; typedef mont_t<61, FHE_PRIME_14_r, FHE_PRIME_14_m0, FHE_PRIME_14_rRR, FHE_PRIME_14_rone, FHE_PRIME_14_rx8> FHE_PRIME_14_mont; struct FHE_PRIME_14 : public FHE_PRIME_14_mont { using mem_t = FHE_PRIME_14; 
+                                                                                                                                              ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_14_rx8" is undefined
+  FHE_PRIME_13(const FHE_PRIME_13_mont& a) : FHE_PRIME_13_mont(a) {} }; typedef mont_t<61, FHE_PRIME_14_r, FHE_PRIME_14_m0, FHE_PRIME_14_rRR, FHE_PRIME_14_rone, FHE_PRIME_14_rx8> FHE_PRIME_14_mont; struct FHE_PRIME_14 : public FHE_PRIME_14_mont { using mem_t = FHE_PRIME_14; 
+                                                                                                                                                                 ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_15_r" is undefined
+  FHE_PRIME_14(const FHE_PRIME_14_mont& a) : FHE_PRIME_14_mont(a) {} }; typedef mont_t<61, FHE_PRIME_15_r, FHE_PRIME_15_m0, FHE_PRIME_15_rRR, FHE_PRIME_15_rone, FHE_PRIME_15_rx8> FHE_PRIME_15_mont; struct FHE_PRIME_15 : public FHE_PRIME_15_mont { using mem_t = FHE_PRIME_15; 
+                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_15_m0" is undefined
+  FHE_PRIME_14(const FHE_PRIME_14_mont& a) : FHE_PRIME_14_mont(a) {} }; typedef mont_t<61, FHE_PRIME_15_r, FHE_PRIME_15_m0, FHE_PRIME_15_rRR, FHE_PRIME_15_rone, FHE_PRIME_15_rx8> FHE_PRIME_15_mont; struct FHE_PRIME_15 : public FHE_PRIME_15_mont { using mem_t = FHE_PRIME_15; 
+                                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_15_rRR" is undefined
+  FHE_PRIME_14(const FHE_PRIME_14_mont& a) : FHE_PRIME_14_mont(a) {} }; typedef mont_t<61, FHE_PRIME_15_r, FHE_PRIME_15_m0, FHE_PRIME_15_rRR, FHE_PRIME_15_rone, FHE_PRIME_15_rx8> FHE_PRIME_15_mont; struct FHE_PRIME_15 : public FHE_PRIME_15_mont { using mem_t = FHE_PRIME_15; 
+                                                                                                                            ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_15_rone" is undefined
+  FHE_PRIME_14(const FHE_PRIME_14_mont& a) : FHE_PRIME_14_mont(a) {} }; typedef mont_t<61, FHE_PRIME_15_r, FHE_PRIME_15_m0, FHE_PRIME_15_rRR, FHE_PRIME_15_rone, FHE_PRIME_15_rx8> FHE_PRIME_15_mont; struct FHE_PRIME_15 : public FHE_PRIME_15_mont { using mem_t = FHE_PRIME_15; 
+                                                                                                                                              ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_15_rx8" is undefined
+  FHE_PRIME_14(const FHE_PRIME_14_mont& a) : FHE_PRIME_14_mont(a) {} }; typedef mont_t<61, FHE_PRIME_15_r, FHE_PRIME_15_m0, FHE_PRIME_15_rRR, FHE_PRIME_15_rone, FHE_PRIME_15_rx8> FHE_PRIME_15_mont; struct FHE_PRIME_15 : public FHE_PRIME_15_mont { using mem_t = FHE_PRIME_15; 
+                                                                                                                                                                 ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_16_r" is undefined
+  FHE_PRIME_15(const FHE_PRIME_15_mont& a) : FHE_PRIME_15_mont(a) {} }; typedef mont_t<61, FHE_PRIME_16_r, FHE_PRIME_16_m0, FHE_PRIME_16_rRR, FHE_PRIME_16_rone, FHE_PRIME_16_rx8> FHE_PRIME_16_mont; struct FHE_PRIME_16 : public FHE_PRIME_16_mont { using mem_t = FHE_PRIME_16; 
+                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_16_m0" is undefined
+  FHE_PRIME_15(const FHE_PRIME_15_mont& a) : FHE_PRIME_15_mont(a) {} }; typedef mont_t<61, FHE_PRIME_16_r, FHE_PRIME_16_m0, FHE_PRIME_16_rRR, FHE_PRIME_16_rone, FHE_PRIME_16_rx8> FHE_PRIME_16_mont; struct FHE_PRIME_16 : public FHE_PRIME_16_mont { using mem_t = FHE_PRIME_16; 
+                                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_16_rRR" is undefined
+  FHE_PRIME_15(const FHE_PRIME_15_mont& a) : FHE_PRIME_15_mont(a) {} }; typedef mont_t<61, FHE_PRIME_16_r, FHE_PRIME_16_m0, FHE_PRIME_16_rRR, FHE_PRIME_16_rone, FHE_PRIME_16_rx8> FHE_PRIME_16_mont; struct FHE_PRIME_16 : public FHE_PRIME_16_mont { using mem_t = FHE_PRIME_16; 
+                                                                                                                            ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_16_rone" is undefined
+  FHE_PRIME_15(const FHE_PRIME_15_mont& a) : FHE_PRIME_15_mont(a) {} }; typedef mont_t<61, FHE_PRIME_16_r, FHE_PRIME_16_m0, FHE_PRIME_16_rRR, FHE_PRIME_16_rone, FHE_PRIME_16_rx8> FHE_PRIME_16_mont; struct FHE_PRIME_16 : public FHE_PRIME_16_mont { using mem_t = FHE_PRIME_16; 
+                                                                                                                                              ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_16_rx8" is undefined
+  FHE_PRIME_15(const FHE_PRIME_15_mont& a) : FHE_PRIME_15_mont(a) {} }; typedef mont_t<61, FHE_PRIME_16_r, FHE_PRIME_16_m0, FHE_PRIME_16_rRR, FHE_PRIME_16_rone, FHE_PRIME_16_rx8> FHE_PRIME_16_mont; struct FHE_PRIME_16 : public FHE_PRIME_16_mont { using mem_t = FHE_PRIME_16; 
+                                                                                                                                                                 ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_17_r" is undefined
+  FHE_PRIME_16(const FHE_PRIME_16_mont& a) : FHE_PRIME_16_mont(a) {} }; typedef mont_t<61, FHE_PRIME_17_r, FHE_PRIME_17_m0, FHE_PRIME_17_rRR, FHE_PRIME_17_rone, FHE_PRIME_17_rx8> FHE_PRIME_17_mont; struct FHE_PRIME_17 : public FHE_PRIME_17_mont { using mem_t = FHE_PRIME_17; 
+                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_17_m0" is undefined
+  FHE_PRIME_16(const FHE_PRIME_16_mont& a) : FHE_PRIME_16_mont(a) {} }; typedef mont_t<61, FHE_PRIME_17_r, FHE_PRIME_17_m0, FHE_PRIME_17_rRR, FHE_PRIME_17_rone, FHE_PRIME_17_rx8> FHE_PRIME_17_mont; struct FHE_PRIME_17 : public FHE_PRIME_17_mont { using mem_t = FHE_PRIME_17; 
+                                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_17_rRR" is undefined
+  FHE_PRIME_16(const FHE_PRIME_16_mont& a) : FHE_PRIME_16_mont(a) {} }; typedef mont_t<61, FHE_PRIME_17_r, FHE_PRIME_17_m0, FHE_PRIME_17_rRR, FHE_PRIME_17_rone, FHE_PRIME_17_rx8> FHE_PRIME_17_mont; struct FHE_PRIME_17 : public FHE_PRIME_17_mont { using mem_t = FHE_PRIME_17; 
+                                                                                                                            ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_17_rone" is undefined
+  FHE_PRIME_16(const FHE_PRIME_16_mont& a) : FHE_PRIME_16_mont(a) {} }; typedef mont_t<61, FHE_PRIME_17_r, FHE_PRIME_17_m0, FHE_PRIME_17_rRR, FHE_PRIME_17_rone, FHE_PRIME_17_rx8> FHE_PRIME_17_mont; struct FHE_PRIME_17 : public FHE_PRIME_17_mont { using mem_t = FHE_PRIME_17; 
+                                                                                                                                              ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_17_rx8" is undefined
+  FHE_PRIME_16(const FHE_PRIME_16_mont& a) : FHE_PRIME_16_mont(a) {} }; typedef mont_t<61, FHE_PRIME_17_r, FHE_PRIME_17_m0, FHE_PRIME_17_rRR, FHE_PRIME_17_rone, FHE_PRIME_17_rx8> FHE_PRIME_17_mont; struct FHE_PRIME_17 : public FHE_PRIME_17_mont { using mem_t = FHE_PRIME_17; 
+                                                                                                                                                                 ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_18_r" is undefined
+  FHE_PRIME_17(const FHE_PRIME_17_mont& a) : FHE_PRIME_17_mont(a) {} }; typedef mont_t<61, FHE_PRIME_18_r, FHE_PRIME_18_m0, FHE_PRIME_18_rRR, FHE_PRIME_18_rone, FHE_PRIME_18_rx8> FHE_PRIME_18_mont; struct FHE_PRIME_18 : public FHE_PRIME_18_mont { using mem_t = FHE_PRIME_18; 
+                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_18_m0" is undefined
+  FHE_PRIME_17(const FHE_PRIME_17_mont& a) : FHE_PRIME_17_mont(a) {} }; typedef mont_t<61, FHE_PRIME_18_r, FHE_PRIME_18_m0, FHE_PRIME_18_rRR, FHE_PRIME_18_rone, FHE_PRIME_18_rx8> FHE_PRIME_18_mont; struct FHE_PRIME_18 : public FHE_PRIME_18_mont { using mem_t = FHE_PRIME_18; 
+                                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_18_rRR" is undefined
+  FHE_PRIME_17(const FHE_PRIME_17_mont& a) : FHE_PRIME_17_mont(a) {} }; typedef mont_t<61, FHE_PRIME_18_r, FHE_PRIME_18_m0, FHE_PRIME_18_rRR, FHE_PRIME_18_rone, FHE_PRIME_18_rx8> FHE_PRIME_18_mont; struct FHE_PRIME_18 : public FHE_PRIME_18_mont { using mem_t = FHE_PRIME_18; 
+                                                                                                                            ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_18_rone" is undefined
+  FHE_PRIME_17(const FHE_PRIME_17_mont& a) : FHE_PRIME_17_mont(a) {} }; typedef mont_t<61, FHE_PRIME_18_r, FHE_PRIME_18_m0, FHE_PRIME_18_rRR, FHE_PRIME_18_rone, FHE_PRIME_18_rx8> FHE_PRIME_18_mont; struct FHE_PRIME_18 : public FHE_PRIME_18_mont { using mem_t = FHE_PRIME_18; 
+                                                                                                                                              ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_18_rx8" is undefined
+  FHE_PRIME_17(const FHE_PRIME_17_mont& a) : FHE_PRIME_17_mont(a) {} }; typedef mont_t<61, FHE_PRIME_18_r, FHE_PRIME_18_m0, FHE_PRIME_18_rRR, FHE_PRIME_18_rone, FHE_PRIME_18_rx8> FHE_PRIME_18_mont; struct FHE_PRIME_18 : public FHE_PRIME_18_mont { using mem_t = FHE_PRIME_18; 
+                                                                                                                                                                 ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_19_r" is undefined
+  FHE_PRIME_18(const FHE_PRIME_18_mont& a) : FHE_PRIME_18_mont(a) {} }; typedef mont_t<61, FHE_PRIME_19_r, FHE_PRIME_19_m0, FHE_PRIME_19_rRR, FHE_PRIME_19_rone, FHE_PRIME_19_rx8> FHE_PRIME_19_mont; struct FHE_PRIME_19 : public FHE_PRIME_19_mont { using mem_t = FHE_PRIME_19; 
+                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_19_m0" is undefined
+  FHE_PRIME_18(const FHE_PRIME_18_mont& a) : FHE_PRIME_18_mont(a) {} }; typedef mont_t<61, FHE_PRIME_19_r, FHE_PRIME_19_m0, FHE_PRIME_19_rRR, FHE_PRIME_19_rone, FHE_PRIME_19_rx8> FHE_PRIME_19_mont; struct FHE_PRIME_19 : public FHE_PRIME_19_mont { using mem_t = FHE_PRIME_19; 
+                                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_19_rRR" is undefined
+  FHE_PRIME_18(const FHE_PRIME_18_mont& a) : FHE_PRIME_18_mont(a) {} }; typedef mont_t<61, FHE_PRIME_19_r, FHE_PRIME_19_m0, FHE_PRIME_19_rRR, FHE_PRIME_19_rone, FHE_PRIME_19_rx8> FHE_PRIME_19_mont; struct FHE_PRIME_19 : public FHE_PRIME_19_mont { using mem_t = FHE_PRIME_19; 
+                                                                                                                            ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_19_rone" is undefined
+  FHE_PRIME_18(const FHE_PRIME_18_mont& a) : FHE_PRIME_18_mont(a) {} }; typedef mont_t<61, FHE_PRIME_19_r, FHE_PRIME_19_m0, FHE_PRIME_19_rRR, FHE_PRIME_19_rone, FHE_PRIME_19_rx8> FHE_PRIME_19_mont; struct FHE_PRIME_19 : public FHE_PRIME_19_mont { using mem_t = FHE_PRIME_19; 
+                                                                                                                                              ^
+
+Error limit reached.
+100 errors detected in the compilation of "/home/zrji/pyZKP/aten/src/ATen/native/pnp/zkp/cuda/zksnark_msm.cu".
+Compilation terminated.
+[4/507] Building CUDA object caffe2/CMakeFiles/torch_cuda.dir/__/aten/src/ATen/native/pnp/mont/cuda/mont_arithmetic.cu.o
+FAILED: caffe2/CMakeFiles/torch_cuda.dir/__/aten/src/ATen/native/pnp/mont/cuda/mont_arithmetic.cu.o 
+/usr/local/cuda/bin/nvcc -forward-unknown-to-host-compiler -DAT_PER_OPERATOR_HEADERS -DHAVE_MALLOC_USABLE_SIZE=1 -DHAVE_MMAP=1 -DHAVE_SHM_OPEN=1 -DHAVE_SHM_UNLINK=1 -DMINIZ_DISABLE_ZIP_READER_CRC32_CHECKS -DONNXIFI_ENABLE_EXT=1 -DONNX_ML=1 -DONNX_NAMESPACE=onnx_torch -DTORCH_CUDA_BUILD_MAIN_LIB -DUSE_C10D_GLOO -DUSE_C10D_NCCL -DUSE_CUDA -DUSE_DISTRIBUTED -DUSE_EXTERNAL_MZCRC -DUSE_FLASH_ATTENTION -DUSE_MEM_EFF_ATTENTION -DUSE_NCCL -DUSE_RPC -DUSE_TENSORPIPE -D_FILE_OFFSET_BITS=64 -Dtorch_cuda_EXPORTS -I/home/zrji/pyZKP/build/aten/src -I/home/zrji/pyZKP/aten/src -I/home/zrji/pyZKP/build -I/home/zrji/pyZKP -I/home/zrji/pyZKP/cmake/../third_party/benchmark/include -I/home/zrji/pyZKP/third_party/onnx -I/home/zrji/pyZKP/build/third_party/onnx -I/home/zrji/pyZKP/third_party/foxi -I/home/zrji/pyZKP/build/third_party/foxi -I/home/zrji/pyZKP/aten/src/THC -I/home/zrji/pyZKP/aten/src/ATen/cuda -I/home/zrji/pyZKP/aten/src/ATen/../../../third_party/cutlass/include -I/home/zrji/pyZKP/build/caffe2/aten/src -I/home/zrji/pyZKP/aten/src/ATen/.. -I/home/zrji/pyZKP/build/nccl/include -I/home/zrji/pyZKP/c10/cuda/../.. -I/home/zrji/pyZKP/c10/.. -I/home/zrji/pyZKP/third_party/tensorpipe -I/home/zrji/pyZKP/build/third_party/tensorpipe -I/home/zrji/pyZKP/third_party/tensorpipe/third_party/libnop/include -I/home/zrji/pyZKP/torch/csrc/api -I/home/zrji/pyZKP/torch/csrc/api/include -isystem /home/zrji/pyZKP/build/third_party/gloo -isystem /home/zrji/pyZKP/cmake/../third_party/gloo -isystem /home/zrji/pyZKP/cmake/../third_party/tensorpipe/third_party/libuv/include -isystem /home/zrji/pyZKP/cmake/../third_party/googletest/googlemock/include -isystem /home/zrji/pyZKP/cmake/../third_party/googletest/googletest/include -isystem /home/zrji/pyZKP/third_party/protobuf/src -isystem /home/zrji/pyZKP/third_party/gemmlowp -isystem /home/zrji/pyZKP/third_party/neon2sse -isystem /home/zrji/pyZKP/third_party/XNNPACK/include -isystem /home/zrji/pyZKP/third_party/ittapi/include -isystem /home/zrji/pyZKP/cmake/../third_party/eigen -isystem /usr/local/cuda/include -isystem /home/zrji/pyZKP/torch/include -isystem /home/zrji/pyZKP/third_party/ideep/include -isystem /home/zrji/pyZKP/torch/include/oneapi/dnnl -D_GLIBCXX_USE_CXX11_ABI=1 -Xfatbin -compress-all -DONNX_NAMESPACE=onnx_torch -gencode arch=compute_89,code=sm_89 -Xcudafe --diag_suppress=cc_clobber_ignored,--diag_suppress=field_without_dll_interface,--diag_suppress=base_class_has_different_dll_interface,--diag_suppress=dll_interface_conflict_none_assumed,--diag_suppress=dll_interface_conflict_dllexport_assumed,--diag_suppress=bad_friend_decl --expt-relaxed-constexpr --expt-extended-lambda  -Wno-deprecated-gpu-targets --expt-extended-lambda -DCUB_WRAPPED_NAMESPACE=at_cuda_detail -DCUDA_HAS_FP16=1 -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -O3 -DNDEBUG -std=c++17 -Xcompiler=-fPIC -DTORCH_USE_LIBUV -DCAFFE2_USE_GLOO -Xcompiler=-Wall,-Wextra,-Wdeprecated,-Wno-unused-parameter,-Wno-unused-function,-Wno-missing-field-initializers,-Wno-unknown-pragmas,-Wno-type-limits,-Wno-array-bounds,-Wno-unknown-pragmas,-Wno-strict-overflow,-Wno-strict-aliasing,-Wno-maybe-uninitialized -MD -MT caffe2/CMakeFiles/torch_cuda.dir/__/aten/src/ATen/native/pnp/mont/cuda/mont_arithmetic.cu.o -MF caffe2/CMakeFiles/torch_cuda.dir/__/aten/src/ATen/native/pnp/mont/cuda/mont_arithmetic.cu.o.d -x cu -c /home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/mont_arithmetic.cu -o caffe2/CMakeFiles/torch_cuda.dir/__/aten/src/ATen/native/pnp/mont/cuda/mont_arithmetic.cu.o
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_0_r" is undefined
+  typedef mont_t<61, FHE_PRIME_0_r, FHE_PRIME_0_m0, FHE_PRIME_0_rRR, FHE_PRIME_0_rone, FHE_PRIME_0_rx8> FHE_PRIME_0_mont; struct FHE_PRIME_0 : public FHE_PRIME_0_mont { using mem_t = FHE_PRIME_0; 
+                     ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_0_m0" is undefined
+  typedef mont_t<61, FHE_PRIME_0_r, FHE_PRIME_0_m0, FHE_PRIME_0_rRR, FHE_PRIME_0_rone, FHE_PRIME_0_rx8> FHE_PRIME_0_mont; struct FHE_PRIME_0 : public FHE_PRIME_0_mont { using mem_t = FHE_PRIME_0; 
+                                    ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_0_rRR" is undefined
+  typedef mont_t<61, FHE_PRIME_0_r, FHE_PRIME_0_m0, FHE_PRIME_0_rRR, FHE_PRIME_0_rone, FHE_PRIME_0_rx8> FHE_PRIME_0_mont; struct FHE_PRIME_0 : public FHE_PRIME_0_mont { using mem_t = FHE_PRIME_0; 
+                                                    ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_0_rone" is undefined
+  typedef mont_t<61, FHE_PRIME_0_r, FHE_PRIME_0_m0, FHE_PRIME_0_rRR, FHE_PRIME_0_rone, FHE_PRIME_0_rx8> FHE_PRIME_0_mont; struct FHE_PRIME_0 : public FHE_PRIME_0_mont { using mem_t = FHE_PRIME_0; 
+                                                                     ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_0_rx8" is undefined
+  typedef mont_t<61, FHE_PRIME_0_r, FHE_PRIME_0_m0, FHE_PRIME_0_rRR, FHE_PRIME_0_rone, FHE_PRIME_0_rx8> FHE_PRIME_0_mont; struct FHE_PRIME_0 : public FHE_PRIME_0_mont { using mem_t = FHE_PRIME_0; 
+                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/mont_t.cuh(34): error: bad attribute argument substitution
+       ((N + 63) / 64) & 1 ? 8 : 16
+       ^
+          detected during instantiation of class "mont_t<N, MOD, M0, RR, ONE, MODx> [with N=61UL, MOD=<error-constant>, M0=<error-constant>, RR=<error-constant>, ONE=<error-constant>, MODx=<error-constant>]" at line 41 of /home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_1_r" is undefined
+  FHE_PRIME_0(const FHE_PRIME_0_mont& a) : FHE_PRIME_0_mont(a) {} }; typedef mont_t<61, FHE_PRIME_1_r, FHE_PRIME_1_m0, FHE_PRIME_1_rRR, FHE_PRIME_1_rone, FHE_PRIME_1_rx8> FHE_PRIME_1_mont; struct FHE_PRIME_1 : public FHE_PRIME_1_mont { using mem_t = FHE_PRIME_1; 
+                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_1_m0" is undefined
+  FHE_PRIME_0(const FHE_PRIME_0_mont& a) : FHE_PRIME_0_mont(a) {} }; typedef mont_t<61, FHE_PRIME_1_r, FHE_PRIME_1_m0, FHE_PRIME_1_rRR, FHE_PRIME_1_rone, FHE_PRIME_1_rx8> FHE_PRIME_1_mont; struct FHE_PRIME_1 : public FHE_PRIME_1_mont { using mem_t = FHE_PRIME_1; 
+                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_1_rRR" is undefined
+  FHE_PRIME_0(const FHE_PRIME_0_mont& a) : FHE_PRIME_0_mont(a) {} }; typedef mont_t<61, FHE_PRIME_1_r, FHE_PRIME_1_m0, FHE_PRIME_1_rRR, FHE_PRIME_1_rone, FHE_PRIME_1_rx8> FHE_PRIME_1_mont; struct FHE_PRIME_1 : public FHE_PRIME_1_mont { using mem_t = FHE_PRIME_1; 
+                                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_1_rone" is undefined
+  FHE_PRIME_0(const FHE_PRIME_0_mont& a) : FHE_PRIME_0_mont(a) {} }; typedef mont_t<61, FHE_PRIME_1_r, FHE_PRIME_1_m0, FHE_PRIME_1_rRR, FHE_PRIME_1_rone, FHE_PRIME_1_rx8> FHE_PRIME_1_mont; struct FHE_PRIME_1 : public FHE_PRIME_1_mont { using mem_t = FHE_PRIME_1; 
+                                                                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_1_rx8" is undefined
+  FHE_PRIME_0(const FHE_PRIME_0_mont& a) : FHE_PRIME_0_mont(a) {} }; typedef mont_t<61, FHE_PRIME_1_r, FHE_PRIME_1_m0, FHE_PRIME_1_rRR, FHE_PRIME_1_rone, FHE_PRIME_1_rx8> FHE_PRIME_1_mont; struct FHE_PRIME_1 : public FHE_PRIME_1_mont { using mem_t = FHE_PRIME_1; 
+                                                                                                                                                          ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_2_r" is undefined
+  FHE_PRIME_1(const FHE_PRIME_1_mont& a) : FHE_PRIME_1_mont(a) {} }; typedef mont_t<61, FHE_PRIME_2_r, FHE_PRIME_2_m0, FHE_PRIME_2_rRR, FHE_PRIME_2_rone, FHE_PRIME_2_rx8> FHE_PRIME_2_mont; struct FHE_PRIME_2 : public FHE_PRIME_2_mont { using mem_t = FHE_PRIME_2; 
+                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_2_m0" is undefined
+  FHE_PRIME_1(const FHE_PRIME_1_mont& a) : FHE_PRIME_1_mont(a) {} }; typedef mont_t<61, FHE_PRIME_2_r, FHE_PRIME_2_m0, FHE_PRIME_2_rRR, FHE_PRIME_2_rone, FHE_PRIME_2_rx8> FHE_PRIME_2_mont; struct FHE_PRIME_2 : public FHE_PRIME_2_mont { using mem_t = FHE_PRIME_2; 
+                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_2_rRR" is undefined
+  FHE_PRIME_1(const FHE_PRIME_1_mont& a) : FHE_PRIME_1_mont(a) {} }; typedef mont_t<61, FHE_PRIME_2_r, FHE_PRIME_2_m0, FHE_PRIME_2_rRR, FHE_PRIME_2_rone, FHE_PRIME_2_rx8> FHE_PRIME_2_mont; struct FHE_PRIME_2 : public FHE_PRIME_2_mont { using mem_t = FHE_PRIME_2; 
+                                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_2_rone" is undefined
+  FHE_PRIME_1(const FHE_PRIME_1_mont& a) : FHE_PRIME_1_mont(a) {} }; typedef mont_t<61, FHE_PRIME_2_r, FHE_PRIME_2_m0, FHE_PRIME_2_rRR, FHE_PRIME_2_rone, FHE_PRIME_2_rx8> FHE_PRIME_2_mont; struct FHE_PRIME_2 : public FHE_PRIME_2_mont { using mem_t = FHE_PRIME_2; 
+                                                                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_2_rx8" is undefined
+  FHE_PRIME_1(const FHE_PRIME_1_mont& a) : FHE_PRIME_1_mont(a) {} }; typedef mont_t<61, FHE_PRIME_2_r, FHE_PRIME_2_m0, FHE_PRIME_2_rRR, FHE_PRIME_2_rone, FHE_PRIME_2_rx8> FHE_PRIME_2_mont; struct FHE_PRIME_2 : public FHE_PRIME_2_mont { using mem_t = FHE_PRIME_2; 
+                                                                                                                                                          ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_3_r" is undefined
+  FHE_PRIME_2(const FHE_PRIME_2_mont& a) : FHE_PRIME_2_mont(a) {} }; typedef mont_t<61, FHE_PRIME_3_r, FHE_PRIME_3_m0, FHE_PRIME_3_rRR, FHE_PRIME_3_rone, FHE_PRIME_3_rx8> FHE_PRIME_3_mont; struct FHE_PRIME_3 : public FHE_PRIME_3_mont { using mem_t = FHE_PRIME_3; 
+                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_3_m0" is undefined
+  FHE_PRIME_2(const FHE_PRIME_2_mont& a) : FHE_PRIME_2_mont(a) {} }; typedef mont_t<61, FHE_PRIME_3_r, FHE_PRIME_3_m0, FHE_PRIME_3_rRR, FHE_PRIME_3_rone, FHE_PRIME_3_rx8> FHE_PRIME_3_mont; struct FHE_PRIME_3 : public FHE_PRIME_3_mont { using mem_t = FHE_PRIME_3; 
+                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_3_rRR" is undefined
+  FHE_PRIME_2(const FHE_PRIME_2_mont& a) : FHE_PRIME_2_mont(a) {} }; typedef mont_t<61, FHE_PRIME_3_r, FHE_PRIME_3_m0, FHE_PRIME_3_rRR, FHE_PRIME_3_rone, FHE_PRIME_3_rx8> FHE_PRIME_3_mont; struct FHE_PRIME_3 : public FHE_PRIME_3_mont { using mem_t = FHE_PRIME_3; 
+                                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_3_rone" is undefined
+  FHE_PRIME_2(const FHE_PRIME_2_mont& a) : FHE_PRIME_2_mont(a) {} }; typedef mont_t<61, FHE_PRIME_3_r, FHE_PRIME_3_m0, FHE_PRIME_3_rRR, FHE_PRIME_3_rone, FHE_PRIME_3_rx8> FHE_PRIME_3_mont; struct FHE_PRIME_3 : public FHE_PRIME_3_mont { using mem_t = FHE_PRIME_3; 
+                                                                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_3_rx8" is undefined
+  FHE_PRIME_2(const FHE_PRIME_2_mont& a) : FHE_PRIME_2_mont(a) {} }; typedef mont_t<61, FHE_PRIME_3_r, FHE_PRIME_3_m0, FHE_PRIME_3_rRR, FHE_PRIME_3_rone, FHE_PRIME_3_rx8> FHE_PRIME_3_mont; struct FHE_PRIME_3 : public FHE_PRIME_3_mont { using mem_t = FHE_PRIME_3; 
+                                                                                                                                                          ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_4_r" is undefined
+  FHE_PRIME_3(const FHE_PRIME_3_mont& a) : FHE_PRIME_3_mont(a) {} }; typedef mont_t<61, FHE_PRIME_4_r, FHE_PRIME_4_m0, FHE_PRIME_4_rRR, FHE_PRIME_4_rone, FHE_PRIME_4_rx8> FHE_PRIME_4_mont; struct FHE_PRIME_4 : public FHE_PRIME_4_mont { using mem_t = FHE_PRIME_4; 
+                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_4_m0" is undefined
+  FHE_PRIME_3(const FHE_PRIME_3_mont& a) : FHE_PRIME_3_mont(a) {} }; typedef mont_t<61, FHE_PRIME_4_r, FHE_PRIME_4_m0, FHE_PRIME_4_rRR, FHE_PRIME_4_rone, FHE_PRIME_4_rx8> FHE_PRIME_4_mont; struct FHE_PRIME_4 : public FHE_PRIME_4_mont { using mem_t = FHE_PRIME_4; 
+                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_4_rRR" is undefined
+  FHE_PRIME_3(const FHE_PRIME_3_mont& a) : FHE_PRIME_3_mont(a) {} }; typedef mont_t<61, FHE_PRIME_4_r, FHE_PRIME_4_m0, FHE_PRIME_4_rRR, FHE_PRIME_4_rone, FHE_PRIME_4_rx8> FHE_PRIME_4_mont; struct FHE_PRIME_4 : public FHE_PRIME_4_mont { using mem_t = FHE_PRIME_4; 
+                                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_4_rone" is undefined
+  FHE_PRIME_3(const FHE_PRIME_3_mont& a) : FHE_PRIME_3_mont(a) {} }; typedef mont_t<61, FHE_PRIME_4_r, FHE_PRIME_4_m0, FHE_PRIME_4_rRR, FHE_PRIME_4_rone, FHE_PRIME_4_rx8> FHE_PRIME_4_mont; struct FHE_PRIME_4 : public FHE_PRIME_4_mont { using mem_t = FHE_PRIME_4; 
+                                                                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_4_rx8" is undefined
+  FHE_PRIME_3(const FHE_PRIME_3_mont& a) : FHE_PRIME_3_mont(a) {} }; typedef mont_t<61, FHE_PRIME_4_r, FHE_PRIME_4_m0, FHE_PRIME_4_rRR, FHE_PRIME_4_rone, FHE_PRIME_4_rx8> FHE_PRIME_4_mont; struct FHE_PRIME_4 : public FHE_PRIME_4_mont { using mem_t = FHE_PRIME_4; 
+                                                                                                                                                          ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_5_r" is undefined
+  FHE_PRIME_4(const FHE_PRIME_4_mont& a) : FHE_PRIME_4_mont(a) {} }; typedef mont_t<61, FHE_PRIME_5_r, FHE_PRIME_5_m0, FHE_PRIME_5_rRR, FHE_PRIME_5_rone, FHE_PRIME_5_rx8> FHE_PRIME_5_mont; struct FHE_PRIME_5 : public FHE_PRIME_5_mont { using mem_t = FHE_PRIME_5; 
+                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_5_m0" is undefined
+  FHE_PRIME_4(const FHE_PRIME_4_mont& a) : FHE_PRIME_4_mont(a) {} }; typedef mont_t<61, FHE_PRIME_5_r, FHE_PRIME_5_m0, FHE_PRIME_5_rRR, FHE_PRIME_5_rone, FHE_PRIME_5_rx8> FHE_PRIME_5_mont; struct FHE_PRIME_5 : public FHE_PRIME_5_mont { using mem_t = FHE_PRIME_5; 
+                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_5_rRR" is undefined
+  FHE_PRIME_4(const FHE_PRIME_4_mont& a) : FHE_PRIME_4_mont(a) {} }; typedef mont_t<61, FHE_PRIME_5_r, FHE_PRIME_5_m0, FHE_PRIME_5_rRR, FHE_PRIME_5_rone, FHE_PRIME_5_rx8> FHE_PRIME_5_mont; struct FHE_PRIME_5 : public FHE_PRIME_5_mont { using mem_t = FHE_PRIME_5; 
+                                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_5_rone" is undefined
+  FHE_PRIME_4(const FHE_PRIME_4_mont& a) : FHE_PRIME_4_mont(a) {} }; typedef mont_t<61, FHE_PRIME_5_r, FHE_PRIME_5_m0, FHE_PRIME_5_rRR, FHE_PRIME_5_rone, FHE_PRIME_5_rx8> FHE_PRIME_5_mont; struct FHE_PRIME_5 : public FHE_PRIME_5_mont { using mem_t = FHE_PRIME_5; 
+                                                                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_5_rx8" is undefined
+  FHE_PRIME_4(const FHE_PRIME_4_mont& a) : FHE_PRIME_4_mont(a) {} }; typedef mont_t<61, FHE_PRIME_5_r, FHE_PRIME_5_m0, FHE_PRIME_5_rRR, FHE_PRIME_5_rone, FHE_PRIME_5_rx8> FHE_PRIME_5_mont; struct FHE_PRIME_5 : public FHE_PRIME_5_mont { using mem_t = FHE_PRIME_5; 
+                                                                                                                                                          ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_6_r" is undefined
+  FHE_PRIME_5(const FHE_PRIME_5_mont& a) : FHE_PRIME_5_mont(a) {} }; typedef mont_t<61, FHE_PRIME_6_r, FHE_PRIME_6_m0, FHE_PRIME_6_rRR, FHE_PRIME_6_rone, FHE_PRIME_6_rx8> FHE_PRIME_6_mont; struct FHE_PRIME_6 : public FHE_PRIME_6_mont { using mem_t = FHE_PRIME_6; 
+                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_6_m0" is undefined
+  FHE_PRIME_5(const FHE_PRIME_5_mont& a) : FHE_PRIME_5_mont(a) {} }; typedef mont_t<61, FHE_PRIME_6_r, FHE_PRIME_6_m0, FHE_PRIME_6_rRR, FHE_PRIME_6_rone, FHE_PRIME_6_rx8> FHE_PRIME_6_mont; struct FHE_PRIME_6 : public FHE_PRIME_6_mont { using mem_t = FHE_PRIME_6; 
+                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_6_rRR" is undefined
+  FHE_PRIME_5(const FHE_PRIME_5_mont& a) : FHE_PRIME_5_mont(a) {} }; typedef mont_t<61, FHE_PRIME_6_r, FHE_PRIME_6_m0, FHE_PRIME_6_rRR, FHE_PRIME_6_rone, FHE_PRIME_6_rx8> FHE_PRIME_6_mont; struct FHE_PRIME_6 : public FHE_PRIME_6_mont { using mem_t = FHE_PRIME_6; 
+                                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_6_rone" is undefined
+  FHE_PRIME_5(const FHE_PRIME_5_mont& a) : FHE_PRIME_5_mont(a) {} }; typedef mont_t<61, FHE_PRIME_6_r, FHE_PRIME_6_m0, FHE_PRIME_6_rRR, FHE_PRIME_6_rone, FHE_PRIME_6_rx8> FHE_PRIME_6_mont; struct FHE_PRIME_6 : public FHE_PRIME_6_mont { using mem_t = FHE_PRIME_6; 
+                                                                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_6_rx8" is undefined
+  FHE_PRIME_5(const FHE_PRIME_5_mont& a) : FHE_PRIME_5_mont(a) {} }; typedef mont_t<61, FHE_PRIME_6_r, FHE_PRIME_6_m0, FHE_PRIME_6_rRR, FHE_PRIME_6_rone, FHE_PRIME_6_rx8> FHE_PRIME_6_mont; struct FHE_PRIME_6 : public FHE_PRIME_6_mont { using mem_t = FHE_PRIME_6; 
+                                                                                                                                                          ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_7_r" is undefined
+  FHE_PRIME_6(const FHE_PRIME_6_mont& a) : FHE_PRIME_6_mont(a) {} }; typedef mont_t<61, FHE_PRIME_7_r, FHE_PRIME_7_m0, FHE_PRIME_7_rRR, FHE_PRIME_7_rone, FHE_PRIME_7_rx8> FHE_PRIME_7_mont; struct FHE_PRIME_7 : public FHE_PRIME_7_mont { using mem_t = FHE_PRIME_7; 
+                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_7_m0" is undefined
+  FHE_PRIME_6(const FHE_PRIME_6_mont& a) : FHE_PRIME_6_mont(a) {} }; typedef mont_t<61, FHE_PRIME_7_r, FHE_PRIME_7_m0, FHE_PRIME_7_rRR, FHE_PRIME_7_rone, FHE_PRIME_7_rx8> FHE_PRIME_7_mont; struct FHE_PRIME_7 : public FHE_PRIME_7_mont { using mem_t = FHE_PRIME_7; 
+                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_7_rRR" is undefined
+  FHE_PRIME_6(const FHE_PRIME_6_mont& a) : FHE_PRIME_6_mont(a) {} }; typedef mont_t<61, FHE_PRIME_7_r, FHE_PRIME_7_m0, FHE_PRIME_7_rRR, FHE_PRIME_7_rone, FHE_PRIME_7_rx8> FHE_PRIME_7_mont; struct FHE_PRIME_7 : public FHE_PRIME_7_mont { using mem_t = FHE_PRIME_7; 
+                                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_7_rone" is undefined
+  FHE_PRIME_6(const FHE_PRIME_6_mont& a) : FHE_PRIME_6_mont(a) {} }; typedef mont_t<61, FHE_PRIME_7_r, FHE_PRIME_7_m0, FHE_PRIME_7_rRR, FHE_PRIME_7_rone, FHE_PRIME_7_rx8> FHE_PRIME_7_mont; struct FHE_PRIME_7 : public FHE_PRIME_7_mont { using mem_t = FHE_PRIME_7; 
+                                                                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_7_rx8" is undefined
+  FHE_PRIME_6(const FHE_PRIME_6_mont& a) : FHE_PRIME_6_mont(a) {} }; typedef mont_t<61, FHE_PRIME_7_r, FHE_PRIME_7_m0, FHE_PRIME_7_rRR, FHE_PRIME_7_rone, FHE_PRIME_7_rx8> FHE_PRIME_7_mont; struct FHE_PRIME_7 : public FHE_PRIME_7_mont { using mem_t = FHE_PRIME_7; 
+                                                                                                                                                          ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_8_r" is undefined
+  FHE_PRIME_7(const FHE_PRIME_7_mont& a) : FHE_PRIME_7_mont(a) {} }; typedef mont_t<61, FHE_PRIME_8_r, FHE_PRIME_8_m0, FHE_PRIME_8_rRR, FHE_PRIME_8_rone, FHE_PRIME_8_rx8> FHE_PRIME_8_mont; struct FHE_PRIME_8 : public FHE_PRIME_8_mont { using mem_t = FHE_PRIME_8; 
+                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_8_m0" is undefined
+  FHE_PRIME_7(const FHE_PRIME_7_mont& a) : FHE_PRIME_7_mont(a) {} }; typedef mont_t<61, FHE_PRIME_8_r, FHE_PRIME_8_m0, FHE_PRIME_8_rRR, FHE_PRIME_8_rone, FHE_PRIME_8_rx8> FHE_PRIME_8_mont; struct FHE_PRIME_8 : public FHE_PRIME_8_mont { using mem_t = FHE_PRIME_8; 
+                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_8_rRR" is undefined
+  FHE_PRIME_7(const FHE_PRIME_7_mont& a) : FHE_PRIME_7_mont(a) {} }; typedef mont_t<61, FHE_PRIME_8_r, FHE_PRIME_8_m0, FHE_PRIME_8_rRR, FHE_PRIME_8_rone, FHE_PRIME_8_rx8> FHE_PRIME_8_mont; struct FHE_PRIME_8 : public FHE_PRIME_8_mont { using mem_t = FHE_PRIME_8; 
+                                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_8_rone" is undefined
+  FHE_PRIME_7(const FHE_PRIME_7_mont& a) : FHE_PRIME_7_mont(a) {} }; typedef mont_t<61, FHE_PRIME_8_r, FHE_PRIME_8_m0, FHE_PRIME_8_rRR, FHE_PRIME_8_rone, FHE_PRIME_8_rx8> FHE_PRIME_8_mont; struct FHE_PRIME_8 : public FHE_PRIME_8_mont { using mem_t = FHE_PRIME_8; 
+                                                                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_8_rx8" is undefined
+  FHE_PRIME_7(const FHE_PRIME_7_mont& a) : FHE_PRIME_7_mont(a) {} }; typedef mont_t<61, FHE_PRIME_8_r, FHE_PRIME_8_m0, FHE_PRIME_8_rRR, FHE_PRIME_8_rone, FHE_PRIME_8_rx8> FHE_PRIME_8_mont; struct FHE_PRIME_8 : public FHE_PRIME_8_mont { using mem_t = FHE_PRIME_8; 
+                                                                                                                                                          ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_9_r" is undefined
+  FHE_PRIME_8(const FHE_PRIME_8_mont& a) : FHE_PRIME_8_mont(a) {} }; typedef mont_t<61, FHE_PRIME_9_r, FHE_PRIME_9_m0, FHE_PRIME_9_rRR, FHE_PRIME_9_rone, FHE_PRIME_9_rx8> FHE_PRIME_9_mont; struct FHE_PRIME_9 : public FHE_PRIME_9_mont { using mem_t = FHE_PRIME_9; 
+                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_9_m0" is undefined
+  FHE_PRIME_8(const FHE_PRIME_8_mont& a) : FHE_PRIME_8_mont(a) {} }; typedef mont_t<61, FHE_PRIME_9_r, FHE_PRIME_9_m0, FHE_PRIME_9_rRR, FHE_PRIME_9_rone, FHE_PRIME_9_rx8> FHE_PRIME_9_mont; struct FHE_PRIME_9 : public FHE_PRIME_9_mont { using mem_t = FHE_PRIME_9; 
+                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_9_rRR" is undefined
+  FHE_PRIME_8(const FHE_PRIME_8_mont& a) : FHE_PRIME_8_mont(a) {} }; typedef mont_t<61, FHE_PRIME_9_r, FHE_PRIME_9_m0, FHE_PRIME_9_rRR, FHE_PRIME_9_rone, FHE_PRIME_9_rx8> FHE_PRIME_9_mont; struct FHE_PRIME_9 : public FHE_PRIME_9_mont { using mem_t = FHE_PRIME_9; 
+                                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_9_rone" is undefined
+  FHE_PRIME_8(const FHE_PRIME_8_mont& a) : FHE_PRIME_8_mont(a) {} }; typedef mont_t<61, FHE_PRIME_9_r, FHE_PRIME_9_m0, FHE_PRIME_9_rRR, FHE_PRIME_9_rone, FHE_PRIME_9_rx8> FHE_PRIME_9_mont; struct FHE_PRIME_9 : public FHE_PRIME_9_mont { using mem_t = FHE_PRIME_9; 
+                                                                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_9_rx8" is undefined
+  FHE_PRIME_8(const FHE_PRIME_8_mont& a) : FHE_PRIME_8_mont(a) {} }; typedef mont_t<61, FHE_PRIME_9_r, FHE_PRIME_9_m0, FHE_PRIME_9_rRR, FHE_PRIME_9_rone, FHE_PRIME_9_rx8> FHE_PRIME_9_mont; struct FHE_PRIME_9 : public FHE_PRIME_9_mont { using mem_t = FHE_PRIME_9; 
+                                                                                                                                                          ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_10_r" is undefined
+  FHE_PRIME_9(const FHE_PRIME_9_mont& a) : FHE_PRIME_9_mont(a) {} }; typedef mont_t<61, FHE_PRIME_10_r, FHE_PRIME_10_m0, FHE_PRIME_10_rRR, FHE_PRIME_10_rone, FHE_PRIME_10_rx8> FHE_PRIME_10_mont; struct FHE_PRIME_10 : public FHE_PRIME_10_mont { using mem_t = FHE_PRIME_10; 
+                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_10_m0" is undefined
+  FHE_PRIME_9(const FHE_PRIME_9_mont& a) : FHE_PRIME_9_mont(a) {} }; typedef mont_t<61, FHE_PRIME_10_r, FHE_PRIME_10_m0, FHE_PRIME_10_rRR, FHE_PRIME_10_rone, FHE_PRIME_10_rx8> FHE_PRIME_10_mont; struct FHE_PRIME_10 : public FHE_PRIME_10_mont { using mem_t = FHE_PRIME_10; 
+                                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_10_rRR" is undefined
+  FHE_PRIME_9(const FHE_PRIME_9_mont& a) : FHE_PRIME_9_mont(a) {} }; typedef mont_t<61, FHE_PRIME_10_r, FHE_PRIME_10_m0, FHE_PRIME_10_rRR, FHE_PRIME_10_rone, FHE_PRIME_10_rx8> FHE_PRIME_10_mont; struct FHE_PRIME_10 : public FHE_PRIME_10_mont { using mem_t = FHE_PRIME_10; 
+                                                                                                                         ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_10_rone" is undefined
+  FHE_PRIME_9(const FHE_PRIME_9_mont& a) : FHE_PRIME_9_mont(a) {} }; typedef mont_t<61, FHE_PRIME_10_r, FHE_PRIME_10_m0, FHE_PRIME_10_rRR, FHE_PRIME_10_rone, FHE_PRIME_10_rx8> FHE_PRIME_10_mont; struct FHE_PRIME_10 : public FHE_PRIME_10_mont { using mem_t = FHE_PRIME_10; 
+                                                                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_10_rx8" is undefined
+  FHE_PRIME_9(const FHE_PRIME_9_mont& a) : FHE_PRIME_9_mont(a) {} }; typedef mont_t<61, FHE_PRIME_10_r, FHE_PRIME_10_m0, FHE_PRIME_10_rRR, FHE_PRIME_10_rone, FHE_PRIME_10_rx8> FHE_PRIME_10_mont; struct FHE_PRIME_10 : public FHE_PRIME_10_mont { using mem_t = FHE_PRIME_10; 
+                                                                                                                                                              ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_11_r" is undefined
+  FHE_PRIME_10(const FHE_PRIME_10_mont& a) : FHE_PRIME_10_mont(a) {} }; typedef mont_t<61, FHE_PRIME_11_r, FHE_PRIME_11_m0, FHE_PRIME_11_rRR, FHE_PRIME_11_rone, FHE_PRIME_11_rx8> FHE_PRIME_11_mont; struct FHE_PRIME_11 : public FHE_PRIME_11_mont { using mem_t = FHE_PRIME_11; 
+                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_11_m0" is undefined
+  FHE_PRIME_10(const FHE_PRIME_10_mont& a) : FHE_PRIME_10_mont(a) {} }; typedef mont_t<61, FHE_PRIME_11_r, FHE_PRIME_11_m0, FHE_PRIME_11_rRR, FHE_PRIME_11_rone, FHE_PRIME_11_rx8> FHE_PRIME_11_mont; struct FHE_PRIME_11 : public FHE_PRIME_11_mont { using mem_t = FHE_PRIME_11; 
+                                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_11_rRR" is undefined
+  FHE_PRIME_10(const FHE_PRIME_10_mont& a) : FHE_PRIME_10_mont(a) {} }; typedef mont_t<61, FHE_PRIME_11_r, FHE_PRIME_11_m0, FHE_PRIME_11_rRR, FHE_PRIME_11_rone, FHE_PRIME_11_rx8> FHE_PRIME_11_mont; struct FHE_PRIME_11 : public FHE_PRIME_11_mont { using mem_t = FHE_PRIME_11; 
+                                                                                                                            ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_11_rone" is undefined
+  FHE_PRIME_10(const FHE_PRIME_10_mont& a) : FHE_PRIME_10_mont(a) {} }; typedef mont_t<61, FHE_PRIME_11_r, FHE_PRIME_11_m0, FHE_PRIME_11_rRR, FHE_PRIME_11_rone, FHE_PRIME_11_rx8> FHE_PRIME_11_mont; struct FHE_PRIME_11 : public FHE_PRIME_11_mont { using mem_t = FHE_PRIME_11; 
+                                                                                                                                              ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_11_rx8" is undefined
+  FHE_PRIME_10(const FHE_PRIME_10_mont& a) : FHE_PRIME_10_mont(a) {} }; typedef mont_t<61, FHE_PRIME_11_r, FHE_PRIME_11_m0, FHE_PRIME_11_rRR, FHE_PRIME_11_rone, FHE_PRIME_11_rx8> FHE_PRIME_11_mont; struct FHE_PRIME_11 : public FHE_PRIME_11_mont { using mem_t = FHE_PRIME_11; 
+                                                                                                                                                                 ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_12_r" is undefined
+  FHE_PRIME_11(const FHE_PRIME_11_mont& a) : FHE_PRIME_11_mont(a) {} }; typedef mont_t<61, FHE_PRIME_12_r, FHE_PRIME_12_m0, FHE_PRIME_12_rRR, FHE_PRIME_12_rone, FHE_PRIME_12_rx8> FHE_PRIME_12_mont; struct FHE_PRIME_12 : public FHE_PRIME_12_mont { using mem_t = FHE_PRIME_12; 
+                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_12_m0" is undefined
+  FHE_PRIME_11(const FHE_PRIME_11_mont& a) : FHE_PRIME_11_mont(a) {} }; typedef mont_t<61, FHE_PRIME_12_r, FHE_PRIME_12_m0, FHE_PRIME_12_rRR, FHE_PRIME_12_rone, FHE_PRIME_12_rx8> FHE_PRIME_12_mont; struct FHE_PRIME_12 : public FHE_PRIME_12_mont { using mem_t = FHE_PRIME_12; 
+                                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_12_rRR" is undefined
+  FHE_PRIME_11(const FHE_PRIME_11_mont& a) : FHE_PRIME_11_mont(a) {} }; typedef mont_t<61, FHE_PRIME_12_r, FHE_PRIME_12_m0, FHE_PRIME_12_rRR, FHE_PRIME_12_rone, FHE_PRIME_12_rx8> FHE_PRIME_12_mont; struct FHE_PRIME_12 : public FHE_PRIME_12_mont { using mem_t = FHE_PRIME_12; 
+                                                                                                                            ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_12_rone" is undefined
+  FHE_PRIME_11(const FHE_PRIME_11_mont& a) : FHE_PRIME_11_mont(a) {} }; typedef mont_t<61, FHE_PRIME_12_r, FHE_PRIME_12_m0, FHE_PRIME_12_rRR, FHE_PRIME_12_rone, FHE_PRIME_12_rx8> FHE_PRIME_12_mont; struct FHE_PRIME_12 : public FHE_PRIME_12_mont { using mem_t = FHE_PRIME_12; 
+                                                                                                                                              ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_12_rx8" is undefined
+  FHE_PRIME_11(const FHE_PRIME_11_mont& a) : FHE_PRIME_11_mont(a) {} }; typedef mont_t<61, FHE_PRIME_12_r, FHE_PRIME_12_m0, FHE_PRIME_12_rRR, FHE_PRIME_12_rone, FHE_PRIME_12_rx8> FHE_PRIME_12_mont; struct FHE_PRIME_12 : public FHE_PRIME_12_mont { using mem_t = FHE_PRIME_12; 
+                                                                                                                                                                 ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_13_r" is undefined
+  FHE_PRIME_12(const FHE_PRIME_12_mont& a) : FHE_PRIME_12_mont(a) {} }; typedef mont_t<61, FHE_PRIME_13_r, FHE_PRIME_13_m0, FHE_PRIME_13_rRR, FHE_PRIME_13_rone, FHE_PRIME_13_rx8> FHE_PRIME_13_mont; struct FHE_PRIME_13 : public FHE_PRIME_13_mont { using mem_t = FHE_PRIME_13; 
+                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_13_m0" is undefined
+  FHE_PRIME_12(const FHE_PRIME_12_mont& a) : FHE_PRIME_12_mont(a) {} }; typedef mont_t<61, FHE_PRIME_13_r, FHE_PRIME_13_m0, FHE_PRIME_13_rRR, FHE_PRIME_13_rone, FHE_PRIME_13_rx8> FHE_PRIME_13_mont; struct FHE_PRIME_13 : public FHE_PRIME_13_mont { using mem_t = FHE_PRIME_13; 
+                                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_13_rRR" is undefined
+  FHE_PRIME_12(const FHE_PRIME_12_mont& a) : FHE_PRIME_12_mont(a) {} }; typedef mont_t<61, FHE_PRIME_13_r, FHE_PRIME_13_m0, FHE_PRIME_13_rRR, FHE_PRIME_13_rone, FHE_PRIME_13_rx8> FHE_PRIME_13_mont; struct FHE_PRIME_13 : public FHE_PRIME_13_mont { using mem_t = FHE_PRIME_13; 
+                                                                                                                            ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_13_rone" is undefined
+  FHE_PRIME_12(const FHE_PRIME_12_mont& a) : FHE_PRIME_12_mont(a) {} }; typedef mont_t<61, FHE_PRIME_13_r, FHE_PRIME_13_m0, FHE_PRIME_13_rRR, FHE_PRIME_13_rone, FHE_PRIME_13_rx8> FHE_PRIME_13_mont; struct FHE_PRIME_13 : public FHE_PRIME_13_mont { using mem_t = FHE_PRIME_13; 
+                                                                                                                                              ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_13_rx8" is undefined
+  FHE_PRIME_12(const FHE_PRIME_12_mont& a) : FHE_PRIME_12_mont(a) {} }; typedef mont_t<61, FHE_PRIME_13_r, FHE_PRIME_13_m0, FHE_PRIME_13_rRR, FHE_PRIME_13_rone, FHE_PRIME_13_rx8> FHE_PRIME_13_mont; struct FHE_PRIME_13 : public FHE_PRIME_13_mont { using mem_t = FHE_PRIME_13; 
+                                                                                                                                                                 ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_14_r" is undefined
+  FHE_PRIME_13(const FHE_PRIME_13_mont& a) : FHE_PRIME_13_mont(a) {} }; typedef mont_t<61, FHE_PRIME_14_r, FHE_PRIME_14_m0, FHE_PRIME_14_rRR, FHE_PRIME_14_rone, FHE_PRIME_14_rx8> FHE_PRIME_14_mont; struct FHE_PRIME_14 : public FHE_PRIME_14_mont { using mem_t = FHE_PRIME_14; 
+                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_14_m0" is undefined
+  FHE_PRIME_13(const FHE_PRIME_13_mont& a) : FHE_PRIME_13_mont(a) {} }; typedef mont_t<61, FHE_PRIME_14_r, FHE_PRIME_14_m0, FHE_PRIME_14_rRR, FHE_PRIME_14_rone, FHE_PRIME_14_rx8> FHE_PRIME_14_mont; struct FHE_PRIME_14 : public FHE_PRIME_14_mont { using mem_t = FHE_PRIME_14; 
+                                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_14_rRR" is undefined
+  FHE_PRIME_13(const FHE_PRIME_13_mont& a) : FHE_PRIME_13_mont(a) {} }; typedef mont_t<61, FHE_PRIME_14_r, FHE_PRIME_14_m0, FHE_PRIME_14_rRR, FHE_PRIME_14_rone, FHE_PRIME_14_rx8> FHE_PRIME_14_mont; struct FHE_PRIME_14 : public FHE_PRIME_14_mont { using mem_t = FHE_PRIME_14; 
+                                                                                                                            ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_14_rone" is undefined
+  FHE_PRIME_13(const FHE_PRIME_13_mont& a) : FHE_PRIME_13_mont(a) {} }; typedef mont_t<61, FHE_PRIME_14_r, FHE_PRIME_14_m0, FHE_PRIME_14_rRR, FHE_PRIME_14_rone, FHE_PRIME_14_rx8> FHE_PRIME_14_mont; struct FHE_PRIME_14 : public FHE_PRIME_14_mont { using mem_t = FHE_PRIME_14; 
+                                                                                                                                              ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_14_rx8" is undefined
+  FHE_PRIME_13(const FHE_PRIME_13_mont& a) : FHE_PRIME_13_mont(a) {} }; typedef mont_t<61, FHE_PRIME_14_r, FHE_PRIME_14_m0, FHE_PRIME_14_rRR, FHE_PRIME_14_rone, FHE_PRIME_14_rx8> FHE_PRIME_14_mont; struct FHE_PRIME_14 : public FHE_PRIME_14_mont { using mem_t = FHE_PRIME_14; 
+                                                                                                                                                                 ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_15_r" is undefined
+  FHE_PRIME_14(const FHE_PRIME_14_mont& a) : FHE_PRIME_14_mont(a) {} }; typedef mont_t<61, FHE_PRIME_15_r, FHE_PRIME_15_m0, FHE_PRIME_15_rRR, FHE_PRIME_15_rone, FHE_PRIME_15_rx8> FHE_PRIME_15_mont; struct FHE_PRIME_15 : public FHE_PRIME_15_mont { using mem_t = FHE_PRIME_15; 
+                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_15_m0" is undefined
+  FHE_PRIME_14(const FHE_PRIME_14_mont& a) : FHE_PRIME_14_mont(a) {} }; typedef mont_t<61, FHE_PRIME_15_r, FHE_PRIME_15_m0, FHE_PRIME_15_rRR, FHE_PRIME_15_rone, FHE_PRIME_15_rx8> FHE_PRIME_15_mont; struct FHE_PRIME_15 : public FHE_PRIME_15_mont { using mem_t = FHE_PRIME_15; 
+                                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_15_rRR" is undefined
+  FHE_PRIME_14(const FHE_PRIME_14_mont& a) : FHE_PRIME_14_mont(a) {} }; typedef mont_t<61, FHE_PRIME_15_r, FHE_PRIME_15_m0, FHE_PRIME_15_rRR, FHE_PRIME_15_rone, FHE_PRIME_15_rx8> FHE_PRIME_15_mont; struct FHE_PRIME_15 : public FHE_PRIME_15_mont { using mem_t = FHE_PRIME_15; 
+                                                                                                                            ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_15_rone" is undefined
+  FHE_PRIME_14(const FHE_PRIME_14_mont& a) : FHE_PRIME_14_mont(a) {} }; typedef mont_t<61, FHE_PRIME_15_r, FHE_PRIME_15_m0, FHE_PRIME_15_rRR, FHE_PRIME_15_rone, FHE_PRIME_15_rx8> FHE_PRIME_15_mont; struct FHE_PRIME_15 : public FHE_PRIME_15_mont { using mem_t = FHE_PRIME_15; 
+                                                                                                                                              ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_15_rx8" is undefined
+  FHE_PRIME_14(const FHE_PRIME_14_mont& a) : FHE_PRIME_14_mont(a) {} }; typedef mont_t<61, FHE_PRIME_15_r, FHE_PRIME_15_m0, FHE_PRIME_15_rRR, FHE_PRIME_15_rone, FHE_PRIME_15_rx8> FHE_PRIME_15_mont; struct FHE_PRIME_15 : public FHE_PRIME_15_mont { using mem_t = FHE_PRIME_15; 
+                                                                                                                                                                 ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_16_r" is undefined
+  FHE_PRIME_15(const FHE_PRIME_15_mont& a) : FHE_PRIME_15_mont(a) {} }; typedef mont_t<61, FHE_PRIME_16_r, FHE_PRIME_16_m0, FHE_PRIME_16_rRR, FHE_PRIME_16_rone, FHE_PRIME_16_rx8> FHE_PRIME_16_mont; struct FHE_PRIME_16 : public FHE_PRIME_16_mont { using mem_t = FHE_PRIME_16; 
+                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_16_m0" is undefined
+  FHE_PRIME_15(const FHE_PRIME_15_mont& a) : FHE_PRIME_15_mont(a) {} }; typedef mont_t<61, FHE_PRIME_16_r, FHE_PRIME_16_m0, FHE_PRIME_16_rRR, FHE_PRIME_16_rone, FHE_PRIME_16_rx8> FHE_PRIME_16_mont; struct FHE_PRIME_16 : public FHE_PRIME_16_mont { using mem_t = FHE_PRIME_16; 
+                                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_16_rRR" is undefined
+  FHE_PRIME_15(const FHE_PRIME_15_mont& a) : FHE_PRIME_15_mont(a) {} }; typedef mont_t<61, FHE_PRIME_16_r, FHE_PRIME_16_m0, FHE_PRIME_16_rRR, FHE_PRIME_16_rone, FHE_PRIME_16_rx8> FHE_PRIME_16_mont; struct FHE_PRIME_16 : public FHE_PRIME_16_mont { using mem_t = FHE_PRIME_16; 
+                                                                                                                            ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_16_rone" is undefined
+  FHE_PRIME_15(const FHE_PRIME_15_mont& a) : FHE_PRIME_15_mont(a) {} }; typedef mont_t<61, FHE_PRIME_16_r, FHE_PRIME_16_m0, FHE_PRIME_16_rRR, FHE_PRIME_16_rone, FHE_PRIME_16_rx8> FHE_PRIME_16_mont; struct FHE_PRIME_16 : public FHE_PRIME_16_mont { using mem_t = FHE_PRIME_16; 
+                                                                                                                                              ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_16_rx8" is undefined
+  FHE_PRIME_15(const FHE_PRIME_15_mont& a) : FHE_PRIME_15_mont(a) {} }; typedef mont_t<61, FHE_PRIME_16_r, FHE_PRIME_16_m0, FHE_PRIME_16_rRR, FHE_PRIME_16_rone, FHE_PRIME_16_rx8> FHE_PRIME_16_mont; struct FHE_PRIME_16 : public FHE_PRIME_16_mont { using mem_t = FHE_PRIME_16; 
+                                                                                                                                                                 ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_17_r" is undefined
+  FHE_PRIME_16(const FHE_PRIME_16_mont& a) : FHE_PRIME_16_mont(a) {} }; typedef mont_t<61, FHE_PRIME_17_r, FHE_PRIME_17_m0, FHE_PRIME_17_rRR, FHE_PRIME_17_rone, FHE_PRIME_17_rx8> FHE_PRIME_17_mont; struct FHE_PRIME_17 : public FHE_PRIME_17_mont { using mem_t = FHE_PRIME_17; 
+                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_17_m0" is undefined
+  FHE_PRIME_16(const FHE_PRIME_16_mont& a) : FHE_PRIME_16_mont(a) {} }; typedef mont_t<61, FHE_PRIME_17_r, FHE_PRIME_17_m0, FHE_PRIME_17_rRR, FHE_PRIME_17_rone, FHE_PRIME_17_rx8> FHE_PRIME_17_mont; struct FHE_PRIME_17 : public FHE_PRIME_17_mont { using mem_t = FHE_PRIME_17; 
+                                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_17_rRR" is undefined
+  FHE_PRIME_16(const FHE_PRIME_16_mont& a) : FHE_PRIME_16_mont(a) {} }; typedef mont_t<61, FHE_PRIME_17_r, FHE_PRIME_17_m0, FHE_PRIME_17_rRR, FHE_PRIME_17_rone, FHE_PRIME_17_rx8> FHE_PRIME_17_mont; struct FHE_PRIME_17 : public FHE_PRIME_17_mont { using mem_t = FHE_PRIME_17; 
+                                                                                                                            ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_17_rone" is undefined
+  FHE_PRIME_16(const FHE_PRIME_16_mont& a) : FHE_PRIME_16_mont(a) {} }; typedef mont_t<61, FHE_PRIME_17_r, FHE_PRIME_17_m0, FHE_PRIME_17_rRR, FHE_PRIME_17_rone, FHE_PRIME_17_rx8> FHE_PRIME_17_mont; struct FHE_PRIME_17 : public FHE_PRIME_17_mont { using mem_t = FHE_PRIME_17; 
+                                                                                                                                              ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_17_rx8" is undefined
+  FHE_PRIME_16(const FHE_PRIME_16_mont& a) : FHE_PRIME_16_mont(a) {} }; typedef mont_t<61, FHE_PRIME_17_r, FHE_PRIME_17_m0, FHE_PRIME_17_rRR, FHE_PRIME_17_rone, FHE_PRIME_17_rx8> FHE_PRIME_17_mont; struct FHE_PRIME_17 : public FHE_PRIME_17_mont { using mem_t = FHE_PRIME_17; 
+                                                                                                                                                                 ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_18_r" is undefined
+  FHE_PRIME_17(const FHE_PRIME_17_mont& a) : FHE_PRIME_17_mont(a) {} }; typedef mont_t<61, FHE_PRIME_18_r, FHE_PRIME_18_m0, FHE_PRIME_18_rRR, FHE_PRIME_18_rone, FHE_PRIME_18_rx8> FHE_PRIME_18_mont; struct FHE_PRIME_18 : public FHE_PRIME_18_mont { using mem_t = FHE_PRIME_18; 
+                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_18_m0" is undefined
+  FHE_PRIME_17(const FHE_PRIME_17_mont& a) : FHE_PRIME_17_mont(a) {} }; typedef mont_t<61, FHE_PRIME_18_r, FHE_PRIME_18_m0, FHE_PRIME_18_rRR, FHE_PRIME_18_rone, FHE_PRIME_18_rx8> FHE_PRIME_18_mont; struct FHE_PRIME_18 : public FHE_PRIME_18_mont { using mem_t = FHE_PRIME_18; 
+                                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_18_rRR" is undefined
+  FHE_PRIME_17(const FHE_PRIME_17_mont& a) : FHE_PRIME_17_mont(a) {} }; typedef mont_t<61, FHE_PRIME_18_r, FHE_PRIME_18_m0, FHE_PRIME_18_rRR, FHE_PRIME_18_rone, FHE_PRIME_18_rx8> FHE_PRIME_18_mont; struct FHE_PRIME_18 : public FHE_PRIME_18_mont { using mem_t = FHE_PRIME_18; 
+                                                                                                                            ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_18_rone" is undefined
+  FHE_PRIME_17(const FHE_PRIME_17_mont& a) : FHE_PRIME_17_mont(a) {} }; typedef mont_t<61, FHE_PRIME_18_r, FHE_PRIME_18_m0, FHE_PRIME_18_rRR, FHE_PRIME_18_rone, FHE_PRIME_18_rx8> FHE_PRIME_18_mont; struct FHE_PRIME_18 : public FHE_PRIME_18_mont { using mem_t = FHE_PRIME_18; 
+                                                                                                                                              ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_18_rx8" is undefined
+  FHE_PRIME_17(const FHE_PRIME_17_mont& a) : FHE_PRIME_17_mont(a) {} }; typedef mont_t<61, FHE_PRIME_18_r, FHE_PRIME_18_m0, FHE_PRIME_18_rRR, FHE_PRIME_18_rone, FHE_PRIME_18_rx8> FHE_PRIME_18_mont; struct FHE_PRIME_18 : public FHE_PRIME_18_mont { using mem_t = FHE_PRIME_18; 
+                                                                                                                                                                 ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_19_r" is undefined
+  FHE_PRIME_18(const FHE_PRIME_18_mont& a) : FHE_PRIME_18_mont(a) {} }; typedef mont_t<61, FHE_PRIME_19_r, FHE_PRIME_19_m0, FHE_PRIME_19_rRR, FHE_PRIME_19_rone, FHE_PRIME_19_rx8> FHE_PRIME_19_mont; struct FHE_PRIME_19 : public FHE_PRIME_19_mont { using mem_t = FHE_PRIME_19; 
+                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_19_m0" is undefined
+  FHE_PRIME_18(const FHE_PRIME_18_mont& a) : FHE_PRIME_18_mont(a) {} }; typedef mont_t<61, FHE_PRIME_19_r, FHE_PRIME_19_m0, FHE_PRIME_19_rRR, FHE_PRIME_19_rone, FHE_PRIME_19_rx8> FHE_PRIME_19_mont; struct FHE_PRIME_19 : public FHE_PRIME_19_mont { using mem_t = FHE_PRIME_19; 
+                                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_19_rRR" is undefined
+  FHE_PRIME_18(const FHE_PRIME_18_mont& a) : FHE_PRIME_18_mont(a) {} }; typedef mont_t<61, FHE_PRIME_19_r, FHE_PRIME_19_m0, FHE_PRIME_19_rRR, FHE_PRIME_19_rone, FHE_PRIME_19_rx8> FHE_PRIME_19_mont; struct FHE_PRIME_19 : public FHE_PRIME_19_mont { using mem_t = FHE_PRIME_19; 
+                                                                                                                            ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_19_rone" is undefined
+  FHE_PRIME_18(const FHE_PRIME_18_mont& a) : FHE_PRIME_18_mont(a) {} }; typedef mont_t<61, FHE_PRIME_19_r, FHE_PRIME_19_m0, FHE_PRIME_19_rRR, FHE_PRIME_19_rone, FHE_PRIME_19_rx8> FHE_PRIME_19_mont; struct FHE_PRIME_19 : public FHE_PRIME_19_mont { using mem_t = FHE_PRIME_19; 
+                                                                                                                                              ^
+
+Error limit reached.
+100 errors detected in the compilation of "/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/mont_arithmetic.cu".
+Compilation terminated.
+[5/507] Building CUDA object caffe2/CMakeFiles/torch_cuda.dir/__/aten/src/ATen/native/pnp/zkp/cuda/zksnark_ntt.cu.o
+FAILED: caffe2/CMakeFiles/torch_cuda.dir/__/aten/src/ATen/native/pnp/zkp/cuda/zksnark_ntt.cu.o 
+/usr/local/cuda/bin/nvcc -forward-unknown-to-host-compiler -DAT_PER_OPERATOR_HEADERS -DHAVE_MALLOC_USABLE_SIZE=1 -DHAVE_MMAP=1 -DHAVE_SHM_OPEN=1 -DHAVE_SHM_UNLINK=1 -DMINIZ_DISABLE_ZIP_READER_CRC32_CHECKS -DONNXIFI_ENABLE_EXT=1 -DONNX_ML=1 -DONNX_NAMESPACE=onnx_torch -DTORCH_CUDA_BUILD_MAIN_LIB -DUSE_C10D_GLOO -DUSE_C10D_NCCL -DUSE_CUDA -DUSE_DISTRIBUTED -DUSE_EXTERNAL_MZCRC -DUSE_FLASH_ATTENTION -DUSE_MEM_EFF_ATTENTION -DUSE_NCCL -DUSE_RPC -DUSE_TENSORPIPE -D_FILE_OFFSET_BITS=64 -Dtorch_cuda_EXPORTS -I/home/zrji/pyZKP/build/aten/src -I/home/zrji/pyZKP/aten/src -I/home/zrji/pyZKP/build -I/home/zrji/pyZKP -I/home/zrji/pyZKP/cmake/../third_party/benchmark/include -I/home/zrji/pyZKP/third_party/onnx -I/home/zrji/pyZKP/build/third_party/onnx -I/home/zrji/pyZKP/third_party/foxi -I/home/zrji/pyZKP/build/third_party/foxi -I/home/zrji/pyZKP/aten/src/THC -I/home/zrji/pyZKP/aten/src/ATen/cuda -I/home/zrji/pyZKP/aten/src/ATen/../../../third_party/cutlass/include -I/home/zrji/pyZKP/build/caffe2/aten/src -I/home/zrji/pyZKP/aten/src/ATen/.. -I/home/zrji/pyZKP/build/nccl/include -I/home/zrji/pyZKP/c10/cuda/../.. -I/home/zrji/pyZKP/c10/.. -I/home/zrji/pyZKP/third_party/tensorpipe -I/home/zrji/pyZKP/build/third_party/tensorpipe -I/home/zrji/pyZKP/third_party/tensorpipe/third_party/libnop/include -I/home/zrji/pyZKP/torch/csrc/api -I/home/zrji/pyZKP/torch/csrc/api/include -isystem /home/zrji/pyZKP/build/third_party/gloo -isystem /home/zrji/pyZKP/cmake/../third_party/gloo -isystem /home/zrji/pyZKP/cmake/../third_party/tensorpipe/third_party/libuv/include -isystem /home/zrji/pyZKP/cmake/../third_party/googletest/googlemock/include -isystem /home/zrji/pyZKP/cmake/../third_party/googletest/googletest/include -isystem /home/zrji/pyZKP/third_party/protobuf/src -isystem /home/zrji/pyZKP/third_party/gemmlowp -isystem /home/zrji/pyZKP/third_party/neon2sse -isystem /home/zrji/pyZKP/third_party/XNNPACK/include -isystem /home/zrji/pyZKP/third_party/ittapi/include -isystem /home/zrji/pyZKP/cmake/../third_party/eigen -isystem /usr/local/cuda/include -isystem /home/zrji/pyZKP/torch/include -isystem /home/zrji/pyZKP/third_party/ideep/include -isystem /home/zrji/pyZKP/torch/include/oneapi/dnnl -D_GLIBCXX_USE_CXX11_ABI=1 -Xfatbin -compress-all -DONNX_NAMESPACE=onnx_torch -gencode arch=compute_89,code=sm_89 -Xcudafe --diag_suppress=cc_clobber_ignored,--diag_suppress=field_without_dll_interface,--diag_suppress=base_class_has_different_dll_interface,--diag_suppress=dll_interface_conflict_none_assumed,--diag_suppress=dll_interface_conflict_dllexport_assumed,--diag_suppress=bad_friend_decl --expt-relaxed-constexpr --expt-extended-lambda  -Wno-deprecated-gpu-targets --expt-extended-lambda -DCUB_WRAPPED_NAMESPACE=at_cuda_detail -DCUDA_HAS_FP16=1 -D__CUDA_NO_HALF_OPERATORS__ -D__CUDA_NO_HALF_CONVERSIONS__ -D__CUDA_NO_HALF2_OPERATORS__ -D__CUDA_NO_BFLOAT16_CONVERSIONS__ -O3 -DNDEBUG -std=c++17 -Xcompiler=-fPIC -DTORCH_USE_LIBUV -DCAFFE2_USE_GLOO -Xcompiler=-Wall,-Wextra,-Wdeprecated,-Wno-unused-parameter,-Wno-unused-function,-Wno-missing-field-initializers,-Wno-unknown-pragmas,-Wno-type-limits,-Wno-array-bounds,-Wno-unknown-pragmas,-Wno-strict-overflow,-Wno-strict-aliasing,-Wno-maybe-uninitialized -MD -MT caffe2/CMakeFiles/torch_cuda.dir/__/aten/src/ATen/native/pnp/zkp/cuda/zksnark_ntt.cu.o -MF caffe2/CMakeFiles/torch_cuda.dir/__/aten/src/ATen/native/pnp/zkp/cuda/zksnark_ntt.cu.o.d -x cu -c /home/zrji/pyZKP/aten/src/ATen/native/pnp/zkp/cuda/zksnark_ntt.cu -o caffe2/CMakeFiles/torch_cuda.dir/__/aten/src/ATen/native/pnp/zkp/cuda/zksnark_ntt.cu.o
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_0_r" is undefined
+  typedef mont_t<61, FHE_PRIME_0_r, FHE_PRIME_0_m0, FHE_PRIME_0_rRR, FHE_PRIME_0_rone, FHE_PRIME_0_rx8> FHE_PRIME_0_mont; struct FHE_PRIME_0 : public FHE_PRIME_0_mont { using mem_t = FHE_PRIME_0; 
+                     ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_0_m0" is undefined
+  typedef mont_t<61, FHE_PRIME_0_r, FHE_PRIME_0_m0, FHE_PRIME_0_rRR, FHE_PRIME_0_rone, FHE_PRIME_0_rx8> FHE_PRIME_0_mont; struct FHE_PRIME_0 : public FHE_PRIME_0_mont { using mem_t = FHE_PRIME_0; 
+                                    ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_0_rRR" is undefined
+  typedef mont_t<61, FHE_PRIME_0_r, FHE_PRIME_0_m0, FHE_PRIME_0_rRR, FHE_PRIME_0_rone, FHE_PRIME_0_rx8> FHE_PRIME_0_mont; struct FHE_PRIME_0 : public FHE_PRIME_0_mont { using mem_t = FHE_PRIME_0; 
+                                                    ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_0_rone" is undefined
+  typedef mont_t<61, FHE_PRIME_0_r, FHE_PRIME_0_m0, FHE_PRIME_0_rRR, FHE_PRIME_0_rone, FHE_PRIME_0_rx8> FHE_PRIME_0_mont; struct FHE_PRIME_0 : public FHE_PRIME_0_mont { using mem_t = FHE_PRIME_0; 
+                                                                     ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_0_rx8" is undefined
+  typedef mont_t<61, FHE_PRIME_0_r, FHE_PRIME_0_m0, FHE_PRIME_0_rRR, FHE_PRIME_0_rone, FHE_PRIME_0_rx8> FHE_PRIME_0_mont; struct FHE_PRIME_0 : public FHE_PRIME_0_mont { using mem_t = FHE_PRIME_0; 
+                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/mont_t.cuh(34): error: bad attribute argument substitution
+       ((N + 63) / 64) & 1 ? 8 : 16
+       ^
+          detected during instantiation of class "mont_t<N, MOD, M0, RR, ONE, MODx> [with N=61UL, MOD=<error-constant>, M0=<error-constant>, RR=<error-constant>, ONE=<error-constant>, MODx=<error-constant>]" at line 41 of /home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_1_r" is undefined
+  FHE_PRIME_0(const FHE_PRIME_0_mont& a) : FHE_PRIME_0_mont(a) {} }; typedef mont_t<61, FHE_PRIME_1_r, FHE_PRIME_1_m0, FHE_PRIME_1_rRR, FHE_PRIME_1_rone, FHE_PRIME_1_rx8> FHE_PRIME_1_mont; struct FHE_PRIME_1 : public FHE_PRIME_1_mont { using mem_t = FHE_PRIME_1; 
+                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_1_m0" is undefined
+  FHE_PRIME_0(const FHE_PRIME_0_mont& a) : FHE_PRIME_0_mont(a) {} }; typedef mont_t<61, FHE_PRIME_1_r, FHE_PRIME_1_m0, FHE_PRIME_1_rRR, FHE_PRIME_1_rone, FHE_PRIME_1_rx8> FHE_PRIME_1_mont; struct FHE_PRIME_1 : public FHE_PRIME_1_mont { using mem_t = FHE_PRIME_1; 
+                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_1_rRR" is undefined
+  FHE_PRIME_0(const FHE_PRIME_0_mont& a) : FHE_PRIME_0_mont(a) {} }; typedef mont_t<61, FHE_PRIME_1_r, FHE_PRIME_1_m0, FHE_PRIME_1_rRR, FHE_PRIME_1_rone, FHE_PRIME_1_rx8> FHE_PRIME_1_mont; struct FHE_PRIME_1 : public FHE_PRIME_1_mont { using mem_t = FHE_PRIME_1; 
+                                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_1_rone" is undefined
+  FHE_PRIME_0(const FHE_PRIME_0_mont& a) : FHE_PRIME_0_mont(a) {} }; typedef mont_t<61, FHE_PRIME_1_r, FHE_PRIME_1_m0, FHE_PRIME_1_rRR, FHE_PRIME_1_rone, FHE_PRIME_1_rx8> FHE_PRIME_1_mont; struct FHE_PRIME_1 : public FHE_PRIME_1_mont { using mem_t = FHE_PRIME_1; 
+                                                                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_1_rx8" is undefined
+  FHE_PRIME_0(const FHE_PRIME_0_mont& a) : FHE_PRIME_0_mont(a) {} }; typedef mont_t<61, FHE_PRIME_1_r, FHE_PRIME_1_m0, FHE_PRIME_1_rRR, FHE_PRIME_1_rone, FHE_PRIME_1_rx8> FHE_PRIME_1_mont; struct FHE_PRIME_1 : public FHE_PRIME_1_mont { using mem_t = FHE_PRIME_1; 
+                                                                                                                                                          ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_2_r" is undefined
+  FHE_PRIME_1(const FHE_PRIME_1_mont& a) : FHE_PRIME_1_mont(a) {} }; typedef mont_t<61, FHE_PRIME_2_r, FHE_PRIME_2_m0, FHE_PRIME_2_rRR, FHE_PRIME_2_rone, FHE_PRIME_2_rx8> FHE_PRIME_2_mont; struct FHE_PRIME_2 : public FHE_PRIME_2_mont { using mem_t = FHE_PRIME_2; 
+                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_2_m0" is undefined
+  FHE_PRIME_1(const FHE_PRIME_1_mont& a) : FHE_PRIME_1_mont(a) {} }; typedef mont_t<61, FHE_PRIME_2_r, FHE_PRIME_2_m0, FHE_PRIME_2_rRR, FHE_PRIME_2_rone, FHE_PRIME_2_rx8> FHE_PRIME_2_mont; struct FHE_PRIME_2 : public FHE_PRIME_2_mont { using mem_t = FHE_PRIME_2; 
+                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_2_rRR" is undefined
+  FHE_PRIME_1(const FHE_PRIME_1_mont& a) : FHE_PRIME_1_mont(a) {} }; typedef mont_t<61, FHE_PRIME_2_r, FHE_PRIME_2_m0, FHE_PRIME_2_rRR, FHE_PRIME_2_rone, FHE_PRIME_2_rx8> FHE_PRIME_2_mont; struct FHE_PRIME_2 : public FHE_PRIME_2_mont { using mem_t = FHE_PRIME_2; 
+                                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_2_rone" is undefined
+  FHE_PRIME_1(const FHE_PRIME_1_mont& a) : FHE_PRIME_1_mont(a) {} }; typedef mont_t<61, FHE_PRIME_2_r, FHE_PRIME_2_m0, FHE_PRIME_2_rRR, FHE_PRIME_2_rone, FHE_PRIME_2_rx8> FHE_PRIME_2_mont; struct FHE_PRIME_2 : public FHE_PRIME_2_mont { using mem_t = FHE_PRIME_2; 
+                                                                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_2_rx8" is undefined
+  FHE_PRIME_1(const FHE_PRIME_1_mont& a) : FHE_PRIME_1_mont(a) {} }; typedef mont_t<61, FHE_PRIME_2_r, FHE_PRIME_2_m0, FHE_PRIME_2_rRR, FHE_PRIME_2_rone, FHE_PRIME_2_rx8> FHE_PRIME_2_mont; struct FHE_PRIME_2 : public FHE_PRIME_2_mont { using mem_t = FHE_PRIME_2; 
+                                                                                                                                                          ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_3_r" is undefined
+  FHE_PRIME_2(const FHE_PRIME_2_mont& a) : FHE_PRIME_2_mont(a) {} }; typedef mont_t<61, FHE_PRIME_3_r, FHE_PRIME_3_m0, FHE_PRIME_3_rRR, FHE_PRIME_3_rone, FHE_PRIME_3_rx8> FHE_PRIME_3_mont; struct FHE_PRIME_3 : public FHE_PRIME_3_mont { using mem_t = FHE_PRIME_3; 
+                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_3_m0" is undefined
+  FHE_PRIME_2(const FHE_PRIME_2_mont& a) : FHE_PRIME_2_mont(a) {} }; typedef mont_t<61, FHE_PRIME_3_r, FHE_PRIME_3_m0, FHE_PRIME_3_rRR, FHE_PRIME_3_rone, FHE_PRIME_3_rx8> FHE_PRIME_3_mont; struct FHE_PRIME_3 : public FHE_PRIME_3_mont { using mem_t = FHE_PRIME_3; 
+                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_3_rRR" is undefined
+  FHE_PRIME_2(const FHE_PRIME_2_mont& a) : FHE_PRIME_2_mont(a) {} }; typedef mont_t<61, FHE_PRIME_3_r, FHE_PRIME_3_m0, FHE_PRIME_3_rRR, FHE_PRIME_3_rone, FHE_PRIME_3_rx8> FHE_PRIME_3_mont; struct FHE_PRIME_3 : public FHE_PRIME_3_mont { using mem_t = FHE_PRIME_3; 
+                                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_3_rone" is undefined
+  FHE_PRIME_2(const FHE_PRIME_2_mont& a) : FHE_PRIME_2_mont(a) {} }; typedef mont_t<61, FHE_PRIME_3_r, FHE_PRIME_3_m0, FHE_PRIME_3_rRR, FHE_PRIME_3_rone, FHE_PRIME_3_rx8> FHE_PRIME_3_mont; struct FHE_PRIME_3 : public FHE_PRIME_3_mont { using mem_t = FHE_PRIME_3; 
+                                                                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_3_rx8" is undefined
+  FHE_PRIME_2(const FHE_PRIME_2_mont& a) : FHE_PRIME_2_mont(a) {} }; typedef mont_t<61, FHE_PRIME_3_r, FHE_PRIME_3_m0, FHE_PRIME_3_rRR, FHE_PRIME_3_rone, FHE_PRIME_3_rx8> FHE_PRIME_3_mont; struct FHE_PRIME_3 : public FHE_PRIME_3_mont { using mem_t = FHE_PRIME_3; 
+                                                                                                                                                          ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_4_r" is undefined
+  FHE_PRIME_3(const FHE_PRIME_3_mont& a) : FHE_PRIME_3_mont(a) {} }; typedef mont_t<61, FHE_PRIME_4_r, FHE_PRIME_4_m0, FHE_PRIME_4_rRR, FHE_PRIME_4_rone, FHE_PRIME_4_rx8> FHE_PRIME_4_mont; struct FHE_PRIME_4 : public FHE_PRIME_4_mont { using mem_t = FHE_PRIME_4; 
+                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_4_m0" is undefined
+  FHE_PRIME_3(const FHE_PRIME_3_mont& a) : FHE_PRIME_3_mont(a) {} }; typedef mont_t<61, FHE_PRIME_4_r, FHE_PRIME_4_m0, FHE_PRIME_4_rRR, FHE_PRIME_4_rone, FHE_PRIME_4_rx8> FHE_PRIME_4_mont; struct FHE_PRIME_4 : public FHE_PRIME_4_mont { using mem_t = FHE_PRIME_4; 
+                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_4_rRR" is undefined
+  FHE_PRIME_3(const FHE_PRIME_3_mont& a) : FHE_PRIME_3_mont(a) {} }; typedef mont_t<61, FHE_PRIME_4_r, FHE_PRIME_4_m0, FHE_PRIME_4_rRR, FHE_PRIME_4_rone, FHE_PRIME_4_rx8> FHE_PRIME_4_mont; struct FHE_PRIME_4 : public FHE_PRIME_4_mont { using mem_t = FHE_PRIME_4; 
+                                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_4_rone" is undefined
+  FHE_PRIME_3(const FHE_PRIME_3_mont& a) : FHE_PRIME_3_mont(a) {} }; typedef mont_t<61, FHE_PRIME_4_r, FHE_PRIME_4_m0, FHE_PRIME_4_rRR, FHE_PRIME_4_rone, FHE_PRIME_4_rx8> FHE_PRIME_4_mont; struct FHE_PRIME_4 : public FHE_PRIME_4_mont { using mem_t = FHE_PRIME_4; 
+                                                                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_4_rx8" is undefined
+  FHE_PRIME_3(const FHE_PRIME_3_mont& a) : FHE_PRIME_3_mont(a) {} }; typedef mont_t<61, FHE_PRIME_4_r, FHE_PRIME_4_m0, FHE_PRIME_4_rRR, FHE_PRIME_4_rone, FHE_PRIME_4_rx8> FHE_PRIME_4_mont; struct FHE_PRIME_4 : public FHE_PRIME_4_mont { using mem_t = FHE_PRIME_4; 
+                                                                                                                                                          ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_5_r" is undefined
+  FHE_PRIME_4(const FHE_PRIME_4_mont& a) : FHE_PRIME_4_mont(a) {} }; typedef mont_t<61, FHE_PRIME_5_r, FHE_PRIME_5_m0, FHE_PRIME_5_rRR, FHE_PRIME_5_rone, FHE_PRIME_5_rx8> FHE_PRIME_5_mont; struct FHE_PRIME_5 : public FHE_PRIME_5_mont { using mem_t = FHE_PRIME_5; 
+                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_5_m0" is undefined
+  FHE_PRIME_4(const FHE_PRIME_4_mont& a) : FHE_PRIME_4_mont(a) {} }; typedef mont_t<61, FHE_PRIME_5_r, FHE_PRIME_5_m0, FHE_PRIME_5_rRR, FHE_PRIME_5_rone, FHE_PRIME_5_rx8> FHE_PRIME_5_mont; struct FHE_PRIME_5 : public FHE_PRIME_5_mont { using mem_t = FHE_PRIME_5; 
+                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_5_rRR" is undefined
+  FHE_PRIME_4(const FHE_PRIME_4_mont& a) : FHE_PRIME_4_mont(a) {} }; typedef mont_t<61, FHE_PRIME_5_r, FHE_PRIME_5_m0, FHE_PRIME_5_rRR, FHE_PRIME_5_rone, FHE_PRIME_5_rx8> FHE_PRIME_5_mont; struct FHE_PRIME_5 : public FHE_PRIME_5_mont { using mem_t = FHE_PRIME_5; 
+                                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_5_rone" is undefined
+  FHE_PRIME_4(const FHE_PRIME_4_mont& a) : FHE_PRIME_4_mont(a) {} }; typedef mont_t<61, FHE_PRIME_5_r, FHE_PRIME_5_m0, FHE_PRIME_5_rRR, FHE_PRIME_5_rone, FHE_PRIME_5_rx8> FHE_PRIME_5_mont; struct FHE_PRIME_5 : public FHE_PRIME_5_mont { using mem_t = FHE_PRIME_5; 
+                                                                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_5_rx8" is undefined
+  FHE_PRIME_4(const FHE_PRIME_4_mont& a) : FHE_PRIME_4_mont(a) {} }; typedef mont_t<61, FHE_PRIME_5_r, FHE_PRIME_5_m0, FHE_PRIME_5_rRR, FHE_PRIME_5_rone, FHE_PRIME_5_rx8> FHE_PRIME_5_mont; struct FHE_PRIME_5 : public FHE_PRIME_5_mont { using mem_t = FHE_PRIME_5; 
+                                                                                                                                                          ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_6_r" is undefined
+  FHE_PRIME_5(const FHE_PRIME_5_mont& a) : FHE_PRIME_5_mont(a) {} }; typedef mont_t<61, FHE_PRIME_6_r, FHE_PRIME_6_m0, FHE_PRIME_6_rRR, FHE_PRIME_6_rone, FHE_PRIME_6_rx8> FHE_PRIME_6_mont; struct FHE_PRIME_6 : public FHE_PRIME_6_mont { using mem_t = FHE_PRIME_6; 
+                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_6_m0" is undefined
+  FHE_PRIME_5(const FHE_PRIME_5_mont& a) : FHE_PRIME_5_mont(a) {} }; typedef mont_t<61, FHE_PRIME_6_r, FHE_PRIME_6_m0, FHE_PRIME_6_rRR, FHE_PRIME_6_rone, FHE_PRIME_6_rx8> FHE_PRIME_6_mont; struct FHE_PRIME_6 : public FHE_PRIME_6_mont { using mem_t = FHE_PRIME_6; 
+                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_6_rRR" is undefined
+  FHE_PRIME_5(const FHE_PRIME_5_mont& a) : FHE_PRIME_5_mont(a) {} }; typedef mont_t<61, FHE_PRIME_6_r, FHE_PRIME_6_m0, FHE_PRIME_6_rRR, FHE_PRIME_6_rone, FHE_PRIME_6_rx8> FHE_PRIME_6_mont; struct FHE_PRIME_6 : public FHE_PRIME_6_mont { using mem_t = FHE_PRIME_6; 
+                                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_6_rone" is undefined
+  FHE_PRIME_5(const FHE_PRIME_5_mont& a) : FHE_PRIME_5_mont(a) {} }; typedef mont_t<61, FHE_PRIME_6_r, FHE_PRIME_6_m0, FHE_PRIME_6_rRR, FHE_PRIME_6_rone, FHE_PRIME_6_rx8> FHE_PRIME_6_mont; struct FHE_PRIME_6 : public FHE_PRIME_6_mont { using mem_t = FHE_PRIME_6; 
+                                                                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_6_rx8" is undefined
+  FHE_PRIME_5(const FHE_PRIME_5_mont& a) : FHE_PRIME_5_mont(a) {} }; typedef mont_t<61, FHE_PRIME_6_r, FHE_PRIME_6_m0, FHE_PRIME_6_rRR, FHE_PRIME_6_rone, FHE_PRIME_6_rx8> FHE_PRIME_6_mont; struct FHE_PRIME_6 : public FHE_PRIME_6_mont { using mem_t = FHE_PRIME_6; 
+                                                                                                                                                          ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_7_r" is undefined
+  FHE_PRIME_6(const FHE_PRIME_6_mont& a) : FHE_PRIME_6_mont(a) {} }; typedef mont_t<61, FHE_PRIME_7_r, FHE_PRIME_7_m0, FHE_PRIME_7_rRR, FHE_PRIME_7_rone, FHE_PRIME_7_rx8> FHE_PRIME_7_mont; struct FHE_PRIME_7 : public FHE_PRIME_7_mont { using mem_t = FHE_PRIME_7; 
+                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_7_m0" is undefined
+  FHE_PRIME_6(const FHE_PRIME_6_mont& a) : FHE_PRIME_6_mont(a) {} }; typedef mont_t<61, FHE_PRIME_7_r, FHE_PRIME_7_m0, FHE_PRIME_7_rRR, FHE_PRIME_7_rone, FHE_PRIME_7_rx8> FHE_PRIME_7_mont; struct FHE_PRIME_7 : public FHE_PRIME_7_mont { using mem_t = FHE_PRIME_7; 
+                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_7_rRR" is undefined
+  FHE_PRIME_6(const FHE_PRIME_6_mont& a) : FHE_PRIME_6_mont(a) {} }; typedef mont_t<61, FHE_PRIME_7_r, FHE_PRIME_7_m0, FHE_PRIME_7_rRR, FHE_PRIME_7_rone, FHE_PRIME_7_rx8> FHE_PRIME_7_mont; struct FHE_PRIME_7 : public FHE_PRIME_7_mont { using mem_t = FHE_PRIME_7; 
+                                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_7_rone" is undefined
+  FHE_PRIME_6(const FHE_PRIME_6_mont& a) : FHE_PRIME_6_mont(a) {} }; typedef mont_t<61, FHE_PRIME_7_r, FHE_PRIME_7_m0, FHE_PRIME_7_rRR, FHE_PRIME_7_rone, FHE_PRIME_7_rx8> FHE_PRIME_7_mont; struct FHE_PRIME_7 : public FHE_PRIME_7_mont { using mem_t = FHE_PRIME_7; 
+                                                                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_7_rx8" is undefined
+  FHE_PRIME_6(const FHE_PRIME_6_mont& a) : FHE_PRIME_6_mont(a) {} }; typedef mont_t<61, FHE_PRIME_7_r, FHE_PRIME_7_m0, FHE_PRIME_7_rRR, FHE_PRIME_7_rone, FHE_PRIME_7_rx8> FHE_PRIME_7_mont; struct FHE_PRIME_7 : public FHE_PRIME_7_mont { using mem_t = FHE_PRIME_7; 
+                                                                                                                                                          ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_8_r" is undefined
+  FHE_PRIME_7(const FHE_PRIME_7_mont& a) : FHE_PRIME_7_mont(a) {} }; typedef mont_t<61, FHE_PRIME_8_r, FHE_PRIME_8_m0, FHE_PRIME_8_rRR, FHE_PRIME_8_rone, FHE_PRIME_8_rx8> FHE_PRIME_8_mont; struct FHE_PRIME_8 : public FHE_PRIME_8_mont { using mem_t = FHE_PRIME_8; 
+                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_8_m0" is undefined
+  FHE_PRIME_7(const FHE_PRIME_7_mont& a) : FHE_PRIME_7_mont(a) {} }; typedef mont_t<61, FHE_PRIME_8_r, FHE_PRIME_8_m0, FHE_PRIME_8_rRR, FHE_PRIME_8_rone, FHE_PRIME_8_rx8> FHE_PRIME_8_mont; struct FHE_PRIME_8 : public FHE_PRIME_8_mont { using mem_t = FHE_PRIME_8; 
+                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_8_rRR" is undefined
+  FHE_PRIME_7(const FHE_PRIME_7_mont& a) : FHE_PRIME_7_mont(a) {} }; typedef mont_t<61, FHE_PRIME_8_r, FHE_PRIME_8_m0, FHE_PRIME_8_rRR, FHE_PRIME_8_rone, FHE_PRIME_8_rx8> FHE_PRIME_8_mont; struct FHE_PRIME_8 : public FHE_PRIME_8_mont { using mem_t = FHE_PRIME_8; 
+                                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_8_rone" is undefined
+  FHE_PRIME_7(const FHE_PRIME_7_mont& a) : FHE_PRIME_7_mont(a) {} }; typedef mont_t<61, FHE_PRIME_8_r, FHE_PRIME_8_m0, FHE_PRIME_8_rRR, FHE_PRIME_8_rone, FHE_PRIME_8_rx8> FHE_PRIME_8_mont; struct FHE_PRIME_8 : public FHE_PRIME_8_mont { using mem_t = FHE_PRIME_8; 
+                                                                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_8_rx8" is undefined
+  FHE_PRIME_7(const FHE_PRIME_7_mont& a) : FHE_PRIME_7_mont(a) {} }; typedef mont_t<61, FHE_PRIME_8_r, FHE_PRIME_8_m0, FHE_PRIME_8_rRR, FHE_PRIME_8_rone, FHE_PRIME_8_rx8> FHE_PRIME_8_mont; struct FHE_PRIME_8 : public FHE_PRIME_8_mont { using mem_t = FHE_PRIME_8; 
+                                                                                                                                                          ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_9_r" is undefined
+  FHE_PRIME_8(const FHE_PRIME_8_mont& a) : FHE_PRIME_8_mont(a) {} }; typedef mont_t<61, FHE_PRIME_9_r, FHE_PRIME_9_m0, FHE_PRIME_9_rRR, FHE_PRIME_9_rone, FHE_PRIME_9_rx8> FHE_PRIME_9_mont; struct FHE_PRIME_9 : public FHE_PRIME_9_mont { using mem_t = FHE_PRIME_9; 
+                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_9_m0" is undefined
+  FHE_PRIME_8(const FHE_PRIME_8_mont& a) : FHE_PRIME_8_mont(a) {} }; typedef mont_t<61, FHE_PRIME_9_r, FHE_PRIME_9_m0, FHE_PRIME_9_rRR, FHE_PRIME_9_rone, FHE_PRIME_9_rx8> FHE_PRIME_9_mont; struct FHE_PRIME_9 : public FHE_PRIME_9_mont { using mem_t = FHE_PRIME_9; 
+                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_9_rRR" is undefined
+  FHE_PRIME_8(const FHE_PRIME_8_mont& a) : FHE_PRIME_8_mont(a) {} }; typedef mont_t<61, FHE_PRIME_9_r, FHE_PRIME_9_m0, FHE_PRIME_9_rRR, FHE_PRIME_9_rone, FHE_PRIME_9_rx8> FHE_PRIME_9_mont; struct FHE_PRIME_9 : public FHE_PRIME_9_mont { using mem_t = FHE_PRIME_9; 
+                                                                                                                       ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_9_rone" is undefined
+  FHE_PRIME_8(const FHE_PRIME_8_mont& a) : FHE_PRIME_8_mont(a) {} }; typedef mont_t<61, FHE_PRIME_9_r, FHE_PRIME_9_m0, FHE_PRIME_9_rRR, FHE_PRIME_9_rone, FHE_PRIME_9_rx8> FHE_PRIME_9_mont; struct FHE_PRIME_9 : public FHE_PRIME_9_mont { using mem_t = FHE_PRIME_9; 
+                                                                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_9_rx8" is undefined
+  FHE_PRIME_8(const FHE_PRIME_8_mont& a) : FHE_PRIME_8_mont(a) {} }; typedef mont_t<61, FHE_PRIME_9_r, FHE_PRIME_9_m0, FHE_PRIME_9_rRR, FHE_PRIME_9_rone, FHE_PRIME_9_rx8> FHE_PRIME_9_mont; struct FHE_PRIME_9 : public FHE_PRIME_9_mont { using mem_t = FHE_PRIME_9; 
+                                                                                                                                                          ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_10_r" is undefined
+  FHE_PRIME_9(const FHE_PRIME_9_mont& a) : FHE_PRIME_9_mont(a) {} }; typedef mont_t<61, FHE_PRIME_10_r, FHE_PRIME_10_m0, FHE_PRIME_10_rRR, FHE_PRIME_10_rone, FHE_PRIME_10_rx8> FHE_PRIME_10_mont; struct FHE_PRIME_10 : public FHE_PRIME_10_mont { using mem_t = FHE_PRIME_10; 
+                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_10_m0" is undefined
+  FHE_PRIME_9(const FHE_PRIME_9_mont& a) : FHE_PRIME_9_mont(a) {} }; typedef mont_t<61, FHE_PRIME_10_r, FHE_PRIME_10_m0, FHE_PRIME_10_rRR, FHE_PRIME_10_rone, FHE_PRIME_10_rx8> FHE_PRIME_10_mont; struct FHE_PRIME_10 : public FHE_PRIME_10_mont { using mem_t = FHE_PRIME_10; 
+                                                                                                        ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_10_rRR" is undefined
+  FHE_PRIME_9(const FHE_PRIME_9_mont& a) : FHE_PRIME_9_mont(a) {} }; typedef mont_t<61, FHE_PRIME_10_r, FHE_PRIME_10_m0, FHE_PRIME_10_rRR, FHE_PRIME_10_rone, FHE_PRIME_10_rx8> FHE_PRIME_10_mont; struct FHE_PRIME_10 : public FHE_PRIME_10_mont { using mem_t = FHE_PRIME_10; 
+                                                                                                                         ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_10_rone" is undefined
+  FHE_PRIME_9(const FHE_PRIME_9_mont& a) : FHE_PRIME_9_mont(a) {} }; typedef mont_t<61, FHE_PRIME_10_r, FHE_PRIME_10_m0, FHE_PRIME_10_rRR, FHE_PRIME_10_rone, FHE_PRIME_10_rx8> FHE_PRIME_10_mont; struct FHE_PRIME_10 : public FHE_PRIME_10_mont { using mem_t = FHE_PRIME_10; 
+                                                                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_10_rx8" is undefined
+  FHE_PRIME_9(const FHE_PRIME_9_mont& a) : FHE_PRIME_9_mont(a) {} }; typedef mont_t<61, FHE_PRIME_10_r, FHE_PRIME_10_m0, FHE_PRIME_10_rRR, FHE_PRIME_10_rone, FHE_PRIME_10_rx8> FHE_PRIME_10_mont; struct FHE_PRIME_10 : public FHE_PRIME_10_mont { using mem_t = FHE_PRIME_10; 
+                                                                                                                                                              ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_11_r" is undefined
+  FHE_PRIME_10(const FHE_PRIME_10_mont& a) : FHE_PRIME_10_mont(a) {} }; typedef mont_t<61, FHE_PRIME_11_r, FHE_PRIME_11_m0, FHE_PRIME_11_rRR, FHE_PRIME_11_rone, FHE_PRIME_11_rx8> FHE_PRIME_11_mont; struct FHE_PRIME_11 : public FHE_PRIME_11_mont { using mem_t = FHE_PRIME_11; 
+                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_11_m0" is undefined
+  FHE_PRIME_10(const FHE_PRIME_10_mont& a) : FHE_PRIME_10_mont(a) {} }; typedef mont_t<61, FHE_PRIME_11_r, FHE_PRIME_11_m0, FHE_PRIME_11_rRR, FHE_PRIME_11_rone, FHE_PRIME_11_rx8> FHE_PRIME_11_mont; struct FHE_PRIME_11 : public FHE_PRIME_11_mont { using mem_t = FHE_PRIME_11; 
+                                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_11_rRR" is undefined
+  FHE_PRIME_10(const FHE_PRIME_10_mont& a) : FHE_PRIME_10_mont(a) {} }; typedef mont_t<61, FHE_PRIME_11_r, FHE_PRIME_11_m0, FHE_PRIME_11_rRR, FHE_PRIME_11_rone, FHE_PRIME_11_rx8> FHE_PRIME_11_mont; struct FHE_PRIME_11 : public FHE_PRIME_11_mont { using mem_t = FHE_PRIME_11; 
+                                                                                                                            ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_11_rone" is undefined
+  FHE_PRIME_10(const FHE_PRIME_10_mont& a) : FHE_PRIME_10_mont(a) {} }; typedef mont_t<61, FHE_PRIME_11_r, FHE_PRIME_11_m0, FHE_PRIME_11_rRR, FHE_PRIME_11_rone, FHE_PRIME_11_rx8> FHE_PRIME_11_mont; struct FHE_PRIME_11 : public FHE_PRIME_11_mont { using mem_t = FHE_PRIME_11; 
+                                                                                                                                              ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_11_rx8" is undefined
+  FHE_PRIME_10(const FHE_PRIME_10_mont& a) : FHE_PRIME_10_mont(a) {} }; typedef mont_t<61, FHE_PRIME_11_r, FHE_PRIME_11_m0, FHE_PRIME_11_rRR, FHE_PRIME_11_rone, FHE_PRIME_11_rx8> FHE_PRIME_11_mont; struct FHE_PRIME_11 : public FHE_PRIME_11_mont { using mem_t = FHE_PRIME_11; 
+                                                                                                                                                                 ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_12_r" is undefined
+  FHE_PRIME_11(const FHE_PRIME_11_mont& a) : FHE_PRIME_11_mont(a) {} }; typedef mont_t<61, FHE_PRIME_12_r, FHE_PRIME_12_m0, FHE_PRIME_12_rRR, FHE_PRIME_12_rone, FHE_PRIME_12_rx8> FHE_PRIME_12_mont; struct FHE_PRIME_12 : public FHE_PRIME_12_mont { using mem_t = FHE_PRIME_12; 
+                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_12_m0" is undefined
+  FHE_PRIME_11(const FHE_PRIME_11_mont& a) : FHE_PRIME_11_mont(a) {} }; typedef mont_t<61, FHE_PRIME_12_r, FHE_PRIME_12_m0, FHE_PRIME_12_rRR, FHE_PRIME_12_rone, FHE_PRIME_12_rx8> FHE_PRIME_12_mont; struct FHE_PRIME_12 : public FHE_PRIME_12_mont { using mem_t = FHE_PRIME_12; 
+                                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_12_rRR" is undefined
+  FHE_PRIME_11(const FHE_PRIME_11_mont& a) : FHE_PRIME_11_mont(a) {} }; typedef mont_t<61, FHE_PRIME_12_r, FHE_PRIME_12_m0, FHE_PRIME_12_rRR, FHE_PRIME_12_rone, FHE_PRIME_12_rx8> FHE_PRIME_12_mont; struct FHE_PRIME_12 : public FHE_PRIME_12_mont { using mem_t = FHE_PRIME_12; 
+                                                                                                                            ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_12_rone" is undefined
+  FHE_PRIME_11(const FHE_PRIME_11_mont& a) : FHE_PRIME_11_mont(a) {} }; typedef mont_t<61, FHE_PRIME_12_r, FHE_PRIME_12_m0, FHE_PRIME_12_rRR, FHE_PRIME_12_rone, FHE_PRIME_12_rx8> FHE_PRIME_12_mont; struct FHE_PRIME_12 : public FHE_PRIME_12_mont { using mem_t = FHE_PRIME_12; 
+                                                                                                                                              ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_12_rx8" is undefined
+  FHE_PRIME_11(const FHE_PRIME_11_mont& a) : FHE_PRIME_11_mont(a) {} }; typedef mont_t<61, FHE_PRIME_12_r, FHE_PRIME_12_m0, FHE_PRIME_12_rRR, FHE_PRIME_12_rone, FHE_PRIME_12_rx8> FHE_PRIME_12_mont; struct FHE_PRIME_12 : public FHE_PRIME_12_mont { using mem_t = FHE_PRIME_12; 
+                                                                                                                                                                 ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_13_r" is undefined
+  FHE_PRIME_12(const FHE_PRIME_12_mont& a) : FHE_PRIME_12_mont(a) {} }; typedef mont_t<61, FHE_PRIME_13_r, FHE_PRIME_13_m0, FHE_PRIME_13_rRR, FHE_PRIME_13_rone, FHE_PRIME_13_rx8> FHE_PRIME_13_mont; struct FHE_PRIME_13 : public FHE_PRIME_13_mont { using mem_t = FHE_PRIME_13; 
+                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_13_m0" is undefined
+  FHE_PRIME_12(const FHE_PRIME_12_mont& a) : FHE_PRIME_12_mont(a) {} }; typedef mont_t<61, FHE_PRIME_13_r, FHE_PRIME_13_m0, FHE_PRIME_13_rRR, FHE_PRIME_13_rone, FHE_PRIME_13_rx8> FHE_PRIME_13_mont; struct FHE_PRIME_13 : public FHE_PRIME_13_mont { using mem_t = FHE_PRIME_13; 
+                                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_13_rRR" is undefined
+  FHE_PRIME_12(const FHE_PRIME_12_mont& a) : FHE_PRIME_12_mont(a) {} }; typedef mont_t<61, FHE_PRIME_13_r, FHE_PRIME_13_m0, FHE_PRIME_13_rRR, FHE_PRIME_13_rone, FHE_PRIME_13_rx8> FHE_PRIME_13_mont; struct FHE_PRIME_13 : public FHE_PRIME_13_mont { using mem_t = FHE_PRIME_13; 
+                                                                                                                            ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_13_rone" is undefined
+  FHE_PRIME_12(const FHE_PRIME_12_mont& a) : FHE_PRIME_12_mont(a) {} }; typedef mont_t<61, FHE_PRIME_13_r, FHE_PRIME_13_m0, FHE_PRIME_13_rRR, FHE_PRIME_13_rone, FHE_PRIME_13_rx8> FHE_PRIME_13_mont; struct FHE_PRIME_13 : public FHE_PRIME_13_mont { using mem_t = FHE_PRIME_13; 
+                                                                                                                                              ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_13_rx8" is undefined
+  FHE_PRIME_12(const FHE_PRIME_12_mont& a) : FHE_PRIME_12_mont(a) {} }; typedef mont_t<61, FHE_PRIME_13_r, FHE_PRIME_13_m0, FHE_PRIME_13_rRR, FHE_PRIME_13_rone, FHE_PRIME_13_rx8> FHE_PRIME_13_mont; struct FHE_PRIME_13 : public FHE_PRIME_13_mont { using mem_t = FHE_PRIME_13; 
+                                                                                                                                                                 ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_14_r" is undefined
+  FHE_PRIME_13(const FHE_PRIME_13_mont& a) : FHE_PRIME_13_mont(a) {} }; typedef mont_t<61, FHE_PRIME_14_r, FHE_PRIME_14_m0, FHE_PRIME_14_rRR, FHE_PRIME_14_rone, FHE_PRIME_14_rx8> FHE_PRIME_14_mont; struct FHE_PRIME_14 : public FHE_PRIME_14_mont { using mem_t = FHE_PRIME_14; 
+                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_14_m0" is undefined
+  FHE_PRIME_13(const FHE_PRIME_13_mont& a) : FHE_PRIME_13_mont(a) {} }; typedef mont_t<61, FHE_PRIME_14_r, FHE_PRIME_14_m0, FHE_PRIME_14_rRR, FHE_PRIME_14_rone, FHE_PRIME_14_rx8> FHE_PRIME_14_mont; struct FHE_PRIME_14 : public FHE_PRIME_14_mont { using mem_t = FHE_PRIME_14; 
+                                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_14_rRR" is undefined
+  FHE_PRIME_13(const FHE_PRIME_13_mont& a) : FHE_PRIME_13_mont(a) {} }; typedef mont_t<61, FHE_PRIME_14_r, FHE_PRIME_14_m0, FHE_PRIME_14_rRR, FHE_PRIME_14_rone, FHE_PRIME_14_rx8> FHE_PRIME_14_mont; struct FHE_PRIME_14 : public FHE_PRIME_14_mont { using mem_t = FHE_PRIME_14; 
+                                                                                                                            ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_14_rone" is undefined
+  FHE_PRIME_13(const FHE_PRIME_13_mont& a) : FHE_PRIME_13_mont(a) {} }; typedef mont_t<61, FHE_PRIME_14_r, FHE_PRIME_14_m0, FHE_PRIME_14_rRR, FHE_PRIME_14_rone, FHE_PRIME_14_rx8> FHE_PRIME_14_mont; struct FHE_PRIME_14 : public FHE_PRIME_14_mont { using mem_t = FHE_PRIME_14; 
+                                                                                                                                              ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_14_rx8" is undefined
+  FHE_PRIME_13(const FHE_PRIME_13_mont& a) : FHE_PRIME_13_mont(a) {} }; typedef mont_t<61, FHE_PRIME_14_r, FHE_PRIME_14_m0, FHE_PRIME_14_rRR, FHE_PRIME_14_rone, FHE_PRIME_14_rx8> FHE_PRIME_14_mont; struct FHE_PRIME_14 : public FHE_PRIME_14_mont { using mem_t = FHE_PRIME_14; 
+                                                                                                                                                                 ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_15_r" is undefined
+  FHE_PRIME_14(const FHE_PRIME_14_mont& a) : FHE_PRIME_14_mont(a) {} }; typedef mont_t<61, FHE_PRIME_15_r, FHE_PRIME_15_m0, FHE_PRIME_15_rRR, FHE_PRIME_15_rone, FHE_PRIME_15_rx8> FHE_PRIME_15_mont; struct FHE_PRIME_15 : public FHE_PRIME_15_mont { using mem_t = FHE_PRIME_15; 
+                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_15_m0" is undefined
+  FHE_PRIME_14(const FHE_PRIME_14_mont& a) : FHE_PRIME_14_mont(a) {} }; typedef mont_t<61, FHE_PRIME_15_r, FHE_PRIME_15_m0, FHE_PRIME_15_rRR, FHE_PRIME_15_rone, FHE_PRIME_15_rx8> FHE_PRIME_15_mont; struct FHE_PRIME_15 : public FHE_PRIME_15_mont { using mem_t = FHE_PRIME_15; 
+                                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_15_rRR" is undefined
+  FHE_PRIME_14(const FHE_PRIME_14_mont& a) : FHE_PRIME_14_mont(a) {} }; typedef mont_t<61, FHE_PRIME_15_r, FHE_PRIME_15_m0, FHE_PRIME_15_rRR, FHE_PRIME_15_rone, FHE_PRIME_15_rx8> FHE_PRIME_15_mont; struct FHE_PRIME_15 : public FHE_PRIME_15_mont { using mem_t = FHE_PRIME_15; 
+                                                                                                                            ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_15_rone" is undefined
+  FHE_PRIME_14(const FHE_PRIME_14_mont& a) : FHE_PRIME_14_mont(a) {} }; typedef mont_t<61, FHE_PRIME_15_r, FHE_PRIME_15_m0, FHE_PRIME_15_rRR, FHE_PRIME_15_rone, FHE_PRIME_15_rx8> FHE_PRIME_15_mont; struct FHE_PRIME_15 : public FHE_PRIME_15_mont { using mem_t = FHE_PRIME_15; 
+                                                                                                                                              ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_15_rx8" is undefined
+  FHE_PRIME_14(const FHE_PRIME_14_mont& a) : FHE_PRIME_14_mont(a) {} }; typedef mont_t<61, FHE_PRIME_15_r, FHE_PRIME_15_m0, FHE_PRIME_15_rRR, FHE_PRIME_15_rone, FHE_PRIME_15_rx8> FHE_PRIME_15_mont; struct FHE_PRIME_15 : public FHE_PRIME_15_mont { using mem_t = FHE_PRIME_15; 
+                                                                                                                                                                 ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_16_r" is undefined
+  FHE_PRIME_15(const FHE_PRIME_15_mont& a) : FHE_PRIME_15_mont(a) {} }; typedef mont_t<61, FHE_PRIME_16_r, FHE_PRIME_16_m0, FHE_PRIME_16_rRR, FHE_PRIME_16_rone, FHE_PRIME_16_rx8> FHE_PRIME_16_mont; struct FHE_PRIME_16 : public FHE_PRIME_16_mont { using mem_t = FHE_PRIME_16; 
+                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_16_m0" is undefined
+  FHE_PRIME_15(const FHE_PRIME_15_mont& a) : FHE_PRIME_15_mont(a) {} }; typedef mont_t<61, FHE_PRIME_16_r, FHE_PRIME_16_m0, FHE_PRIME_16_rRR, FHE_PRIME_16_rone, FHE_PRIME_16_rx8> FHE_PRIME_16_mont; struct FHE_PRIME_16 : public FHE_PRIME_16_mont { using mem_t = FHE_PRIME_16; 
+                                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_16_rRR" is undefined
+  FHE_PRIME_15(const FHE_PRIME_15_mont& a) : FHE_PRIME_15_mont(a) {} }; typedef mont_t<61, FHE_PRIME_16_r, FHE_PRIME_16_m0, FHE_PRIME_16_rRR, FHE_PRIME_16_rone, FHE_PRIME_16_rx8> FHE_PRIME_16_mont; struct FHE_PRIME_16 : public FHE_PRIME_16_mont { using mem_t = FHE_PRIME_16; 
+                                                                                                                            ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_16_rone" is undefined
+  FHE_PRIME_15(const FHE_PRIME_15_mont& a) : FHE_PRIME_15_mont(a) {} }; typedef mont_t<61, FHE_PRIME_16_r, FHE_PRIME_16_m0, FHE_PRIME_16_rRR, FHE_PRIME_16_rone, FHE_PRIME_16_rx8> FHE_PRIME_16_mont; struct FHE_PRIME_16 : public FHE_PRIME_16_mont { using mem_t = FHE_PRIME_16; 
+                                                                                                                                              ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_16_rx8" is undefined
+  FHE_PRIME_15(const FHE_PRIME_15_mont& a) : FHE_PRIME_15_mont(a) {} }; typedef mont_t<61, FHE_PRIME_16_r, FHE_PRIME_16_m0, FHE_PRIME_16_rRR, FHE_PRIME_16_rone, FHE_PRIME_16_rx8> FHE_PRIME_16_mont; struct FHE_PRIME_16 : public FHE_PRIME_16_mont { using mem_t = FHE_PRIME_16; 
+                                                                                                                                                                 ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_17_r" is undefined
+  FHE_PRIME_16(const FHE_PRIME_16_mont& a) : FHE_PRIME_16_mont(a) {} }; typedef mont_t<61, FHE_PRIME_17_r, FHE_PRIME_17_m0, FHE_PRIME_17_rRR, FHE_PRIME_17_rone, FHE_PRIME_17_rx8> FHE_PRIME_17_mont; struct FHE_PRIME_17 : public FHE_PRIME_17_mont { using mem_t = FHE_PRIME_17; 
+                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_17_m0" is undefined
+  FHE_PRIME_16(const FHE_PRIME_16_mont& a) : FHE_PRIME_16_mont(a) {} }; typedef mont_t<61, FHE_PRIME_17_r, FHE_PRIME_17_m0, FHE_PRIME_17_rRR, FHE_PRIME_17_rone, FHE_PRIME_17_rx8> FHE_PRIME_17_mont; struct FHE_PRIME_17 : public FHE_PRIME_17_mont { using mem_t = FHE_PRIME_17; 
+                                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_17_rRR" is undefined
+  FHE_PRIME_16(const FHE_PRIME_16_mont& a) : FHE_PRIME_16_mont(a) {} }; typedef mont_t<61, FHE_PRIME_17_r, FHE_PRIME_17_m0, FHE_PRIME_17_rRR, FHE_PRIME_17_rone, FHE_PRIME_17_rx8> FHE_PRIME_17_mont; struct FHE_PRIME_17 : public FHE_PRIME_17_mont { using mem_t = FHE_PRIME_17; 
+                                                                                                                            ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_17_rone" is undefined
+  FHE_PRIME_16(const FHE_PRIME_16_mont& a) : FHE_PRIME_16_mont(a) {} }; typedef mont_t<61, FHE_PRIME_17_r, FHE_PRIME_17_m0, FHE_PRIME_17_rRR, FHE_PRIME_17_rone, FHE_PRIME_17_rx8> FHE_PRIME_17_mont; struct FHE_PRIME_17 : public FHE_PRIME_17_mont { using mem_t = FHE_PRIME_17; 
+                                                                                                                                              ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_17_rx8" is undefined
+  FHE_PRIME_16(const FHE_PRIME_16_mont& a) : FHE_PRIME_16_mont(a) {} }; typedef mont_t<61, FHE_PRIME_17_r, FHE_PRIME_17_m0, FHE_PRIME_17_rRR, FHE_PRIME_17_rone, FHE_PRIME_17_rx8> FHE_PRIME_17_mont; struct FHE_PRIME_17 : public FHE_PRIME_17_mont { using mem_t = FHE_PRIME_17; 
+                                                                                                                                                                 ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_18_r" is undefined
+  FHE_PRIME_17(const FHE_PRIME_17_mont& a) : FHE_PRIME_17_mont(a) {} }; typedef mont_t<61, FHE_PRIME_18_r, FHE_PRIME_18_m0, FHE_PRIME_18_rRR, FHE_PRIME_18_rone, FHE_PRIME_18_rx8> FHE_PRIME_18_mont; struct FHE_PRIME_18 : public FHE_PRIME_18_mont { using mem_t = FHE_PRIME_18; 
+                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_18_m0" is undefined
+  FHE_PRIME_17(const FHE_PRIME_17_mont& a) : FHE_PRIME_17_mont(a) {} }; typedef mont_t<61, FHE_PRIME_18_r, FHE_PRIME_18_m0, FHE_PRIME_18_rRR, FHE_PRIME_18_rone, FHE_PRIME_18_rx8> FHE_PRIME_18_mont; struct FHE_PRIME_18 : public FHE_PRIME_18_mont { using mem_t = FHE_PRIME_18; 
+                                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_18_rRR" is undefined
+  FHE_PRIME_17(const FHE_PRIME_17_mont& a) : FHE_PRIME_17_mont(a) {} }; typedef mont_t<61, FHE_PRIME_18_r, FHE_PRIME_18_m0, FHE_PRIME_18_rRR, FHE_PRIME_18_rone, FHE_PRIME_18_rx8> FHE_PRIME_18_mont; struct FHE_PRIME_18 : public FHE_PRIME_18_mont { using mem_t = FHE_PRIME_18; 
+                                                                                                                            ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_18_rone" is undefined
+  FHE_PRIME_17(const FHE_PRIME_17_mont& a) : FHE_PRIME_17_mont(a) {} }; typedef mont_t<61, FHE_PRIME_18_r, FHE_PRIME_18_m0, FHE_PRIME_18_rRR, FHE_PRIME_18_rone, FHE_PRIME_18_rx8> FHE_PRIME_18_mont; struct FHE_PRIME_18 : public FHE_PRIME_18_mont { using mem_t = FHE_PRIME_18; 
+                                                                                                                                              ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_18_rx8" is undefined
+  FHE_PRIME_17(const FHE_PRIME_17_mont& a) : FHE_PRIME_17_mont(a) {} }; typedef mont_t<61, FHE_PRIME_18_r, FHE_PRIME_18_m0, FHE_PRIME_18_rRR, FHE_PRIME_18_rone, FHE_PRIME_18_rx8> FHE_PRIME_18_mont; struct FHE_PRIME_18 : public FHE_PRIME_18_mont { using mem_t = FHE_PRIME_18; 
+                                                                                                                                                                 ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_19_r" is undefined
+  FHE_PRIME_18(const FHE_PRIME_18_mont& a) : FHE_PRIME_18_mont(a) {} }; typedef mont_t<61, FHE_PRIME_19_r, FHE_PRIME_19_m0, FHE_PRIME_19_rRR, FHE_PRIME_19_rone, FHE_PRIME_19_rx8> FHE_PRIME_19_mont; struct FHE_PRIME_19 : public FHE_PRIME_19_mont { using mem_t = FHE_PRIME_19; 
+                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_19_m0" is undefined
+  FHE_PRIME_18(const FHE_PRIME_18_mont& a) : FHE_PRIME_18_mont(a) {} }; typedef mont_t<61, FHE_PRIME_19_r, FHE_PRIME_19_m0, FHE_PRIME_19_rRR, FHE_PRIME_19_rone, FHE_PRIME_19_rx8> FHE_PRIME_19_mont; struct FHE_PRIME_19 : public FHE_PRIME_19_mont { using mem_t = FHE_PRIME_19; 
+                                                                                                           ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_19_rRR" is undefined
+  FHE_PRIME_18(const FHE_PRIME_18_mont& a) : FHE_PRIME_18_mont(a) {} }; typedef mont_t<61, FHE_PRIME_19_r, FHE_PRIME_19_m0, FHE_PRIME_19_rRR, FHE_PRIME_19_rone, FHE_PRIME_19_rx8> FHE_PRIME_19_mont; struct FHE_PRIME_19 : public FHE_PRIME_19_mont { using mem_t = FHE_PRIME_19; 
+                                                                                                                            ^
+
+/home/zrji/pyZKP/aten/src/ATen/native/pnp/mont/cuda/ff/fhe_prime.hpp(41): error: identifier "FHE_PRIME_19_rone" is undefined
+  FHE_PRIME_18(const FHE_PRIME_18_mont& a) : FHE_PRIME_18_mont(a) {} }; typedef mont_t<61, FHE_PRIME_19_r, FHE_PRIME_19_m0, FHE_PRIME_19_rRR, FHE_PRIME_19_rone, FHE_PRIME_19_rx8> FHE_PRIME_19_mont; struct FHE_PRIME_19 : public FHE_PRIME_19_mont { using mem_t = FHE_PRIME_19; 
+                                                                                                                                              ^
+
+Error limit reached.
+100 errors detected in the compilation of "/home/zrji/pyZKP/aten/src/ATen/native/pnp/zkp/cuda/zksnark_ntt.cu".
+Compilation terminated.
+[6/507] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_dce.cpp.o
+[7/507] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_irparser.cpp.o
+[8/507] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_cleanup_passes.cpp.o
+[9/507] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_class_parser.cpp.o
+[10/507] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_constant_pooling.cpp.o
+[11/507] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_memory_dag.cpp.o
+[12/507] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_inliner.cpp.o
+[13/507] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_schema_matching.cpp.o
+[14/507] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_peephole_optimize.cpp.o
+[15/507] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_upgrader_utils.cpp.o
+[16/507] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_schema_info.cpp.o
+[17/507] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_jit_logging_levels.cpp.o
+[18/507] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_jit_type.cpp.o
+[19/507] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_union.cpp.o
+[20/507] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_create_autodiff_subgraphs.cpp.o
+[21/507] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_ir.cpp.o
+[22/507] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_mobile_type_parser.cpp.o
+[23/507] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_stack_opt.cpp.o
+[24/507] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_code_template.cpp.o
+[25/507] Building CXX object test_jit/CMakeFiles/test_jit.dir/test_subgraph_utils.cpp.o
+ninja: build stopped: interrupted by user.
+Building wheel torch-2.2.0a0+git310bd7a
+-- Building version 2.2.0a0+git310bd7a
+cmake --build . --target install --config Release

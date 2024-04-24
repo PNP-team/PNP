@@ -174,6 +174,222 @@ std::pair<std::string, std::string> getDtypeNames(at::ScalarType scalarType) {
       return std::make_pair("VESTA_Fq_G1_Mont", "");
     case at::ScalarType::VESTA_Fq_G2_Mont:
       return std::make_pair("VESTA_Fq_G2_Mont", "");
+    case at::ScalarType::FHE_PRIME_0:
+      return std::make_pair("FHE_PRIME_0", "");
+    case at::ScalarType::FHE_PRIME_1:
+      return std::make_pair("FHE_PRIME_1", "");
+    case at::ScalarType::FHE_PRIME_2:
+      return std::make_pair("FHE_PRIME_2", "");
+    case at::ScalarType::FHE_PRIME_3:
+      return std::make_pair("FHE_PRIME_3", "");
+    case at::ScalarType::FHE_PRIME_4:
+      return std::make_pair("FHE_PRIME_4", "");
+    case at::ScalarType::FHE_PRIME_5:
+      return std::make_pair("FHE_PRIME_5", "");
+    case at::ScalarType::FHE_PRIME_6:
+      return std::make_pair("FHE_PRIME_6", "");
+    case at::ScalarType::FHE_PRIME_7:
+      return std::make_pair("FHE_PRIME_7", "");
+    case at::ScalarType::FHE_PRIME_8:
+      return std::make_pair("FHE_PRIME_8", "");
+    case at::ScalarType::FHE_PRIME_9:
+      return std::make_pair("FHE_PRIME_9", "");
+    case at::ScalarType::FHE_PRIME_10:
+      return std::make_pair("FHE_PRIME_10", "");
+    case at::ScalarType::FHE_PRIME_11:
+      return std::make_pair("FHE_PRIME_11", "");
+    case at::ScalarType::FHE_PRIME_12:
+      return std::make_pair("FHE_PRIME_12", "");
+    case at::ScalarType::FHE_PRIME_13:
+      return std::make_pair("FHE_PRIME_13", "");
+    case at::ScalarType::FHE_PRIME_14:
+      return std::make_pair("FHE_PRIME_14", "");
+    case at::ScalarType::FHE_PRIME_15:
+      return std::make_pair("FHE_PRIME_15", "");
+    case at::ScalarType::FHE_PRIME_16:
+      return std::make_pair("FHE_PRIME_16", "");
+    case at::ScalarType::FHE_PRIME_17:
+      return std::make_pair("FHE_PRIME_17", "");
+    case at::ScalarType::FHE_PRIME_18:
+      return std::make_pair("FHE_PRIME_18", "");
+    case at::ScalarType::FHE_PRIME_19:
+      return std::make_pair("FHE_PRIME_19", "");
+    case at::ScalarType::FHE_PRIME_20:
+      return std::make_pair("FHE_PRIME_20", "");
+    case at::ScalarType::FHE_PRIME_21:
+      return std::make_pair("FHE_PRIME_21", "");
+    case at::ScalarType::FHE_PRIME_22:
+      return std::make_pair("FHE_PRIME_22", "");
+    case at::ScalarType::FHE_PRIME_23:
+      return std::make_pair("FHE_PRIME_23", "");
+    case at::ScalarType::FHE_PRIME_24:
+      return std::make_pair("FHE_PRIME_24", "");
+    case at::ScalarType::FHE_PRIME_25:
+      return std::make_pair("FHE_PRIME_25", "");
+    case at::ScalarType::FHE_PRIME_26:
+      return std::make_pair("FHE_PRIME_26", "");
+    case at::ScalarType::FHE_PRIME_27:
+      return std::make_pair("FHE_PRIME_27", "");
+    case at::ScalarType::FHE_PRIME_28:
+      return std::make_pair("FHE_PRIME_28", "");
+    case at::ScalarType::FHE_PRIME_29:
+      return std::make_pair("FHE_PRIME_29", "");
+    case at::ScalarType::FHE_PRIME_30:
+      return std::make_pair("FHE_PRIME_30", "");
+    case at::ScalarType::FHE_PRIME_31:
+      return std::make_pair("FHE_PRIME_31", "");
+    case at::ScalarType::FHE_PRIME_32:
+      return std::make_pair("FHE_PRIME_32", "");
+    case at::ScalarType::FHE_PRIME_33:
+      return std::make_pair("FHE_PRIME_33", "");
+    case at::ScalarType::FHE_PRIME_34:
+      return std::make_pair("FHE_PRIME_34", "");
+    case at::ScalarType::FHE_PRIME_35:
+      return std::make_pair("FHE_PRIME_35", "");
+    case at::ScalarType::FHE_PRIME_36:
+      return std::make_pair("FHE_PRIME_36", "");
+    case at::ScalarType::FHE_PRIME_37:
+      return std::make_pair("FHE_PRIME_37", "");
+    case at::ScalarType::FHE_PRIME_38:
+      return std::make_pair("FHE_PRIME_38", "");
+    case at::ScalarType::FHE_PRIME_39:
+      return std::make_pair("FHE_PRIME_39", "");
+    case at::ScalarType::FHE_PRIME_40:
+      return std::make_pair("FHE_PRIME_40", "");
+    case at::ScalarType::FHE_PRIME_41:
+      return std::make_pair("FHE_PRIME_41", "");
+    case at::ScalarType::FHE_PRIME_42:
+      return std::make_pair("FHE_PRIME_42", "");
+    case at::ScalarType::FHE_PRIME_43:
+      return std::make_pair("FHE_PRIME_43", "");
+    case at::ScalarType::FHE_PRIME_44:
+      return std::make_pair("FHE_PRIME_44", "");
+    case at::ScalarType::FHE_PRIME_45:
+      return std::make_pair("FHE_PRIME_45", "");
+    case at::ScalarType::FHE_PRIME_46:
+      return std::make_pair("FHE_PRIME_46", "");
+    case at::ScalarType::FHE_PRIME_47:
+      return std::make_pair("FHE_PRIME_47", "");
+    case at::ScalarType::FHE_PRIME_48:
+      return std::make_pair("FHE_PRIME_48", "");
+    case at::ScalarType::FHE_PRIME_49:
+      return std::make_pair("FHE_PRIME_49", "");
+    case at::ScalarType::FHE_PRIME_50:
+      return std::make_pair("FHE_PRIME_50", "");
+    case at::ScalarType::FHE_PRIME_51:
+      return std::make_pair("FHE_PRIME_51", "");
+    case at::ScalarType::FHE_PRIME_52:
+      return std::make_pair("FHE_PRIME_52", "");
+    case at::ScalarType::FHE_PRIME_53:
+      return std::make_pair("FHE_PRIME_53", "");
+    case at::ScalarType::FHE_PRIME_54:
+      return std::make_pair("FHE_PRIME_54", "");
+    case at::ScalarType::FHE_PRIME_55:
+      return std::make_pair("FHE_PRIME_55", "");
+    case at::ScalarType::FHE_PRIME_56:
+      return std::make_pair("FHE_PRIME_56", "");
+    case at::ScalarType::FHE_PRIME_57:
+      return std::make_pair("FHE_PRIME_57", "");
+    case at::ScalarType::FHE_PRIME_58:
+      return std::make_pair("FHE_PRIME_58", "");
+    case at::ScalarType::FHE_PRIME_59:
+      return std::make_pair("FHE_PRIME_59", "");
+    case at::ScalarType::FHE_PRIME_60:
+      return std::make_pair("FHE_PRIME_60", "");
+    case at::ScalarType::FHE_PRIME_61:
+      return std::make_pair("FHE_PRIME_61", "");
+    case at::ScalarType::FHE_PRIME_62:
+      return std::make_pair("FHE_PRIME_62", "");
+    case at::ScalarType::FHE_PRIME_63:
+      return std::make_pair("FHE_PRIME_63", "");
+    case at::ScalarType::FHE_PRIME_64:
+      return std::make_pair("FHE_PRIME_64", "");
+    case at::ScalarType::FHE_PRIME_65:
+      return std::make_pair("FHE_PRIME_65", "");
+    case at::ScalarType::FHE_PRIME_66:
+      return std::make_pair("FHE_PRIME_66", "");
+    case at::ScalarType::FHE_PRIME_67:
+      return std::make_pair("FHE_PRIME_67", "");
+    case at::ScalarType::FHE_PRIME_68:
+      return std::make_pair("FHE_PRIME_68", "");
+    case at::ScalarType::FHE_PRIME_69:
+      return std::make_pair("FHE_PRIME_69", "");
+    case at::ScalarType::FHE_PRIME_70:
+      return std::make_pair("FHE_PRIME_70", "");
+    case at::ScalarType::FHE_PRIME_71:
+      return std::make_pair("FHE_PRIME_71", "");
+    case at::ScalarType::FHE_PRIME_72:
+      return std::make_pair("FHE_PRIME_72", "");
+    case at::ScalarType::FHE_PRIME_73:
+      return std::make_pair("FHE_PRIME_73", "");
+    case at::ScalarType::FHE_PRIME_74:
+      return std::make_pair("FHE_PRIME_74", "");
+    case at::ScalarType::FHE_PRIME_75:
+      return std::make_pair("FHE_PRIME_75", "");
+    case at::ScalarType::FHE_PRIME_76:
+      return std::make_pair("FHE_PRIME_76", "");
+    case at::ScalarType::FHE_PRIME_77:
+      return std::make_pair("FHE_PRIME_77", "");
+    case at::ScalarType::FHE_PRIME_78:
+      return std::make_pair("FHE_PRIME_78", "");
+    case at::ScalarType::FHE_PRIME_79:
+      return std::make_pair("FHE_PRIME_79", "");
+    case at::ScalarType::FHE_PRIME_80:
+      return std::make_pair("FHE_PRIME_80", "");
+    case at::ScalarType::FHE_PRIME_81:
+      return std::make_pair("FHE_PRIME_81", "");
+    case at::ScalarType::FHE_PRIME_82:
+      return std::make_pair("FHE_PRIME_82", "");
+    case at::ScalarType::FHE_PRIME_83:
+      return std::make_pair("FHE_PRIME_83", "");
+    case at::ScalarType::FHE_PRIME_84:
+      return std::make_pair("FHE_PRIME_84", "");
+    case at::ScalarType::FHE_PRIME_85:
+      return std::make_pair("FHE_PRIME_85", "");
+    case at::ScalarType::FHE_PRIME_86:
+      return std::make_pair("FHE_PRIME_86", "");
+    case at::ScalarType::FHE_PRIME_87:
+      return std::make_pair("FHE_PRIME_87", "");
+    case at::ScalarType::FHE_PRIME_88:
+      return std::make_pair("FHE_PRIME_88", "");
+    case at::ScalarType::FHE_PRIME_89:
+      return std::make_pair("FHE_PRIME_89", "");
+    case at::ScalarType::FHE_PRIME_90:
+      return std::make_pair("FHE_PRIME_90", "");
+    case at::ScalarType::FHE_PRIME_91:
+      return std::make_pair("FHE_PRIME_91", "");
+    case at::ScalarType::FHE_PRIME_92:
+      return std::make_pair("FHE_PRIME_92", "");
+    case at::ScalarType::FHE_PRIME_93:
+      return std::make_pair("FHE_PRIME_93", "");
+    case at::ScalarType::FHE_PRIME_94:
+      return std::make_pair("FHE_PRIME_94", "");
+    case at::ScalarType::FHE_PRIME_95:
+      return std::make_pair("FHE_PRIME_95", "");
+    case at::ScalarType::FHE_PRIME_96:
+      return std::make_pair("FHE_PRIME_96", "");
+    case at::ScalarType::FHE_PRIME_97:
+      return std::make_pair("FHE_PRIME_97", "");
+    case at::ScalarType::FHE_PRIME_98:
+      return std::make_pair("FHE_PRIME_98", "");
+    case at::ScalarType::FHE_PRIME_99:
+      return std::make_pair("FHE_PRIME_99", "");
+    case at::ScalarType::FHE_PRIME_100:
+      return std::make_pair("FHE_PRIME_100", "");
+    case at::ScalarType::FHE_PRIME_101:
+      return std::make_pair("FHE_PRIME_101", "");
+    case at::ScalarType::FHE_PRIME_102:
+      return std::make_pair("FHE_PRIME_102", "");
+    case at::ScalarType::FHE_PRIME_103:
+      return std::make_pair("FHE_PRIME_103", "");
+    case at::ScalarType::FHE_PRIME_104:
+      return std::make_pair("FHE_PRIME_104", "");
+    case at::ScalarType::FHE_PRIME_105:
+      return std::make_pair("FHE_PRIME_105", "");
+    case at::ScalarType::FHE_PRIME_106:
+      return std::make_pair("FHE_PRIME_106", "");
+    case at::ScalarType::FHE_PRIME_107:
+      return std::make_pair("FHE_PRIME_107", "");
     default:
       throw std::runtime_error("Unimplemented scalar type");
   }

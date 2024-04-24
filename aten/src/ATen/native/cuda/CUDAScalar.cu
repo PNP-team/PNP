@@ -14,7 +14,7 @@ namespace at::native {
 
 Scalar _local_scalar_dense_cuda(const Tensor& self) {
   Scalar r;
-  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_FIELD_AND4(
+  AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_FIELD_AND_FHE_AND4(
     kComplexHalf, kHalf, kBool, kBFloat16, self.scalar_type(), "_local_scalar_dense_cuda", [&] {
         scalar_t value;
         cudaStream_t stream = at::cuda::getCurrentCUDAStream();
