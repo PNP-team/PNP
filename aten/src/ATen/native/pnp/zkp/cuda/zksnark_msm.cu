@@ -86,12 +86,12 @@ Tensor msm_zkp_cuda(
       d_buckets_sz * sizeof(uint64_t) * num_uint64(points.scalar_type()) * 4 +
       (nwins * row_sz * sizeof(uint32_t));
   uint32_t blob_u64 = d_blob_sz / sizeof(uint64_t);
-
+  
   size_t digits_sz = nwins * npoints * sizeof(uint32_t);
-  uint32_t digit_u64 = digits_sz / sizeof(uint64_t);
-
+  uint32_t temp_sz = npoints * sizeof(uint64_t) * num_uint64(scalars.scalar_type()) + digits_sz;
+  uint32_t temp_u64 = temp_sz / sizeof(uint64_t);
   auto workspace = at::empty(
-      {blob_u64 + digit_u64},
+      {blob_u64 + temp_u64},
       ScalarType::ULong,
       points.options().layout(),
       points.options().device(),

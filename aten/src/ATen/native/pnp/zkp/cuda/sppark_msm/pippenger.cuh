@@ -83,19 +83,15 @@ __launch_bounds__(1024) __global__ void breakdown(
     uint32_t wbits,
     bool mont = true) {
   assert(len <= (1U << 31) && wbits < 32);
-
   extern __shared__ char shmem[];
   auto xchange = reinterpret_cast<scalar_T<scalar_t>*>(shmem);
   // extern __shared__ scalar_T<scalar_t> xchange[];
   const uint32_t tid = threadIdx.x;
   const uint32_t tix = threadIdx.x + blockIdx.x * blockDim.x;
-
   const uint32_t top_i =
       (scalar_t::nbits + 31) / 32 - 1; // find the first 32bits index
   const uint32_t wmask = 0xffffffffU >> (31 - wbits); // (1U << (wbits+1)) - 1;
-
   auto& scalar = xchange[tid / WARP_SZ](tid % WARP_SZ);
-
 #pragma unroll 1
   for (uint32_t i = tix; i < (uint32_t)len; i += gridDim.x * blockDim.x) {
     auto s = scalars[i];
@@ -109,7 +105,6 @@ __launch_bounds__(1024) __global__ void breakdown(
     msb <<= 31;
 
     scalar = s;
-
 #pragma unroll 1
     for (uint32_t bit0 = nwins * wbits - 1, win = nwins; --win;) {
       bit0 -= wbits;
@@ -119,7 +114,7 @@ __launch_bounds__(1024) __global__ void breakdown(
         wval ^= msb;
       *(digits + win * digit_stride + i) = wval;
     }
-
+    
     uint32_t wval = s[0] << 1;
     wval = booth_encode(wval, wmask, wbits);
     if (wval)

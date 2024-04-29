@@ -38,11 +38,10 @@ static void pippenger_collect(
     } else if (npoints > 0) {
       wbits = 10;
     }
-    auto nbits = scalar_t::compute_type::coeff_t::bit_length();
-    auto nwins = (nbits - 1) / wbits + 1;
-    auto lenofres = nwins * MSM_NTHREADS / 1 * 2;
-    auto lenofone =
-        step1res.numel() / (num_uint64(step1res.scalar_type()) * 4) - lenofres;
+    uint32_t nbits = scalar_t::compute_type::coeff_t::bit_length();
+    uint32_t nwins = (nbits - 1) / wbits + 1;
+    uint32_t lenofres = nwins * MSM_NTHREADS / 1 * 2;
+    uint32_t lenofone = step1res.numel() / (num_uint64(step1res.scalar_type()) * 4) - lenofres;
 
     auto self_ptr =
         reinterpret_cast<point_t*>(self.mutable_data_ptr<scalar_t>());

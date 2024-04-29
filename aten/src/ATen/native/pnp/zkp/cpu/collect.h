@@ -443,7 +443,7 @@ class collect_t {
           break;
       }
     }
-
+    
     out->add(one);
   }
 
