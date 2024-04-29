@@ -415,7 +415,7 @@ TORCH_IMPL_FUNC(cat_out_cuda)
       all_contiguous &&
       all32BitIndexable &&
       all_same_dtype) {
-      AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND4(
+      AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_FIELD_AND4(
           kComplexHalf, kHalf, kBool, kBFloat16,
           result.scalar_type(), "cat_cuda", [&]() {
         parallel_cat<scalar_t, CAT_ARRAY_BATCH_SIZE, 1>(result, materialized, dim, nDims, memory_format);
@@ -427,7 +427,7 @@ TORCH_IMPL_FUNC(cat_out_cuda)
       all32BitIndexable &&
       all_same_dtype &&
       memory_format == c10::MemoryFormat::Contiguous) {
-      AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND4(
+      AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_FIELD_AND4(
           kComplexHalf, kHalf, kBool, kBFloat16,
           result.scalar_type(), "cat_cuda", [&]() {
         parallel_cat<scalar_t, CAT_ARRAY_BATCH_SIZE/2, CAT_ARRAY_BATCH_SIZE/2>(result, materialized, dim, nDims, memory_format);

@@ -688,15 +688,15 @@ static inline ScalarType promoteTypes(ScalarType a, ScalarType b) {
     return ScalarType::Undefined;
   }
 
-  // For QInt types, we only allow exact match
-  if (isQIntType(a) && a == b) {
+  // For QInt and BigInteger types, we only allow exact match
+  if ((isQIntType(a) || isBigIntegerType(a)) && a == b) {
     return a;
   }
 
-  if (isQIntType(a) || isQIntType(b)) {
+  if (isQIntType(a) || isQIntType(b) || isBigIntegerType(a) || isBigIntegerType(b)) {
     TORCH_CHECK(
         false,
-        "promoteTypes with quantized numbers is not handled yet; figure out what the correct rules should be, offending types: ",
+        "promoteTypes with quantized numbers and big integers is not handled yet; figure out what the correct rules should be, offending types: ",
         toString(a),
         " ",
         toString(b));

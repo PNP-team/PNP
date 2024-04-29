@@ -43,28 +43,28 @@ struct alignas(8) Field64 {
   uint64_t val_;
   Field64() = default;
   C10_HOST_DEVICE explicit Field64(uint64_t val) : val_(val) {}
-  operator uint64_t() const { return val_; }
+  C10_HOST_DEVICE operator uint64_t() const { return val_; }
 };
 
 struct alignas(8) BigInteger {
   uint64_t val_;
   BigInteger() = default;
   C10_HOST_DEVICE explicit BigInteger(uint64_t val) : val_(val) {}
-  operator uint64_t() const { return val_; }
+  C10_HOST_DEVICE operator uint64_t() const { return val_; }
 };
 
 struct alignas(8) BigInteger_Mont {
   uint64_t val_;
   BigInteger_Mont() = default;
   C10_HOST_DEVICE explicit BigInteger_Mont(uint64_t val) : val_(val) {}
-  operator uint64_t() const { return val_; }
+  C10_HOST_DEVICE operator uint64_t() const { return val_; }
 };
 
 struct alignas(8) FiniteField {
   uint64_t val_;
   FiniteField() = default;
   C10_HOST_DEVICE explicit FiniteField(uint64_t val) : val_(val) {}
-  operator uint64_t() const { return val_; }
+  C10_HOST_DEVICE operator uint64_t() const { return val_; }
 };
 
 
@@ -74,14 +74,14 @@ struct alignas(8) name##_Base {                                     \
   uint64_t val_;                                                    \
   name##_Base() = default;                                          \
   C10_HOST_DEVICE explicit name##_Base(uint64_t val) : val_(val) {} \
-  operator uint64_t() const { return val_; }                        \
+  C10_HOST_DEVICE operator uint64_t() const { return val_; }        \
 };                                                                  \
 struct alignas(8) name##_Mont {                                     \
   using compute_type = at::native::name;                            \
   uint64_t val_;                                                    \
   name##_Mont() = default;                                          \
   C10_HOST_DEVICE explicit name##_Mont(uint64_t val) : val_(val) {} \
-  operator uint64_t() const { return val_; }                        \
+  C10_HOST_DEVICE operator uint64_t() const { return val_; }        \
 };
 
 #define APPLY_ALL_CURVE(FUNC) \

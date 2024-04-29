@@ -334,6 +334,11 @@ ScalarType numpy_dtype_to_aten(int dtype) {
         // - NPY_LONG, when sizeof(long) = 8 and sizeof(long long) = 8
         // - NPY_LONGLONG, when sizeof(long) = 4 and sizeof(long long) = 8
         return kLong;
+      } else if (dtype == NPY_ULONGLONG || dtype == NPY_UINT64) {
+        // NPY_UINT64 is an alias which maybe equal to:
+        // - NPY_ULONG, when sizeof(unsigned long) = 8 and sizeof(unsigned long long) = 8
+        // - NPY_ULONGLONG, when sizeof(unsigned long) = 4 and sizeof(unsigned long long) = 8
+        return kULong;
       } else {
         break; // break as if this is one of the cases above because this is
                // only a workaround

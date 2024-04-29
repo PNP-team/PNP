@@ -166,22 +166,22 @@ static void float_bfloat16_copy_kernel(TensorIteratorBase &iter, bool requires_n
 
 #if !defined(C10_MOBILE)
 #define _AT_DISPATCH_ALL_TYPES(TYPE, NAME, ...)                                       \
-        AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND6(                                       \
-            ScalarType::ComplexHalf, ScalarType::Half, ScalarType::Bool,              \
+        AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_FIELD_AND4(                                       \
+            ScalarType::Bool,              \
             ScalarType::BFloat16, ScalarType::Float8_e5m2, ScalarType::Float8_e4m3fn, \
             TYPE, NAME, __VA_ARGS__)
 #define _AT_DISPATCH_ALL_TYPES_NO_CF(TYPE, NAME, ...)              \
-        AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND5(                    \
-            kBool, kHalf, kBFloat16, kFloat8_e5m2, kFloat8_e4m3fn, \
+        AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_FIELD_AND4(                    \
+            kBool, kBFloat16, kFloat8_e5m2, kFloat8_e4m3fn, \
             TYPE, NAME, __VA_ARGS__)
 #else
 #define _AT_DISPATCH_ALL_TYPES(TYPE, NAME, ...)                                               \
-        AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND4(                                               \
-            ScalarType::ComplexHalf, ScalarType::Half, ScalarType::Bool,ScalarType::BFloat16, \
+        AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_FIELD_AND2(                                               \
+            ScalarType::Bool,ScalarType::BFloat16, \
             TYPE, NAME, __VA_ARGS__)
 #define _AT_DISPATCH_ALL_TYPES_NO_CF(TYPE, NAME, ...) \
-        AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND3(       \
-            kBool, kHalf, kBFloat16,                  \
+        AT_DISPATCH_ALL_TYPES_AND_COMPLEX_AND_FIELD_AND2(       \
+            kBool, kBFloat16,                  \
             TYPE, NAME, __VA_ARGS__)
 #endif
 

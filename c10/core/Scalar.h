@@ -396,6 +396,7 @@ using OptionalScalarRef = c10::OptionalRef<Scalar>;
     return to##name();             \
   }
 AT_FORALL_SCALAR_TYPES_WITH_COMPLEX(DEFINE_TO)
+DEFINE_TO(uint64_t, ULong)
 #undef DEFINE_TO
 
 } // namespace c10
