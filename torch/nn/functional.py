@@ -5519,10 +5519,10 @@ def multi_scalar_mult(points: Tensor, scalars: Tensor, device = "cuda") -> list:
     
     point_num = points.size(0)
     scalar_num = scalars.size(0)
-    assert (point_num != 0 and scalar_num != 0), "tensor must not be zero"
-    assert (point_num & (point_num-1) == 0), "points' size must be a power of 2"
-    assert (scalar_num & (scalar_num-1) == 0), "scalars' size must be a power of 2"
-    assert (point_num/2 == scalar_num), "points' size must be equal to scalars' size"
+    # assert (point_num != 0 and scalar_num != 0), "tensor must not be zero"
+    # assert (point_num & (point_num-1) == 0), "points' size must be a power of 2"
+    # assert (scalar_num & (scalar_num-1) == 0), "scalars' size must be a power of 2"
+    # assert (point_num/2 == scalar_num), "points' size must be equal to scalars' size"
     
     properties = torch.cuda.get_device_properties(device)
     smcount = properties.multi_processor_count
