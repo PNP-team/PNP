@@ -156,7 +156,7 @@ class Radix2EvaluationDomain:
     
     # This evaluates the vanishing polynomial for this domain at tau.
     # For multiplicative subgroups, this polynomial is `z(X) = X^self.size - 1`.
-    def evaluate_vanishing_polynomial(self, tau: fr.Fr):
+    def evaluate_vanishing_polynomial(self, tau):
         
         def pow_1(self,exp):
             res = torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
@@ -167,7 +167,9 @@ class Radix2EvaluationDomain:
                     # res = res.mul(self)
                     res = F.mul_mod(res,self)
             return res
+        
         one =torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
+        
         pow_tau=pow_1(tau.to('cuda'),self.size)
         return F.sub_mod(pow_tau,one)
     

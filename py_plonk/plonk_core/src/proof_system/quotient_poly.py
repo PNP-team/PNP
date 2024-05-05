@@ -245,34 +245,34 @@ def compute_quotient_poly(domain: Radix2EvaluationDomain,
     l1_poly = compute_first_lagrange_poly_scaled(domain, torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont)) ########输出为Tensor
     
 
-    l1_eval_8n = coset_NTT_new(domain_8n,l1_poly.to('cuda:5'))
-    z_eval_8n = coset_NTT_new(domain_8n,z_poly.to('cuda:5'))
+    l1_eval_8n = coset_NTT_new(domain_8n,l1_poly.to('cuda'))
+    z_eval_8n = coset_NTT_new(domain_8n,z_poly.to('cuda'))
     
     z_eval_8n = torch.cat((z_eval_8n, z_eval_8n[:8]), dim=0)
     
-    wl_eval_8n = coset_NTT_new(domain_8n,w_l_poly.to('cuda:5'))
+    wl_eval_8n = coset_NTT_new(domain_8n,w_l_poly.to('cuda'))
     wl_eval_8n = torch.cat((wl_eval_8n, wl_eval_8n[:8]), dim=0)
 
-    wr_eval_8n = coset_NTT_new(domain_8n,w_r_poly.to('cuda:5'))
+    wr_eval_8n = coset_NTT_new(domain_8n,w_r_poly.to('cuda'))
     wr_eval_8n = torch.cat((wr_eval_8n, wr_eval_8n[:8]), dim=0)
 
-    wo_eval_8n = coset_NTT_new(domain_8n,w_o_poly.to('cuda:5'))
+    wo_eval_8n = coset_NTT_new(domain_8n,w_o_poly.to('cuda'))
 
-    w4_eval_8n = coset_NTT_new(domain_8n,w_4_poly.to('cuda:5'))
+    w4_eval_8n = coset_NTT_new(domain_8n,w_4_poly.to('cuda'))
     w4_eval_8n = torch.cat((w4_eval_8n, w4_eval_8n[:8]), dim=0)
 
-    z2_eval_8n = coset_NTT_new(domain_8n,z2_poly.to('cuda:5'))
+    z2_eval_8n = coset_NTT_new(domain_8n,z2_poly.to('cuda'))
     z2_eval_8n = torch.cat((z2_eval_8n, z2_eval_8n[:8]), dim=0)
 
-    f_eval_8n =coset_NTT_new(domain_8n,f_poly.to('cuda:5'))
+    f_eval_8n =coset_NTT_new(domain_8n,f_poly.to('cuda'))
 
-    table_eval_8n = coset_NTT_new(domain_8n,table_poly.to('cuda:5'))
+    table_eval_8n = coset_NTT_new(domain_8n,table_poly.to('cuda'))
     table_eval_8n = torch.cat((table_eval_8n, table_eval_8n[:8]), dim=0)
 
-    h1_eval_8n = coset_NTT_new(domain_8n,h1_poly.to('cuda:5'))
+    h1_eval_8n = coset_NTT_new(domain_8n,h1_poly.to('cuda'))
     h1_eval_8n = torch.cat((h1_eval_8n, h1_eval_8n[:8]), dim=0)
 
-    h2_eval_8n = coset_NTT_new(domain_8n,h2_poly.to('cuda:5'))
+    h2_eval_8n = coset_NTT_new(domain_8n,h2_poly.to('cuda'))
 
     end_time = time.time()
     print(f"1_Operation took {end_time - start_time} seconds")

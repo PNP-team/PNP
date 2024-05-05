@@ -14,19 +14,19 @@ import torch.nn as nn
 
 import torch
 
-def auto_to_cuda(tensor):
-    # 检查当前 GPU 的内存情况
-    current_device = torch.cuda.current_device()
-    free_memory = torch.cuda.get_device_properties(current_device).total_memory - torch.cuda.memory_allocated(current_device)
+# def auto_to_cuda(tensor):
+#     # 检查当前 GPU 的内存情况
+#     current_device = torch.cuda.current_device()
+#     free_memory = torch.cuda.get_device_properties(current_device).total_memory - torch.cuda.memory_allocated(current_device)
     
-    # 如果当前 GPU 的内存不足，则将数据移到下一个可用的 GPU 上
-    if free_memory < tensor.element_size() * tensor.nelement():
-        next_device = (current_device + 1) % torch.cuda.device_count()
-        tensor = tensor.to('cuda:' + str(next_device))
-        print(f'Moved tensor to CUDA device {next_device}')
-    else:
-        tensor=tensor.to('cuda')
-    return tensor
+#     # 如果当前 GPU 的内存不足，则将数据移到下一个可用的 GPU 上
+#     if free_memory < tensor.element_size() * tensor.nelement():
+#         next_device = (current_device + 1) % torch.cuda.device_count()
+#         tensor = tensor.to('cuda:' + str(next_device))
+#         print(f'Moved tensor to CUDA device {next_device}')
+#     else:
+#         tensor=tensor.to('cuda')
+#     return tensor
 
 
 def extend_tensor(input:torch.tensor,size):

@@ -12,7 +12,7 @@ from .plonk_core.src.proof_system import quotient_poly
 from .plonk_core.src.proof_system import linearisation_poly
 import numpy as np
 from .arithmetic import from_coeff_vec,resize_1,\
-                        from_list_gmpy_1,transtompz,INTT_new,INTT,NTT,NTT_new,auto_to_cuda
+                        from_list_gmpy_1,transtompz,INTT_new,INTT,NTT,NTT_new
 from .KZG import kzg10
 from .bls12_381 import fq,fr
 import torch
@@ -67,17 +67,17 @@ class gen_proof:
         w_r_scalar=torch.tensor(np.load(date_set2[4],allow_pickle=True),dtype=torch.BLS12_381_Fr_G1_Mont)
         w_o_scalar=torch.tensor(np.load(date_set2[5],allow_pickle=True),dtype=torch.BLS12_381_Fr_G1_Mont)
         w_4_scalar=torch.tensor(np.load(date_set2[6],allow_pickle=True),dtype=torch.BLS12_381_Fr_G1_Mont)
-        # w_l_scalar = w_l_scalar.to('cuda')
-        # w_r_scalar = w_r_scalar.to('cuda')
-        # w_o_scalar = w_o_scalar.to('cuda')
-        # w_4_scalar = w_4_scalar.to('cuda')
+        w_l_scalar = w_l_scalar.to('cuda')
+        w_r_scalar = w_r_scalar.to('cuda')
+        w_o_scalar = w_o_scalar.to('cuda')
+        w_4_scalar = w_4_scalar.to('cuda')
 
         
 
-        w_l_scalar = auto_to_cuda(w_l_scalar)
-        w_r_scalar = auto_to_cuda(w_r_scalar)
-        w_o_scalar = auto_to_cuda(w_o_scalar)
-        w_4_scalar = auto_to_cuda(w_4_scalar)
+        # w_l_scalar = auto_to_cuda(w_l_scalar)
+        # w_r_scalar = auto_to_cuda(w_r_scalar)
+        # w_o_scalar = auto_to_cuda(w_o_scalar)
+        # w_4_scalar = auto_to_cuda(w_4_scalar)
 
  
         w_l_scalar_intt=INTT_new(domain,w_l_scalar)
@@ -128,7 +128,7 @@ class gen_proof:
         compressed_t_multiset = t_multiset.compress(zeta)     
         # Compute table poly
 
-        compressed_t_poly =INTT_new(domain,compressed_t_multiset.elements.to('cuda'))
+        compressed_t_poly =INTT_new(domain,compressed_t_multiset.elements)
         
         table_poly = from_coeff_vec(compressed_t_poly)
 
@@ -172,7 +172,7 @@ class gen_proof:
         compressed_f_multiset = f_scalars.compress(zeta)
 
         # Compute query poly
-        compressed_f_poly = INTT_new(domain,compressed_f_multiset.elements.to('cuda'))
+        compressed_f_poly = INTT_new(domain,compressed_f_multiset.elements)
         f_poly= from_coeff_vec(compressed_f_poly)
 
         f_polys = [kzg10.LabeledPoly.new(label="f_poly",hiding_bound=None,poly=f_poly)]
@@ -190,6 +190,8 @@ class gen_proof:
         # Compute h polys
         h_1=h_1.to('cuda')
         h_2=h_2.to('cuda')
+        # h_1=auto_to_cuda(h_1)
+        # h_2=auto_to_cuda(h_2)
         h_1_temp = INTT_new(domain,h_1)
         h_2_temp = INTT_new(domain,h_2)
         h_1_poly = from_coeff_vec(h_1_temp)  
@@ -462,6 +464,8 @@ class gen_proof:
                     kzg10.LabeledPoly.new(label="table_poly",hiding_bound=None,poly=table_poly)]
         
         saw_commits, saw_rands = kzg10.commit_poly_new(pp,saw_polys,Fr)
+        domain_g=domain.element(1)
+
         saw_opening = kzg10.open(
             pp,
             saw_polys,
