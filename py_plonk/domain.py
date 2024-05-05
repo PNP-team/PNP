@@ -137,7 +137,8 @@ class Radix2EvaluationDomain:
             pow_dof = pow_1(domain_offset, size - 1)
             v_0_inv = F.mul_mod(f_size, pow_dof)
             # div_mod work on cpu
-            z_h_at_tau_inv= F.div_mod(torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont),z_h_at_tau)
+            one=one.to('cpu')
+            z_h_at_tau_inv= F.div_mod(one,z_h_at_tau)
             z_h_at_tau_inv=z_h_at_tau_inv.to('cuda')
             l_i = F.mul_mod(z_h_at_tau_inv, v_0_inv)
             negative_cur_elem = neg(domain_offset)

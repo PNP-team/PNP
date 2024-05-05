@@ -25,10 +25,6 @@ class MultiSet:
             self.elements.append(self.elements[0])  # use the first element to pad
         
     def compress(self, alpha):
-     
-        temp=from_gmpy_list_1(alpha)
-        alpha=torch.tensor(temp,dtype=torch.BLS12_381_Fr_G1_Mont)
-        
         compress_poly = utils.Multiset_lc(self, alpha)
         compress_poly = MultiSet(compress_poly)
         return compress_poly

@@ -159,25 +159,22 @@ def commit_poly_new(ck:UniversalParams,polys,params):
     random.seed(42)
     randomness = []
     labeled_comm = []
-    i=0
+  
     for labeled_poly in polys:
-        print(i)
         polynomial = labeled_poly.poly
         hiding_bound = labeled_poly.hiding_bound
         label = labeled_poly.label
         powers_of_g = torch.tensor(ck["powers_of_g"],dtype=torch.BLS12_381_Fq_G1_Mont)
         powers_of_gamma_g = torch.tensor(ck["powers_of_gamma_g"],dtype=torch.BLS12_381_Fq_G1_Mont)
-        variables = [powers_of_g, powers_of_gamma_g, polynomial, hiding_bound, params]
-
-        for var in variables:
-            if isinstance(var, torch.Tensor):
-                print(var.device)
-            else:
-                print("Variable {} is not a PyTorch tensor.".format(var))
+        # for var in variables:
+        #     if isinstance(var, torch.Tensor):
+        #         print(var.device)
+        #     else:
+        #         print("Variable {} is not a PyTorch tensor.".format(var))
         comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound,params) 
         labeled_comm.append(LabeledCommitment.new(label,comm))
         randomness.append(rand)
-        i+=1
+        
     return labeled_comm,randomness
 
 

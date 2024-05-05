@@ -42,13 +42,11 @@ def compute_gate_constraint_satisfiability(domain,
     pi_eval_8n = coset_NTT_new(domain_8n,pi_poly)
 
     gate_contributions = []
-
-    
     def convert_to_tensors(data):
         for key, value in data.items():
             if isinstance(value, dict):
                 convert_to_tensors(value)  # Recursively apply conversion
-            elif isinstance(value, np.ndarray):##4575657222473777152
+            elif isinstance(value, np.ndarray):##4575657222473777152 ndarray problem
                 if np.array_equal(value,np.array(4575657222473777152,dtype=np.uint64)):
                     value=[]
                 data[key] = torch.tensor(value, dtype=torch.BLS12_381_Fr_G1_Mont)  # Convert numpy array to tensor
@@ -237,12 +235,12 @@ def compute_quotient_poly(domain: Radix2EvaluationDomain,
             range_challenge, logic_challenge, 
             fixed_base_challenge, var_base_challenge, 
             lookup_challenge):
-    start_time = time.time()
     #get Fr
     params = fr.Fr(gmpy2.mpz(0))
     #get NTT domain
     domain_8n = Radix2EvaluationDomain.new(8 * domain.size,params)
-    l1_poly = compute_first_lagrange_poly_scaled(domain, torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont)) ########输出为Tensor
+    one=torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont)
+    l1_poly = compute_first_lagrange_poly_scaled(domain,one) 
     
 
     l1_eval_8n = coset_NTT_new(domain_8n,l1_poly.to('cuda'))
@@ -274,8 +272,6 @@ def compute_quotient_poly(domain: Radix2EvaluationDomain,
 
     h2_eval_8n = coset_NTT_new(domain_8n,h2_poly.to('cuda'))
 
-    end_time = time.time()
-    print(f"1_Operation took {end_time - start_time} seconds")
     range_challenge=torch.tensor(from_gmpy_list_1(range_challenge),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
     logic_challenge = torch.tensor(from_gmpy_list_1(logic_challenge), dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
     fixed_base_challenge = torch.tensor(from_gmpy_list_1(fixed_base_challenge), dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
@@ -290,17 +286,12 @@ def compute_quotient_poly(domain: Radix2EvaluationDomain,
         wl_eval_8n,wr_eval_8n,wo_eval_8n,w4_eval_8n,
         public_inputs_poly,
     )
-    gate_constraints_time = time.time()
-    print(f"gate_constraints took {gate_constraints_time - start_time} seconds")
     permutation = compute_permutation_checks(
         domain,
         prover_key,
         wl_eval_8n,wr_eval_8n,wo_eval_8n,w4_eval_8n,z_eval_8n,
         alpha,beta,gamma,
     )
-    permutation_time = time.time()
-    print(f"permutation took {permutation_time - start_time} seconds")
-
     pk_lookup=prover_key['lookup'].tolist()
     pk_lookup_qlookup_evals=torch.tensor(pk_lookup['q_lookup']['evals'],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
     
@@ -323,13 +314,11 @@ def compute_quotient_poly(domain: Radix2EvaluationDomain,
         lookup_challenge,
         pk_lookup_qlookup_evals
     )
-    lookup_time = time.time()
-    print(f"permutation took {lookup_time - start_time} seconds")
-   
+
     prover_key_v_h_coset_8n=prover_key["v_h_coset_8n"].tolist()
     prover_key_v_h_coset_8n_evals=torch.tensor(prover_key_v_h_coset_8n['evals'],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
     
-    one=torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont)
+    
     extend_one=extend_tensor(one,domain_8n.size)
     numerator = F.add_mod(gate_constraints,permutation)
     numerator = F.add_mod(numerator,lookup)

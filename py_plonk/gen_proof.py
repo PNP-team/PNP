@@ -12,7 +12,7 @@ from .plonk_core.src.proof_system import quotient_poly
 from .plonk_core.src.proof_system import linearisation_poly
 import numpy as np
 from .arithmetic import from_coeff_vec,resize_1,\
-                        from_list_gmpy_1,transtompz,INTT_new,INTT,NTT,NTT_new
+                        from_list_gmpy_1,transtompz,INTT_new,INTT,NTT,NTT_new,from_gmpy_list_1,challenge_to_tensor
 from .KZG import kzg10
 from .bls12_381 import fq,fr
 import torch
@@ -56,6 +56,7 @@ class gen_proof:
         pk_lookup_table3=torch.tensor(pk_lookup["table3"]['coeffs'],dtype=torch.BLS12_381_Fr_G1_Mont)
         pk_lookup_table4=torch.tensor(pk_lookup["table4"]['coeffs'],dtype=torch.BLS12_381_Fr_G1_Mont)
 
+      
         concatenated_lookup=torch.stack([
         pk_lookup_table1,
         pk_lookup_table2,
@@ -72,14 +73,6 @@ class gen_proof:
         w_o_scalar = w_o_scalar.to('cuda')
         w_4_scalar = w_4_scalar.to('cuda')
 
-        
-
-        # w_l_scalar = auto_to_cuda(w_l_scalar)
-        # w_r_scalar = auto_to_cuda(w_r_scalar)
-        # w_o_scalar = auto_to_cuda(w_o_scalar)
-        # w_4_scalar = auto_to_cuda(w_4_scalar)
-
- 
         w_l_scalar_intt=INTT_new(domain,w_l_scalar)
         w_r_scalar_intt=INTT_new(domain,w_r_scalar)
         w_o_scalar_intt=INTT_new(domain,w_o_scalar)
@@ -125,11 +118,12 @@ class gen_proof:
         pk_lookup_table4], dim=0)
 
         t_multiset = multiset.MultiSet(concatenated_lookup)
-        compressed_t_multiset = t_multiset.compress(zeta)     
+
+        zeta_tensor=challenge_to_tensor(zeta)
+        compressed_t_multiset = t_multiset.compress(zeta_tensor)     
         # Compute table poly
 
         compressed_t_poly =INTT_new(domain,compressed_t_multiset.elements)
-        
         table_poly = from_coeff_vec(compressed_t_poly)
 
         
@@ -169,15 +163,13 @@ class gen_proof:
         f_scalars.elements[2],
         f_scalars.elements[3]], dim=0)
         f_scalars=multiset.MultiSet(concatenated_f_scalars)
-        compressed_f_multiset = f_scalars.compress(zeta)
+        compressed_f_multiset = f_scalars.compress(zeta_tensor)
 
         # Compute query poly
         compressed_f_poly = INTT_new(domain,compressed_f_multiset.elements)
         f_poly= from_coeff_vec(compressed_f_poly)
-
         f_polys = [kzg10.LabeledPoly.new(label="f_poly",hiding_bound=None,poly=f_poly)]
 
-    
         # Commit to query polynomial
         f_poly_commit, _ = kzg10.commit_poly_new(pp,f_polys,Fr)
         f_p_c_0=transtompz(f_poly_commit[0].commitment.value)
@@ -190,8 +182,6 @@ class gen_proof:
         # Compute h polys
         h_1=h_1.to('cuda')
         h_2=h_2.to('cuda')
-        # h_1=auto_to_cuda(h_1)
-        # h_2=auto_to_cuda(h_2)
         h_1_temp = INTT_new(domain,h_1)
         h_2_temp = INTT_new(domain,h_2)
         h_1_poly = from_coeff_vec(h_1_temp)  
@@ -204,6 +194,7 @@ class gen_proof:
         h_2_poly_commit,_ = kzg10.commit_poly_new(pp,h_2_polys,Fr)
 
         # Add h polynomials to transcript
+        #h_1_p_c_0 means h_1_poly_commit_0
         h_1_p_c_0=transtompz(h_1_poly_commit[0].commitment.value)
         h_2_p_c_0=transtompz(h_2_poly_commit[0].commitment.value)
         transcript.append(b"h1", h_1_p_c_0)
@@ -248,10 +239,7 @@ class gen_proof:
                 torch.tensor(pk_permutation['fourth_sigma']['coeffs'],dtype=torch.BLS12_381_Fr_G1_Mont)
             ))
         # Commit to permutation polynomial.
-        del w_l_scalar
-        del w_r_scalar
-        del w_o_scalar
-        del w_4_scalar
+
         z_polys = [kzg10.LabeledPoly.new(label="z_poly",hiding_bound=None,poly=z_poly)]
         z_poly_commit,_ = kzg10.commit_poly_new(pp,z_polys,Fr)
 
@@ -464,8 +452,6 @@ class gen_proof:
                     kzg10.LabeledPoly.new(label="table_poly",hiding_bound=None,poly=table_poly)]
         
         saw_commits, saw_rands = kzg10.commit_poly_new(pp,saw_polys,Fr)
-        domain_g=domain.element(1)
-
         saw_opening = kzg10.open(
             pp,
             saw_polys,

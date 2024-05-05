@@ -75,12 +75,6 @@ def neg(self):
         res= F.sub_mod(a,self)
         return res
     
-# def neg_extend(self,size):
-#     res=torch.zeros(size,4,dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-#     for i in range(len(self)):
-#         res[i]=neg(self[i])
-
-#     return res 
 def neg_extend(self,size):
     res=torch.zeros(size,4,dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
     ### 把是零的位置记下来然后先整体做sub再重新赋值0
@@ -147,6 +141,15 @@ def from_gmpy_list_1(input:fr.Fr):
         output.append( int(input_copy.value & 0xFFFFFFFFFFFFFFFF) )
         input_copy.value = input_copy.value >> 64
     # input=fr.Fr(value=output)
+    return output
+
+def challenge_to_tensor(input:fr.Fr):
+    output = []
+    input_copy=copy.deepcopy(input)
+    for j in range(fr.Fr.Limbs):
+        output.append( int(input_copy.value & 0xFFFFFFFFFFFFFFFF) )
+        input_copy.value = input_copy.value >> 64
+    output=torch.tensor(output,dtype=torch.BLS12_381_Fr_G1_Mont)
     return output
 
 def from_list_gmpy_1(input:list):
@@ -505,7 +508,7 @@ def coset_NTT_new_1(domain,coeffs:torch.tensor):
 
 
 def coset_NTT_new(domain,coeffs:torch.tensor):
-    print(coeffs.device)
+    
     ntt_class = nn.Ntt_coset(32, torch.BLS12_381_Fr_G1_Mont)
     # coeffs=distribute_powers_new(coeffs, fr.Fr.GENERATOR)
     resize_coeffs= resize_1(coeffs,domain.size)
@@ -858,11 +861,7 @@ def MSM_new(bases,scalar): #bases POINT scalar SCALAR
     else:
         base=copy.deepcopy(bases)
         base = base[:min_size_1].view(-1, 6)# dim2 to 1
-        print(base.device)
-        print(scalar.device)
         base=base.to('cuda')
         scalar=scalar.to('cuda')
-        print(base.device)
-        print(scalar.device)
         commitment:torch.tensor =torch.tensor(F.multi_scalar_mult(base,scalar),dtype=torch.BLS12_381_Fq_G1_Mont) #return cpu
         return commitment

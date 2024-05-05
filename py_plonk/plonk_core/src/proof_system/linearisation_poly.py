@@ -426,7 +426,7 @@ def compute_gate_constraint_satisfiability(
         CAValues.from_evaluations(custom_evals),
     )
 
-    mid1 = poly_add_poly(arithmetic, range)  ###返回值为tensor
+    mid1 = poly_add_poly(arithmetic, range)  
     mid2 = poly_add_poly(mid1, logic)
     mid3 = poly_add_poly(mid2, fixed_base_scalar_mul)
     res = poly_add_poly(mid3, curve_addition)

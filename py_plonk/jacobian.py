@@ -270,7 +270,7 @@ def to_affine(input:torch.tensor):  ###fq->fq
            
             output=[[],[]]
             output[0]=torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont)
-            output[1]=torch.tensor([8505329371266088957, 17002214543764226050, 6865905132761471162, 8632934651105793861, 6631298214892334189, 1582556514881692819],dtype=torch.BLS12_381_Fq_G1_Mont)
+            output[1]=one
             return output##fq y:3380320199399472671518931668520476396067793891014375699959770179129436917079669831430077592723774664465579537268733
         elif torch.equal(p[2] , one):
             # If Z is one, the point is already normalized.
@@ -278,7 +278,7 @@ def to_affine(input:torch.tensor):  ###fq->fq
         else:
             # Z is nonzero, so it must have an inverse in a field.
             #div_mod work on cpu
-            zinv = F.div_mod(torch.tensor([8505329371266088957, 17002214543764226050, 6865905132761471162, 8632934651105793861, 6631298214892334189, 1582556514881692819],dtype=torch.BLS12_381_Fq_G1_Mont),p[2])
+            zinv = F.div_mod(one,p[2])
             zinv_squared = F.mul_mod(zinv, zinv)
 
             x = F.mul_mod(p[0], zinv_squared)
