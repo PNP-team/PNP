@@ -254,7 +254,7 @@ class ProjectivePointG1:
                 hh = F.mul_mod(h, h)
                 z = F.sub_mod(z, hh)
 
-                return ProjectivePointG1(x, y, z)
+                return ProjectivePointG1(x, y, z)     
 def is_zero_ProjectivePointG1(self):
     return torch.equal(self[2],torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont)) ##z
 
@@ -287,37 +287,36 @@ def to_affine(input:torch.tensor):  ###fq->fq
          
             return [x,y]
 def add_assign(self, other: 'ProjectivePointG1'):
-    if is_zero_AffinePointG1(self):
-        x, y, z = other.x, other.y, other.z
+    if is_zero_ProjectivePointG1(self):
+        x, y, z = other[0], other[1], other[2]
         return [x,y,z]
 
-    if other.is_zero():
-        # return ProjectivePointG1(self.x, self.y, self.z)
-        return [self.x,self,y,self.z]
+    if is_zero_ProjectivePointG1(other):
+        return [self[0],self[1],self[2]]
 
     # Z1Z1 = Z1^2
-    z1z1 = F.mul_mod(self.z, self.z)
+    z1z1 = F.mul_mod(self[2], self[2])
 
     # Z2Z2 = Z2^2
-    z2z2 = F.mul_mod(other.z, other.z)
+    z2z2 = F.mul_mod(other[2], other[2])
 
     # U1 = X1*Z2Z2
-    u1 = F.mul_mod(self.x, z2z2)
+    u1 = F.mul_mod(self[0], z2z2)
 
     # U2 = X2*Z1Z1
-    u2 = F.mul_mod(other.x, z1z1)
+    u2 = F.mul_mod(other[0], z1z1)
 
     # S1 = Y1*Z2*Z2Z2
-    s1 = F.mul_mod(self.y, other.z)
+    s1 = F.mul_mod(self[1], other.z)
     s1 = F.mul_mod(s1, z2z2)
     
     # S2 = Y2*Z1*Z1Z1
-    s2 = F.mul_mod(other.y, self.z)
+    s2 = F.mul_mod(other[1], self[2])
     s2 = F.mul_mod(s2, z1z1)
 
-    if u1.value == u2.value and s1.value == s2.value:
+    if  torch.equal(u1 ,u2)and torch.equal(s1 ,s2):
         # The two points are equal, so we double.
-        return self.double()
+        return double_ProjectivePointG1(self)
     else:
         # H = U2-U1
         h = F.sub_mod(u2, u1)
@@ -341,7 +340,7 @@ def add_assign(self, other: 'ProjectivePointG1'):
         y = F.sub_mod(F.mul_mod(r, F.sub_mod(v, x)), F.add_mod(F.mul_mod(s1, j), F.mul_mod(s1, j)))
 
         # Z3 = ((Z1+Z2)^2 - Z1Z1 - Z2Z2)*H
-        z = F.mul_mod(F.sub_mod(F.sub_mod(F.mul_mod(F.add_mod(self.z, other.z), F.add_mod(self.z, other.z)), z1z1), z2z2), h)
+        z = F.mul_mod(F.sub_mod(F.sub_mod(F.mul_mod(F.add_mod(self[2], other[2]), F.add_mod(self[2], other[2])), z1z1), z2z2), h)
         # return ProjectivePointG1(x, y, z)
         return [x,y,z]
 

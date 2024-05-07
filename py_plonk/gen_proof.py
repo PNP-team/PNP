@@ -17,8 +17,9 @@ from .KZG import kzg10
 from .bls12_381 import fq,fr
 import torch
 import time
-date_set2=["../../data/pp-3.npz","../../data/pk-3.npz","../../data/cs-3.npz","../../data/w_l_scalar_scalar-3.npy","../../data/w_r_scalar_scalar-3.npy","../../data/w_o_scalar_scalar-3.npy","../../data/w_4_scalar_scalar-3.npy"]
+#date_set2=["../../data/pp-3.npz","../../data/pk-3.npz","../../data/cs-3.npz","../../data/w_l_scalar_scalar-3.npy","../../data/w_r_scalar_scalar-3.npy","../../data/w_o_scalar_scalar-3.npy","../../data/w_4_scalar_scalar-3.npy"]
 #date_set2=["../../data/pp-17.npz","../../data/pk-17.npz","../../data/cs-17.npz","../../data/w_l_scalar-17.npy","../../data/w_r_scalar-17.npy","../../data/w_o_scalar-17.npy","../../data/w_4_scalar-17.npy"]
+date_set2=["../../data/pp-9.npz","../../data/pk-9.npz","../../data/cs-9.npz","../../data/w_l_scalar-9.npy","../../data/w_r_scalar-9.npy","../../data/w_o_scalar-9.npy","../../data/w_4_scalar-9.npy"]
 
 
 
@@ -105,17 +106,7 @@ class gen_proof:
         zeta = transcript.challenge_scalar(b"zeta",Fr)
         transcript.append(b"zeta",zeta)
 
-        pk_lookup=pk["lookup"].tolist()
-        pk_lookup_table1=torch.tensor(pk_lookup["table1"]['coeffs'],dtype=torch.BLS12_381_Fr_G1_Mont)
-        pk_lookup_table2=torch.tensor(pk_lookup["table2"]['coeffs'],dtype=torch.BLS12_381_Fr_G1_Mont)
-        pk_lookup_table3=torch.tensor(pk_lookup["table3"]['coeffs'],dtype=torch.BLS12_381_Fr_G1_Mont)
-        pk_lookup_table4=torch.tensor(pk_lookup["table4"]['coeffs'],dtype=torch.BLS12_381_Fr_G1_Mont)
-        # Compress lookup table into vector of single elements
-        concatenated_lookup=torch.stack([
-        pk_lookup_table1,
-        pk_lookup_table2,
-        pk_lookup_table3,
-        pk_lookup_table4], dim=0)
+       
 
         t_multiset = multiset.MultiSet(concatenated_lookup)
 

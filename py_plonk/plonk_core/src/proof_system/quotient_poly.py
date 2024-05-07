@@ -47,7 +47,7 @@ def compute_gate_constraint_satisfiability(domain,
             if isinstance(value, dict):
                 convert_to_tensors(value)  # Recursively apply conversion
             elif isinstance(value, np.ndarray):##4575657222473777152 ndarray problem
-                if np.array_equal(value,np.array(4575657222473777152,dtype=np.uint64)):
+                if np.array_equal(value,np.array(0,dtype=np.uint64)):
                     value=[]
                 data[key] = torch.tensor(value, dtype=torch.BLS12_381_Fr_G1_Mont)  # Convert numpy array to tensor
     
