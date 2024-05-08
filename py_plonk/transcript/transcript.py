@@ -3,8 +3,6 @@ import struct
 from ..transcript import strobe
 from ..structure import AffinePointG1, serialize_BTreeMap
 from ..bls12_381 import fr
-from ..jacobian import serialize
-from ..bytes import write
 from ..transcript import flags
 
 MERLIN_PROTOCOL_LABEL = b"Merlin v1.0"

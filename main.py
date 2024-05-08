@@ -16,9 +16,6 @@ import torch
 import torchviz
 from py_plonk.gen_proof import gen_proof
 from torchviz import make_dot
-import os
-
-os.environ["CUDA_VISIBLE_DEVICES"] = "1,2,3,4,5,6,7"
 #date_set2=["../../data/pp-3.npz","../../data/pk-3.npz","../../data/cs-3.npz","../../data/w_l_scalar_scalar-3.npy","../../data/w_r_scalar_scalar-3.npy","../../data/w_o_scalar_scalar-3.npy","../../data/w_4_scalar_scalar-3.npy"]
 #date_set2=["../../data/pp-17.npz","../../data/pk-17.npz","../../data/cs-17.npz","../../data/w_l_scalar-17.npy","../../data/w_r_scalar-17.npy","../../data/w_o_scalar-17.npy","../../data/w_4_scalar-17.npy"]
 date_set2=["../../data/MERKLE-HEIGHT-9/pp-9.npz","../../data/MERKLE-HEIGHT-9/pk-9.npz","../../data/MERKLE-HEIGHT-9/cs-9.npz","../../data/MERKLE-HEIGHT-9/w_l_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_r_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_o_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_4_scalar-9.npy"]
@@ -53,7 +50,7 @@ if __name__ == "__main__":
     # with profile(activities=[ProfilerActivity.CPU]) as prof:
     #     with record_function("gen_proof"):
     # pi = gen_proof(pp,pk,cs,preprocessed_transcript)
-    model=gen_proof()
+    model= ()
     
     # with profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA]) as prof:
     #     y=model(pp,pk,cs,preprocessed_transcript)

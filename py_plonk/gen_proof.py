@@ -45,20 +45,7 @@ class gen_proof:
         domain=Radix2EvaluationDomain.new(cs.circuit_bound(),Fr)
         n=domain.size
         transcript.append_pi(b"pi", from_list_gmpy_1(cs.public_inputs.tolist()), int(cs.intended_pi_pos))
- 
-        # pk_lookup=pk["lookup"].tolist()
-        # pk_lookup_table1=torch.tensor(pk_lookup["table1"]['coeffs'],dtype=torch.BLS12_381_Fr_G1_Mont)
-        # pk_lookup_table2=torch.tensor(pk_lookup["table2"]['coeffs'],dtype=torch.BLS12_381_Fr_G1_Mont)
-        # pk_lookup_table3=torch.tensor(pk_lookup["table3"]['coeffs'],dtype=torch.BLS12_381_Fr_G1_Mont)
-        # pk_lookup_table4=torch.tensor(pk_lookup["table4"]['coeffs'],dtype=torch.BLS12_381_Fr_G1_Mont)
 
-      
-        # concatenated_lookup=torch.stack([
-        # pk_lookup_table1,
-        # pk_lookup_table2,
-        # pk_lookup_table3,
-        # pk_lookup_table4], dim=0)
-    
         #1. Compute witness Polynomials
         w_l_scalar=torch.tensor(np.load(date_set2[3],allow_pickle=True),dtype=torch.BLS12_381_Fr_G1_Mont)
         w_r_scalar=torch.tensor(np.load(date_set2[4],allow_pickle=True),dtype=torch.BLS12_381_Fr_G1_Mont)
