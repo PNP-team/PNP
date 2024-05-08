@@ -7,8 +7,7 @@ import torch.nn as nn
 
 def as_evals(public_inputs,pi_pos,n):
     pi = torch.zeros(n,4,dtype=torch.BLS12_381_Fr_G1_Mont)
-    for pos in pi_pos:
-        pi[pos] = public_inputs
+    pi[pi_pos] = public_inputs
     return pi
 
 def into_dense_poly(public_inputs,pi_pos,n,params):

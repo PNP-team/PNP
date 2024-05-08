@@ -17,11 +17,7 @@ from .KZG import kzg10
 from .bls12_381 import fq,fr
 import torch
 import time
-#date_set2=["../../data/pp-3.npz","../../data/pk-3.npz","../../data/cs-3.npz","../../data/w_l_scalar_scalar-3.npy","../../data/w_r_scalar_scalar-3.npy","../../data/w_o_scalar_scalar-3.npy","../../data/w_4_scalar_scalar-3.npy"]
-#date_set2=["../../data/pp-17.npz","../../data/pk-17.npz","../../data/cs-17.npz","../../data/w_l_scalar-17.npy","../../data/w_r_scalar-17.npy","../../data/w_o_scalar-17.npy","../../data/w_4_scalar-17.npy"]
-date_set2=["../../data/pp-9.npz","../../data/pk-9.npz","../../data/cs-9.npz","../../data/w_l_scalar-9.npy","../../data/w_r_scalar-9.npy","../../data/w_o_scalar-9.npy","../../data/w_4_scalar-9.npy"]
-
-
+date_set2=["../../data/MERKLE-HEIGHT-9/pp-9.npz","../../data/MERKLE-HEIGHT-9/pk-9.npz","../../data/MERKLE-HEIGHT-9/cs-9.npz","../../data/MERKLE-HEIGHT-9/w_l_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_r_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_o_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_4_scalar-9.npy"]
 
 def split_tx_poly(n,t_x ):
     buf:list =t_x [:]
@@ -48,21 +44,20 @@ class gen_proof:
         Fr=fr.Fr(value = gmpy2.mpz(0))
         domain=Radix2EvaluationDomain.new(cs.circuit_bound(),Fr)
         n=domain.size
-        print(n)
-        transcript.append_pi(b"pi")
-
-        pk_lookup=pk["lookup"].tolist()
-        pk_lookup_table1=torch.tensor(pk_lookup["table1"]['coeffs'],dtype=torch.BLS12_381_Fr_G1_Mont)
-        pk_lookup_table2=torch.tensor(pk_lookup["table2"]['coeffs'],dtype=torch.BLS12_381_Fr_G1_Mont)
-        pk_lookup_table3=torch.tensor(pk_lookup["table3"]['coeffs'],dtype=torch.BLS12_381_Fr_G1_Mont)
-        pk_lookup_table4=torch.tensor(pk_lookup["table4"]['coeffs'],dtype=torch.BLS12_381_Fr_G1_Mont)
+        transcript.append_pi(b"pi", from_list_gmpy_1(cs.public_inputs.tolist()), int(cs.intended_pi_pos))
+ 
+        # pk_lookup=pk["lookup"].tolist()
+        # pk_lookup_table1=torch.tensor(pk_lookup["table1"]['coeffs'],dtype=torch.BLS12_381_Fr_G1_Mont)
+        # pk_lookup_table2=torch.tensor(pk_lookup["table2"]['coeffs'],dtype=torch.BLS12_381_Fr_G1_Mont)
+        # pk_lookup_table3=torch.tensor(pk_lookup["table3"]['coeffs'],dtype=torch.BLS12_381_Fr_G1_Mont)
+        # pk_lookup_table4=torch.tensor(pk_lookup["table4"]['coeffs'],dtype=torch.BLS12_381_Fr_G1_Mont)
 
       
-        concatenated_lookup=torch.stack([
-        pk_lookup_table1,
-        pk_lookup_table2,
-        pk_lookup_table3,
-        pk_lookup_table4], dim=0)
+        # concatenated_lookup=torch.stack([
+        # pk_lookup_table1,
+        # pk_lookup_table2,
+        # pk_lookup_table3,
+        # pk_lookup_table4], dim=0)
     
         #1. Compute witness Polynomials
         w_l_scalar=torch.tensor(np.load(date_set2[3],allow_pickle=True),dtype=torch.BLS12_381_Fr_G1_Mont)
@@ -106,7 +101,17 @@ class gen_proof:
         zeta = transcript.challenge_scalar(b"zeta",Fr)
         transcript.append(b"zeta",zeta)
 
-       
+        pk_lookup=pk["lookup"].tolist()
+        pk_lookup_table1=torch.tensor(pk_lookup["table1"]['coeffs'],dtype=torch.BLS12_381_Fr_G1_Mont)
+        pk_lookup_table2=torch.tensor(pk_lookup["table2"]['coeffs'],dtype=torch.BLS12_381_Fr_G1_Mont)
+        pk_lookup_table3=torch.tensor(pk_lookup["table3"]['coeffs'],dtype=torch.BLS12_381_Fr_G1_Mont)
+        pk_lookup_table4=torch.tensor(pk_lookup["table4"]['coeffs'],dtype=torch.BLS12_381_Fr_G1_Mont)
+        # Compress lookup table into vector of single elements
+        concatenated_lookup=torch.stack([
+        pk_lookup_table1,
+        pk_lookup_table2,
+        pk_lookup_table3,
+        pk_lookup_table4], dim=0)
 
         t_multiset = multiset.MultiSet(concatenated_lookup)
 
@@ -255,7 +260,7 @@ class gen_proof:
 
         # 3. Compute public inputs polynomial
         cs_public_inputs=torch.tensor(cs.public_inputs)
-        pi_poly = into_dense_poly(cs_public_inputs,cs.intended_pi_pos,n,Fr)
+        pi_poly = into_dense_poly(cs_public_inputs,int(cs.intended_pi_pos),n,Fr)
 
 
         # 4. Compute quotient polynomial

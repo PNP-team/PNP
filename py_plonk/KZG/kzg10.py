@@ -4,7 +4,7 @@ from ..jacobian import ProjectivePointG1
 from ..field import field
 from ..bls12_381 import fr,fq
 from typing import List
-from ..arithmetic import MSM,skip_leading_zeros_and_convert_to_bigints,convert_to_bigints,rand_poly,poly_add_poly_mul_const,evaluate,from_coeff_vec,poly_div_poly, \
+from ..arithmetic import skip_leading_zeros_and_convert_to_bigints,convert_to_bigints,rand_poly,poly_add_poly_mul_const,evaluate,from_coeff_vec,poly_div_poly, \
                             skip_leading_zeros_and_convert_to_bigints_new,convert_to_bigints_new,MSM_new
 from ..plonk_core.src.proof_system.linearisation_poly import ProofEvaluations
 import random
@@ -42,33 +42,33 @@ class Randomness:
 class Commitment:
     def __init__(self,value):
         self.value = value
-    @classmethod
-    def commit(cls,powers,polynomial:torch.tensor,hiding_bound,params):
-        polynomial=from_tensor_list(polynomial)
-        from_list_gmpy(polynomial)
+    # @classmethod
+    # def commit(cls,powers,polynomial:torch.tensor,hiding_bound,params):
+    #     polynomial=from_tensor_list(polynomial)
+    #     from_list_gmpy(polynomial)
 
-        num_leading_zeros, plain_coeffs = skip_leading_zeros_and_convert_to_bigints(polynomial)
+    #     num_leading_zeros, plain_coeffs = skip_leading_zeros_and_convert_to_bigints(polynomial)
         
-        # plain_coeffs=from_tensor_list(plain_coeffs)
-        # from_list_gmpy(plain_coeffs)
-        commitment:ProjectivePointG1 = MSM(
-            powers[0][num_leading_zeros:],
-            plain_coeffs,
-            params
-        )
-        randomness = Randomness.empty()
-        if hiding_bound:
-            randomness = Randomness.rand(hiding_bound)
+    #     # plain_coeffs=from_tensor_list(plain_coeffs)
+    #     # from_list_gmpy(plain_coeffs)
+    #     commitment:ProjectivePointG1 = MSM(
+    #         powers[0][num_leading_zeros:],
+    #         plain_coeffs,
+    #         params
+    #     )
+    #     randomness = Randomness.empty()
+    #     if hiding_bound:
+    #         randomness = Randomness.rand(hiding_bound)
 
-        random_ints = convert_to_bigints(randomness.blind_poly)
+    #     random_ints = convert_to_bigints(randomness.blind_poly)
 
-        # random_ints=from_tensor_list(random_ints)
-        # from_list_gmpy(random_ints)
-        random_commitment:ProjectivePointG1 = MSM(powers[1],random_ints,params)
-        random_commitment_affine = random_commitment.to_affine()
-        commitment = commitment.add_assign_mixed(random_commitment_affine)
-        commitment_affine = commitment.to_affine()
-        return Commitment(value=commitment_affine),randomness
+    #     # random_ints=from_tensor_list(random_ints)
+    #     # from_list_gmpy(random_ints)
+    #     random_commitment:ProjectivePointG1 = MSM(powers[1],random_ints,params)
+    #     random_commitment_affine = random_commitment.to_affine()
+    #     commitment = commitment.add_assign_mixed(random_commitment_affine)
+    #     commitment_affine = commitment.to_affine()
+    #     return Commitment(value=commitment_affine),randomness
     
     @classmethod
     def commit_new(cls,powers_of_g,powers_of_gamma_g,polynomial:torch.tensor,hiding_bound,params):

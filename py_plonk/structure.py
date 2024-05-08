@@ -3,6 +3,7 @@ from typing import List
 from .bls12_381 import fq
 import gmpy2
 from .transcript import flags
+
 @dataclass
 class G2Coordinate:
     c0: any
@@ -45,6 +46,19 @@ class AffinePointG1:
 class AffinePointG2:
     x: G2Coordinate
     y: G2Coordinate
+#TODO: implement BTreeMap class
+#TODO: implement different `serialize` for different types
+def serialize_u64(item, writer: list):
+    bytes = item.to_bytes(8, byteorder='little')
+    writer.extend(bytes)
+    return writer
+
+def serialize_BTreeMap(item, pos, writer: list):
+    len = 1    # len = item.length
+    writer = serialize_u64(len, writer)
+    writer = serialize_u64(pos, writer)
+    writer = item.serialize(writer)
+    return writer
 
 @dataclass
 class UniversalParams:

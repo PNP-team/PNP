@@ -1,12 +1,16 @@
 from dataclasses import dataclass
 from typing import List
 from .structure import AffinePointG1
-from .transcript import transcript
 import gmpy2
 from .bls12_381 import fq
 import torch
 import torch.nn.functional as F
 import copy
+from .transcript import flags
+from .serialize import buffer_byte_size
+from .arithmetic import neg_fq
+from .ele import into_repr_fq
+from .bytes import write
 COEFF_A=0
 @dataclass
 
@@ -254,7 +258,8 @@ class ProjectivePointG1:
                 hh = F.mul_mod(h, h)
                 z = F.sub_mod(z, hh)
 
-                return ProjectivePointG1(x, y, z)     
+                return ProjectivePointG1(x, y, z) 
+                
 def is_zero_ProjectivePointG1(self):
     return torch.equal(self[2],torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont)) ##z
 

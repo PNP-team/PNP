@@ -3,7 +3,6 @@ import copy
 from .bls12_381 import fr,fq
 from .domain import Radix2EvaluationDomain
 from .structure import AffinePointG1
-from .jacobian import ProjectivePointG1
 import math
 import random
 import torch
@@ -483,7 +482,7 @@ def distribute_powers_and_mul_by_const_new(coeffs, g, c):
 
 def INTT_new(domain,evals:torch.Tensor):
 
-    inttclass = nn.Intt(domain.size, torch.BLS12_381_Fr_G1_Mont)
+    inttclass = nn.Intt(32, torch.BLS12_381_Fr_G1_Mont)
     evals_resize=resize_1(evals,domain.size)
     if evals_resize.device =='cuda':
         pass
@@ -494,7 +493,7 @@ def INTT_new(domain,evals:torch.Tensor):
 
 def NTT_new(domain,evals:torch.Tensor):
 
-    nttclass = nn.Ntt(domain.size, torch.BLS12_381_Fr_G1_Mont)
+    nttclass = nn.Ntt(32, torch.BLS12_381_Fr_G1_Mont)
     evals_resize=resize_1(evals,domain.size)
     evals_resize=evals_resize.to('cuda')
     res= nttclass.forward(evals_resize)
@@ -797,56 +796,56 @@ def compute_first_lagrange_evaluation(
     res= F.mul_mod(z_h_eval,denom_in)
     return res  
 
-def MSM(bases:list[AffinePointG1], scalars:list[fr.Fr], params):
-    size = min(len(bases), len(scalars))
-    fq_elem = bases[0].x
-    scalars = scalars[:size]
-    bases = bases[:size]
-    scalars_and_bases_iter = [(s, b) for s, b in zip(scalars, bases) if not s==0]
+# def MSM(bases:list[AffinePointG1], scalars:list[fr.Fr], params):
+#     size = min(len(bases), len(scalars))
+#     fq_elem = bases[0].x
+#     scalars = scalars[:size]
+#     bases = bases[:size]
+#     scalars_and_bases_iter = [(s, b) for s, b in zip(scalars, bases) if not s==0]
 
-    c = 3 if size < 32 else ln_without_floats(size) + 2
-    num_bits = fr.Fr.MODULUS_BITS
-    fr_one = params.one()
-    fr_one = fr_one.into_repr()
+#     c = 3 if size < 32 else ln_without_floats(size) + 2
+#     num_bits = fr.Fr.MODULUS_BITS
+#     fr_one = params.one()
+#     fr_one = fr_one.into_repr()
 
-    zero:ProjectivePointG1 = ProjectivePointG1.zero(fq_elem)
-    window_starts = list(range(0, num_bits, c))
+#     zero:ProjectivePointG1 = ProjectivePointG1.zero(fq_elem)
+#     window_starts = list(range(0, num_bits, c))
 
-    window_sums = []
-    for w_start in window_starts:
-        res = zero
-        buckets = [zero for _ in range((1 << c) - 1)]
+#     window_sums = []
+#     for w_start in window_starts:
+#         res = zero
+#         buckets = [zero for _ in range((1 << c) - 1)]
 
-        for org_scalar, org_base in scalars_and_bases_iter:
-            scalar = copy.copy(org_scalar)
-            base = copy.copy(org_base)
-            if scalar.value == fr_one:
-                if w_start == 0:
-                    res = res.add_assign_mixed(base)
-            else:
-                # We right-shift by w_start, thus getting rid of the lower bits
-                scalar.value >>= w_start
-                # We mod the remaining bits by 2^{window size}, thus taking `c` bits.
-                scalar.value %= (1 << c)
-                if scalar.value != 0:
-                    buckets[scalar.value - 1] = buckets[scalar.value - 1].add_assign_mixed(base)
+#         for org_scalar, org_base in scalars_and_bases_iter:
+#             scalar = copy.copy(org_scalar)
+#             base = copy.copy(org_base)
+#             if scalar.value == fr_one:
+#                 if w_start == 0:
+#                     res = res.add_assign_mixed(base)
+#             else:
+#                 # We right-shift by w_start, thus getting rid of the lower bits
+#                 scalar.value >>= w_start
+#                 # We mod the remaining bits by 2^{window size}, thus taking `c` bits.
+#                 scalar.value %= (1 << c)
+#                 if scalar.value != 0:
+#                     buckets[scalar.value - 1] = buckets[scalar.value - 1].add_assign_mixed(base)
 
-        running_sum:ProjectivePointG1 = ProjectivePointG1.zero(fq_elem)
-        for b in reversed(buckets):
-            running_sum = running_sum.add_assign(b)
-            res = res.add_assign(running_sum)
+#         running_sum:ProjectivePointG1 = ProjectivePointG1.zero(fq_elem)
+#         for b in reversed(buckets):
+#             running_sum = running_sum.add_assign(b)
+#             res = res.add_assign(running_sum)
 
-        window_sums.append(res)
+#         window_sums.append(res)
 
-    lowest = window_sums[0]
+#     lowest = window_sums[0]
 
-    total:ProjectivePointG1 = zero
-    for sum_i in reversed(window_sums[1:]):
-        total = total.add_assign(sum_i)
-        for _ in range(c):
-            total = total.double()
-    total = lowest.add_assign(total)
-    return total
+#     total:ProjectivePointG1 = zero
+#     for sum_i in reversed(window_sums[1:]):
+#         total = total.add_assign(sum_i)
+#         for _ in range(c):
+#             total = total.double()
+#     total = lowest.add_assign(total)
+#     return total
 
 def MSM_new(bases,scalar): #bases POINT scalar SCALAR
     min_size_1=min(len(bases),len(scalar))

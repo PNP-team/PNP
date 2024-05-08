@@ -1,9 +1,12 @@
 from dataclasses import dataclass
-from ..transcript import strobe
-from ..structure import AffinePointG1
-from ..bls12_381 import fr
 import struct
-from ..serial import serialize
+from ..transcript import strobe
+from ..structure import AffinePointG1, serialize_BTreeMap
+from ..bls12_381 import fr
+from ..jacobian import serialize
+from ..bytes import write
+from ..transcript import flags
+
 MERLIN_PROTOCOL_LABEL = b"Merlin v1.0"
 
 def write_u32(buf, n):
@@ -34,16 +37,18 @@ class Transcript:
         self.strobe.meta_ad(data_len, True)
         self.strobe.ad(message, False)
     
-    def append_pi(self, label):
-        pi_bytes = [1, 0, 0, 0, 0, 0, 0, 0, 71, 2, 0, 0, 0, 0, 0, 0, 175, 183, 188, 23, 25,
-                    155, 195, 172, 246, 232, 114, 89, 255, 117, 123, 226, 161, 86, 112, 46,
-                    124, 69, 74, 38, 91, 197, 152, 114, 132, 231, 67, 72]
-        self.append_message(label,pi_bytes)
+    def append_pi(self, label, item: fr.Fr, pos):
+        # pi_bytes = [1, 0, 0, 0, 0, 0, 0, 0, 71, 2, 0, 0, 0, 0, 0, 0, 175, 183, 188, 23, 25,
+        #             155, 195, 172, 246, 232, 114, 89, 255, 117, 123, 226, 161, 86, 112, 46,
+        #             124, 69, 74, 38, 91, 197, 152, 114, 132, 231, 67, 72]
+        buf = []
+        buf = serialize_BTreeMap(item, pos, buf)
+        self.append_message(label,buf)
     
-    def append_new(self,label,item):
-        bytes = []
-        bytes = serialize(item,bytes)
-        self.append_message(label,bytes)
+    # def append_new(self,label,item):
+    #     bytes = []
+    #     bytes = serialize(item,bytes)
+    #     self.append_message(label,bytes)
 
     def append(self,label,item):
         bytes = []
