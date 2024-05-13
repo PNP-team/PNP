@@ -5532,6 +5532,3 @@ def multi_scalar_mult(points: Tensor, scalars: Tensor, device = "cuda") -> list:
     res_jacobian = torch.msm_collect(step1_cpu,1024)
     res_jacobian = res_jacobian.tolist()
     return res_jacobian
-
-def gt_zkp(a: Tensor, b: Tensor) -> bool:
-    return a.tolist() > b.tolist()

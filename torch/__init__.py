@@ -1478,6 +1478,7 @@ import torch.utils.data
 from torch import __config__ as __config__
 from torch import __future__ as __future__
 from torch import profiler as profiler
+from torch import pnp as pnp
 
 # Quantized, sparse, AO, etc. should be last to get imported, as nothing
 # is expected to depend on them.
