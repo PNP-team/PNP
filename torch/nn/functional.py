@@ -5534,10 +5534,4 @@ def multi_scalar_mult(points: Tensor, scalars: Tensor, device = "cuda") -> list:
     return res_jacobian
 
 def gt_zkp(a: Tensor, b: Tensor) -> bool:
-    r"""
-        Performs a greater than comparison between two EC points.
-    Args:
-        a: a tensor on GPU that stores the first input.
-        b: a tensor on GPU that stores the second input.
-    """
     return a.tolist() > b.tolist()
