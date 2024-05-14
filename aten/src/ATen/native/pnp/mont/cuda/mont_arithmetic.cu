@@ -50,7 +50,7 @@
 #define BIN_OP_TEMPLATE(name)                                                  \
   static void name##_template(Tensor& c, const Tensor& a, const Tensor& b) {   \
     TORCH_CHECK(                                                               \
-        a.numel() == b.numel() == c.numel(),                                   \
+        a.numel() == b.numel() && a.numel() == c.numel(),                      \
         "The number of elements must be the same!");                           \
     AT_DISPATCH_MONT_TYPES(a.scalar_type(), "mont_##name##_mod_cuda", [&] {    \
       auto a_ptr =                                                             \
@@ -197,11 +197,9 @@ __global__ void poly_eval_kernel(const int64_t N, T* x, T* data) {
   int64_t tid = blockIdx.x * blockDim.x + threadIdx.x;
   if (tid == 0) {
     data[tid] = T::one();
-  }
-  else if (tid == 1) {
+  } else if (tid == 1) {
     data[tid] = *x;
-  }
-  else if (tid < N) {
+  } else if (tid < N) {
     data[tid] = (*x) ^ tid;
   }
 }
