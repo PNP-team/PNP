@@ -23,18 +23,17 @@ def extend_tensor(input:torch.tensor,size):
         return res.to('cuda')
 
 def numerator_irreducible(root, w, k, beta, gamma):
-    
-    mid1=F.mul_mod(beta,k)
-    mid2=F.mul_mod(mid1,root)
-    mid3=F.add_mod(w,mid2)
-    mid4=F.add_mod(mid3,gamma)
-    return mid4
+    mid1 = F.mul_mod(beta,k)
+    mid2 = F.mul_mod(mid1,root)
+    mid3 = F.add_mod(w,mid2)
+    numerator = F.add_mod(mid3,gamma)
+    return numerator
 
 def denominator_irreducible(w, sigma, beta, gamma):
-    mid1=F.mul_mod(beta,sigma)
-    mid2=F.add_mod(w,mid1)
-    mid3=F.add_mod(mid2,gamma)
-    return mid3
+    mid1 = F.mul_mod(beta,sigma)
+    mid2 = F.add_mod(w,mid1)
+    denominator = F.add_mod(mid2,gamma)
+    return denominator
 
 def lookup_ratio(one ,delta, epsilon, f, t, t_next,
                 h_1, h_1_next, h_2):
@@ -67,51 +66,40 @@ def lookup_ratio(one ,delta, epsilon, f, t, t_next,
     return result
 
 @calculate_execution_time
-def compute_permutation_poly(domain, wires, beta, gamma, sigma_polys):
+def compute_permutation_poly(domain, wires, beta, gamma, sigma_polys: torch.Tensor):
     n = domain.size
-
+    zero = fr.Fr.zero().value
+    one = fr.Fr.zero().value
     # Constants defining cosets H, k1H, k2H, etc
-    ks = [beta.one(),constants.K1(),constants.K2(),constants.K3()]
-    from_gmpy_list(ks)
-    ks=from_list_tensor(ks).to('cuda')
+    ks = [[],[],[],[]]
+    ks[0] = fr.Fr.one().value
+    ks[1] = constants.K1().value
+    ks[2] = constants.K2().value
+    ks[3] = constants.K3().value
     sigma_mappings = [[],[],[],[]]
-    sigma_mappings[0] = NTT_new(domain,sigma_polys[0])
-    sigma_mappings[1] = NTT_new(domain,sigma_polys[1])
-    sigma_mappings[2] = NTT_new(domain,sigma_polys[2])
-    sigma_mappings[3] = NTT_new(domain,sigma_polys[3])
+    sigma_mappings[0] = NTT_new(n, sigma_polys[0].to("cuda"))
+    sigma_mappings[1] = NTT_new(n, sigma_polys[1].to("cuda"))
+    sigma_mappings[2] = NTT_new(n, sigma_polys[2].to("cuda"))
+    sigma_mappings[3] = NTT_new(n, sigma_polys[3].to("cuda"))
 
 
     # Transpose wires and sigma values to get "rows" in the form [wl_i,
     # wr_i, wo_i, ... ] where each row contains the wire and sigma
     # values for a single gate
     # Compute all roots, same as calculating twiddles, but doubled in size
-    log_size = int(math.log2(n))
-    roots = [fr.Fr.zero() for _ in range(1 << log_size )]
-    roots[0] = beta.one()
-    from_gmpy_list(roots)
-    roots=from_list_tensor(roots)
+    roots = zero.repeat(n,1)
+    roots[0] = fr.Fr.one().value
+    for idx in range(1, roots.size(0)):
+        roots[idx] = F.mul_mod(roots[idx - 1], domain.group_gen.value)
+    roots = roots.to('cuda')
+    numerator_product = one.clone()
+    denominator_product = one.clone()
+    numerator_product = numerator_product.repeat(n,1)
+    denominator_product = denominator_product.repeat(n,1)
+    numerator_product = numerator_product.to("cuda")
+    denominator_product = denominator_product.to("cuda")
 
-    domain_group_gen=domian_trans_tensor(domain.group_gen)
-
-    for idx in range(1, len(roots)):
-        roots[idx] =F.mul_mod(roots[idx - 1].clone(),domain_group_gen)
-
-    roots=roots.to('cuda')
-    # Initialize an empty list for product_argument
-    product_argument = []
-    # Associate each wire value in a gate with the k defining its coset
-    
-    one =torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    size_1=4 #4
-    size_2=len(roots) #1024
-    beta_tensor=torch.tensor(from_gmpy_list_1(beta),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    gamma_tensor=torch.tensor(from_gmpy_list_1(gamma),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-
-    numerator_product=copy.deepcopy(one)
-    denominator_product=copy.deepcopy(one)
-    extend_numerator_product=extend_tensor(numerator_product,size_2)
-    extend_denominator_product=extend_tensor(denominator_product,size_2)
-    for index in range(size_1):
+    for index in range(len(ks)):
 
         # Initialize numerator and denominator products
         # Now the ith element represents gate i and will have the form:
@@ -119,45 +107,43 @@ def compute_permutation_poly(domain, wires, beta, gamma, sigma_polys):
         # km)))   for m different wires, which is all the
         # information   needed for a single product coefficient
         # for a single gate Multiply up the numerator and
-        # denominator irreducibles for each gate and pair the results
-        extend_ks =extend_tensor(ks[index],size_2) #1024*4
-        extend_beta_tensor=extend_tensor(beta_tensor,size_2)
-        extend_gamma_tensor=extend_tensor(gamma_tensor,size_2)
-        extend_one= extend_tensor(one,size_2)
+        # denominator irreducibles for each gate and pair the results 
+        extend_ks = ks[index].repeat(n,1)
+        extend_beta = beta.repeat(n,1)
+        extend_gamma = gamma.repeat(n,1)
+        extend_one = one.repeat(n,1)
+        
+        extend_ks = extend_ks.to("cuda")
+        extend_beta = extend_beta.to("cuda")
+        extend_gamma = extend_gamma.to("cuda")
+        extend_one = extend_one.to("cuda")
 
-
-        numerator_temps = numerator_irreducible(roots, wires[index], extend_ks, extend_beta_tensor, extend_gamma_tensor)
-        extend_numerator_product = F.mul_mod(numerator_temps,extend_numerator_product)
-        denominator_temps = denominator_irreducible(wires[index], sigma_mappings[index], extend_beta_tensor,extend_gamma_tensor)
-        extend_denominator_product = F.mul_mod(denominator_temps,extend_denominator_product)
+        numerator_temps = numerator_irreducible(roots, wires[index], extend_ks, extend_beta, extend_gamma)
+        numerator_product = F.mul_mod(numerator_temps, numerator_product)
+        denominator_temps = denominator_irreducible(wires[index], sigma_mappings[index], extend_beta, extend_gamma)
+        denominator_product = F.mul_mod(denominator_temps, denominator_product)
 
         # Calculate the product coefficient for the gate
         # denominator_product_under = fr.Fr.inverse(denominator_product)
 
     #div_mod work on CUDA
-    denominator_product_under= F.div_mod(extend_one,extend_denominator_product)
-   
-    gate_coefficient = F.mul_mod(extend_numerator_product,denominator_product_under)
-        
-    # Append the gate coefficient to the product_argument list
-    product_argument.append(gate_coefficient)
+    denominator_product_under = F.div_mod(extend_one, denominator_product)
+    gate_coefficient = F.mul_mod(numerator_product, denominator_product_under)
+    z = torch.tensor([], dtype = fr.Fr.Dtype)
 
-    z=torch.zeros(n,4,dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
     # First element is one
-    state=copy.deepcopy(one)
-    z[0]=state
-    # Accumulate by successively multiplying the scalars 
-    i=1       
+    state = one.clone()
+    z = torch.cat((z, state))
+    # Accumulate by successively multiplying the scalars        
     for s in gate_coefficient:
-        # state = state.mul(s)
-        if(i==n):
-            # Remove the last(n+1'th) element
-            break 
-        state=F.mul_mod(state,s)
-        z[i]=state
-        i=i+1
+        state = F.mul_mod(state, s)
+        z = torch.cat((z, state))
+
+    # Remove the last(n+1'th) element
+    z = z[:-1] 
+
     #Compute z poly
-    z_poly = INTT_new(domain,z)
+    z_poly = INTT_new(n,z)
     z_poly = from_coeff_vec(z_poly)
     return z_poly
 

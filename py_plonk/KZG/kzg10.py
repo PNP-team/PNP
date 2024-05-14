@@ -4,13 +4,13 @@ from ..jacobian import ProjectivePointG1
 from ..field import field
 from ..bls12_381 import fr,fq
 from typing import List
-from ..arithmetic import skip_leading_zeros_and_convert_to_bigints,convert_to_bigints,rand_poly,poly_add_poly_mul_const,evaluate,from_coeff_vec,poly_div_poly, \
-                            skip_leading_zeros_and_convert_to_bigints_new,convert_to_bigints_new,MSM_new
+from ..arithmetic import skip_leading_zeros_and_convert_to_bigints,convert_to_bigints,\
+                         rand_poly,poly_add_poly_mul_const,evaluate,from_coeff_vec,poly_div_poly,MSM_new
 from ..plonk_core.src.proof_system.linearisation_poly import ProofEvaluations
 import random
 import torch 
 import copy
-from ..arithmetic import INTT,from_coeff_vec,resize,\
+from ..arithmetic import INTT,from_coeff_vec,\
                         from_gmpy_list,from_list_gmpy,from_list_tensor,from_tensor_list,from_gmpy_list_1
 import torch.nn.functional as F
 from ..jacobian import to_affine,add_assign_mixed,add_assign
@@ -71,13 +71,13 @@ class Commitment:
     #     return Commitment(value=commitment_affine),randomness
     
     @classmethod
-    def commit_new(cls,powers_of_g,powers_of_gamma_g,polynomial:torch.tensor,hiding_bound,params):
-        num_leading_zeros, plain_coeffs = skip_leading_zeros_and_convert_to_bigints_new(polynomial)
-        commitment=MSM_new(powers_of_g[num_leading_zeros:],plain_coeffs)
+    def commit_new(cls,powers_of_g,powers_of_gamma_g,polynomial:torch.tensor,hiding_bound):
+        num_leading_zeros, plain_coeffs = skip_leading_zeros_and_convert_to_bigints(polynomial)
+        commitment = MSM_new(powers_of_g[num_leading_zeros:], plain_coeffs)
         randomness = Randomness.empty()
         if hiding_bound:
             randomness = Randomness.rand(hiding_bound)
-        random_ints = convert_to_bigints_new(randomness.blind_poly)
+        random_ints = convert_to_bigints(randomness.blind_poly)
 
         random_commitment:ProjectivePointG1 = MSM_new(powers_of_gamma_g[:],random_ints)
         random_commitment_affine = to_affine(random_commitment)
@@ -155,7 +155,7 @@ def commit_poly(ck:UniversalParams,polys,params):
         randomness.append(rand)
     return labeled_comm,randomness
 
-def commit_poly_new(ck:UniversalParams,polys,params):
+def commit_poly_new(ck:UniversalParams, polys):
     random.seed(42)
     randomness = []
     labeled_comm = []
@@ -171,7 +171,7 @@ def commit_poly_new(ck:UniversalParams,polys,params):
         #         print(var.device)
         #     else:
         #         print("Variable {} is not a PyTorch tensor.".format(var))
-        comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound,params) 
+        comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound) 
         labeled_comm.append(LabeledCommitment.new(label,comm))
         randomness.append(rand)
         
@@ -218,7 +218,7 @@ def open_with_witness_polynomial(
     hiding_witness_polynomial):
 
 
-    num_leading_zeros, witness_coeffs =skip_leading_zeros_and_convert_to_bigints_new(witness_polynomial)
+    num_leading_zeros, witness_coeffs =skip_leading_zeros_and_convert_to_bigints(witness_polynomial)
     w = MSM_new(powers_of_g[num_leading_zeros:],witness_coeffs)
     random_v = None
     if hiding_witness_polynomial is not None:

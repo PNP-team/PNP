@@ -10,8 +10,8 @@ def as_evals(public_inputs,pi_pos,n):
     pi[pi_pos] = public_inputs
     return pi
 
-def into_dense_poly(public_inputs,pi_pos,n,params):
-    domain = Radix2EvaluationDomain.new(n,params)
+def into_dense_poly(public_inputs,pi_pos,n):
+    domain = Radix2EvaluationDomain.new(n)
     evals_tensor = as_evals(public_inputs,pi_pos,n)
     pi_coeffs = INTT_new(domain,evals_tensor.to('cuda'))
     pi_poly = from_coeff_vec(pi_coeffs)

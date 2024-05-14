@@ -4,20 +4,39 @@ from dataclasses import dataclass
 from .serialize import buffer_byte_size
 from .bytes import write
 from .transcript import flags
-import torch.functional as F
+import torch.nn.functional as F
 import torch
-# from .arithmetic import from_gmpy_list_1
+
+def to_tensor_base(input, type):
+    output = []
+    for j in range(type.Limbs):
+        output.append( int(input & 0xFFFFFFFFFFFFFFFF) )
+        input = input >> 64
+    output = torch.tensor(output,dtype = type.Base_type)
+    return output
+
+def to_tensor_mont(input, type):
+    output = []
+    for j in range(type.Limbs):
+        output.append( int(input & 0xFFFFFFFFFFFFFFFF) )
+        input = input >> 64
+    output = torch.tensor(output,dtype = type.Dtype)
+    return output
+
 @dataclass
 class field:
 
     @classmethod
     def zero(cls):
-        return cls(gmpy2.mpz(0))
+        return cls(torch.tensor([0 for _ in range(cls.Limbs)], dtype=cls.Dtype))
+    # def zero(cls):
+    #     return cls(gmpy2.mpz(0))
     
     # Return the Multiplicative identity
-    def one(self):
-        cls = type(self)
-        return cls(self.R)
+    @classmethod
+    def one(cls):
+        # cls = type(self)
+        return cls(cls.R)
     
     def add(self,b):
         cls = type(self)
@@ -27,17 +46,17 @@ class field:
     
     def sub(self,b):
         cls = type(self)
-        res = gmpy2.f_mod(self.value - b.value, self.MODULUS)
+        res = F.sub_mod(self.value, b.value)
         return cls(res)
     
     def neg(self):
         cls = type(self)
-        if self.value!=0:
+        if torch.equal(self.value, cls.zero().value) :
+            return self
+        else:
             temp = cls(cls.MODULUS)
             res = temp.sub(self)
             return res
-        else:
-            return self
         
     def double(self):
         res = self.add(self)
@@ -58,14 +77,22 @@ class field:
         return self
     
     def pow(self,exp):
-        res = self.one()
-        for i in range(63,-1,-1):
+        res = self.value.clone()
+        cls = type(self)
+        for i in range(exp):
             #modsquare
-            res = res.square()
-            if ((exp >> i) & 1) == 1:
-                res = res.mul(self)
-                # res = F.mul_mod(self)
-        return res
+            res = F.mul_mod(res, res)
+        return cls(res)
+    
+    # def pow(self,exp):
+    #     res = self.one()
+    #     for i in range(63,-1,-1):
+    #         #modsquare
+    #         res = res.square()
+    #         if ((exp >> i) & 1) == 1:
+    #             res = res.mul(self)
+    #             # res = F.mul_mod(self)
+    #     return res
     
     ##TODO 暂时用于quotient函数
     def pow_1(self,exp):
@@ -83,25 +110,35 @@ class field:
                 res = F.mul_mod(self)
         return res
     
-    #new
     @classmethod
     def from_repr(cls, r):
-        if r == 0:
-            return cls(r)
-        else:  
-            r=cls(r)
-            R2 = cls(cls.R2)
-            r = r.mul(R2)
-            return r
+        if(type(r) == int):
+            r = to_tensor_base(r,cls)
+        r = F.to_mont(r)
+        return cls(r)
+    # @classmethod
+    # def from_repr(cls, r):
+    #     if r == 0:
+    #         return cls(r)
+    #     else:  
+    #         r=cls(r)
+    #         R2 = cls(cls.R2)
+    #         r = r.mul(R2)
+    #         return r
         
     #Montgomery Reduction
     def into_repr(self):
-        if self.value == 0:
-            return self.value
-        else:
-            res = self.value * self.R_INV
-            res %= self.MODULUS
-            return res
+        # self = to_tensor_mont(self.value, type(self))
+        res = F.to_base(self.value)
+        return res
+        
+    # def into_repr(self):
+    #     if self.value == 0:
+    #         return self.value
+    #     else:
+    #         res = self.value * self.R_INV
+    #         res %= self.MODULUS
+    #         return res
 
     # @classmethod
     # def inverse(cls,self,cls):
@@ -125,52 +162,61 @@ class field:
     #         return x
     @classmethod
     def inverse(cls,self):
-        if self == 0:
-             print("cannot invert 0!\n")
+        if torch.equal(self.value, cls.zero().value):
+             print("cannot invert zero!\n")
              return  None
-        u = self
-        if type(self) != gmpy2.mpz:
-            u = self.value
-        one =gmpy2.mpz(1)
-        v = cls.MODULUS
-        b = cls.R2
-        c = gmpy2.mpz(0)
+        one = cls.one()
+        res = F.div_mod(one.value, self.value)
+        return cls(res)
+    
+    # def inverse(cls,self):
+    #     if self == 0:
+    #          print("cannot invert 0!\n")
+    #          return  None
+    #     u = self
+    #     if type(self) != gmpy2.mpz:
+    #         u = self.value
+    #     one =gmpy2.mpz(1)
+    #     v = cls.MODULUS
+    #     b = cls.R2
+    #     c = gmpy2.mpz(0)
 
-        while u != one and v != one:
-            while u & 1 == 0:
-                u = u // 2
-                if b & 1 == 0:
-                    b = b // 2
-                else:
-                    b = b + cls.MODULUS
-                    b = b // 2
-            while v & 1 == 0:
-                v =v // 2
-                if c & 1 == 0:
-                    c = c // 2
-                else:
-                    c = c + cls.MODULUS
-                    c = c // 2
-            if v < u:
-                u = u-v
-                if c > b:
-                    b = b + cls.MODULUS
-                b = b - c
-                b = gmpy2.f_mod(b, cls.MODULUS)
-            else:
-                v = v-u
-                if b > c:
-                    c = c + cls.MODULUS
-                c = c - b
-                c = gmpy2.f_mod(c, cls.MODULUS)
-        if u == one:
-            return cls(b)
-        else:
-            return cls(c)
+    #     while u != one and v != one:
+    #         while u & 1 == 0:
+    #             u = u // 2
+    #             if b & 1 == 0:
+    #                 b = b // 2
+    #             else:
+    #                 b = b + cls.MODULUS
+    #                 b = b // 2
+    #         while v & 1 == 0:
+    #             v =v // 2
+    #             if c & 1 == 0:
+    #                 c = c // 2
+    #             else:
+    #                 c = c + cls.MODULUS
+    #                 c = c // 2
+    #         if v < u:
+    #             u = u-v
+    #             if c > b:
+    #                 b = b + cls.MODULUS
+    #             b = b - c
+    #             b = gmpy2.f_mod(b, cls.MODULUS)
+    #         else:
+    #             v = v-u
+    #             if b > c:
+    #                 c = c + cls.MODULUS
+    #             c = c - b
+    #             c = gmpy2.f_mod(c, cls.MODULUS)
+    #     if u == one:
+    #         return cls(b)
+    #     else:
+    #         return cls(c)
     
     # Returns the 2^s root of unity.
-    def two_adic_root_of_unity(self):
-        return self.TWO_ADIC_ROOT_OF_UNITY 
+    @classmethod
+    def two_adic_root_of_unity(cls):
+        return cls.TWO_ADIC_ROOT_OF_UNITY 
 
     # Returns the 2^s * small_subgroup_base^small_subgroup_base_adicity root of unity
     # if a small subgroup is defined.
@@ -178,31 +224,34 @@ class field:
         pass
 
     # Returns the multiplicative generator of `char()` - 1 order.
-    def multiplicative_generator(self):
-        return self.GENERATOR
+    @classmethod
+    def multiplicative_generator(cls):
+        return cls(cls.GENERATOR)
 
     # Returns the root of unity of order n, if one exists.
     # If no small multiplicative subgroup is defined, this is the 2-adic root of unity of order n
     # (for n a power of 2).
-    def get_root_of_unity(self,n):
+    @classmethod
+    def get_root_of_unity(cls,n):
         size = 2 ** (n.bit_length()-1)
         log_size_of_group = int(math.log2(size))
 
-        if n != size or log_size_of_group > self.TWO_ADICITY:
+        if n != size or log_size_of_group > cls.TWO_ADICITY:
             return None
 
         # Compute the generator for the multiplicative subgroup.
         # It should be 2^(log_size_of_group) root of unity.
-        omega = self.two_adic_root_of_unity()
-        R_inv=gmpy2.invert(self.R,self.MODULUS)
-        for _ in range(log_size_of_group, self.TWO_ADICITY):
+        omega = cls.two_adic_root_of_unity()
+        # R_inv=gmpy2.invert(cls.R,cls.MODULUS)
+        for _ in range(log_size_of_group, cls.TWO_ADICITY):
             #modsquare
-            omega *=omega
-            omega *=R_inv
-            omega %=self.MODULUS
+            omega = F.mul_mod(omega,omega)
+            # omega *=omega
+            # omega *=R_inv
+            # omega %=cls.MODULUS
             
         # return torch.tensor(from_gmpy_list_1(omega),dtype=torch.BLS12_381_Fr_G1_Mont)
-        return omega
+        return cls(omega)
             
 
     def write(self,writer):

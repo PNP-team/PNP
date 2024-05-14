@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from typing import List
 from .bls12_381 import fq
-import gmpy2
 from .transcript import flags
+import torch
 
 @dataclass
 class G2Coordinate:
@@ -27,7 +27,7 @@ class AffinePointG1:
     
     def is_zero(self):
         one = self.x.one()
-        return self.x.value == 0 and self.y.value == one.value
+        return torch.equal(self.x.value, self.x.zero().value) and torch.equal(self.y.value, one.value)
     
     def serialize(self,writer):
         if self.is_zero():
@@ -39,7 +39,9 @@ class AffinePointG1:
             neg_y = self.y.neg()
             a = self.y.into_repr()
             b = neg_y.into_repr()
-            flag = flags.SWFlags.from_y_sign(a > b)
+            a0 = a[0].tolist()
+            b0 = b[0].tolist()
+            flag = flags.SWFlags.from_y_sign(a0>b0) #a > b
             writer = self.x.serialize_with_flags(writer, flag)
             return writer
 @dataclass

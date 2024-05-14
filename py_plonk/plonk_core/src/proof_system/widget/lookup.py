@@ -37,7 +37,7 @@ class Lookup:
         zeta: fr.Fr,
         lookup_sep:fr.Fr):
 
-        domain_8n:Radix2EvaluationDomain = Radix2EvaluationDomain.new(8 * domain.size,zeta)
+        domain_8n:Radix2EvaluationDomain = Radix2EvaluationDomain.new(8 * domain.size)
 
         # Initialize result list
         result = []
@@ -147,68 +147,68 @@ class Lookup:
         return res
 
     
-    def compute_linearisation(
-        self,
-        l1_eval: fr.Fr,
-        a_eval: fr.Fr,
-        b_eval: fr.Fr,
-        c_eval: fr.Fr,
-        d_eval: fr.Fr,
-        f_eval: fr.Fr,
-        table_eval: fr.Fr,
-        table_next_eval: fr.Fr,
-        h1_next_eval: fr.Fr,
-        h2_eval: fr.Fr,
-        z2_next_eval: fr.Fr,
-        delta: fr.Fr,
-        epsilon: fr.Fr,
-        zeta: fr.Fr,
-        z2_poly: list[fr.Fr],
-        h1_poly: list[fr.Fr],
-        lookup_sep: fr.Fr
-    ):
-        lookup_sep=torch.tensor(from_gmpy_list_1(lookup_sep),dtype=torch.BLS12_381_Fr_G1_Mont)
-        delta=torch.tensor(from_gmpy_list_1(delta),dtype=torch.BLS12_381_Fr_G1_Mont)
-        epsilon=torch.tensor(from_gmpy_list_1(epsilon),dtype=torch.BLS12_381_Fr_G1_Mont)
-        zeta=torch.tensor(from_gmpy_list_1(zeta),dtype=torch.BLS12_381_Fr_G1_Mont)
-        # one = delta.one()
-        one= torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont)
-        lookup_sep_sq = F.mul_mod(lookup_sep, lookup_sep)
-        lookup_sep_cu = F.mul_mod(lookup_sep_sq, lookup_sep)
-        one_plus_delta = F.add_mod(delta, one)
-        epsilon_one_plus_delta = F.mul_mod(epsilon, one_plus_delta)
+    # def compute_linearisation(
+    #     self,
+    #     l1_eval: fr.Fr,
+    #     a_eval: fr.Fr,
+    #     b_eval: fr.Fr,
+    #     c_eval: fr.Fr,
+    #     d_eval: fr.Fr,
+    #     f_eval: fr.Fr,
+    #     table_eval: fr.Fr,
+    #     table_next_eval: fr.Fr,
+    #     h1_next_eval: fr.Fr,
+    #     h2_eval: fr.Fr,
+    #     z2_next_eval: fr.Fr,
+    #     delta: fr.Fr,
+    #     epsilon: fr.Fr,
+    #     zeta: fr.Fr,
+    #     z2_poly: list[fr.Fr],
+    #     h1_poly: list[fr.Fr],
+    #     lookup_sep: fr.Fr
+    # ):
+    #     lookup_sep=torch.tensor(from_gmpy_list_1(lookup_sep),dtype=torch.BLS12_381_Fr_G1_Mont)
+    #     delta=torch.tensor(from_gmpy_list_1(delta),dtype=torch.BLS12_381_Fr_G1_Mont)
+    #     epsilon=torch.tensor(from_gmpy_list_1(epsilon),dtype=torch.BLS12_381_Fr_G1_Mont)
+    #     zeta=torch.tensor(from_gmpy_list_1(zeta),dtype=torch.BLS12_381_Fr_G1_Mont)
+    #     # one = delta.one()
+    #     one= torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont)
+    #     lookup_sep_sq = F.mul_mod(lookup_sep, lookup_sep)
+    #     lookup_sep_cu = F.mul_mod(lookup_sep_sq, lookup_sep)
+    #     one_plus_delta = F.add_mod(delta, one)
+    #     epsilon_one_plus_delta = F.mul_mod(epsilon, one_plus_delta)
 
-        compressed_tuple = lc([a_eval, b_eval, c_eval, d_eval], zeta)
-        compressed_tuple_sub_f_eval = F.sub_mod(compressed_tuple,f_eval)
-        const1 = F.mul_mod(compressed_tuple_sub_f_eval, lookup_sep)
-        a = poly_mul_const(self.q_lookup[0], const1)
+    #     compressed_tuple = lc([a_eval, b_eval, c_eval, d_eval], zeta)
+    #     compressed_tuple_sub_f_eval = F.sub_mod(compressed_tuple,f_eval)
+    #     const1 = F.mul_mod(compressed_tuple_sub_f_eval, lookup_sep)
+    #     a = poly_mul_const(self.q_lookup[0], const1)
 
-        # z2(X) * (1 + δ) * (ε + f_bar) * (ε(1+δ) + t_bar + δ*tω_bar) *
-        # lookup_sep^2
-        b_0 = F.add_mod(epsilon, f_eval)
-        epsilon_one_plus_delta_plus_tabel_eval = F.add_mod(epsilon_one_plus_delta, table_eval)
-        delta_times_table_next_eval = F.mul_mod(delta, table_next_eval)
-        b_1 = F.add_mod(epsilon_one_plus_delta_plus_tabel_eval, delta_times_table_next_eval)
-        b_2 = F.mul_mod(l1_eval, lookup_sep_cu)
-        one_plus_delta_b_0 = F.mul_mod(one_plus_delta, b_0)
-        one_plus_delta_b_0_b_1 = F.mul_mod(one_plus_delta_b_0, b_1)
-        one_plus_delta_b_0_b_1_lookup = F.mul_mod(one_plus_delta_b_0_b_1, lookup_sep_sq)
-        const2 = F.add_mod(one_plus_delta_b_0_b_1_lookup, b_2)
-        b = poly_mul_const(z2_poly, const2)
+    #     # z2(X) * (1 + δ) * (ε + f_bar) * (ε(1+δ) + t_bar + δ*tω_bar) *
+    #     # lookup_sep^2
+    #     b_0 = F.add_mod(epsilon, f_eval)
+    #     epsilon_one_plus_delta_plus_tabel_eval = F.add_mod(epsilon_one_plus_delta, table_eval)
+    #     delta_times_table_next_eval = F.mul_mod(delta, table_next_eval)
+    #     b_1 = F.add_mod(epsilon_one_plus_delta_plus_tabel_eval, delta_times_table_next_eval)
+    #     b_2 = F.mul_mod(l1_eval, lookup_sep_cu)
+    #     one_plus_delta_b_0 = F.mul_mod(one_plus_delta, b_0)
+    #     one_plus_delta_b_0_b_1 = F.mul_mod(one_plus_delta_b_0, b_1)
+    #     one_plus_delta_b_0_b_1_lookup = F.mul_mod(one_plus_delta_b_0_b_1, lookup_sep_sq)
+    #     const2 = F.add_mod(one_plus_delta_b_0_b_1_lookup, b_2)
+    #     b = poly_mul_const(z2_poly, const2)
 
-        # h1(X) * (−z2ω_bar) * (ε(1+δ) + h2_bar  + δh1ω_bar) * lookup_sep^2
-        neg_z2_next_eval=neg(z2_next_eval)
-        c_0 = F.mul_mod(neg_z2_next_eval, lookup_sep_sq)
-        epsilon_one_plus_delta_h2_eval = F.add_mod(epsilon_one_plus_delta, h2_eval)
-        delta_h1_next_eval =  F.add_mod(delta, h1_next_eval)
-        c_1 = F.add_mod(epsilon_one_plus_delta_h2_eval, delta_h1_next_eval)
-        c0_c1 = F.mul_mod(c_0, c_1)
-        c = poly_mul_const(h1_poly, c0_c1)
+    #     # h1(X) * (−z2ω_bar) * (ε(1+δ) + h2_bar  + δh1ω_bar) * lookup_sep^2
+    #     neg_z2_next_eval=neg(z2_next_eval)
+    #     c_0 = F.mul_mod(neg_z2_next_eval, lookup_sep_sq)
+    #     epsilon_one_plus_delta_h2_eval = F.add_mod(epsilon_one_plus_delta, h2_eval)
+    #     delta_h1_next_eval =  F.add_mod(delta, h1_next_eval)
+    #     c_1 = F.add_mod(epsilon_one_plus_delta_h2_eval, delta_h1_next_eval)
+    #     c0_c1 = F.mul_mod(c_0, c_1)
+    #     c = poly_mul_const(h1_poly, c0_c1)
 
-        ab = poly_add_poly(a, b)
-        abc = poly_add_poly(ab, c)
+    #     ab = poly_add_poly(a, b)
+    #     abc = poly_add_poly(ab, c)
 
-        return abc
+    #     return abc
 
 
 def compute_quotient_i(
@@ -370,7 +370,7 @@ def compute_lookup_quotient_term(
     lookup_sep:fr.Fr,
     pk_lookup_qlookup_evals):
 
-    domain_8n:Radix2EvaluationDomain = Radix2EvaluationDomain.new(8 * domain.size,zeta)
+    domain_8n:Radix2EvaluationDomain = Radix2EvaluationDomain.new(8 * domain.size)
 
     # Initialize result list
     result = []

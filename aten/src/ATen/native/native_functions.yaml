@@ -15384,6 +15384,71 @@
     CPU: div_mod_cpu_out 
     CUDA: div_mod_cuda_out
 
+- func: add_mod_scalar(Tensor self, Tensor in_b) -> Tensor
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+    CUDA: add_mod_scalar_cuda
+
+- func: add_mod_scalar_(Tensor(a!) self, Tensor in_b) -> Tensor(a!)
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+     CUDA: add_mod_scalar_cuda_
+
+- func: add_mod_scalar.out(Tensor self, Tensor in_b, *, Tensor(a!) out) -> Tensor(a!)
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+    CUDA: add_mod_scalar_cuda_out
+
+- func: sub_mod_scalar(Tensor self, Tensor in_b) -> Tensor
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+    CUDA: sub_mod_scalar_cuda
+
+- func: sub_mod_scalar_(Tensor(a!) self, Tensor in_b) -> Tensor(a!)
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+     CUDA: sub_mod_scalar_cuda_
+  
+- func: sub_mod_scalar.out(Tensor self, Tensor in_b, *, Tensor(a!) out) -> Tensor(a!)
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+    CUDA: sub_mod_scalar_cuda_out
+
+- func: mul_mod_scalar(Tensor self, Tensor in_b) -> Tensor
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+    CUDA: mul_mod_scalar_cuda
+
+- func: mul_mod_scalar_(Tensor(a!) self, Tensor in_b) -> Tensor(a!)
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+     CUDA: mul_mod_scalar_cuda_
+
+- func: mul_mod_scalar.out(Tensor self, Tensor in_b, *, Tensor(a!) out) -> Tensor(a!)
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+    CUDA: mul_mod_scalar_cuda_out
+
+- func: div_mod_scalar(Tensor self, Tensor in_b) -> Tensor
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+    CUDA: div_mod_scalar_cuda
+
+- func: div_mod_scalar_(Tensor(a!) self, Tensor in_b) -> Tensor(a!)
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+     CUDA: div_mod_scalar_cuda_
+
+- func: div_mod_scalar.out(Tensor self, Tensor in_b, *, Tensor(a!) out) -> Tensor(a!)
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+    CUDA: div_mod_scalar_cuda_out
+
+- func: poly_eval(Tensor a, int N) -> Tensor
+  device_check: NoCheck
+  dispatch:
+    CUDA: poly_eval_cuda
+
 - func: params_zkp(int domain_size, bool is_intt, *, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor
   device_check: NoCheck
   dispatch:

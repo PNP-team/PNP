@@ -5529,6 +5529,5 @@ def multi_scalar_mult(points: Tensor, scalars: Tensor, device = "cuda") -> list:
     
     step1_res = torch.msm_zkp(points, scalars, smcount, device)
     step1_cpu = step1_res.to("cpu")
-    res_jacobian = torch.msm_collect(step1_cpu,scalar_num)
-    res_jacobian = res_jacobian.tolist()
-    return res_jacobian
+    res = torch.msm_collect(step1_cpu,scalar_num)
+    return res

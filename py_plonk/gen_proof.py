@@ -1,9 +1,9 @@
-import gmpy2
 import itertools
 from .domain import Radix2EvaluationDomain
 from .transcript import transcript
 from .composer import StandardComposer
 from .transcript import transcript
+from .bls12_381 import fr
 from .plonk_core.lookup import multiset
 from .plonk_core.src.permutation import mod 
 from .plonk_core.src.proof_system.prover_key import Prover_Key
@@ -14,7 +14,6 @@ import numpy as np
 from .arithmetic import from_coeff_vec,resize_1,\
                         from_list_gmpy_1,transtompz,INTT_new,INTT,NTT,NTT_new,from_gmpy_list_1,challenge_to_tensor
 from .KZG import kzg10
-from .bls12_381 import fq,fr
 import torch
 import time
 date_set2=["../../data/MERKLE-HEIGHT-9/pp-9.npz","../../data/MERKLE-HEIGHT-9/pk-9.npz","../../data/MERKLE-HEIGHT-9/cs-9.npz","../../data/MERKLE-HEIGHT-9/w_l_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_r_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_o_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_4_scalar-9.npy"]
@@ -39,12 +38,10 @@ class gen_proof:
         pass
        
     def __call__(self,pp, pk: Prover_Key, cs: StandardComposer, transcript: transcript.Transcript):
-        #init Fr params (FFTfield)
         #get FFT domaim
-        Fr=fr.Fr(value = gmpy2.mpz(0))
-        domain=Radix2EvaluationDomain.new(cs.circuit_bound(),Fr)
+        domain=Radix2EvaluationDomain.new(cs.circuit_bound())
         n=domain.size
-        transcript.append_pi(b"pi", from_list_gmpy_1(cs.public_inputs.tolist()), int(cs.intended_pi_pos))
+        transcript.append_pi(b"pi", fr.Fr(torch.tensor(cs.public_inputs,dtype=torch.BLS12_381_Fr_G1_Mont)), int(cs.intended_pi_pos))
 
         #1. Compute witness Polynomials
         w_l_scalar=torch.tensor(np.load(date_set2[3],allow_pickle=True),dtype=torch.BLS12_381_Fr_G1_Mont)
@@ -56,10 +53,10 @@ class gen_proof:
         w_o_scalar = w_o_scalar.to('cuda')
         w_4_scalar = w_4_scalar.to('cuda')
 
-        w_l_scalar_intt=INTT_new(domain,w_l_scalar)
-        w_r_scalar_intt=INTT_new(domain,w_r_scalar)
-        w_o_scalar_intt=INTT_new(domain,w_o_scalar)
-        w_4_scalar_intt=INTT_new(domain,w_4_scalar)
+        w_l_scalar_intt=INTT_new(n,w_l_scalar)
+        w_r_scalar_intt=INTT_new(n,w_r_scalar)
+        w_o_scalar_intt=INTT_new(n,w_o_scalar)
+        w_4_scalar_intt=INTT_new(n,w_4_scalar)
       
         w_l_poly = from_coeff_vec(w_l_scalar_intt) 
         w_r_poly = from_coeff_vec(w_r_scalar_intt)
@@ -68,24 +65,24 @@ class gen_proof:
 
 
         w_polys = [kzg10.LabeledPoly.new(label="w_l_poly",hiding_bound=None,poly=w_l_poly),kzg10.LabeledPoly.new(label="w_r_poly",hiding_bound=None,poly=w_r_poly),
-                kzg10.LabeledPoly.new(label="w_o_poly",hiding_bound=None,poly=w_o_poly),kzg10.LabeledPoly.new(label="w_4_poly",hiding_bound=None,poly=w_4_poly)]
+                   kzg10.LabeledPoly.new(label="w_o_poly",hiding_bound=None,poly=w_o_poly),kzg10.LabeledPoly.new(label="w_4_poly",hiding_bound=None,poly=w_4_poly)]
 
         
-        w_commits, w_rands = kzg10.commit_poly_new(pp,w_polys,Fr) 
+        w_commits, w_rands = kzg10.commit_poly_new(pp,w_polys) 
 
-        w_c_1=transtompz(w_commits[0].commitment.value)
-        w_c_2=transtompz(w_commits[1].commitment.value)
-        w_c_3=transtompz(w_commits[2].commitment.value)
-        w_c_4=transtompz(w_commits[3].commitment.value)
-        transcript.append(b"w_l",w_c_1)
-        transcript.append(b"w_r",w_c_2)
-        transcript.append(b"w_o",w_c_3)
-        transcript.append(b"w_4",w_c_4)
+        # w_c_1=transtompz(w_commits[0].commitment.value)
+        # w_c_2=transtompz(w_commits[1].commitment.value)
+        # w_c_3=transtompz(w_commits[2].commitment.value)
+        # w_c_4=transtompz(w_commits[3].commitment.value)
+        transcript.append(b"w_l",w_commits[0].commitment.value)
+        transcript.append(b"w_r",w_commits[1].commitment.value)
+        transcript.append(b"w_o",w_commits[2].commitment.value)
+        transcript.append(b"w_4",w_commits[3].commitment.value)
         
         #2. Derive lookup polynomials
 
         # Generate table compression factor
-        zeta = transcript.challenge_scalar(b"zeta",Fr)
+        zeta = transcript.challenge_scalar(b"zeta")
         transcript.append(b"zeta",zeta)
 
         pk_lookup=pk["lookup"].tolist()
@@ -102,11 +99,11 @@ class gen_proof:
 
         t_multiset = multiset.MultiSet(concatenated_lookup)
 
-        zeta_tensor=challenge_to_tensor(zeta)
-        compressed_t_multiset = t_multiset.compress(zeta_tensor)     
+        
+        compressed_t_multiset = t_multiset.compress(zeta)     
         # Compute table poly
 
-        compressed_t_poly =INTT_new(domain,compressed_t_multiset.elements)
+        compressed_t_poly =INTT_new(n,compressed_t_multiset.elements)
         table_poly = from_coeff_vec(compressed_t_poly)
 
         
@@ -127,7 +124,7 @@ class gen_proof:
         f_scalars.elements[3]=torch.zeros(n,4,dtype=torch.BLS12_381_Fr_G1_Mont)
         index=0
         for q_lookup, w_l, w_r, w_o, w_4 in zip(padded_q_lookup, w_l_scalar, w_r_scalar, w_o_scalar, w_4_scalar):
-            if np.array_equal(q_lookup, np.zeros(4, dtype=np.uint64)):
+            if np.array_equal(q_lookup, np.zeros(4, dtype = np.uint64)):
                 f_scalars.elements[0][index]=compressed_t_multiset.elements[0]
                 for key in range(1,4):
                         f_scalars.elements[key][index]=torch.tensor([0,0,0,0],dtype=torch.BLS12_381_Fr_G1_Mont)
@@ -146,17 +143,16 @@ class gen_proof:
         f_scalars.elements[2],
         f_scalars.elements[3]], dim=0)
         f_scalars=multiset.MultiSet(concatenated_f_scalars)
-        compressed_f_multiset = f_scalars.compress(zeta_tensor)
+        compressed_f_multiset = f_scalars.compress(zeta)
 
         # Compute query poly
-        compressed_f_poly = INTT_new(domain,compressed_f_multiset.elements)
+        compressed_f_poly = INTT_new(n,compressed_f_multiset.elements)
         f_poly= from_coeff_vec(compressed_f_poly)
         f_polys = [kzg10.LabeledPoly.new(label="f_poly",hiding_bound=None,poly=f_poly)]
 
         # Commit to query polynomial
-        f_poly_commit, _ = kzg10.commit_poly_new(pp,f_polys,Fr)
-        f_p_c_0=transtompz(f_poly_commit[0].commitment.value)
-        transcript.append(b"f",f_p_c_0)
+        f_poly_commit, _ = kzg10.commit_poly_new(pp,f_polys)
+        transcript.append(b"f",f_poly_commit[0].commitment.value)
 
         # Compute s, as the sorted and concatenated version of f and t 
         # work on cpu
@@ -165,66 +161,64 @@ class gen_proof:
         # Compute h polys
         h_1=h_1.to('cuda')
         h_2=h_2.to('cuda')
-        h_1_temp = INTT_new(domain,h_1)
-        h_2_temp = INTT_new(domain,h_2)
+        h_1_temp = INTT_new(n,h_1)
+        h_2_temp = INTT_new(n,h_2)
         h_1_poly = from_coeff_vec(h_1_temp)  
         h_2_poly = from_coeff_vec(h_2_temp)  
         
         # Commit to h polys
         h_1_polys = [kzg10.LabeledPoly.new(label="h_1_poly",hiding_bound=None,poly=h_1_poly)]
         h_2_polys = [kzg10.LabeledPoly.new(label="h_2_poly",hiding_bound=None,poly=h_2_poly)]
-        h_1_poly_commit,_ = kzg10.commit_poly_new(pp,h_1_polys,Fr)
-        h_2_poly_commit,_ = kzg10.commit_poly_new(pp,h_2_polys,Fr)
+        h_1_poly_commit,_ = kzg10.commit_poly_new(pp,h_1_polys)
+        h_2_poly_commit,_ = kzg10.commit_poly_new(pp,h_2_polys)
 
         # Add h polynomials to transcript
-        #h_1_p_c_0 means h_1_poly_commit_0
-        h_1_p_c_0=transtompz(h_1_poly_commit[0].commitment.value)
-        h_2_p_c_0=transtompz(h_2_poly_commit[0].commitment.value)
-        transcript.append(b"h1", h_1_p_c_0)
-        transcript.append(b"h2", h_2_p_c_0)
+        transcript.append(b"h1", h_1_poly_commit[0].commitment.value)
+        transcript.append(b"h2", h_2_poly_commit[0].commitment.value)
 
         # 3. Compute permutation polynomial
 
         # Compute permutation challenge `beta`.
-        beta = transcript.challenge_scalar(b"beta",Fr)
+        beta = transcript.challenge_scalar(b"beta")
         transcript.append(b"beta", beta)
     
         # Compute permutation challenge `gamma`.
-        gamma = transcript.challenge_scalar(b"gamma",Fr)
+        gamma = transcript.challenge_scalar(b"gamma")
         transcript.append(b"gamma", gamma)
         
         # Compute permutation challenge `delta`.
-        delta = transcript.challenge_scalar(b"delta",Fr)
+        delta = transcript.challenge_scalar(b"delta")
         transcript.append(b"delta", delta)
         
         # Compute permutation challenge `epsilon`.
-        epsilon = transcript.challenge_scalar(b"epsilon",Fr)
+        epsilon = transcript.challenge_scalar(b"epsilon")
         transcript.append(b"epsilon", epsilon)
     
 
         # Challenges must be different
-        assert beta.value != gamma.value, "challenges must be different"
-        assert beta.value != delta.value, "challenges must be different"
-        assert beta.value != epsilon.value, "challenges must be different"
-        assert gamma.value != delta.value, "challenges must be different"
-        assert gamma.value != epsilon.value, "challenges must be different"
-        assert delta.value != epsilon.value, "challenges must be different"
+        assert torch.equal(beta.value, gamma.value) == False, "challenges must be different"
+        assert torch.equal(beta.value, delta.value) == False, "challenges must be different"
+        assert torch.equal(beta.value, epsilon.value) == False, "challenges must be different"
+        assert torch.equal(gamma.value, delta.value) == False, "challenges must be different"
+        assert torch.equal(gamma.value, epsilon.value) == False, "challenges must be different"
+        assert torch.equal(delta.value, epsilon.value) == False, "challenges must be different"
         
         pk_permutation=pk["permutation"].tolist()
         z_poly = mod.compute_permutation_poly(domain,
             (w_l_scalar, w_r_scalar, w_o_scalar, w_4_scalar),
-            beta,
-            gamma,
-            (
-                torch.tensor(pk_permutation['left_sigma']['coeffs'],dtype=torch.BLS12_381_Fr_G1_Mont),
-                torch.tensor(pk_permutation['right_sigma']['coeffs'],dtype=torch.BLS12_381_Fr_G1_Mont),
-                torch.tensor(pk_permutation['out_sigma']['coeffs'],dtype=torch.BLS12_381_Fr_G1_Mont),
-                torch.tensor(pk_permutation['fourth_sigma']['coeffs'],dtype=torch.BLS12_381_Fr_G1_Mont)
+            beta.value,
+            gamma.value,
+            torch.cat((
+                torch.tensor(pk_permutation['left_sigma']['coeffs'], dtype = fr.Fr.Dtype),
+                torch.tensor(pk_permutation['right_sigma']['coeffs'], dtype = fr.Fr.Dtype),
+                torch.tensor(pk_permutation['out_sigma']['coeffs'], dtype = fr.Fr.Dtype),
+                torch.tensor(pk_permutation['fourth_sigma']['coeffs'], dtype = fr.Fr.Dtype)
+            )
             ))
         # Commit to permutation polynomial.
 
         z_polys = [kzg10.LabeledPoly.new(label="z_poly",hiding_bound=None,poly=z_poly)]
-        z_poly_commit,_ = kzg10.commit_poly_new(pp,z_polys,Fr)
+        z_poly_commit,_ = kzg10.commit_poly_new(pp,z_polys)
 
         # Add permutation polynomial commitment to transcript.
         f_p_c_0=transtompz(z_poly_commit[0].commitment.value)
@@ -243,31 +237,31 @@ class gen_proof:
         )
         # Commit to lookup permutation polynomial.
         z_2_polys = [kzg10.LabeledPoly.new(label="z_2_poly",hiding_bound=None,poly=z_2_poly)]
-        z_2_poly_commit,_ = kzg10.commit_poly_new(pp,z_2_polys,Fr)
+        z_2_poly_commit,_ = kzg10.commit_poly_new(pp,z_2_polys)
 
         # 3. Compute public inputs polynomial
         cs_public_inputs=torch.tensor(cs.public_inputs)
-        pi_poly = into_dense_poly(cs_public_inputs,int(cs.intended_pi_pos),n,Fr)
+        pi_poly = into_dense_poly(cs_public_inputs,int(cs.intended_pi_pos),n)
 
 
         # 4. Compute quotient polynomial
         # Compute quotient challenge `alpha`, and gate-specific separation challenges.
-        alpha = transcript.challenge_scalar(b"alpha",Fr)
+        alpha = transcript.challenge_scalar(b"alpha")
         transcript.append(b"alpha", alpha)
         
-        range_sep_challenge = transcript.challenge_scalar(b"range separation challenge",Fr)
+        range_sep_challenge = transcript.challenge_scalar(b"range separation challenge")
         transcript.append(b"range seperation challenge", range_sep_challenge)
 
-        logic_sep_challenge = transcript.challenge_scalar(b"logic separation challenge",Fr)
+        logic_sep_challenge = transcript.challenge_scalar(b"logic separation challenge")
         transcript.append(b"logic seperation challenge", logic_sep_challenge)
 
-        fixed_base_sep_challenge = transcript.challenge_scalar(b"fixed base separation challenge",Fr)
+        fixed_base_sep_challenge = transcript.challenge_scalar(b"fixed base separation challenge")
         transcript.append(b"fixed base separation challenge", fixed_base_sep_challenge)
 
-        var_base_sep_challenge = transcript.challenge_scalar(b"variable base separation challenge",Fr)
+        var_base_sep_challenge = transcript.challenge_scalar(b"variable base separation challenge")
         transcript.append(b"variable base separation challenge", var_base_sep_challenge)
 
-        lookup_sep_challenge = transcript.challenge_scalar(b"lookup separation challenge",Fr)
+        lookup_sep_challenge = transcript.challenge_scalar(b"lookup separation challenge")
         transcript.append(b"lookup separation challenge", lookup_sep_challenge)
 
         
@@ -294,7 +288,7 @@ class gen_proof:
                     kzg10.LabeledPoly.new(label="t_i_polys[6]",hiding_bound=None,poly=t_i_poly[6]),
                     kzg10.LabeledPoly.new(label="t_i_polys[7]",hiding_bound=None,poly=t_i_poly[7])]
         
-        t_commits, _ = kzg10.commit_poly_new(pp,t_i_polys,Fr)
+        t_commits, _ = kzg10.commit_poly_new(pp,t_i_polys)
         
         # Add quotient polynomial commitments to transcript
         for i in range(0, 8):
@@ -302,7 +296,7 @@ class gen_proof:
 
         # 4. Compute linearisation polynomial
         # Compute evaluation challenge `z`.
-        z_challenge = transcript.challenge_scalar(b"z", Fr)
+        z_challenge = transcript.challenge_scalar(b"z")
         transcript.append(b"z", z_challenge)
         lin_poly, evaluations = linearisation_poly.compute_linearisation_poly(
                 domain,
@@ -396,7 +390,7 @@ class gen_proof:
 
         # Compute aggregate witness to polynomials evaluated at the evaluation
         # challenge `z`
-        aw_challenge = transcript.challenge_scalar(b"aggregate_witness", Fr)
+        aw_challenge = transcript.challenge_scalar(b"aggregate_witness")
 
         # XXX: The quotient polynomials is used here and then in the
         # opening poly. It is being left in for now but it may not
@@ -414,7 +408,7 @@ class gen_proof:
                     kzg10.LabeledPoly.new(label="table_poly",hiding_bound=None,poly=table_poly)]
         
 
-        aw_commits, aw_rands = kzg10.commit_poly_new(pp,aw_polys,Fr)
+        aw_commits, aw_rands = kzg10.commit_poly_new(pp,aw_polys)
         aw_opening = kzg10.open(
             pp,
             itertools.chain(aw_polys, w_polys),
@@ -425,7 +419,7 @@ class gen_proof:
             None
         )
 
-        saw_challenge = transcript.challenge_scalar(b"aggregate_witness", Fr)
+        saw_challenge = transcript.challenge_scalar(b"aggregate_witness")
         saw_polys = [kzg10.LabeledPoly.new(label="z_poly",hiding_bound=None,poly=z_poly),
                     kzg10.LabeledPoly.new(label="w_l_poly",hiding_bound=None,poly=w_l_poly),
                     kzg10.LabeledPoly.new(label="w_r_poly",hiding_bound=None,poly=w_r_poly),
@@ -434,7 +428,7 @@ class gen_proof:
                     kzg10.LabeledPoly.new(label="z_2_poly",hiding_bound=None,poly=z_2_poly),
                     kzg10.LabeledPoly.new(label="table_poly",hiding_bound=None,poly=table_poly)]
         
-        saw_commits, saw_rands = kzg10.commit_poly_new(pp,saw_polys,Fr)
+        saw_commits, saw_rands = kzg10.commit_poly_new(pp,saw_polys)
         saw_opening = kzg10.open(
             pp,
             saw_polys,

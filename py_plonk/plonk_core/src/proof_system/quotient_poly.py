@@ -4,14 +4,14 @@ import torch
 import copy
 import torch.nn.functional as F
 from ....bls12_381 import fr
-from ....arithmetic import INTT,coset_NTT,coset_INTT,from_coeff_vec,coset_NTT_new
+from ....arithmetic import from_coeff_vec,coset_NTT_new
 from ....plonk_core.src.proof_system.widget.mod import WitnessValues
 from ....plonk_core.src.proof_system.widget.range import RangeGate,RangeValues
 from ....plonk_core.src.proof_system.widget.logic import LogicGate,LogicValues
 from ....plonk_core.src.proof_system.widget.fixed_base_scalar_mul import FBSMGate,FBSMValues
 from ....plonk_core.src.proof_system.widget.curve_addition import CAGate,CAValues
 from ....plonk_core.src.proof_system.mod import CustomEvaluations
-from ....arithmetic import INTT,from_coeff_vec,resize,\
+from ....arithmetic import INTT,from_coeff_vec,\
                         from_gmpy_list,from_list_gmpy,from_list_tensor,from_tensor_list,from_gmpy_list_1,domian_trans_tensor,calculate_execution_time,coset_NTT_new,coset_INTT_new,extend_tensor
 import torch.nn as nn
 from  .widget.arithmetic import compute_quotient_i
@@ -35,9 +35,7 @@ def compute_gate_constraint_satisfiability(domain,
     var_base_challenge, prover_key, wl_eval_8n, wr_eval_8n, 
     wo_eval_8n, w4_eval_8n, pi_poly):
 
-    #get Fr
-    params = fr.Fr(gmpy2.mpz(0))
-    domain_8n = Radix2EvaluationDomain.new(8 * domain.size,params)
+    domain_8n = Radix2EvaluationDomain.new(8 * domain.size)
     pi_poly=pi_poly.to('cuda')
     pi_eval_8n = coset_NTT_new(domain_8n,pi_poly)
 
@@ -177,7 +175,7 @@ def compute_permutation_checks(
     #get Fr
     params = fr.Fr(gmpy2.mpz(0))
     #get NTT domain
-    domain_8n:Radix2EvaluationDomain = Radix2EvaluationDomain.new(8 * domain.size,params)
+    domain_8n:Radix2EvaluationDomain = Radix2EvaluationDomain.new(8 * domain.size)
     domian_trans_tensor(domain_8n.group_gen_inv)
     domian_trans_tensor(domain_8n.size_inv)
     domian_trans_tensor(domain_8n.group_gen)
@@ -235,10 +233,8 @@ def compute_quotient_poly(domain: Radix2EvaluationDomain,
             range_challenge, logic_challenge, 
             fixed_base_challenge, var_base_challenge, 
             lookup_challenge):
-    #get Fr
-    params = fr.Fr(gmpy2.mpz(0))
     #get NTT domain
-    domain_8n = Radix2EvaluationDomain.new(8 * domain.size,params)
+    domain_8n = Radix2EvaluationDomain.new(8 * domain.size)
     one=torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont)
     l1_poly = compute_first_lagrange_poly_scaled(domain,one) 
     

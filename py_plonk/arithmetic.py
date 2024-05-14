@@ -3,29 +3,14 @@ import copy
 from .bls12_381 import fr,fq
 from .domain import Radix2EvaluationDomain
 from .structure import AffinePointG1
+from .jacobian import ProjectivePointG1
 import math
 import random
 import torch
 import torch.nn.functional as F
 import time
-from .ele import into_repr
 import torch.nn as nn
-
 import torch
-
-# def auto_to_cuda(tensor):
-#     # 检查当前 GPU 的内存情况
-#     current_device = torch.cuda.current_device()
-#     free_memory = torch.cuda.get_device_properties(current_device).total_memory - torch.cuda.memory_allocated(current_device)
-    
-#     # 如果当前 GPU 的内存不足，则将数据移到下一个可用的 GPU 上
-#     if free_memory < tensor.element_size() * tensor.nelement():
-#         next_device = (current_device + 1) % torch.cuda.device_count()
-#         tensor = tensor.to('cuda:' + str(next_device))
-#         print(f'Moved tensor to CUDA device {next_device}')
-#     else:
-#         tensor=tensor.to('cuda')
-#     return tensor
 
 
 def extend_tensor(input:torch.tensor,size):
@@ -114,6 +99,13 @@ def from_tensor_list(input:torch.Tensor):
         output[i]=fr.Fr(value=output[i])
     return output
 
+def tensor_to_int(input:torch.Tensor):
+    list = input.tolist()
+    output = 0 
+    for i in reversed(list):
+        output = output << 64
+        output = output | i
+    return output
 
 def from_list_gmpy(input:list):
     for i in range(len(input)):
@@ -173,7 +165,7 @@ def domian_trans_tensor(domain_ele):
         return xx
 
 def extend_tensor(input:torch.tensor,size):
-    if size==0 :
+    if size == 0:
         return input
     res = torch.zeros(size, 4, dtype=torch.BLS12_381_Fr_G1_Mont)
     for i in range(len(res)):
@@ -314,31 +306,19 @@ def operator(domain:Radix2EvaluationDomain, xi:list[fr.Fr], root:fr.Fr):
 #         res.extend([padding for _ in range(num_to_pad)])
 #     return res
 
-def resize_1(self, target_len):
-    # res = copy.deepcopy(self)
-    # self=from_tensor_list(self)
-    # from_list_gmpy(self)
-    if isinstance(self, list):
-        res = copy.deepcopy(self)
-    else:
-        res = self.clone()
-    
-    if len(res)==0 :
-        return  torch.zeros(target_len,4,dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    if len(self) < target_len:
-        
-        output=torch.zeros(target_len,4,dtype=torch.BLS12_381_Fr_G1_Mont)
-        res = res.to('cpu')
-        output[:len(self)]=res
-        return output.to('cuda') 
-    else :
-        return res
-def resize(self, target_len, padding):
-    res = copy.deepcopy(self)
-    if len(self) < target_len:
-        num_to_pad = target_len - len(self)
-        res.extend([padding for _ in range(num_to_pad)])
+def resize_1(self: torch.Tensor, target_len):
+    res = self.clone()
+    if res.size(0) < target_len:
+        padding = torch.zeros(target_len - res.size(0), dtype = fr.Fr.Dtype).to("cuda")
+        res = torch.cat((res, padding))
     return res
+
+# def resize(self, target_len, padding):
+#     res = copy.deepcopy(self)
+#     if len(self) < target_len:
+#         num_to_pad = target_len - len(self)
+#         res.extend([padding for _ in range(num_to_pad)])
+#     return res
 
 
 def distribute_powers(coeffs:list[fr.Fr], g):
@@ -359,42 +339,32 @@ def degree(poly):
         assert not poly[-1]==0
         return len(poly) - 1
 
-def convert_to_bigints_new(p: list[torch.tensor]):
-    # coeffs = [fr.Fr(value = s.into_repr()) for s in p]
-    # coeffs = [torch.tensor(into_repr(s)) for s in p]
-    if len(p)==0:
-        return torch.tensor([],dtype=torch.BLS12_381_Fr_G1_Mont)
+def convert_to_bigints(p: torch.Tensor):
+    if p.size(0) == 0:
+        return torch.tensor([],dtype = fr.Fr.Base_type)
     else:
-        coeffs =torch.empty(len(p),4,dtype=torch.BLS12_381_Fr_G1_Base)
-        # i=0
-        # for s in p:
-        #     coeffs[i]=into_repr(s)
-        #     i+=1
-        
-        coeffs=F.to_base(p)
-        return coeffs
+        res = F.to_base(p)
+        return res
     
-def convert_to_bigints(p: list[fr.Fr]):
-    coeffs = [fr.Fr(value = s.into_repr()) for s in p]
-    return coeffs
+# def convert_to_bigints(p: list[fr.Fr]):
+#     coeffs = [fr.Fr(value = s.into_repr()) for s in p]
+#     return coeffs
 
 
-def skip_leading_zeros_and_convert_to_bigints(p: list[fr.Fr]):
+# def skip_leading_zeros_and_convert_to_bigints(p: list[fr.Fr]):
+#     num_leading_zeros = 0
+#     while num_leading_zeros < len(p) and p[num_leading_zeros] == 0:
+#         num_leading_zeros += 1
+
+#     coeffs = convert_to_bigints(p[num_leading_zeros:])
+#     return num_leading_zeros, coeffs
+
+def skip_leading_zeros_and_convert_to_bigints(p: torch.Tensor):
     num_leading_zeros = 0
-    while num_leading_zeros < len(p) and p[num_leading_zeros] == 0:
+    zero = fr.Fr.zero()
+    while num_leading_zeros < p.size(0) and torch.equal(p[num_leading_zeros], zero.value):
         num_leading_zeros += 1
-
-    coeffs = convert_to_bigints(p[num_leading_zeros:])
-    return num_leading_zeros, coeffs
-
-def skip_leading_zeros_and_convert_to_bigints_new(p:list[torch.tensor]):
-    num_leading_zeros = 0
-    # while num_leading_zeros < len(p) and p[num_leading_zeros] == torch.tensor([0,0,0,0],dtype=torch.BLS12_381_Fr_G1_Mont):
-
-    while num_leading_zeros < len(p) and torch.equal(p[num_leading_zeros] ,torch.zeros(4,dtype=torch.BLS12_381_Fr_G1_Mont)):
-        num_leading_zeros += 1
-
-    coeffs = convert_to_bigints_new(p[num_leading_zeros:])  
+    coeffs = convert_to_bigints(p[num_leading_zeros:])  
     return num_leading_zeros, coeffs
 
 
@@ -480,35 +450,32 @@ def distribute_powers_and_mul_by_const_new(coeffs, g, c):
         pow= F.mul_mod(pow,g)
     return coeffs
 
-def INTT_new(domain,evals:torch.Tensor):
-
-    inttclass = nn.Intt(32, torch.BLS12_381_Fr_G1_Mont)
-    evals_resize=resize_1(evals,domain.size)
+def INTT_new(size, evals: torch.Tensor):
+    inttclass = nn.Intt(32, fr.Fr.Dtype)
+    evals_resize = resize_1(evals, size)
     if evals_resize.device =='cuda':
         pass
     else:
-       evals_resize=evals_resize.to('cuda')
-    res= inttclass.forward(evals_resize)
+       evals_resize.to('cuda')
+    res = inttclass.forward(evals_resize)
     return res
 
-def NTT_new(domain,evals:torch.Tensor):
-
-    nttclass = nn.Ntt(32, torch.BLS12_381_Fr_G1_Mont)
-    evals_resize=resize_1(evals,domain.size)
-    evals_resize=evals_resize.to('cuda')
+def NTT_new(size, evals:torch.Tensor):
+    nttclass = nn.Ntt(32, fr.Fr.Dtype)
+    evals_resize=resize_1(evals,size)
     res= nttclass.forward(evals_resize)
     return res
 
-def coset_NTT_new_1(domain,coeffs:torch.tensor):
-    ntt_coset_class = nn.Ntt_coset(domain.size, torch.BLS12_381_Fr_G1_Mont)
-    resize_coeffs= resize_1(coeffs,domain.size)
+def coset_NTT_new_1(size, coeffs:torch.Tensor):
+    ntt_coset_class = nn.Ntt_coset(size, fr.Fr.Dtype)
+    resize_coeffs= resize_1(coeffs, size)
     coeffs = ntt_coset_class.forward(resize_coeffs)
     return coeffs
 
 
 def coset_NTT_new(domain,coeffs:torch.tensor):
     
-    ntt_class = nn.Ntt_coset(32, torch.BLS12_381_Fr_G1_Mont)
+    ntt_class = nn.Ntt_coset(32, fr.Fr.Dtype)
     # coeffs=distribute_powers_new(coeffs, fr.Fr.GENERATOR)
     resize_coeffs= resize_1(coeffs,domain.size)
     coeffs = ntt_class.forward(resize_coeffs)
@@ -523,43 +490,41 @@ def coset_INTT_new(evals:torch.tensor, domain):
     return evals
 
 # Compute a NTT over a coset of the domain, modifying the input vector in place.
-def coset_NTT(coeffs:torch.tensor, domain):
+# def coset_NTT(coeffs:torch.tensor, domain):
 
-    coeffs=from_tensor_list(coeffs)
-    from_list_gmpy(coeffs)
+#     coeffs=from_tensor_list(coeffs)
+#     from_list_gmpy(coeffs)
 
-    modified_coeffs = coeffs[:]
-    distribute_powers(modified_coeffs, fr.Fr.GENERATOR)
-    from_gmpy_list(modified_coeffs)
-    modified_coeffs=from_list_tensor(modified_coeffs)
-    evals = NTT(domain,modified_coeffs)
-    return evals
+#     modified_coeffs = coeffs[:]
+#     distribute_powers(modified_coeffs, fr.Fr.GENERATOR)
+#     from_gmpy_list(modified_coeffs)
+#     modified_coeffs=from_list_tensor(modified_coeffs)
+#     evals = NTT(domain,modified_coeffs)
+#     return evals
 
 # Compute a INTT over a coset of the domain, modifying the input vector in place.
-def coset_INTT(evals:torch.tensor, domain):
-    evals=from_tensor_list(evals)
-    from_list_gmpy(evals)
-    #add zero to resize
-    zero = fr.Fr.zero()
-    resize_evals = resize(evals,domain.size,zero)
-    evals = operator(domain,resize_evals,domain.group_gen_inv)
-    distribute_powers_and_mul_by_const(evals, domain.generator_inv,domain.size_inv)
-    from_gmpy_list(evals)
-    evals=from_list_tensor(evals)
-    return evals
+# def coset_INTT(evals:torch.tensor, domain):
+#     evals=from_tensor_list(evals)
+#     from_list_gmpy(evals)
+#     #add zero to resize
+#     zero = fr.Fr.zero()
+#     resize_evals = resize(evals,domain.size,zero)
+#     evals = operator(domain,resize_evals,domain.group_gen_inv)
+#     distribute_powers_and_mul_by_const(evals, domain.generator_inv,domain.size_inv)
+#     from_gmpy_list(evals)
+#     evals=from_list_tensor(evals)
+#     return evals
 
-def from_coeff_vec(coeffs:torch.Tensor):
-    coeffs=from_tensor_list(coeffs)  
-
-    result = coeffs[:]
+def from_coeff_vec(poly:torch.Tensor):
+    # coeffs=from_tensor_list(coeffs)  
+    # result = coeffs[:]
     # print(result[-1])
     #TODO 缺少等于
-    while result and result[-1].value== [0,0,0,0]:
-        result.pop()
-    
-    output=from_list_tensor(result,dtype=torch.BLS12_381_Fr_G1_Mont)
-    #return coeffs.to('cpu')
-    return output
+    poly = poly.to("cpu")
+    zero = fr.Fr.zero().value
+    while poly.size(0) != 0 and torch.equal(poly[-1], zero):
+        poly = poly[:-1]
+    return poly
 
 def from_coeff_vec_list(coeffs:list):
     temp=[]
@@ -855,12 +820,13 @@ def MSM_new(bases,scalar): #bases POINT scalar SCALAR
         res[2]=torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont)
         res[1]=torch.tensor([8505329371266088957, 17002214543764226050, 6865905132761471162, 8632934651105793861, 6631298214892334189, 1582556514881692819],dtype=torch.BLS12_381_Fq_G1_Mont)
         res[0]=torch.tensor([8505329371266088957, 17002214543764226050, 6865905132761471162, 8632934651105793861, 6631298214892334189, 1582556514881692819],dtype=torch.BLS12_381_Fq_G1_Mont)
-        commitment=torch.stack(res,dim=0) ###cpu
+        commitment=ProjectivePointG1(fq.Fq(res[0]),fq.Fq(res[1]),fq.Fq(res[2]))
         return commitment
     else:
         base=copy.deepcopy(bases)
         base = base[:min_size_1].view(-1, 6)# dim2 to 1
         base=base.to('cuda')
         scalar=scalar.to('cuda')
-        commitment:torch.tensor =torch.tensor(F.multi_scalar_mult(base,scalar),dtype=torch.BLS12_381_Fq_G1_Mont) #return cpu
+        commitment = F.multi_scalar_mult(base,scalar)
+        commitment = ProjectivePointG1(fq.Fq(commitment[0]),fq.Fq(commitment[1]),fq.Fq(commitment[2]))
         return commitment

@@ -60,9 +60,9 @@ class Transcript:
         modified_dest = self.strobe.prf(dest, False)
         return modified_dest
     
-    def challenge_scalar(self, label: bytes, params):
-        size = params.MODULUS_BITS // 8
+    def challenge_scalar(self, label: bytes):
+        size = fr.Fr.MODULUS_BITS // 8
         buf = bytes([0] * size)
         modified_buf = self.challenge_bytes(label, buf)
-        c_s = fr.from_random_bytes(params,modified_buf)
+        c_s = fr.from_random_bytes(modified_buf)
         return c_s

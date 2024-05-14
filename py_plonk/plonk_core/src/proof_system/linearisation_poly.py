@@ -133,7 +133,7 @@ def compute_linearisation_poly(
     ):
     n = domain.size
     omega = domain.group_gen
-    domain_permutation = Radix2EvaluationDomain.new(n,z_challenge)
+    domain_permutation = Radix2EvaluationDomain.new(n)
     z_challenge =torch.tensor(from_gmpy_list_1(z_challenge),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
     omega =torch.tensor(from_gmpy_list_1(omega),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
     w_l_poly = w_l_poly.to('cuda')

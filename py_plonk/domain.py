@@ -34,55 +34,55 @@ class Radix2EvaluationDomain:
     generator_inv: fr.Fr
 
     @classmethod
-    def new_1(cls, num_coeffs: int, params:fr.Fr):
+    def new(cls, num_coeffs: int):
         # Compute the size of our evaluation domain
         size = num_coeffs if num_coeffs & (num_coeffs - 1) == 0 else 2 ** num_coeffs.bit_length()
         log_size_of_group = size.bit_length()-1
         
         # Check if log_size_of_group exceeds TWO_ADICITY
-        if log_size_of_group > params.TWO_ADICITY:
+        if log_size_of_group > fr.Fr.TWO_ADICITY:
             return None
 
         # Compute the generator for the multiplicative subgroup.
         # It should be the 2^(log_size_of_group) root of unity.
-        group_gen = fr.Fr(value=params.get_root_of_unity(size))
+        group_gen = fr.Fr.get_root_of_unity(size)
         
         # Check that it is indeed the 2^(log_size_of_group) root of unity.
         group_gen_pow = group_gen.pow(size)
-        assert torch.equal(group_gen_pow,params.one())
+        assert torch.equal(group_gen_pow.value, fr.Fr.one().value)
 
         size_as_field_element=fr.Fr.from_repr(size)
         size_inv = fr.Fr.inverse(size_as_field_element)
         group_gen_inv = fr.Fr.inverse(group_gen)
-        generator_inv = fr.Fr.inverse(params.multiplicative_generator())
+        generator_inv = fr.Fr.inverse(fr.Fr.multiplicative_generator())
 
         return cls(size, log_size_of_group, size_as_field_element, size_inv, group_gen, group_gen_inv, generator_inv)
     
-    @classmethod
-    def new(cls,num_coeffs:int,params:fr.Fr):
-        # Compute the size of our evaluation domain
-        size = num_coeffs if num_coeffs & (num_coeffs - 1) == 0 else 2 ** num_coeffs.bit_length()
-        # print(size)
-        log_size_of_group = size.bit_length()-1
+    # @classmethod
+    # def new(cls,num_coeffs:int):
+    #     # Compute the size of our evaluation domain
+    #     size = num_coeffs if num_coeffs & (num_coeffs - 1) == 0 else 2 ** num_coeffs.bit_length()
+    #     # print(size)
+    #     log_size_of_group = size.bit_length()-1
         
-        # Check if log_size_of_group exceeds TWO_ADICITY
-        if log_size_of_group > params.TWO_ADICITY:
-            return None
+    #     # Check if log_size_of_group exceeds TWO_ADICITY
+    #     if log_size_of_group > fr.Fr.TWO_ADICITY:
+    #         return None
 
-        # Compute the generator for the multiplicative subgroup.
-        # It should be the 2^(log_size_of_group) root of unity.
-        group_gen = fr.Fr(value=params.get_root_of_unity(size))
+    #     # Compute the generator for the multiplicative subgroup.
+    #     # It should be the 2^(log_size_of_group) root of unity.
+    #     group_gen = fr.Fr.get_root_of_unity(size)
         
-        # Check that it is indeed the 2^(log_size_of_group) root of unity.
-        group_gen_pow = group_gen.pow(size)
-        assert group_gen_pow == params.one()
+    #     # Check that it is indeed the 2^(log_size_of_group) root of unity.
+    #     group_gen_pow = group_gen.pow(size)
+    #     assert group_gen_pow == fr.Fr.one()
 
-        size_as_field_element=fr.Fr.from_repr(size)
-        size_inv = fr.Fr.inverse(size_as_field_element)
-        group_gen_inv = fr.Fr.inverse(group_gen)
-        generator_inv = fr.Fr.inverse(params.multiplicative_generator())
+    #     size_as_field_element=fr.Fr.from_repr(size)
+    #     size_inv = fr.Fr.inverse(size_as_field_element)
+    #     group_gen_inv = fr.Fr.inverse(group_gen)
+    #     generator_inv = fr.Fr.inverse(fr.Fr.multiplicative_generator())
 
-        return cls(size, log_size_of_group, size_as_field_element, size_inv, group_gen, group_gen_inv, generator_inv)
+    #     return cls(size, log_size_of_group, size_as_field_element, size_inv, group_gen, group_gen_inv, generator_inv)
     
     # Evaluate all Lagrange polynomials at tau to get the lagrange coefficients.
     # Define the following as
