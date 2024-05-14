@@ -15444,6 +15444,11 @@
   dispatch:
     CUDA: div_mod_scalar_cuda_out
 
+- func: poly_eval(Tensor a, int N) -> Tensor
+  device_check: NoCheck
+  dispatch:
+    CUDA: poly_eval_cuda
+
 - func: params_zkp(int domain_size, bool is_intt, *, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor
   device_check: NoCheck
   dispatch:

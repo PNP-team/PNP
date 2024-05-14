@@ -6,6 +6,7 @@
 #include <ATen/cuda/CUDAContext.h>
 #include <ATen/native/cuda/thread_constants.h>
 #include <ATen/ops/copy.h>
+#include <ATen/ops/empty.h>
 #include <ATen/native/pnp/mont/cuda/curve_def.cuh>
 
 #pragma clang diagnostic ignored "-Wmissing-prototypes"
@@ -149,16 +150,16 @@
 #define SCALAR_OP(name)                                                \
   Tensor name##_mod_scalar_cuda(const Tensor& a, const Tensor& b) {    \
     Tensor c = at::empty_like(a);                                      \
-    name##_scalar_template(c, a, b);                                          \
+    name##_scalar_template(c, a, b);                                   \
     return c;                                                          \
   }                                                                    \
   Tensor& name##_mod_scalar_cuda_(Tensor& self, const Tensor& other) { \
-    name##_scalar_template_(self, other);                                     \
+    name##_scalar_template_(self, other);                              \
     return self;                                                       \
   }                                                                    \
   Tensor& name##_mod_scalar_cuda_out(                                  \
       const Tensor& a, const Tensor& b, Tensor& c) {                   \
-    name##_scalar_template(c, a, b);                                          \
+    name##_scalar_template(c, a, b);                                   \
     return c;                                                          \
   }
 
@@ -180,6 +181,20 @@ __global__ void to_base_kernel_(const int64_t N, T* data) {
   int64_t i = blockIdx.x * blockDim.x + threadIdx.x;
   if (i < N) {
     data[i].from();
+  }
+}
+
+template <typename T>
+__global__ void poly_eval_kernel(const int64_t N, T* x, T* data) {
+  int64_t tid = blockIdx.x * blockDim.x + threadIdx.x;
+  if (tid == 0) {
+    data[tid] = T::one();
+  }
+  else if (tid == 1) {
+    data[tid] = *x;
+  }
+  else if (tid < N) {
+    data[tid] = (*x) ^ tid;
   }
 }
 
@@ -239,6 +254,22 @@ static void to_base_cuda_template(Tensor& self) {
   self.set_dtype(get_corresponding_type(self.scalar_type()));
 }
 
+static void poly_eval_cuda_template(const Tensor& x, Tensor& poly) {
+  AT_DISPATCH_MONT_TYPES(poly.scalar_type(), "poly_eval_cuda", [&] {
+    auto poly_ptr = reinterpret_cast<scalar_t::compute_type*>(
+        poly.mutable_data_ptr<scalar_t>());
+    auto x_ptr = reinterpret_cast<scalar_t::compute_type*>(
+        x.mutable_data_ptr<scalar_t>());
+    int64_t N = poly.numel() / num_uint64(poly.scalar_type());
+    TORCH_INTERNAL_ASSERT(N > 0 && N <= std::numeric_limits<int32_t>::max());
+    int64_t grid = (N + block_work_size() - 1) / block_work_size();
+    auto stream = at::cuda::getCurrentCUDAStream();
+    poly_eval_kernel<<<grid, block_work_size(), 0, stream>>>(
+        N, x_ptr, poly_ptr);
+    C10_CUDA_KERNEL_LAUNCH_CHECK();
+  });
+}
+
 BIN_OP_TEMPLATE(add);
 BIN_OP_TEMPLATE(sub);
 BIN_OP_TEMPLATE(mul);
@@ -278,6 +309,18 @@ Tensor& to_base_out_cuda(const Tensor& input, Tensor& output) {
   copy(output, input);
   to_base_cuda_template(output);
   return output;
+}
+
+Tensor poly_eval_cuda(const Tensor& x, int64_t N) {
+  auto poly = at::empty(
+      {N, x.numel()},
+      x.scalar_type(),
+      x.layout(),
+      x.device(),
+      c10::nullopt,
+      c10::nullopt);
+  poly_eval_cuda_template(x, poly);
+  return poly;
 }
 
 BIN_OP(add);
