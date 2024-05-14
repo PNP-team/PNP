@@ -15311,6 +15311,21 @@
   dispatch:
     CPU: to_base_out_cpu
     CUDA: to_base_out_cuda
+
+- func: inv_mod(Tensor self) -> Tensor
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+    CUDA: inv_mod_cuda
+
+- func: inv_mod_(Tensor(a!) self) -> Tensor(a!)
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+    CUDA: inv_mod_cuda_
+
+- func: inv_mod.out(Tensor self, *, Tensor(a!) out) -> Tensor(a!)
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+    CUDA: inv_mod_out_cuda
     
 - func: add_mod(Tensor self, Tensor in_b) -> Tensor
   device_check: NoCheck   # TensorIterator
