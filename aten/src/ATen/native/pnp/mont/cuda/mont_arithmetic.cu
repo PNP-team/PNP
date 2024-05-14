@@ -5,8 +5,8 @@
 #include <ATen/core/interned_strings.h>
 #include <ATen/cuda/CUDAContext.h>
 #include <ATen/native/cuda/thread_constants.h>
-#include <ATen/native/pnp/mont/cuda/curve_def.cuh>
 #include <ATen/ops/copy.h>
+#include <ATen/native/pnp/mont/cuda/curve_def.cuh>
 
 #pragma clang diagnostic ignored "-Wmissing-prototypes"
 
@@ -28,10 +28,29 @@
     }                                                  \
   }
 
+#define SCALAR_KERNEL(name, op)                             \
+  template <typename T>                                     \
+  __global__ void mont_##name##_scalar_mod_kernel(          \
+      const int64_t N, T* c, const T* a, const T* scalar) { \
+    int64_t i = blockIdx.x * blockDim.x + threadIdx.x;      \
+    if (i < N) {                                            \
+      c[i] = a[i] op scalar[0];                             \
+    }                                                       \
+  }                                                         \
+  template <typename T>                                     \
+  __global__ void mont_##name##_scalar_mod_kernel_(         \
+      const int64_t N, T* self, const T* scalar) {          \
+    int64_t i = blockIdx.x * blockDim.x + threadIdx.x;      \
+    if (i < N) {                                            \
+      self[i] op## = scalar[0];                             \
+    }                                                       \
+  }
+
 #define BIN_OP_TEMPLATE(name)                                                  \
   static void name##_template(Tensor& c, const Tensor& a, const Tensor& b) {   \
     TORCH_CHECK(                                                               \
-        a.numel() == b.numel(), "The number of elements must be the same!");   \
+        a.numel() == b.numel() == c.numel(),                                   \
+        "The number of elements must be the same!");                           \
     AT_DISPATCH_MONT_TYPES(a.scalar_type(), "mont_##name##_mod_cuda", [&] {    \
       auto a_ptr =                                                             \
           reinterpret_cast<scalar_t::compute_type*>(a.data_ptr<scalar_t>());   \
@@ -65,6 +84,53 @@
     });                                                                        \
   }
 
+#define SCALAR_OP_TEMPLATE(name)                                           \
+  static void name##_scalar_template(                                      \
+      Tensor& c, const Tensor& a, const Tensor& b) {                       \
+    TORCH_CHECK(                                                           \
+        b.numel() == num_uint64(b.scalar_type()),                          \
+        "The second tensor must be a scalar!");                            \
+    AT_DISPATCH_MONT_TYPES(                                                \
+        a.scalar_type(), "mont_##name##_scalar_mod_cuda", [&] {            \
+          auto a_ptr = reinterpret_cast<scalar_t::compute_type*>(          \
+              a.data_ptr<scalar_t>());                                     \
+          auto b_ptr = reinterpret_cast<scalar_t::compute_type*>(          \
+              b.data_ptr<scalar_t>());                                     \
+          auto c_ptr = reinterpret_cast<scalar_t::compute_type*>(          \
+              c.mutable_data_ptr<scalar_t>());                             \
+          int64_t N = a.numel() / num_uint64(a.scalar_type());             \
+          int64_t grid = (N + block_work_size() - 1) / block_work_size();  \
+          auto stream = at::cuda::getCurrentCUDAStream();                  \
+          mont_##name##_scalar_mod_kernel<<<                               \
+              grid,                                                        \
+              block_work_size(),                                           \
+              0,                                                           \
+              stream>>>(N, c_ptr, a_ptr, b_ptr);                           \
+          C10_CUDA_KERNEL_LAUNCH_CHECK();                                  \
+        });                                                                \
+  }                                                                        \
+  static void name##_scalar_template_(Tensor& self, const Tensor& other) { \
+    TORCH_CHECK(                                                           \
+        other.numel() == num_uint64(other.scalar_type()),                  \
+        "The second tensor must be a scalar!");                            \
+    AT_DISPATCH_MONT_TYPES(                                                \
+        self.scalar_type(), "mont_##name##_scalar_mod_cuda", [&] {         \
+          auto other_ptr = reinterpret_cast<scalar_t::compute_type*>(      \
+              other.data_ptr<scalar_t>());                                 \
+          auto self_ptr = reinterpret_cast<scalar_t::compute_type*>(       \
+              self.mutable_data_ptr<scalar_t>());                          \
+          int64_t N = self.numel() / num_uint64(self.scalar_type());       \
+          int64_t grid = (N + block_work_size() - 1) / block_work_size();  \
+          auto stream = at::cuda::getCurrentCUDAStream();                  \
+          mont_##name##_scalar_mod_kernel_<<<                              \
+              grid,                                                        \
+              block_work_size(),                                           \
+              0,                                                           \
+              stream>>>(N, self_ptr, other_ptr);                           \
+          C10_CUDA_KERNEL_LAUNCH_CHECK();                                  \
+        });                                                                \
+  }
+
 #define BIN_OP(name)                                                         \
   Tensor name##_mod_cuda(const Tensor& a, const Tensor& b) {                 \
     Tensor c = at::empty_like(a);                                            \
@@ -78,6 +144,22 @@
   Tensor& name##_mod_cuda_out(const Tensor& a, const Tensor& b, Tensor& c) { \
     name##_template(c, a, b);                                                \
     return c;                                                                \
+  }
+
+#define SCALAR_OP(name)                                                \
+  Tensor name##_mod_scalar_cuda(const Tensor& a, const Tensor& b) {    \
+    Tensor c = at::empty_like(a);                                      \
+    name##_scalar_template(c, a, b);                                          \
+    return c;                                                          \
+  }                                                                    \
+  Tensor& name##_mod_scalar_cuda_(Tensor& self, const Tensor& other) { \
+    name##_scalar_template_(self, other);                                     \
+    return self;                                                       \
+  }                                                                    \
+  Tensor& name##_mod_scalar_cuda_out(                                  \
+      const Tensor& a, const Tensor& b, Tensor& c) {                   \
+    name##_scalar_template(c, a, b);                                          \
+    return c;                                                          \
   }
 
 namespace at {
@@ -105,6 +187,10 @@ BIN_KERNEL(add, +);
 BIN_KERNEL(sub, -);
 BIN_KERNEL(mul, *);
 BIN_KERNEL(div, /);
+SCALAR_KERNEL(add, +);
+SCALAR_KERNEL(sub, -);
+SCALAR_KERNEL(mul, *);
+SCALAR_KERNEL(div, /);
 
 #define CONVERT_ELEM(name)                        \
   else if (type == ScalarType::name##_Base) {     \
@@ -157,6 +243,10 @@ BIN_OP_TEMPLATE(add);
 BIN_OP_TEMPLATE(sub);
 BIN_OP_TEMPLATE(mul);
 BIN_OP_TEMPLATE(div);
+SCALAR_OP_TEMPLATE(add);
+SCALAR_OP_TEMPLATE(sub);
+SCALAR_OP_TEMPLATE(mul);
+SCALAR_OP_TEMPLATE(div);
 
 } // namespace
 
@@ -194,6 +284,10 @@ BIN_OP(add);
 BIN_OP(sub);
 BIN_OP(mul);
 BIN_OP(div);
+SCALAR_OP(add);
+SCALAR_OP(sub);
+SCALAR_OP(mul);
+SCALAR_OP(div);
 
 } // namespace native
 } // namespace at
