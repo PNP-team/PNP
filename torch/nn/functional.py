@@ -5492,7 +5492,6 @@ def sub_mod(input1: Tensor,input2: Tensor,inplace: bool = False) -> Tensor:
 
 
 def mul_mod(input1: Tensor,input2: Tensor,inplace: bool = False) -> Tensor:
-    
     if inplace:
         result=torch.mul_mod_(input1,input2)
     else:
@@ -5505,6 +5504,13 @@ def div_mod(input1: Tensor,input2: Tensor,inplace: bool = False) -> Tensor:
         result=torch.div_mod_(input1,input2)
     else:
         result = torch.div_mod(input1,input2)
+    return result
+
+def mul_mod_scalar(input1: Tensor, input2: Tensor, inplace: bool = False) -> Tensor:
+    if inplace:
+        result=torch.mul_mod_scalar_(input1,input2)
+    else:
+        result = torch.mul_mod_scalar(input1,input2)
     return result
 
 def multi_scalar_mult(points: Tensor, scalars: Tensor, device = "cuda") -> list:

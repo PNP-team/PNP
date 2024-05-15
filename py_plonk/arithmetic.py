@@ -309,7 +309,7 @@ def operator(domain:Radix2EvaluationDomain, xi:list[fr.Fr], root:fr.Fr):
 def resize_1(self: torch.Tensor, target_len):
     res = self.clone()
     if res.size(0) < target_len:
-        padding = torch.zeros(target_len - res.size(0), dtype = fr.Fr.Dtype).to("cuda")
+        padding = torch.zeros((target_len - res.size(0), fr.Fr.Limbs), dtype = fr.Fr.Dtype).to("cuda")
         res = torch.cat((res, padding))
     return res
 

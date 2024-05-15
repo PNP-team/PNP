@@ -208,21 +208,20 @@ class gen_proof:
             (w_l_scalar, w_r_scalar, w_o_scalar, w_4_scalar),
             beta.value,
             gamma.value,
-            torch.cat((
+            [
                 torch.tensor(pk_permutation['left_sigma']['coeffs'], dtype = fr.Fr.Dtype),
                 torch.tensor(pk_permutation['right_sigma']['coeffs'], dtype = fr.Fr.Dtype),
                 torch.tensor(pk_permutation['out_sigma']['coeffs'], dtype = fr.Fr.Dtype),
                 torch.tensor(pk_permutation['fourth_sigma']['coeffs'], dtype = fr.Fr.Dtype)
+            ]
             )
-            ))
         # Commit to permutation polynomial.
 
         z_polys = [kzg10.LabeledPoly.new(label="z_poly",hiding_bound=None,poly=z_poly)]
         z_poly_commit,_ = kzg10.commit_poly_new(pp,z_polys)
 
         # Add permutation polynomial commitment to transcript.
-        f_p_c_0=transtompz(z_poly_commit[0].commitment.value)
-        transcript.append(b"z", f_p_c_0)
+        transcript.append(b"z", z_poly_commit[0].commitment.value)
         
         # Compute mega permutation polynomial.
         # Compute lookup permutation poly

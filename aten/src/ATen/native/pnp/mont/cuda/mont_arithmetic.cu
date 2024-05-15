@@ -50,7 +50,7 @@
 #define BIN_OP_TEMPLATE(name)                                                  \
   static void name##_template(Tensor& c, const Tensor& a, const Tensor& b) {   \
     TORCH_CHECK(                                                               \
-        a.numel() == b.numel() == c.numel(),                                   \
+        a.numel() == b.numel(),                                                \
         "The number of elements must be the same!");                           \
     AT_DISPATCH_MONT_TYPES(a.scalar_type(), "mont_##name##_mod_cuda", [&] {    \
       auto a_ptr =                                                             \
