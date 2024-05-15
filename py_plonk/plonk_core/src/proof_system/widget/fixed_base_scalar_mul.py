@@ -107,13 +107,13 @@ class FBSMGate:
 
 
     @staticmethod
-    def quotient_term(selector: fr.Fr, separation_challenge: fr.Fr, 
-                      wit_vals: WitnessValues, custom_vals:FBSMValues,size):
+    def quotient_term(selector: torch.Tensor, separation_challenge: torch.Tensor, 
+                      wit_vals: WitnessValues, custom_vals:FBSMValues):
         
-        separation_challenge=extend_tensor(separation_challenge,size)
+        #single scalar OP on CPU
         kappa = F.mul_mod(separation_challenge,separation_challenge)
-        kappa_sq=F.mul_mod(kappa,kappa)
-        kappa_cu=F.mul_mod(kappa_sq,kappa)
+        kappa_sq = F.mul_mod(kappa,kappa)
+        kappa_cu = F.mul_mod(kappa_sq,kappa)
 
         # x_beta_eval = torch.tensor(from_gmpy_list_1(custom_vals.q_l_val),dtype=torch.BLS12_381_Fr_G1_Mont)
         # y_beta_eval = torch.tensor(from_gmpy_list_1(custom_vals.q_r_val),dtype=torch.BLS12_381_Fr_G1_Mont)
@@ -129,57 +129,55 @@ class FBSMGate:
         accumulated_bit_next = custom_vals.d_next_val
         bit = extract_bit(accumulated_bit, accumulated_bit_next)
 
-        one=torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-        one =extend_tensor(one ,size)
+        one = fr.Fr.one().value
         # Check bit consistency
-        bit_consistency = check_bit_consistency(bit,one)
+        bit_consistency = check_bit_consistency(bit, one)
 
-
-        y_beta_sub_one = F.sub_mod(custom_vals.q_r_val,one)
-        bit2 = F.mul_mod(bit,bit)
+        y_beta_sub_one = F.sub_mod_scalar(custom_vals.q_r_val, one)
+        bit2 = F.mul_mod(bit, bit)
         y_alpha_1 = F.mul_mod(bit2, y_beta_sub_one)
-        y_alpha = F.add_mod(y_alpha_1, one)
+        y_alpha = F.add_mod_scalar(y_alpha_1, one)
         x_alpha = F.mul_mod(custom_vals.q_l_val, bit)
 
         # xy_alpha consistency check
         # custom_vals.q_c_val=torch.tensor(from_gmpy_list_1(custom_vals.q_c_val),dtype=torch.BLS12_381_Fr_G1_Mont)
         bit_times_q_c_val = F.mul_mod(bit, custom_vals.q_c_val)
         xy_consistency = F.sub_mod(bit_times_q_c_val, xy_alpha)
-        xy_consistency = F.mul_mod(xy_consistency, kappa)
+        xy_consistency = F.mul_mod_scalar(xy_consistency, kappa.to("cuda"))
 
         # x accumulator consistency check
         x_3 = acc_x_next
         x_3_times_xy_alpha = F.mul_mod(x_3, xy_alpha)
         x_3_times_xy_alpha_times_acc_x = F.mul_mod(x_3_times_xy_alpha, acc_x)
         x_3_times_xy_alpha_times_acc_x_times_acc_y = F.mul_mod(x_3_times_xy_alpha_times_acc_x, acc_y)
-        x_3_times_xy_alpha_times_acc_x_times_acc_y_times_coeff_d = F.mul_mod(x_3_times_xy_alpha_times_acc_x_times_acc_y,extend_tensor(P.COEFF_D,size))
+        x_3_times_xy_alpha_times_acc_x_times_acc_y_times_coeff_d = F.mul_mod_scalar(x_3_times_xy_alpha_times_acc_x_times_acc_y, P.COEFF_D.to("cuda"))
         lhs_x = F.add_mod(x_3, x_3_times_xy_alpha_times_acc_x_times_acc_y_times_coeff_d)
         x_3_times_acc_y = F.mul_mod(x_alpha, acc_y)
         y_alpha_times_acc_x = F.mul_mod(y_alpha, acc_x)
         rhs_x = F.add_mod(x_3_times_acc_y, y_alpha_times_acc_x) 
         x_acc_consistency = F.sub_mod(lhs_x, rhs_x)
-        x_acc_consistency = F.mul_mod(x_acc_consistency, kappa_sq)
+        x_acc_consistency = F.mul_mod_scalar(x_acc_consistency, kappa_sq.to("cuda"))
 
         # y accumulator consistency check
         y_3 = acc_y_next
         y_3_times_xy_alpha = F.mul_mod(y_3, xy_alpha)
         y_3_times_xy_alpha_times_acc_x = F.mul_mod(y_3_times_xy_alpha, acc_x)
         y_3_times_xy_alpha_times_acc_x_times_acc_y = F.mul_mod(y_3_times_xy_alpha_times_acc_x, acc_y)
-        y_3_times_xy_alpha_times_acc_x_times_acc_y_times_coeff_d = F.mul_mod(y_3_times_xy_alpha_times_acc_x_times_acc_y,extend_tensor(P.COEFF_D,size) )
+        y_3_times_xy_alpha_times_acc_x_times_acc_y_times_coeff_d = F.mul_mod_scalar(y_3_times_xy_alpha_times_acc_x_times_acc_y, P.COEFF_D.to("cuda"))
         lhs_y = F.sub_mod(y_3, y_3_times_xy_alpha_times_acc_x_times_acc_y_times_coeff_d)
         y_alpha_times_acc_y = F.mul_mod(y_alpha, acc_y)
-        coeff_A_times_x_alpha = F.mul_mod(extend_tensor(P.COEFF_A,size), x_alpha)
+        coeff_A_times_x_alpha = F.mul_mod_scalar(x_alpha, P.COEFF_A.to("cuda"))
         coeff_A_times_x_alpha_times_acc_x = F.mul_mod(coeff_A_times_x_alpha, acc_x)
         rhs_y = F.sub_mod(y_alpha_times_acc_y, coeff_A_times_x_alpha_times_acc_x)
         y_acc_consistency = F.sub_mod(lhs_y, rhs_y)
-        y_acc_consistency = F.mul_mod(y_acc_consistency, kappa_cu)
+        y_acc_consistency = F.mul_mod_scalar(y_acc_consistency, kappa_cu.to("cuda"))
 
         mid1 = F.add_mod(bit_consistency, x_acc_consistency)
         mid2 = F.add_mod(mid1, y_acc_consistency)
         checks = F.add_mod(mid2, xy_consistency)
-        temp = F.mul_mod(checks, separation_challenge)
+        temp = F.mul_mod_scalar(checks, separation_challenge.to("cuda"))
 
-        res =F.mul_mod(selector,temp)
+        res =F.mul_mod(selector, temp)
         return res
     
     @staticmethod
@@ -188,19 +186,16 @@ class FBSMGate:
         res = poly_mul_const(selector_poly,temp)
         return res
 # Extracts the bit value from the accumulated bit.
-def extract_bit(curr_acc: fr.Fr, next_acc: fr.Fr):
+def extract_bit(curr_acc: torch.Tensor, next_acc: torch.Tensor):
     mid1 = F.sub_mod(next_acc, curr_acc)
     res = F.sub_mod(mid1, curr_acc)
     return res
 
 
 # Ensures that the bit is either `+1`, `-1`, or `0`.
-def check_bit_consistency(bit: fr.Fr,one):
-    if isinstance(one, int) :
-        one=torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    mid1 = F.sub_mod(bit, one)
-    mid2 = F.add_mod(bit, one)
+def check_bit_consistency(bit, one):
+    mid1 = F.sub_mod_scalar(bit, one)
+    mid2 = F.add_mod_scalar(bit, one)
     res = F.mul_mod(mid1, bit)
     res = F.mul_mod(res, mid2)
-
     return res

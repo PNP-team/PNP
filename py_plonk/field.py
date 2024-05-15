@@ -65,10 +65,7 @@ class field:
     #mongomery mul
     def mul(self, b):
         cls = type(self)
-        res = self.value * b.value
-        #keep the result in mongomery form, same as mongomery reduce
-        res = res * self.R_INV
-        res %= self.MODULUS
+        res = F.mul_mod(self.value, b.value)
         return cls(res)
     
     def square(self):
@@ -94,21 +91,21 @@ class field:
     #             # res = F.mul_mod(self)
     #     return res
     
-    ##TODO 暂时用于quotient函数
-    def pow_1(self,exp):
+    # ##TODO 暂时用于quotient函数
+    # def pow_1(self,exp):
             
-        def square_1(self):
-            self = F.mul_mod(self)
-            # self = self.mul(self)
-            return self
-        res = self.clone()
-        for i in range(63,-1,-1):
-            #modsquare
-            res = res.square_1()
-            if ((exp >> i) & 1) == 1:
-                # res = res.mul(self)
-                res = F.mul_mod(self)
-        return res
+    #     def square_1(self):
+    #         self = F.mul_mod(self)
+    #         # self = self.mul(self)
+    #         return self
+    #     res = self.clone()
+    #     for i in range(63,-1,-1):
+    #         #modsquare
+    #         res = res.square_1()
+    #         if ((exp >> i) & 1) == 1:
+    #             # res = res.mul(self)
+    #             res = F.mul_mod(self)
+    #     return res
     
     @classmethod
     def from_repr(cls, r):

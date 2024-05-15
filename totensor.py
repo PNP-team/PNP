@@ -3,11 +3,11 @@ import torch
 
 def to_tensor(input):
     output = []
-    for j in range(6):
+    for j in range(4):
         output.append( int(input & 0xFFFFFFFFFFFFFFFF) )
         input = input >> 64
-    output=torch.tensor(output,dtype=torch.BLS12_381_Fq_G1_Mont)
+    output=torch.tensor(output,dtype=torch.BLS12_381_Fr_G1_Mont)
     return output
 
-input = 16009638220886669555301211019743182050671919363793336627014255617001491590008206123606004126824334192306356085582506
+input = 13262374693698910701929044844600465831413122818447359594527400194675274060458
 print(to_tensor(input))

@@ -26,7 +26,7 @@ def Multiset_lc(values, challenge):
 def lc(values:list, challenge):
     kth_val = values[-1]
     for val in reversed(values[:-1]):
-        kth_val = F.mul_mod(kth_val, challenge)
+        kth_val = F.mul_mod_scalar(kth_val, challenge)
         kth_val = F.add_mod(kth_val, val)
 
     return kth_val

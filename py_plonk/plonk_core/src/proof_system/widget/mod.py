@@ -12,23 +12,15 @@ class WitnessValues:
     d_val: fr.Fr  # Fourth Value
 
 
-def delta(f:fr.Fr,size):
+def delta(f: torch.Tensor):
     
-    one = torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    two = fr.Fr.from_repr(2)
-    three = fr.Fr.from_repr(3)
-    two = torch.tensor(from_gmpy_list_1(two),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    three = torch.tensor(from_gmpy_list_1(three),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
+    one = fr.Fr.one().value
+    two = fr.Fr.from_repr(2).value
+    three = fr.Fr.from_repr(3).value
 
-    if size ==0 :###mean no need to extend
-        pass
-    else :
-        one =extend_tensor(one,size)
-        two= extend_tensor(two,size)
-        three = extend_tensor(three ,size)
-    f_1 = F.sub_mod(f, one)
-    f_2 = F.sub_mod(f, two)
-    f_3 = F.sub_mod(f, three)
+    f_1 = F.sub_mod_scalar(f, one.to("cuda"))
+    f_2 = F.sub_mod_scalar(f, two.to("cuda"))
+    f_3 = F.sub_mod_scalar(f, three.to("cuda"))
     mid1 = F.mul_mod(f_1, f_2)
     mid2 = F.mul_mod(mid1, f_3)
     res = F.mul_mod(f, mid2)

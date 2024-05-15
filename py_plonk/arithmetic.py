@@ -26,21 +26,6 @@ def transtompz(input:torch.tensor):  ###tensor to gmp
     b=from_list_gmpy_1_fq(b)
     return AffinePointG1(x=a,y=b)
 
-def pow_1(self,exp):
-            
-        def square_1(self):
-            self = F.mul_mod(self)
-            # self = self.mul(self)
-            return self
-        res = self.clone()
-        for i in range(63,-1,-1):
-            #modsquare
-            res = res.square_1()
-            if ((exp >> i) & 1) == 1:
-                # res = res.mul(self)
-                res = F.mul_mod(self)
-        return res
-
 def calculate_execution_time(func):
         def wrapper(*args, **kwargs):
             start_time = time.time()  # 记录函数开始执行的时间
@@ -157,7 +142,7 @@ def from_list_gmpy_1_fq(input:list):
             output = output | j
         return fq.Fq(value = gmpy2.mpz(output))
 
-def domian_trans_tensor(domain_ele):
+def domain_trans_tensor(domain_ele):
         a=copy.deepcopy(domain_ele)
         temp=from_gmpy_list_1(a)
         xx = torch.tensor(temp, dtype=torch.BLS12_381_Fr_G1_Mont)
@@ -172,27 +157,21 @@ def extend_tensor(input:torch.tensor,size):
         res[i] = input
     return res.to('cuda')
 
-ONE = torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-def pow_1(self,exp):
-    res = ONE
-    res =extend_tensor(res ,len(self))
-    for i in range(63,-1,-1):
-        #modsquare
+def pow(self,exp):
+    res = self.clone()
+    for i in range(exp):
         res = F.mul_mod(res,res)
-        if ((exp >> i) & 1) == 1:
-            # res = res.mul(self)
-            res = F.mul_mod(res,self)
     return res
 
-def pow_2(self,exp):
-    res = ONE
-    for i in range(63,-1,-1):
-        #modsquare
-        res = F.mul_mod(res,res)
-        if ((exp >> i) & 1) == 1:
-            # res = res.mul(self)
-            res = F.mul_mod(res,self)
-    return res
+# def pow_2(self,exp):
+#     res = ONE
+#     for i in range(63,-1,-1):
+#         #modsquare
+#         res = F.mul_mod(res,res)
+#         if ((exp >> i) & 1) == 1:
+#             # res = res.mul(self)
+#             res = F.mul_mod(res,self)
+#     return res
 
 def reverse_bits(operand, bit_count):
     acc = 0
@@ -473,19 +452,17 @@ def coset_NTT_new_1(size, coeffs:torch.Tensor):
     return coeffs
 
 
-def coset_NTT_new(domain,coeffs:torch.tensor):
-    
+def coset_NTT_new(n,coeffs:torch.tensor):
     ntt_class = nn.Ntt_coset(32, fr.Fr.Dtype)
-    # coeffs=distribute_powers_new(coeffs, fr.Fr.GENERATOR)
-    resize_coeffs= resize_1(coeffs,domain.size)
+    resize_coeffs= resize_1(coeffs,n)
     coeffs = ntt_class.forward(resize_coeffs)
     return coeffs
 
-def coset_INTT_new(evals:torch.tensor, domain):
+def coset_INTT_new(evals:torch.tensor, size):
 
     #add zero to resize
-    Intt_coset_class = nn.Intt_coset(domain.size, torch.BLS12_381_Fr_G1_Mont)
-    resize_evals = resize_1(evals,domain.size)
+    Intt_coset_class = nn.Intt_coset(size, torch.BLS12_381_Fr_G1_Mont)
+    resize_evals = resize_1(evals,size)
     evals = Intt_coset_class.forward(resize_evals)
     return evals
 
@@ -813,7 +790,7 @@ def compute_first_lagrange_evaluation(
 #     return total
 
 def MSM_new(bases,scalar): #bases POINT scalar SCALAR
-    min_size_1=min(len(bases),len(scalar))
+    min_size_1=min(bases.size(0)//2,scalar.size(0))
     
     if min_size_1==0:### empty msm return zero_point
         res =[[],[],[]]

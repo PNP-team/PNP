@@ -283,45 +283,45 @@ class Permutation:
 # k2 * X + gamma)(d(X) + beta * k3 * X + gamma)z(X) * alpha
 def compute_quotient_identity_range_check_i(
     x,
-    w_l_i: fr.Fr,w_r_i: fr.Fr,w_o_i: fr.Fr,w_4_i: fr.Fr,
-    z_i: fr.Fr,alpha: fr.Fr,beta: fr.Fr,gamma: fr.Fr,size):
+    w_l_i, w_r_i, w_o_i, w_4_i,
+    z_i, alpha, beta ,gamma):
 
-    k1 = K1()
-    k2 = K2()
-    k3 = K3()
+    k1 = K1().value
+    k2 = K2().value
+    k3 = K3().value
 
-    k1= torch.tensor(from_gmpy_list_1(k1),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    k2= torch.tensor(from_gmpy_list_1(k2),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    k3= torch.tensor(from_gmpy_list_1(k3),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-
-    k1= extend_tensor(k1,size)
-    k2= extend_tensor(k2,size)
-    k3= extend_tensor(k3,size)
-
-    mid1_1 = F.mul_mod(beta, x)
-    mid1_2 = F.add_mod(w_l_i, mid1_1)
-    mid1 = F.add_mod(mid1_2, gamma)
-
+    #single scalar OP on CPU
     mid2_1_1 = F.mul_mod(beta, k1)
+    mid3_1_1 = F.mul_mod(beta, k2)
+    mid4_1_1 = F.mul_mod(beta, k3)
+
+    alpha = alpha.to("cuda")
+    beta = beta.to("cuda")
+    gamma = gamma.to("cuda")
+
+    mid1_1 = F.mul_mod_scalar(x, beta)
+    mid1_2 = F.add_mod(w_l_i, mid1_1)
+    mid1 = F.add_mod_scalar(mid1_2, gamma)
+
     mid2_1 = F.mul_mod(mid2_1_1, x)
     mid2_2 = F.add_mod(w_r_i, mid2_1)
-    mid2 = F.add_mod(mid2_2, gamma)
+    mid2 = F.add_mod_scalar(mid2_2, gamma)
 
-    mid3_1_1 = F.mul_mod(beta, k2)
+    
     mid3_1 = F.mul_mod(mid3_1_1, x)
     mid3_2 = F.add_mod(w_o_i, mid3_1)
-    mid3 = F.add_mod(mid3_2, gamma)
+    mid3 = F.add_mod_scalar(mid3_2, gamma)
 
-    mid4_1_1 = F.mul_mod(beta, k3)
+    
     mid4_1 = F.mul_mod(mid4_1_1,x)
     mid4_2 = F.add_mod(w_4_i, mid4_1)
-    mid4 = F.add_mod(mid4_2, gamma)
+    mid4 = F.add_mod_scalar(mid4_2, gamma)
 
     mid5 = F.mul_mod(mid1, mid2)
     mid6 = F.mul_mod(mid5, mid3)
     mid7 = F.mul_mod(mid6, mid4)
     res = F.mul_mod(mid7, z_i)
-    res = F.mul_mod(res, alpha)
+    res = F.mul_mod_scalar(res, alpha)
 
     return res
 
@@ -510,24 +510,20 @@ def compute_lineariser_check_is_one(
     return res
 
 
-def permutation_compute_quotient( 
-            pk_linear_evaluations_evals,
-            pk_left_sigma_evals,
-            pk_right_sigma_evals,
-            pk_out_sigma_evals,
-            pk_fourth_sigma_evals,
-        w_l_i: fr.Fr, w_r_i: fr.Fr, w_o_i: fr.Fr, w_4_i: fr.Fr,
-        z_i: fr.Fr, z_i_next: fr.Fr,
-        alpha: fr.Fr, l1_alpha_sq: fr.Fr,
-        beta: fr.Fr, gamma: fr.Fr):
-        size=len(pk_linear_evaluations_evals)
-
-        alpha=extend_tensor(alpha,size)
-        beta=extend_tensor(beta,size)
-        gamma= extend_tensor(gamma,size)
+def permutation_compute_quotient(
+        size,
+        pk_linear_evaluations_evals,
+        pk_left_sigma_evals,
+        pk_right_sigma_evals,
+        pk_out_sigma_evals,
+        pk_fourth_sigma_evals,
+        w_l_i, w_r_i, w_o_i, w_4_i,
+        z_i, z_i_next,
+        alpha, l1_alpha_sq,
+        beta, gamma):
 
         a = compute_quotient_identity_range_check_i(
-          pk_linear_evaluations_evals, w_l_i, w_r_i, w_o_i, w_4_i, z_i, alpha, beta, gamma,size
+          pk_linear_evaluations_evals, w_l_i, w_r_i, w_o_i, w_4_i, z_i, alpha, beta, gamma, size
         )
         b = compute_quotient_copy_range_check_i(
             pk_left_sigma_evals,

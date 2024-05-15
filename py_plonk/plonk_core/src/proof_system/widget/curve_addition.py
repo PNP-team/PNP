@@ -5,6 +5,7 @@ from .....plonk_core.src.proof_system.widget.mod import WitnessValues
 from .....bls12_381.edwards import EdwardsParameters as P
 from .arithmetic import poly_mul_const
 from .....arithmetic import extend_tensor
+import torch
 import torch.nn.functional as F
 @dataclass
 class CAValues:
@@ -72,8 +73,8 @@ class CAGate:
 
 
     @staticmethod
-    def quotient_term(selector: fr.Fr, separation_challenge: fr.Fr, 
-                      wit_vals: WitnessValues, custom_vals:CAValues,size):
+    def quotient_term(selector: torch.Tensor, separation_challenge: torch.Tensor, 
+                      wit_vals: WitnessValues, custom_vals:CAValues):
         x_1 = wit_vals.a_val
         x_3 = custom_vals.a_next_val
         y_1 = wit_vals.b_val
@@ -82,8 +83,9 @@ class CAGate:
         y_2 = wit_vals.d_val
         x1_y2 = custom_vals.d_next_val
 
-        separation_challenge=extend_tensor(separation_challenge,size)
-        kappa = F.mul_mod(separation_challenge,separation_challenge)
+        #single scalar OP on CPU
+        kappa = F.mul_mod(separation_challenge, separation_challenge)
+        kappasq = F.mul_mod(kappa, kappa)
 
         # Check that `x1 * y2` is correct
         x1y2 = F.mul_mod(x_1, y_2)
@@ -95,29 +97,28 @@ class CAGate:
 
         # Check that `x_3` is correct
         x3_lhs = F.add_mod(x1_y2, y1_x2)
-        x_3_D = F.mul_mod(x_3, extend_tensor(P.COEFF_D,size))
+        x_3_D = F.mul_mod_scalar(x_3, P.COEFF_D.to("cuda"))
         x_3_D_x1_y2 = F.mul_mod(x_3_D, x1_y2)
         x_3_D_x1_y2_y1_x2 = F.mul_mod(x_3_D_x1_y2, y1_x2)
         x3_rhs = F.add_mod(x_3, x_3_D_x1_y2_y1_x2)
         x3_l_sub_r = F.sub_mod(x3_lhs, x3_rhs)
-        x3_consistency = F.mul_mod(x3_l_sub_r, kappa)
+        x3_consistency = F.mul_mod_scalar(x3_l_sub_r, kappa.to("cuda"))
 
         # Check that `y_3` is correct
-        x1_x2_A = F.mul_mod(extend_tensor(P.COEFF_A,size), x1_x2)
+        x1_x2_A = F.mul_mod_scalar(x1_x2, P.COEFF_A.to("cuda"))
         y3_lhs = F.sub_mod(y1_y2, x1_x2_A)
-        y_3_D = F.mul_mod(y_3, extend_tensor(P.COEFF_D,size))
+        y_3_D = F.mul_mod_scalar(y_3, P.COEFF_D.to("cuda"))
         y_3_D_x1_y2 = F.mul_mod(y_3_D, x1_y2)
         y_3_D_x1_y2_y1_x2 = F.mul_mod(y_3_D_x1_y2, y1_x2)
         y3_rhs = F.sub_mod(y_3, y_3_D_x1_y2_y1_x2)
         y3_l_sub_r = F.sub_mod(y3_lhs, y3_rhs)
-        kappa2 = F.mul_mod(kappa,kappa)
-        y3_consistency = F.mul_mod(y3_l_sub_r, kappa2)
+        y3_consistency = F.mul_mod_scalar(y3_l_sub_r, kappasq.to("cuda"))
 
         mid1 = F.add_mod(xy_consistency, x3_consistency)
         mid2 = F.add_mod(mid1, y3_consistency)
-        temp = F.mul_mod(mid2, separation_challenge)
+        temp = F.mul_mod_scalar(mid2, separation_challenge.to("cuda"))
 
-        res = F.mul_mod(selector,temp)
+        res = F.mul_mod(selector, temp)
         return res
     
     @staticmethod

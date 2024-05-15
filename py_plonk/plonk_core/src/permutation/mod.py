@@ -38,19 +38,16 @@ def denominator_irreducible(w, sigma, beta, gamma):
 def lookup_ratio(one ,delta, epsilon, f, t, t_next,
                 h_1, h_1_next, h_2):
    
-    one_plus_delta=F.add_mod(delta,one)
-    epsilon_one_plus_delta =F.mul_mod(epsilon,one_plus_delta)
-
+    one_plus_delta = F.add_mod(delta,one)
+    epsilon_one_plus_delta = F.mul_mod(epsilon,one_plus_delta)
     
-    mid1= F.add_mod(epsilon,f)
-    mid2= F.add_mod(epsilon_one_plus_delta,t)
-    mid3= F.mul_mod(delta,t_next)
-    mid4= F.add_mod(mid2,mid3)
-    mid4= F.add_mod(mid2,mid3)
-    mid5= F.mul_mod(one_plus_delta,mid1)
-    result= F.mul_mod(mid4,mid5)
+    mid1 = F.add_mod(epsilon,f)
+    mid2 = F.add_mod(epsilon_one_plus_delta,t)
+    mid3 = F.mul_mod(delta,t_next)
+    mid4 = F.add_mod(mid2,mid3)
+    mid5 = F.mul_mod(one_plus_delta,mid1)
+    result = F.mul_mod(mid4,mid5)
 
-  
     mid6 = F.mul_mod(h_2,delta)
     mid7 = F.add_mod(epsilon_one_plus_delta,h_1)
     mid8 = F.add_mod(mid6,mid7)
@@ -61,7 +58,6 @@ def lookup_ratio(one ,delta, epsilon, f, t, t_next,
     # multielement on cuda
     mid12 = F.div_mod(one,mid12)
     result= F.mul_mod(result,mid12)
-
 
     return result
 
@@ -139,9 +135,9 @@ def compute_permutation_poly(domain, wires, beta, gamma, sigma_polys: torch.Tens
     for s in gate_coefficient:
         state = F.mul_mod(state, s)
         z = torch.cat((z, state))
-
+    z = z.reshape(-1, fr.Fr.Limbs)   
     # Remove the last(n+1'th) element
-    z = z[:-4] 
+    z = z[:-1] 
 
     #Compute z poly
     z_poly = INTT_new(n,z)
@@ -150,44 +146,37 @@ def compute_permutation_poly(domain, wires, beta, gamma, sigma_polys: torch.Tens
 
 @calculate_execution_time
 # Define a Python function that mirrors the Rust function
-def compute_lookup_permutation_poly(domain, f, t, h_1:torch.Tensor, h_2, delta, epsilon):  ####输出为Tensor
-    n = domain.size
+def compute_lookup_permutation_poly(n, f, t, h_1, h_2, delta, epsilon):  ####输出为Tensor
+    assert f.size(0) == n
+    assert t.size(0) == n
+    assert h_1.size(0) == n
+    assert h_2.size(0) == n
 
-    assert len(f) == n
-    assert len(t) == n
-    assert len(h_1) == n
-    assert len(h_2) == n
-    t_next = torch.zeros(n,4,dtype=torch.BLS12_381_Fr_G1_Mont)
-    t_next[:n-1]=t[1:]
-    t_next[n-1:n]=t[0]
+    t_next = torch.zeros(n, 4, dtype=torch.BLS12_381_Fr_G1_Mont)
+    t_next[:n-1] = t[1:].clone()
+    t_next[-1] = t[0].clone()
 
-    h_1_next = torch.zeros(n,4,dtype=torch.BLS12_381_Fr_G1_Mont)
-    h_1_next[:n-1]=h_1[1:]
-    h_1_next[n-1:n]=h_1[0]
+    h_1_next = torch.zeros(n, 4, dtype=torch.BLS12_381_Fr_G1_Mont)
+    h_1_next[:n-1] = h_1[1:].clone()
+    h_1_next[-1] = h_1[0].clone()
 
-    product_arguments = []
-    one=torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    delta=torch.tensor(from_gmpy_list_1(delta),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    epsilon=torch.tensor(from_gmpy_list_1(epsilon),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    size= len(f)
-    one=extend_tensor(one,size)
-    delta= extend_tensor(delta,size)
-    epsilon =extend_tensor(epsilon,size)
+    one = fr.Fr.one().value
+    extend_one = one.repeat(n,1)
+    extend_delta = delta.repeat(n,1)
+    extend_epsilon = epsilon.repeat(n,1)
 
-    product_arguments=lookup_ratio(one ,delta, epsilon, f.to('cuda'), t.to('cuda'), t_next.to('cuda'), h_1, h_1_next.to('cuda'), h_2)
+    product_arguments = lookup_ratio(extend_one.to("cuda") ,extend_delta.to("cuda"), extend_epsilon.to("cuda"), f.to('cuda'), t.to('cuda'), t_next.to('cuda'), h_1, h_1_next.to('cuda'), h_2)
 
-    state=torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    p = torch.zeros(n,4,dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    p[0]=state
-    i=1
+    state = one.clone().to("cuda")
+    p = torch.tensor([], dtype = fr.Fr.Dtype).to('cuda')
+    p = torch.cat((p,state))
     for s in product_arguments:
-        if i==n:
-            break
         state = F.mul_mod(state,s)
-        p[i]=state
-        i+=1
+        p = torch.cat((p,state))
+    p = p.reshape(-1, fr.Fr.Limbs)
+    p = p[:-1]
 
-    p_poly=INTT_new(domain,p.to('cuda'))
+    p_poly = INTT_new(n, p)
     p_poly = from_coeff_vec(p_poly)
     
     return p_poly

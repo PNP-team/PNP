@@ -39,9 +39,9 @@ class AffinePointG1:
             neg_y = self.y.neg()
             a = self.y.into_repr()
             b = neg_y.into_repr()
-            a0 = a[0].tolist()
-            b0 = b[0].tolist()
-            flag = flags.SWFlags.from_y_sign(a0>b0) #a > b
+            a_most_sig = a[-1].tolist()
+            b_most_sig = b[-1].tolist()
+            flag = flags.SWFlags.from_y_sign(a_most_sig > b_most_sig) #a > b
             writer = self.x.serialize_with_flags(writer, flag)
             return writer
 @dataclass

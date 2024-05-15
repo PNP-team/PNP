@@ -226,20 +226,20 @@ class gen_proof:
         # Compute mega permutation polynomial.
         # Compute lookup permutation poly
         z_2_poly = mod.compute_lookup_permutation_poly(
-            domain,
+            n,
             compressed_f_multiset.elements,
             compressed_t_multiset.elements,
             h_1,
             h_2,
-            delta,
-            epsilon
+            delta.value,
+            epsilon.value
         )
         # Commit to lookup permutation polynomial.
         z_2_polys = [kzg10.LabeledPoly.new(label="z_2_poly",hiding_bound=None,poly=z_2_poly)]
         z_2_poly_commit,_ = kzg10.commit_poly_new(pp,z_2_polys)
 
         # 3. Compute public inputs polynomial
-        cs_public_inputs=torch.tensor(cs.public_inputs)
+        cs_public_inputs = torch.tensor(cs.public_inputs, dtype = fr.Fr.Dtype)
         pi_poly = into_dense_poly(cs_public_inputs,int(cs.intended_pi_pos),n)
 
 
@@ -265,16 +265,16 @@ class gen_proof:
 
         
         t_poly = quotient_poly.compute_quotient_poly(
-            domain,pk,
-            z_poly,z_2_poly,
-            w_l_poly,w_r_poly,w_o_poly,w_4_poly,
+            n,pk,
+            z_poly, z_2_poly,
+            w_l_poly, w_r_poly, w_o_poly, w_4_poly,
             pi_poly,
-            f_poly,table_poly,h_1_poly,h_2_poly,
-            alpha,beta,gamma,delta,epsilon,zeta,
-            range_sep_challenge,logic_sep_challenge,
-            fixed_base_sep_challenge,
-            var_base_sep_challenge,
-            lookup_sep_challenge)
+            f_poly, table_poly, h_1_poly, h_2_poly,
+            alpha.value, beta.value, gamma.value, delta.value, epsilon.value, zeta.value,
+            range_sep_challenge.value, logic_sep_challenge.value,
+            fixed_base_sep_challenge.value,
+            var_base_sep_challenge.value,
+            lookup_sep_challenge.value)
         
         t_i_poly = split_tx_poly(n, t_poly)
 
