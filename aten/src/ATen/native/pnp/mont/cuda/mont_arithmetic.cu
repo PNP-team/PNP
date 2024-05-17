@@ -11,6 +11,11 @@
 
 #pragma clang diagnostic ignored "-Wmissing-prototypes"
 
+#define BLOCK_SIZE (512)
+#define MAX_NUM_BLOCKS (BLOCK_SIZE)
+
+
+
 #define BIN_KERNEL(name, op)                           \
   template <typename T>                                \
   __global__ void mont_##name##_mod_kernel(            \
@@ -193,7 +198,7 @@ __global__ void inv_mod_kernel_(const int64_t N, T* data) {
 }
 
 template <typename T>
-__global__ void poly_eval_kernel(const int64_t N, T* x, T* data) {
+__global__ void poly_eval_kernel(const int64_t N, const T* x, T* data) {
   int64_t tid = blockIdx.x * blockDim.x + threadIdx.x;
   if (tid == 0) {
     data[tid] = T::one();
@@ -201,6 +206,48 @@ __global__ void poly_eval_kernel(const int64_t N, T* x, T* data) {
     data[tid] = *x;
   } else if (tid < N) {
     data[tid] = (*x) ^ tid;
+  }
+}
+
+template <typename T>
+__global__ void poly_reduce_kernel_first(const int64_t N, const T* x, const T* coff, T* temp) {
+  int64_t tid = blockIdx.x * BLOCK_SIZE + threadIdx.x;
+  T sum;
+  sum.zero();
+  for(size_t i = tid; i < N; i += BLOCK_SIZE * gridDim.x) {
+    sum += x[i] * coff[i];
+  }
+  __shared__ T shared_sum[BLOCK_SIZE];
+  shared_sum[threadIdx.x] = sum;
+  __syncthreads();
+
+  for (int i = BLOCK_SIZE / 2; i > 0; i >>= 1) {
+    if (threadIdx.x < i) {
+      shared_sum[threadIdx.x] += shared_sum[threadIdx.x + i];
+    }
+    __syncthreads();
+  }
+  if (threadIdx.x == 0) {
+    temp[blockIdx.x] = shared_sum[0];
+  }
+}
+
+template <typename T>
+__global__ void poly_reduce_kernel_second(const int64_t N, const T* temp, T* y) {
+  int64_t tid = threadIdx.x;
+  __shared__ T shared_sum[BLOCK_SIZE];
+  if(tid < N) {
+    shared_sum[threadIdx.x] = temp[tid];
+  }
+  __syncthreads();
+  for (int i = blockDim.x / 2; i > 0; i >>= 1) {
+    if (threadIdx.x < i) {
+      shared_sum[threadIdx.x] += shared_sum[threadIdx.x + i];
+    }
+    __syncthreads();
+  }
+  if (threadIdx.x == 0) {
+    y[0] = shared_sum[0];
   }
 }
 
@@ -289,6 +336,33 @@ static void poly_eval_cuda_template(const Tensor& x, Tensor& poly) {
   });
 }
 
+static void poly_reduce_cuda_template(const Tensor& x, const Tensor& coff, Tensor& y) {
+  AT_DISPATCH_MONT_TYPES(x.scalar_type(), "poly_reduce_cuda", [&] {
+    auto x_ptr = reinterpret_cast<scalar_t::compute_type*>(
+        x.mutable_data_ptr<scalar_t>());
+    auto coff_ptr = reinterpret_cast<scalar_t::compute_type*>(
+        coff.mutable_data_ptr<scalar_t>());
+    auto y_ptr = reinterpret_cast<scalar_t::compute_type*>(
+        y.mutable_data_ptr<scalar_t>());
+    int64_t N = x.numel() / num_uint64(x.scalar_type());
+    TORCH_INTERNAL_ASSERT(N > 0 && N <= std::numeric_limits<int32_t>::max());
+    int64_t grid = (N + BLOCK_SIZE - 1) / BLOCK_SIZE;
+    if(N > (BLOCK_SIZE * MAX_NUM_BLOCKS)) {
+      grid = MAX_NUM_BLOCKS;
+    }
+    auto temp = at::empty(
+      {grid, num_uint64(x.scalar_type())}, x.scalar_type(), x.layout(), x.device(),
+      c10::nullopt, c10::nullopt);
+    auto temp_ptr = reinterpret_cast<scalar_t::compute_type*>(
+        temp.mutable_data_ptr<scalar_t>());
+    auto stream = at::cuda::getCurrentCUDAStream();
+    poly_reduce_kernel_first<<<grid, BLOCK_SIZE, 0, stream>>>(
+        N, x_ptr, coff_ptr, temp_ptr);
+    poly_reduce_kernel_second<<<1, grid, 0, stream>>>(grid, temp_ptr, y_ptr);
+    C10_CUDA_KERNEL_LAUNCH_CHECK();
+  });
+}
+
 BIN_OP_TEMPLATE(add);
 BIN_OP_TEMPLATE(sub);
 BIN_OP_TEMPLATE(mul);
@@ -355,6 +429,18 @@ Tensor poly_eval_cuda(const Tensor& x, int64_t N) {
       c10::nullopt);
   poly_eval_cuda_template(x, poly);
   return poly;
+}
+
+Tensor poly_reduce_cuda(const Tensor& x, const Tensor& coff) {
+  auto y = at::empty(
+      {num_uint64(x.scalar_type())},
+      x.scalar_type(),
+      x.layout(),
+      x.device(),
+      c10::nullopt,
+      c10::nullopt);
+  poly_reduce_cuda_template(x, coff, y);
+  return y;
 }
 
 BIN_OP(add);

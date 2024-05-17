@@ -15464,6 +15464,11 @@
   dispatch:
     CUDA: poly_eval_cuda
 
+- func: poly_reduce(Tensor x, Tensor coff) -> Tensor
+  device_check: NoCheck
+  dispatch:
+    CUDA: poly_reduce_cuda
+
 - func: params_zkp(int domain_size, bool is_intt, *, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor
   device_check: NoCheck
   dispatch:
