@@ -5,9 +5,7 @@ import copy
 import math
 import torch
 import torch.nn.functional as F
-from ....arithmetic import from_coeff_vec,\
-                        from_gmpy_list,from_list_tensor,from_gmpy_list_1,domian_trans_tensor,calculate_execution_time,\
-                        INTT_new,NTT_new
+from ....arithmetic import from_coeff_vec, calculate_execution_time,INTT,NTT
 
 import torch.nn as nn
 def extend_tensor(input:torch.tensor,size):
@@ -73,10 +71,10 @@ def compute_permutation_poly(domain, wires, beta, gamma, sigma_polys: torch.Tens
     ks[2] = constants.K2().value
     ks[3] = constants.K3().value
     sigma_mappings = [[],[],[],[]]
-    sigma_mappings[0] = NTT_new(n, sigma_polys[0].to("cuda"))
-    sigma_mappings[1] = NTT_new(n, sigma_polys[1].to("cuda"))
-    sigma_mappings[2] = NTT_new(n, sigma_polys[2].to("cuda"))
-    sigma_mappings[3] = NTT_new(n, sigma_polys[3].to("cuda"))
+    sigma_mappings[0] = NTT(n, sigma_polys[0].to("cuda"))
+    sigma_mappings[1] = NTT(n, sigma_polys[1].to("cuda"))
+    sigma_mappings[2] = NTT(n, sigma_polys[2].to("cuda"))
+    sigma_mappings[3] = NTT(n, sigma_polys[3].to("cuda"))
 
 
     # Transpose wires and sigma values to get "rows" in the form [wl_i,
@@ -140,7 +138,7 @@ def compute_permutation_poly(domain, wires, beta, gamma, sigma_polys: torch.Tens
     z = z[:-1] 
 
     #Compute z poly
-    z_poly = INTT_new(n,z)
+    z_poly = INTT(n,z)
     z_poly = from_coeff_vec(z_poly)
     return z_poly
 
@@ -176,7 +174,7 @@ def compute_lookup_permutation_poly(n, f, t, h_1, h_2, delta, epsilon):  ####输
     p = p.reshape(-1, fr.Fr.Limbs)
     p = p[:-1]
 
-    p_poly = INTT_new(n, p)
+    p_poly = INTT(n, p)
     p_poly = from_coeff_vec(p_poly)
     
     return p_poly

@@ -303,17 +303,15 @@ def compute_quotient_identity_range_check_i(
     mid1_2 = F.add_mod(w_l_i, mid1_1)
     mid1 = F.add_mod_scalar(mid1_2, gamma)
 
-    mid2_1 = F.mul_mod(mid2_1_1, x)
+    mid2_1 = F.mul_mod_scalar(x, mid2_1_1.to("cuda"))
     mid2_2 = F.add_mod(w_r_i, mid2_1)
     mid2 = F.add_mod_scalar(mid2_2, gamma)
 
-    
-    mid3_1 = F.mul_mod(mid3_1_1, x)
+    mid3_1 = F.mul_mod_scalar(x, mid3_1_1.to("cuda"))
     mid3_2 = F.add_mod(w_o_i, mid3_1)
     mid3 = F.add_mod_scalar(mid3_2, gamma)
 
-    
-    mid4_1 = F.mul_mod(mid4_1_1,x)
+    mid4_1 = F.mul_mod_scalar(x, mid4_1_1.to("cuda"))
     mid4_2 = F.add_mod(w_4_i, mid4_1)
     mid4 = F.add_mod_scalar(mid4_2, gamma)
 
@@ -322,7 +320,6 @@ def compute_quotient_identity_range_check_i(
     mid7 = F.mul_mod(mid6, mid4)
     res = F.mul_mod(mid7, z_i)
     res = F.mul_mod_scalar(res, alpha)
-
     return res
 
 # Computes the following:
@@ -330,52 +327,56 @@ def compute_quotient_identity_range_check_i(
 # + beta * Sigma3(X) + gamma)(d(X) + beta * Sigma4(X) + gamma) Z(X.omega) *
 # alpha
 def compute_quotient_copy_range_check_i(
+    size,
     pk_left_sigma_evals,
     pk_right_sigma_evals,
     pk_out_sigma_evals,
     pk_fourth_sigma_evals,
-    w_l_i: fr.Fr,
-    w_r_i: fr.Fr,
-    w_o_i: fr.Fr,
-    w_4_i: fr.Fr,
-    z_i_next: fr.Fr,
-    alpha: fr.Fr,
-    beta: fr.Fr,
-    gamma: fr.Fr,
+    w_l_i,
+    w_r_i,
+    w_o_i,
+    w_4_i,
+    z_i_next,
+    alpha,
+    beta,
+    gamma,
 ):
-    
-    mid1_1 = F.mul_mod(beta, pk_left_sigma_evals)
+    alpha = alpha.to("cuda")
+    beta = beta.to("cuda")
+    gamma = gamma.to("cuda")
+
+    mid1_1 = F.mul_mod_scalar(pk_left_sigma_evals, beta)
     mid1_2 = F.add_mod(w_l_i, mid1_1)
-    mid1 = F.add_mod(mid1_2, gamma)
+    mid1 = F.add_mod_scalar(mid1_2, gamma)
 
-    mid2_1 = F.mul_mod(beta, pk_right_sigma_evals)
+    mid2_1 = F.mul_mod_scalar(pk_right_sigma_evals, beta)
     mid2_2 = F.add_mod(w_r_i, mid2_1)
-    mid2 = F.add_mod(mid2_2, gamma)
+    mid2 = F.add_mod_scalar(mid2_2, gamma)
 
-    mid3_1 = F.mul_mod(beta, pk_out_sigma_evals)
+    mid3_1 = F.mul_mod_scalar(pk_out_sigma_evals, beta)
     mid3_2 = F.add_mod(w_o_i, mid3_1)
-    mid3 = F.add_mod(mid3_2, gamma)
+    mid3 = F.add_mod_scalar(mid3_2, gamma)
 
-    mid4_1 = F.mul_mod(beta, pk_fourth_sigma_evals)
+    mid4_1 = F.mul_mod_scalar(pk_fourth_sigma_evals, beta)
     mid4_2 = F.add_mod(w_4_i, mid4_1)
-    mid4 = F.add_mod(mid4_2, gamma)
+    mid4 = F.add_mod_scalar(mid4_2, gamma)
 
     mid5 = F.mul_mod(mid1, mid2)
     mid5 = F.mul_mod(mid5, mid3)
     mid5 = F.mul_mod(mid5, mid4)
     mid5 = F.mul_mod(mid5, z_i_next)
-    product = F.mul_mod(mid5, alpha)         
-    res = neg_extend(product,len(product))
+    product = F.mul_mod_scalar(mid5, alpha)    
+
+    extend_mod = fr.Fr.MODULUS.repeat(size, 1)     
+    res = F.sub_mod(extend_mod.to("cuda"), product)
     return res
 
 # Computes the following:
 # L_1(X)[Z(X) - 1]
-def compute_quotient_term_check_one_i(z_i, l1_alpha_sq,size):
-    one = torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    one =extend_tensor(one,size)
-    z_i_sub_one = F.sub_mod(z_i, one)
+def compute_quotient_term_check_one_i(z_i, l1_alpha_sq):
+    one = fr.Fr.one().value
+    z_i_sub_one = F.sub_mod_scalar(z_i, one.to("cuda"))
     res = F.mul_mod(z_i_sub_one, l1_alpha_sq)
-
     return res
 
 # Computes the permutation term of the linearisation polynomial.
@@ -523,15 +524,16 @@ def permutation_compute_quotient(
         beta, gamma):
 
         a = compute_quotient_identity_range_check_i(
-          pk_linear_evaluations_evals, w_l_i, w_r_i, w_o_i, w_4_i, z_i, alpha, beta, gamma, size
+          pk_linear_evaluations_evals, w_l_i, w_r_i, w_o_i, w_4_i, z_i, alpha, beta, gamma
         )
         b = compute_quotient_copy_range_check_i(
+            size,
             pk_left_sigma_evals,
             pk_right_sigma_evals,
             pk_out_sigma_evals,
             pk_fourth_sigma_evals,  w_l_i, w_r_i, w_o_i, w_4_i, z_i_next, alpha, beta, gamma,
         )
-        c = compute_quotient_term_check_one_i(z_i, l1_alpha_sq,size)
+        c = compute_quotient_term_check_one_i(z_i, l1_alpha_sq)
 
         res =F.add_mod(a,b)
         res= F.add_mod(res,c)

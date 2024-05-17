@@ -235,46 +235,57 @@ def compute_quotient_i(
         # q_lookup(X) * (a(X) + zeta * b(X) + (zeta^2 * c(X)) + (zeta^3 * d(X) - f(X))) * α_1
 
         one = fr.Fr.one().value
-        extend_one = one.repeat(size,1)
+        extend_mod = fr.Fr.MODULUS.repeat(size,1)
+
         #single scalar OP on CPU
         lookup_sep_sq = F.mul_mod(lookup_sep, lookup_sep)  # Calculate the square of lookup_sep
         lookup_sep_cu = F.mul_mod(lookup_sep_sq, lookup_sep)  # Calculate the cube of lookup_sep
         one_plus_delta = F.add_mod(delta, one)  # Calculate (1 + δ)
         epsilon_one_plus_delta = F.mul_mod(epsilon, one_plus_delta)  # Calculate ε * (1 + δ)
 
+        epsilon = epsilon.to("cuda")
+        delta = delta.to("cuda")
+        zeta = zeta.to("cuda")
+        lookup_sep = lookup_sep.to("cuda")
+        lookup_sep_sq = lookup_sep_sq.to("cuda")
+        lookup_sep_cu = lookup_sep_cu.to("cuda")
+        one_plus_delta = one_plus_delta.to("cuda")
+        epsilon_one_plus_delta = epsilon_one_plus_delta.to("cuda")
+        extend_mod = extend_mod.to("cuda")
+
         # Calculate q_lookup_i * (compressed_tuple - f_i)
         q_lookup_i = proverkey_q_lookup
-        compressed_tuple = lc([w_l_i, w_r_i, w_o_i, w_4_i], zeta.to("cuda"))
+        compressed_tuple = lc([w_l_i, w_r_i, w_o_i, w_4_i], zeta)
         mid1 = F.sub_mod(compressed_tuple,f_i)
         mid2 = F.mul_mod(q_lookup_i, mid1)
-        a = F.mul_mod_scalar(mid2, lookup_sep.to("cuda"))
+        a = F.mul_mod_scalar(mid2, lookup_sep)
 
         # Calculate z2(X) * (1+δ) * (ε+f(X)) * (ε*(1+δ) + t(X) + δt(Xω)) * lookup_sep^2
-        b_0 = F.add_mod_scalar(f_i, epsilon.to("cuda"))
-        b_1_1 = F.add_mod_scalar(table_i, epsilon_one_plus_delta.to("cuda"))
-        b_1_2 = F.mul_mod_scalar(table_i_next, delta.to("cuda"))
+        b_0 = F.add_mod_scalar(f_i, epsilon)
+        b_1_1 = F.add_mod_scalar(table_i, epsilon_one_plus_delta)
+        b_1_2 = F.mul_mod_scalar(table_i_next, delta)
         b_1 = F.add_mod(b_1_1, b_1_2)
-        mid1 = F.mul_mod_scalar(z2_i, one_plus_delta.to("cuda"))
+        mid1 = F.mul_mod_scalar(z2_i, one_plus_delta)
         mid2 = F.mul_mod(mid1, b_0)
         mid3 = F.mul_mod(mid2, b_1)
-        b = F.mul_mod_scalar(mid3, lookup_sep_sq.to("cuda"))
+        b = F.mul_mod_scalar(mid3, lookup_sep_sq)
 
         # Calculate -z2(Xω) * (ε*(1+δ) + h1(X) + δ*h2(X)) * (ε*(1+δ) + h2(X) + δ*h1(Xω)) * lookup_sep^2
-        c_0_1 = F.add_mod_scalar(h1_i, epsilon_one_plus_delta.to("cuda"))
+        c_0_1 = F.add_mod_scalar(h1_i, epsilon_one_plus_delta)
         c_0_2 = F.mul_mod_scalar(h2_i, delta)
         c_0 = F.add_mod(c_0_1, c_0_2)
-        c_1_1 = F.add_mod_scalar(h2_i, epsilon_one_plus_delta.to("cuda"))
-        c_1_2 = F.mul_mod_scalar(h1_i_next, delta.to("cuda"))
+        c_1_1 = F.add_mod_scalar(h2_i, epsilon_one_plus_delta)
+        c_1_2 = F.mul_mod_scalar(h1_i_next, delta)
         c_1 = F.add_mod(c_1_1, c_1_2)
-        neg_z2_next = F.sub_mod(extend_one.to("cuda"), z2_i_next)
+        neg_z2_next = F.sub_mod(extend_mod, z2_i_next)
         # neg_z2_next = neg_extend(z2_i_next, size) ???
         mid1 = F.mul_mod(neg_z2_next, c_0)
         mid2 = F.mul_mod(mid1, c_1)
-        c = F.mul_mod_scalar(mid2, lookup_sep_sq.to("cuda"))
+        c = F.mul_mod_scalar(mid2, lookup_sep_sq)
 
         # Calculate z2(X) - 1 * l1(X) * lookup_sep^3
-        d_1 = F.sub_mod(z2_i, extend_one.to("cuda"))
-        d_2 = F.mul_mod_scalar(l1_i, lookup_sep_cu.to("cuda"))
+        d_1 = F.sub_mod_scalar(z2_i, one)
+        d_2 = F.mul_mod_scalar(l1_i, lookup_sep_cu)
         d = F.mul_mod(d_1, d_2)
 
         # Calculate a(X) + b(X) + c(X) + d(X)
@@ -367,14 +378,9 @@ def compute_lookup_quotient_term(
     pk_lookup_qlookup_evals):
 
     domain_8n:Radix2EvaluationDomain = Radix2EvaluationDomain.new(8 * n)
-
-    delta=torch.tensor(from_gmpy_list_1(delta),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    epsilon=torch.tensor(from_gmpy_list_1(epsilon),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    zeta=torch.tensor(from_gmpy_list_1(zeta),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
     size= domain_8n.size
   
     # Calculate lookup quotient term for each index
- 
     quotient = compute_quotient_i(
         wl_eval_8n[:size],
         wr_eval_8n[:size],

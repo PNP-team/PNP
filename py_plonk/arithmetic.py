@@ -158,9 +158,10 @@ def extend_tensor(input:torch.tensor,size):
     return res.to('cuda')
 
 def pow(self,exp):
-    res = self.clone()
-    for i in range(exp):
-        res = F.mul_mod(res,res)
+    one = fr.Fr.one().value.to("cuda")
+    res = F.mul_mod_scalar(self, one)
+    for i in range(exp - 1):
+        res = F.mul_mod(res, self)
     return res
 
 # def pow_2(self,exp):
@@ -285,10 +286,17 @@ def operator(domain:Radix2EvaluationDomain, xi:list[fr.Fr], root:fr.Fr):
 #         res.extend([padding for _ in range(num_to_pad)])
 #     return res
 
-def resize_1(self: torch.Tensor, target_len):
+def resize_gpu(self: torch.Tensor, target_len):
     res = self.clone()
     if res.size(0) < target_len:
         padding = torch.zeros((target_len - res.size(0), fr.Fr.Limbs), dtype = fr.Fr.Dtype).to("cuda")
+        res = torch.cat((res, padding))
+    return res
+
+def resize_cpu(self: torch.Tensor, target_len):
+    res = self.clone()
+    if res.size(0) < target_len:
+        padding = torch.zeros((target_len - res.size(0), fr.Fr.Limbs), dtype = fr.Fr.Dtype)
         res = torch.cat((res, padding))
     return res
 
@@ -354,7 +362,7 @@ def NTT_1(domain,coeffs:torch.Tensor):
 
     # zero = fr.Fr.zero()
     #add zero to resize
-    resize_coeffs_value = resize(coeffs,domain.size)
+    resize_coeffs_value = resize_gpu(coeffs,domain.size)
     # resize_coeffs_value=from_tensor_list(resize_coeffs_value)
     evals = operator(domain,resize_coeffs_value,domain.group_gen)
 
@@ -369,7 +377,7 @@ def NTT(domain,coeffs:torch.Tensor):
 
     zero = fr.Fr.zero()
     #add zero to resize
-    resize_coeffs_value = resize(coeffs_value,domain.size,zero)
+    resize_coeffs_value = resize_gpu(coeffs_value,domain.size,zero)
     # from_gmpy_list(resize_coeffs_value)
     evals = operator(domain,resize_coeffs_value,domain.group_gen)
 
@@ -388,7 +396,7 @@ def INTT_1(domain,evals:torch.Tensor):
     a=evals.clone()
     a=from_tensor_list(a)
     from_list_gmpy(a)
-    resize_value = resize(evals,domain.size)
+    resize_value = resize_gpu(evals,domain.size)
 
     evals = operator(domain,resize_value,domain.group_gen_inv)
     for i in range(len(evals)):
@@ -403,9 +411,9 @@ def INTT(domain,evals:torch.Tensor):
 
     #add zero to resize
     zero = fr.Fr.zero()
-    resize_value = resize(temp,domain.size,zero)
+    resize_evals = resize_gpu(temp,domain.size,zero)
     # a=from_gmpy_list_1(domain.size_inv)
-    temp = operator(domain,resize_value,domain.group_gen_inv)
+    temp = operator(domain,resize_evals,domain.group_gen_inv)
     temp1=copy.deepcopy(temp)
     for i in range(len(temp)):
         temp[i] = temp[i].mul(domain.size_inv)
@@ -429,42 +437,31 @@ def distribute_powers_and_mul_by_const_new(coeffs, g, c):
         pow= F.mul_mod(pow,g)
     return coeffs
 
-def INTT_new(size, evals: torch.Tensor):
-    inttclass = nn.Intt(32, fr.Fr.Dtype)
-    evals_resize = resize_1(evals, size)
-    if evals_resize.device =='cuda':
-        pass
-    else:
-       evals_resize.to('cuda')
+def INTT(size, evals: torch.Tensor):
+    inttclass = nn.Intt(fr.Fr.TWO_ADICITY, fr.Fr.Dtype)
+    evals_resize = resize_gpu(evals, size)
     res = inttclass.forward(evals_resize)
     return res
 
-def NTT_new(size, evals:torch.Tensor):
-    nttclass = nn.Ntt(32, fr.Fr.Dtype)
-    evals_resize=resize_1(evals,size)
+def NTT(size, evals:torch.Tensor):
+    nttclass = nn.Ntt(fr.Fr.TWO_ADICITY, fr.Fr.Dtype)
+    evals_resize=resize_gpu(evals,size)
     res= nttclass.forward(evals_resize)
     return res
 
-def coset_NTT_new_1(size, coeffs:torch.Tensor):
-    ntt_coset_class = nn.Ntt_coset(size, fr.Fr.Dtype)
-    resize_coeffs= resize_1(coeffs, size)
-    coeffs = ntt_coset_class.forward(resize_coeffs)
-    return coeffs
-
-
-def coset_NTT_new(n,coeffs:torch.tensor):
-    ntt_class = nn.Ntt_coset(32, fr.Fr.Dtype)
-    resize_coeffs= resize_1(coeffs,n)
-    coeffs = ntt_class.forward(resize_coeffs)
-    return coeffs
-
-def coset_INTT_new(evals:torch.tensor, size):
-
-    #add zero to resize
-    Intt_coset_class = nn.Intt_coset(size, torch.BLS12_381_Fr_G1_Mont)
-    resize_evals = resize_1(evals,size)
-    evals = Intt_coset_class.forward(resize_evals)
+def coset_NTT(size, coeffs:torch.Tensor):
+    ntt_coset_class = nn.Ntt_coset(fr.Fr.TWO_ADICITY, fr.Fr.Dtype)
+    resize_coeffs= resize_gpu(coeffs, size)
+    evals = ntt_coset_class.forward(resize_coeffs)
     return evals
+
+
+def coset_INTT(size, evals:torch.tensor):
+    ntt_class = nn.Intt_coset(fr.Fr.TWO_ADICITY, fr.Fr.Dtype)
+    resize_evals= resize_gpu(evals, size)
+    coeffs = ntt_class.forward(resize_evals)
+    return coeffs
+
 
 # Compute a NTT over a coset of the domain, modifying the input vector in place.
 # def coset_NTT(coeffs:torch.tensor, domain):

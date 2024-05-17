@@ -132,10 +132,11 @@ def compute_linearisation_poly(
     table_poly: torch.tensor
     ):
     n = domain.size
-    omega = domain.group_gen
+    omega = domain.group_gen.value
     domain_permutation = Radix2EvaluationDomain.new(n)
-    z_challenge =torch.tensor(from_gmpy_list_1(z_challenge),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    omega =torch.tensor(from_gmpy_list_1(omega),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
+    #single scalar OP on CPU
+    shifted_z_challenge = F.mul_mod(z_challenge, omega)
+
     w_l_poly = w_l_poly.to('cuda')
     w_r_poly = w_r_poly.to('cuda')
     w_o_poly = w_o_poly.to('cuda')
@@ -154,10 +155,8 @@ def compute_linearisation_poly(
     h1_poly = h1_poly.to('cuda')
     h2_poly = h2_poly.to('cuda')
     table_poly = table_poly.to('cuda')
-
-    shifted_z_challenge = F.mul_mod(z_challenge, omega)
-    z_challenge=z_challenge.to('cpu')
-    shifted_z_challenge.to("cpu")
+    z_challenge = z_challenge.to('cuda')
+    shifted_z_challenge = shifted_z_challenge.to('cuda')
     # Wire evaluations
     a_eval = evaluate(w_l_poly, z_challenge)
     b_eval = evaluate(w_r_poly, z_challenge)
@@ -374,7 +373,7 @@ def compute_gate_constraint_satisfiability(
         c_val = wire_evals.c_eval,
         d_val = wire_evals.d_eval)
 
-    arithmetic =compute_linearisation_arithmetic(
+    arithmetic = compute_linearisation_arithmetic(
         wire_evals.a_eval,
         wire_evals.b_eval,
         wire_evals.c_eval,
@@ -395,7 +394,7 @@ def compute_gate_constraint_satisfiability(
         RangeValues.from_evaluations(custom_evals),
     )
 
-    logic_separation_challenge=torch.tensor(from_gmpy_list_1(logic_separation_challenge),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
+    logic_separation_challenge = torch.tensor(from_gmpy_list_1(logic_separation_challenge),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
     pk_logic_selector=prover_key['logic_selector'].tolist()
     pk_logic_selector['coeffs']=torch.tensor(pk_logic_selector['coeffs'],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
     logic = LogicGate.linearisation_term(

@@ -4,15 +4,14 @@ import torch
 import copy
 import torch.nn.functional as F
 from ....bls12_381 import fr
-from ....arithmetic import from_coeff_vec,coset_NTT_new
+from ....arithmetic import from_coeff_vec,coset_NTT
 from ....plonk_core.src.proof_system.widget.mod import WitnessValues
 from ....plonk_core.src.proof_system.widget.range import RangeGate,RangeValues
 from ....plonk_core.src.proof_system.widget.logic import LogicGate,LogicValues
 from ....plonk_core.src.proof_system.widget.fixed_base_scalar_mul import FBSMGate,FBSMValues
 from ....plonk_core.src.proof_system.widget.curve_addition import CAGate,CAValues
 from ....plonk_core.src.proof_system.mod import CustomEvaluations
-from ....arithmetic import INTT,from_coeff_vec,\
-                        from_gmpy_list,from_list_gmpy,from_list_tensor,from_tensor_list,from_gmpy_list_1,domain_trans_tensor,calculate_execution_time,coset_NTT_new,coset_INTT_new,extend_tensor
+from ....arithmetic import from_coeff_vec,domain_trans_tensor,calculate_execution_time,coset_NTT,coset_INTT
 import torch.nn as nn
 from  .widget.arithmetic import compute_quotient_i
 from ..proof_system.permutation import permutation_compute_quotient
@@ -38,7 +37,7 @@ def compute_gate_constraint_satisfiability(n,
     domain_8n = Radix2EvaluationDomain.new(8 * n)
     size = domain_8n.size
     pi_poly = pi_poly.to('cuda')
-    pi_eval_8n = coset_NTT_new(size,pi_poly)
+    pi_eval_8n = coset_NTT(size,pi_poly)
 
     gate_contributions = []
     def convert_to_tensors(data):
@@ -167,25 +166,22 @@ def compute_permutation_checks(
     #get NTT domain
     domain_8n:Radix2EvaluationDomain = Radix2EvaluationDomain.new(8 * n)
     size = domain_8n.size
-    domain_trans_tensor(domain_8n.group_gen_inv)
-    domain_trans_tensor(domain_8n.size_inv)
-    domain_trans_tensor(domain_8n.group_gen)
     
     #single scalar OP on CPU
     alpha2= F.mul_mod(alpha,alpha)
 
     l1_poly_alpha = compute_first_lagrange_poly_scaled(n, alpha2.to("cuda"))
-    l1_alpha_sq_evals = coset_NTT_new(size, l1_poly_alpha.to('cuda'))
+    l1_alpha_sq_evals = coset_NTT(size, l1_poly_alpha.to('cuda'))
 
     # Initialize result list
     pk_permutation = prover_key['permutation'].tolist()
     pk_linear_evaluations=prover_key["linear_evaluations"].tolist()
 
-    pk_linear_evaluations_evals = torch.tensor(pk_linear_evaluations['evals'], dtype = fr.Fr.Limbs).to('cuda')
-    pk_left_sigma_evals = torch.tensor(pk_permutation["left_sigma"]['evals'], dtype = fr.Fr.Limbs).to('cuda')
-    pk_right_sigma_evals = torch.tensor(pk_permutation["right_sigma"]['evals'], dtype = fr.Fr.Limbs).to('cuda')
-    pk_out_sigma_evals = torch.tensor(pk_permutation["out_sigma"]['evals'], dtype = fr.Fr.Limbs).to('cuda')
-    pk_fourth_sigma_evals = torch.tensor(pk_permutation["fourth_sigma"]['evals'], dtype = fr.Fr.Limbs).to('cuda')
+    pk_linear_evaluations_evals = torch.tensor(pk_linear_evaluations['evals'], dtype = fr.Fr.Dtype).to('cuda')
+    pk_left_sigma_evals = torch.tensor(pk_permutation["left_sigma"]['evals'], dtype = fr.Fr.Dtype).to('cuda')
+    pk_right_sigma_evals = torch.tensor(pk_permutation["right_sigma"]['evals'], dtype = fr.Fr.Dtype).to('cuda')
+    pk_out_sigma_evals = torch.tensor(pk_permutation["out_sigma"]['evals'], dtype = fr.Fr.Dtype).to('cuda')
+    pk_fourth_sigma_evals = torch.tensor(pk_permutation["fourth_sigma"]['evals'], dtype = fr.Fr.Dtype).to('cuda')
     
     # Calculate permutation contribution for each index
     
@@ -228,34 +224,34 @@ def compute_quotient_poly(n,
     one = fr.Fr.one().value
     l1_poly = compute_first_lagrange_poly_scaled(n,one) 
     
-    l1_eval_8n = coset_NTT_new(coset_size,l1_poly.to('cuda'))
-    z_eval_8n = coset_NTT_new(coset_size,z_poly.to('cuda'))
+    l1_eval_8n = coset_NTT(coset_size,l1_poly.to('cuda'))
+    z_eval_8n = coset_NTT(coset_size,z_poly.to('cuda'))
     
     z_eval_8n = torch.cat((z_eval_8n, z_eval_8n[:8]), dim=0)
     
-    wl_eval_8n = coset_NTT_new(coset_size,w_l_poly.to('cuda'))
+    wl_eval_8n = coset_NTT(coset_size,w_l_poly.to('cuda'))
     wl_eval_8n = torch.cat((wl_eval_8n, wl_eval_8n[:8]), dim=0)
 
-    wr_eval_8n = coset_NTT_new(coset_size,w_r_poly.to('cuda'))
+    wr_eval_8n = coset_NTT(coset_size,w_r_poly.to('cuda'))
     wr_eval_8n = torch.cat((wr_eval_8n, wr_eval_8n[:8]), dim=0)
 
-    wo_eval_8n = coset_NTT_new(coset_size,w_o_poly.to('cuda'))
+    wo_eval_8n = coset_NTT(coset_size,w_o_poly.to('cuda'))
 
-    w4_eval_8n = coset_NTT_new(coset_size,w_4_poly.to('cuda'))
+    w4_eval_8n = coset_NTT(coset_size,w_4_poly.to('cuda'))
     w4_eval_8n = torch.cat((w4_eval_8n, w4_eval_8n[:8]), dim=0)
 
-    z2_eval_8n = coset_NTT_new(coset_size,z2_poly.to('cuda'))
+    z2_eval_8n = coset_NTT(coset_size,z2_poly.to('cuda'))
     z2_eval_8n = torch.cat((z2_eval_8n, z2_eval_8n[:8]), dim=0)
 
-    f_eval_8n =coset_NTT_new(coset_size,f_poly.to('cuda'))
+    f_eval_8n =coset_NTT(coset_size,f_poly.to('cuda'))
 
-    table_eval_8n = coset_NTT_new(coset_size,table_poly.to('cuda'))
+    table_eval_8n = coset_NTT(coset_size,table_poly.to('cuda'))
     table_eval_8n = torch.cat((table_eval_8n, table_eval_8n[:8]), dim=0)
 
-    h1_eval_8n = coset_NTT_new(coset_size,h1_poly.to('cuda'))
+    h1_eval_8n = coset_NTT(coset_size,h1_poly.to('cuda'))
     h1_eval_8n = torch.cat((h1_eval_8n, h1_eval_8n[:8]), dim=0)
 
-    h2_eval_8n = coset_NTT_new(coset_size,h2_poly.to('cuda'))
+    h2_eval_8n = coset_NTT(coset_size,h2_poly.to('cuda'))
 
     range_challenge = range_challenge.to('cuda')
     logic_challenge = logic_challenge.to('cuda')
@@ -278,7 +274,7 @@ def compute_quotient_poly(n,
         alpha, beta, gamma,
     )
     pk_lookup = prover_key['lookup'].tolist()
-    pk_lookup_qlookup_evals = torch.tensor(pk_lookup['q_lookup']['evals'], dtype = fr.Fr.Limbs).to('cuda')
+    pk_lookup_qlookup_evals = torch.tensor(pk_lookup['q_lookup']['evals'], dtype = fr.Fr.Dtype).to('cuda')
     
     lookup = compute_lookup_quotient_term(
         n,
@@ -299,17 +295,16 @@ def compute_quotient_poly(n,
         pk_lookup_qlookup_evals
     )
 
-    prover_key_v_h_coset_8n=prover_key["v_h_coset_8n"].tolist()
-    prover_key_v_h_coset_8n_evals=torch.tensor(prover_key_v_h_coset_8n['evals'], dtype = fr.Fr.Dtype).to('cuda')
+    prover_key_v_h_coset_8n = prover_key["v_h_coset_8n"].tolist()
+    prover_key_v_h_coset_8n_evals = torch.tensor(prover_key_v_h_coset_8n['evals'], dtype = fr.Fr.Dtype).to('cuda')
     
     
-    extend_one=extend_tensor(one,coset_size)
     numerator = F.add_mod(gate_constraints, permutation)
     numerator = F.add_mod(numerator, lookup)
     # multielement div_mod work on cuda
-    denominator = F.div_mod(extend_one, prover_key_v_h_coset_8n_evals)
-    res =F.mul_mod(numerator,denominator)
-    quotient_poly = coset_INTT_new(res,coset_size)
+    denominator = F.inv_mod(prover_key_v_h_coset_8n_evals)
+    res = F.mul_mod(numerator, denominator)
+    quotient_poly = coset_INTT(coset_size, res)
     hx = from_coeff_vec(quotient_poly)
 
     return hx

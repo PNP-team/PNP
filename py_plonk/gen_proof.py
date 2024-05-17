@@ -11,25 +11,24 @@ from .plonk_core.src.proof_system.pi import into_dense_poly
 from .plonk_core.src.proof_system import quotient_poly
 from .plonk_core.src.proof_system import linearisation_poly
 import numpy as np
-from .arithmetic import from_coeff_vec,resize_1,\
-                        from_list_gmpy_1,transtompz,INTT_new,INTT,NTT,NTT_new,from_gmpy_list_1,challenge_to_tensor
+from .arithmetic import from_coeff_vec,resize_cpu,\
+                        from_list_gmpy_1,INTT
 from .KZG import kzg10
 import torch
 import time
 date_set2=["../../data/MERKLE-HEIGHT-9/pp-9.npz","../../data/MERKLE-HEIGHT-9/pk-9.npz","../../data/MERKLE-HEIGHT-9/cs-9.npz","../../data/MERKLE-HEIGHT-9/w_l_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_r_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_o_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_4_scalar-9.npy"]
 
-def split_tx_poly(n,t_x ):
-    buf:list =t_x [:]
-    buf = resize_1(buf ,n<<3)
+def split_tx_poly(n,t_x):
+    t_x = resize_cpu(t_x, n<<3)
     return [
-        from_coeff_vec(buf[0:n]),
-        from_coeff_vec(buf[n:2 * n]),
-        from_coeff_vec(buf[2 * n:3 * n]),
-        from_coeff_vec(buf[3 * n:4 * n]),
-        from_coeff_vec(buf[4 * n:5 * n]),
-        from_coeff_vec(buf[5 * n:6 * n]),
-        from_coeff_vec(buf[6 * n:7 * n]),
-        from_coeff_vec(buf[7 * n:])
+        from_coeff_vec(t_x[0:n]),
+        from_coeff_vec(t_x[n:2 * n]),
+        from_coeff_vec(t_x[2 * n:3 * n]),
+        from_coeff_vec(t_x[3 * n:4 * n]),
+        from_coeff_vec(t_x[4 * n:5 * n]),
+        from_coeff_vec(t_x[5 * n:6 * n]),
+        from_coeff_vec(t_x[6 * n:7 * n]),
+        from_coeff_vec(t_x[7 * n:])
     ]
 
 
@@ -53,10 +52,10 @@ class gen_proof:
         w_o_scalar = w_o_scalar.to('cuda')
         w_4_scalar = w_4_scalar.to('cuda')
 
-        w_l_scalar_intt=INTT_new(n,w_l_scalar)
-        w_r_scalar_intt=INTT_new(n,w_r_scalar)
-        w_o_scalar_intt=INTT_new(n,w_o_scalar)
-        w_4_scalar_intt=INTT_new(n,w_4_scalar)
+        w_l_scalar_intt=INTT(n,w_l_scalar)
+        w_r_scalar_intt=INTT(n,w_r_scalar)
+        w_o_scalar_intt=INTT(n,w_o_scalar)
+        w_4_scalar_intt=INTT(n,w_4_scalar)
       
         w_l_poly = from_coeff_vec(w_l_scalar_intt) 
         w_r_poly = from_coeff_vec(w_r_scalar_intt)
@@ -103,7 +102,7 @@ class gen_proof:
         compressed_t_multiset = t_multiset.compress(zeta)     
         # Compute table poly
 
-        compressed_t_poly =INTT_new(n,compressed_t_multiset.elements)
+        compressed_t_poly =INTT(n,compressed_t_multiset.elements)
         table_poly = from_coeff_vec(compressed_t_poly)
 
         
@@ -146,7 +145,7 @@ class gen_proof:
         compressed_f_multiset = f_scalars.compress(zeta)
 
         # Compute query poly
-        compressed_f_poly = INTT_new(n,compressed_f_multiset.elements)
+        compressed_f_poly = INTT(n,compressed_f_multiset.elements)
         f_poly= from_coeff_vec(compressed_f_poly)
         f_polys = [kzg10.LabeledPoly.new(label="f_poly",hiding_bound=None,poly=f_poly)]
 
@@ -161,8 +160,8 @@ class gen_proof:
         # Compute h polys
         h_1=h_1.to('cuda')
         h_2=h_2.to('cuda')
-        h_1_temp = INTT_new(n,h_1)
-        h_2_temp = INTT_new(n,h_2)
+        h_1_temp = INTT(n,h_1)
+        h_2_temp = INTT(n,h_2)
         h_1_poly = from_coeff_vec(h_1_temp)  
         h_2_poly = from_coeff_vec(h_2_temp)  
         
@@ -291,7 +290,7 @@ class gen_proof:
         
         # Add quotient polynomial commitments to transcript
         for i in range(0, 8):
-            transcript.append(f"t_{i+1}".encode(), transtompz(t_commits[i].commitment.value))
+            transcript.append(f"t_{i+1}".encode(), t_commits[i].commitment.value)
 
         # 4. Compute linearisation polynomial
         # Compute evaluation challenge `z`.
@@ -300,13 +299,13 @@ class gen_proof:
         lin_poly, evaluations = linearisation_poly.compute_linearisation_poly(
                 domain,
                 pk,
-                alpha,beta,gamma,delta,epsilon,zeta,
-                range_sep_challenge,
-                logic_sep_challenge,
-                fixed_base_sep_challenge,
-                var_base_sep_challenge,
-                lookup_sep_challenge,
-                z_challenge,
+                alpha.value, beta.value, gamma.value, delta.value, epsilon.value, zeta.value,
+                range_sep_challenge.value,
+                logic_sep_challenge.value,
+                fixed_base_sep_challenge.value,
+                var_base_sep_challenge.value,
+                lookup_sep_challenge.value,
+                z_challenge.value,
                 w_l_poly,w_r_poly,w_o_poly,w_4_poly,
                 t_i_poly[0],
                 t_i_poly[1],
