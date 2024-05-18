@@ -122,21 +122,22 @@ def compute_quotient_i(self, wit_vals: WitnessValues):
     # polynomial at the given evaluation points.
 
 def compute_linearisation_arithmetic( 
-        a_eval: fr.Fr,
-        b_eval: fr.Fr, 
-        c_eval: fr.Fr, 
-        d_eval: fr.Fr, 
-        q_arith_eval: fr.Fr,
+        a_eval,
+        b_eval, 
+        c_eval, 
+        d_eval, 
+        q_arith_eval,
         prover_key_arithmetic):
-        mid1_1 =F.mul_mod(a_eval,b_eval)
 
-        mid1 = poly_mul_const(prover_key_arithmetic['q_m']['coeffs'] ,mid1_1)
-        mid2 = poly_mul_const(prover_key_arithmetic['q_l']['coeffs'] ,a_eval)
-        mid3 = poly_mul_const(prover_key_arithmetic['q_r']['coeffs'] ,b_eval)
-        mid4 = poly_mul_const(prover_key_arithmetic['q_o']['coeffs'] ,c_eval)
-        mid5 = poly_mul_const(prover_key_arithmetic['q_4']['coeffs'] ,d_eval)
+        mid1_1 =F.mul_mod(a_eval, b_eval)
+
+        mid1 = poly_mul_const(prover_key_arithmetic['q_m']['coeffs'], mid1_1)
+        mid2 = poly_mul_const(prover_key_arithmetic['q_l']['coeffs'], a_eval)
+        mid3 = poly_mul_const(prover_key_arithmetic['q_r']['coeffs'], b_eval)
+        mid4 = poly_mul_const(prover_key_arithmetic['q_o']['coeffs'], c_eval)
+        mid5 = poly_mul_const(prover_key_arithmetic['q_4']['coeffs'], d_eval)
         mid6_1 = pow(a_eval,SBOX_ALPHA)
-        mid6 = poly_mul_const(prover_key_arithmetic['q_hl']['coeffs'],mid6_1)
+        mid6 = poly_mul_const(prover_key_arithmetic['q_hl']['coeffs'], mid6_1)
         mid7_1 =pow(b_eval,SBOX_ALPHA)
         mid7 = poly_mul_const(prover_key_arithmetic['q_hr']['coeffs'],mid7_1)
         mid8_1 = pow(d_eval,SBOX_ALPHA)

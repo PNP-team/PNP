@@ -1,19 +1,9 @@
 from dataclasses import dataclass
-import gmpy2
 from .bls12_381 import fr
-import math
+from .arithmetic import pow
 import torch
 import torch.nn.functional as F
 
-def pow_1(self,exp):
-    res = torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    for i in range(63,-1,-1):
-        #modsquare
-        res = F.mul_mod(res,res)
-        if ((exp >> i) & 1) == 1:
-            # res = res.mul(self)
-            res = F.mul_mod(res,self)
-    return res
 
 def neg(self):
     a=torch.tensor([18446744069414584321, 6034159408538082302, 3691218898639771653, 8353516859464449352],dtype=torch.BLS12_381_Fr_G1_Mont)
@@ -96,10 +86,10 @@ class Radix2EvaluationDomain:
     # However, if tau in H, both the numerator and denominator equal 0
     # when i corresponds to the value tau equals, and the coefficient is 0 everywhere else.
     # We handle this case separately, and we can easily detect by checking if the vanishing poly is 0.
-    def evaluate_all_lagrange_coefficients(self, tau: fr.Fr):
+    def evaluate_all_lagrange_coefficients(self, tau):
         from .arithmetic import from_gmpy_list_1
         size = self.size
-        t_size = pow_1(tau,size)
+        t_size = pow(tau,size)
         domain_offset = torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
         one = torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
         self.group_gen_inv=torch.tensor(from_gmpy_list_1(self.group_gen_inv),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
@@ -134,7 +124,7 @@ class Radix2EvaluationDomain:
             # v_0_inv = m * h^(m-1)
             f_size = fr.Fr.from_repr(size)
             f_size=torch.tensor(from_gmpy_list_1(f_size),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-            pow_dof = pow_1(domain_offset, size - 1)
+            pow_dof = pow(domain_offset, size - 1)
             v_0_inv = F.mul_mod(f_size, pow_dof)
             # div_mod work on cpu
             one=one.to('cpu')
@@ -158,21 +148,9 @@ class Radix2EvaluationDomain:
     # This evaluates the vanishing polynomial for this domain at tau.
     # For multiplicative subgroups, this polynomial is `z(X) = X^self.size - 1`.
     def evaluate_vanishing_polynomial(self, tau):
-        
-        def pow_1(self,exp):
-            res = torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-            for i in range(63,-1,-1):
-                #modsquare
-                res = F.mul_mod(res,res)
-                if ((exp >> i) & 1) == 1:
-                    # res = res.mul(self)
-                    res = F.mul_mod(res,self)
-            return res
-        
-        one =torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-        
-        pow_tau=pow_1(tau.to('cuda'),self.size)
-        return F.sub_mod(pow_tau,one)
+        one = fr.Fr.one().value
+        pow_tau = pow(tau, self.size)
+        return F.sub_mod(pow_tau, one)
     
     # Returns the `i`-th element of the domain, where elements are ordered by
     # their power of the generator which they correspond to.

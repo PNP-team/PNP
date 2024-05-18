@@ -92,7 +92,7 @@ def convert_to_tensors(data):
             if isinstance(value, dict):
                 convert_to_tensors(value)  # Recursively apply conversion
             elif isinstance(value, np.ndarray):
-                if np.array_equal(value,np.array(0,dtype=np.uint64)):
+                if np.array_equal(value,np.array(0,dtype = np.uint64)):
                     value=[]
                 data[key] = torch.tensor(value, dtype=torch.BLS12_381_Fr_G1_Mont)  # Convert numpy array to tensor
 
@@ -100,18 +100,18 @@ def convert_to_tensors(data):
 def compute_linearisation_poly(
     domain: Radix2EvaluationDomain,
     prover_key: Prover_Key,
-    alpha: fr.Fr,
-    beta: fr.Fr,
-    gamma: fr.Fr,
-    delta: fr.Fr,
-    epsilon: fr.Fr,
-    zeta: fr.Fr,
-    range_separation_challenge: fr.Fr,
-    logic_separation_challenge: fr.Fr,
-    fixed_base_separation_challenge: fr.Fr,
-    var_base_separation_challenge: fr.Fr,
-    lookup_separation_challenge: fr.Fr,
-    z_challenge: fr.Fr,
+    alpha,
+    beta,
+    gamma,
+    delta,
+    epsilon,
+    zeta,
+    range_separation_challenge,
+    logic_separation_challenge,
+    fixed_base_separation_challenge,
+    var_base_separation_challenge,
+    lookup_separation_challenge,
+    z_challenge,
     w_l_poly: torch.tensor,
     w_r_poly: torch.tensor,
     w_o_poly: torch.tensor,
@@ -135,7 +135,17 @@ def compute_linearisation_poly(
     omega = domain.group_gen.value
     domain_permutation = Radix2EvaluationDomain.new(n)
     #single scalar OP on CPU
+    one = fr.Fr.one().value
     shifted_z_challenge = F.mul_mod(z_challenge, omega)
+    vanishing_poly_eval = domain.evaluate_vanishing_polynomial(z_challenge)
+    z_challenge_to_n = F.add_mod(vanishing_poly_eval, one)
+    # Compute the last term in the linearisation polynomial (negative_quotient_term):
+    # - Z_h(z_challenge) * [t_1(X) + z_challenge^n * t_2(X) + z_challenge^2n *
+    # t_3(X) + z_challenge^3n * t_4(X)]
+    l1_eval = compute_first_lagrange_evaluation(
+    domain.size,
+    vanishing_poly_eval,
+    z_challenge)
 
     w_l_poly = w_l_poly.to('cuda')
     w_r_poly = w_r_poly.to('cuda')
@@ -158,23 +168,23 @@ def compute_linearisation_poly(
     z_challenge = z_challenge.to('cuda')
     shifted_z_challenge = shifted_z_challenge.to('cuda')
     # Wire evaluations
-    a_eval = evaluate(w_l_poly, z_challenge)
-    b_eval = evaluate(w_r_poly, z_challenge)
-    c_eval = evaluate(w_o_poly, z_challenge)
-    d_eval = evaluate(w_4_poly, z_challenge)
+    a_eval = F.evaluate(w_l_poly, z_challenge)
+    b_eval = F.evaluate(w_r_poly, z_challenge)
+    c_eval = F.evaluate(w_o_poly, z_challenge)
+    d_eval = F.evaluate(w_4_poly, z_challenge)
 
     wire_evals = WireEvaluations(a_eval,b_eval,c_eval,d_eval)
 
     # Permutation evaluations
     pk_permutation = prover_key['permutation'].tolist()
-    pk_left_sigma_coeff = torch.tensor(pk_permutation["left_sigma"]['coeffs'], dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    pk_right_sigma_coeff = torch.tensor(pk_permutation["right_sigma"]['coeffs'], dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    pk_out_sigma_coeff = torch.tensor(pk_permutation["out_sigma"]['coeffs'], dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    pk_fourth_sigma_coeff = torch.tensor(pk_permutation["fourth_sigma"]['coeffs'], dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    left_sigma_eval = evaluate(pk_left_sigma_coeff, z_challenge)
-    right_sigma_eval = evaluate(pk_right_sigma_coeff, z_challenge)
-    out_sigma_eval = evaluate(pk_out_sigma_coeff, z_challenge)
-    permutation_eval = evaluate(z_poly, shifted_z_challenge)
+    pk_left_sigma_coeff = torch.tensor(pk_permutation["left_sigma"]['coeffs'], dtype = fr.Fr.Dtype).to('cuda')
+    pk_right_sigma_coeff = torch.tensor(pk_permutation["right_sigma"]['coeffs'], dtype = fr.Fr.Dtype).to('cuda')
+    pk_out_sigma_coeff = torch.tensor(pk_permutation["out_sigma"]['coeffs'], dtype = fr.Fr.Dtype).to('cuda')
+    pk_fourth_sigma_coeff = torch.tensor(pk_permutation["fourth_sigma"]['coeffs'], dtype = fr.Fr.Dtype).to('cuda')
+    left_sigma_eval = F.evaluate(pk_left_sigma_coeff, z_challenge)
+    right_sigma_eval = F.evaluate(pk_right_sigma_coeff, z_challenge)
+    out_sigma_eval = F.evaluate(pk_out_sigma_coeff, z_challenge)
+    permutation_eval = F.evaluate(z_poly, shifted_z_challenge)
 
     perm_evals = PermutationEvaluations(
         left_sigma_eval,
@@ -195,23 +205,23 @@ def compute_linearisation_poly(
     convert_to_tensors(prover_key_lookup)
     prover_key_lookup['q_lookup']['coeffs']=prover_key_lookup['q_lookup']['coeffs'].to('cuda')
     # Arith selector evaluation
-    q_arith_eval = evaluate(prover_key_arithmetic["q_arith"]['coeffs'], z_challenge)
+    q_arith_eval = F.evaluate(prover_key_arithmetic["q_arith"]['coeffs'], z_challenge)
 
     # Lookup selector evaluation
-    q_lookup_eval = evaluate(prover_key_lookup['q_lookup']['coeffs'], z_challenge)
+    q_lookup_eval = F.evaluate(prover_key_lookup['q_lookup']['coeffs'], z_challenge)
 
     # Custom gate evaluations
-    q_c_eval = evaluate(prover_key_arithmetic["q_c"]['coeffs'], z_challenge)
-    q_l_eval = evaluate(prover_key_arithmetic["q_l"]['coeffs'], z_challenge)
-    q_r_eval = evaluate(prover_key_arithmetic["q_r"]['coeffs'], z_challenge)
-    a_next_eval = evaluate(w_l_poly, shifted_z_challenge)
-    b_next_eval = evaluate(w_r_poly, shifted_z_challenge)
-    d_next_eval = evaluate(w_4_poly, shifted_z_challenge)
+    q_c_eval = F.evaluate(prover_key_arithmetic["q_c"]['coeffs'], z_challenge)
+    q_l_eval = F.evaluate(prover_key_arithmetic["q_l"]['coeffs'], z_challenge)
+    q_r_eval = F.evaluate(prover_key_arithmetic["q_r"]['coeffs'], z_challenge)
+    a_next_eval = F.evaluate(w_l_poly, shifted_z_challenge)
+    b_next_eval = F.evaluate(w_r_poly, shifted_z_challenge)
+    d_next_eval = F.evaluate(w_4_poly, shifted_z_challenge)
 
     # High degree selector evaluations
-    q_hl_eval = evaluate(prover_key_arithmetic["q_hl"]['coeffs'], z_challenge)
-    q_hr_eval = evaluate(prover_key_arithmetic["q_hr"]['coeffs'], z_challenge)
-    q_h4_eval = evaluate(prover_key_arithmetic["q_h4"]['coeffs'], z_challenge)
+    q_hl_eval = F.evaluate(prover_key_arithmetic["q_hl"]['coeffs'], z_challenge)
+    q_hr_eval = F.evaluate(prover_key_arithmetic["q_hr"]['coeffs'], z_challenge)
+    q_h4_eval = F.evaluate(prover_key_arithmetic["q_h4"]['coeffs'], z_challenge)
 
     custom_evals = CustomEvaluations(
         [("q_arith_eval", q_arith_eval),
@@ -227,27 +237,14 @@ def compute_linearisation_poly(
     )
 
 
-    z2_next_eval = evaluate(z2_poly, shifted_z_challenge)
-    h1_eval = evaluate(h1_poly, z_challenge)
-    h1_next_eval = evaluate(h1_poly, shifted_z_challenge)
-    h2_eval = evaluate(h2_poly, z_challenge)
-    f_eval = evaluate(f_poly, z_challenge)
-    table_eval = evaluate(table_poly, z_challenge)
-    table_next_eval = evaluate(table_poly, shifted_z_challenge)
+    z2_next_eval = F.evaluate(z2_poly, shifted_z_challenge)
+    h1_eval = F.evaluate(h1_poly, z_challenge)
+    h1_next_eval = F.evaluate(h1_poly, shifted_z_challenge)
+    h2_eval = F.evaluate(h2_poly, z_challenge)
+    f_eval = F.evaluate(f_poly, z_challenge)
+    table_eval = F.evaluate(table_poly, z_challenge)
+    table_next_eval = F.evaluate(table_poly, shifted_z_challenge)
 
-    # Compute the last term in the linearisation polynomial (negative_quotient_term):
-    # - Z_h(z_challenge) * [t_1(X) + z_challenge^n * t_2(X) + z_challenge^2n *
-    # t_3(X) + z_challenge^3n * t_4(X)]
-    one = torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    vanishing_poly_eval = domain.evaluate_vanishing_polynomial(z_challenge)
-    
-    z_challenge_to_n = F.add_mod(vanishing_poly_eval,one)
-    l1_eval = compute_first_lagrange_evaluation(
-        domain,
-        vanishing_poly_eval,
-        z_challenge,
-    )
-    
     lookup_evals = LookupEvaluations(
         q_lookup_eval,
         z2_next_eval,
@@ -258,8 +255,6 @@ def compute_linearisation_poly(
         table_eval,
         table_next_eval
     )
-
-
 
     gate_constraints = compute_gate_constraint_satisfiability(
         range_separation_challenge,
@@ -357,12 +352,12 @@ def compute_linearisation_poly(
 
 # Computes the gate constraint satisfiability portion of the linearisation polynomial.
 def compute_gate_constraint_satisfiability(
-    range_separation_challenge: fr.Fr,
-    logic_separation_challenge: fr.Fr,
-    fixed_base_separation_challenge: fr.Fr,
-    var_base_separation_challenge: fr.Fr,
+    range_separation_challenge,
+    logic_separation_challenge,
+    fixed_base_separation_challenge,
+    var_base_separation_challenge,
     wire_evals: WireEvaluations,
-    q_arith_eval: fr.Fr,
+    q_arith_eval,
     custom_evals: CustomEvaluations,
     prover_key: Prover_Key,
     prover_key_arithmetic,
@@ -381,13 +376,11 @@ def compute_gate_constraint_satisfiability(
         q_arith_eval,
         prover_key_arithmetic,
     )
-    range_separation_challenge=torch.tensor(from_gmpy_list_1(range_separation_challenge),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    pk_range_selector=prover_key['range_selector'].tolist()
-    pk_range_selector['coeffs']=torch.tensor(pk_range_selector['coeffs'],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    four = fr.Fr.from_repr(4)
-    four= torch.tensor(from_gmpy_list_1(four),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
+
+    pk_range_selector = prover_key['range_selector'].tolist()
+    pk_range_selector['coeffs']=torch.tensor(pk_range_selector['coeffs'], dtype = fr.Fr.Dtype).to('cuda')
+
     range = RangeGate.linearisation_term(
-        four,
         pk_range_selector['coeffs'],
         range_separation_challenge,
         wit_vals,

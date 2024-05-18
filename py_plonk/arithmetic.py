@@ -1,7 +1,6 @@
 import gmpy2
 import copy
 from .bls12_381 import fr,fq
-from .domain import Radix2EvaluationDomain
 from .structure import AffinePointG1
 from .jacobian import ProjectivePointG1
 import math
@@ -158,8 +157,7 @@ def extend_tensor(input:torch.tensor,size):
     return res.to('cuda')
 
 def pow(self,exp):
-    one = fr.Fr.one().value.to("cuda")
-    res = F.mul_mod_scalar(self, one)
+    res = self.clone()
     for i in range(exp - 1):
         res = F.mul_mod(res, self)
     return res
@@ -199,13 +197,13 @@ def derange(xi, log_len):
 #         powers[idx]=F.mul_mod(powers[idx - 1],root.value)
 #     return powers
 
-def precompute_twiddles(domain:Radix2EvaluationDomain, root:fr.Fr):
-    log_size = int(math.log2(domain.size))
-    powers = [root.zero()] * (1 << (log_size - 1))
-    powers[0] = root.one()
-    for idx in range(1, len(powers)):
-        powers[idx] = powers[idx - 1].mul(root)
-    return powers
+# def precompute_twiddles(domain:Radix2EvaluationDomain, root:fr.Fr):
+#     log_size = int(math.log2(domain.size))
+#     powers = [root.zero()] * (1 << (log_size - 1))
+#     powers[0] = root.one()
+#     for idx in range(1, len(powers)):
+#         powers[idx] = powers[idx - 1].mul(root)
+#     return powers
 
 # def  operator(domain:Radix2EvaluationDomain, xi:torch.tensor, root:fr.Fr):
 #     log_size = int(math.log2(domain.size))
@@ -254,29 +252,29 @@ def precompute_twiddles(domain:Radix2EvaluationDomain, root:fr.Fr):
 #     xi=from_list_tensor(xi)
 #     return xi
 
-def operator(domain:Radix2EvaluationDomain, xi:list[fr.Fr], root:fr.Fr):
-    log_size = int(math.log2(domain.size))
-    xi = derange(xi,log_size)
-    twiddles=precompute_twiddles(domain,root)
-    chunk = 2
-    twiddle_chunk = domain.size // 2
-    for i in range(log_size):
-        for j in range(0, domain.size, chunk):
-            t = xi[j + chunk // 2]       # Copy Right[0]
-            xi[j + chunk // 2] = xi[j]   # Right[0] = Left[0]
-            xi[j] = xi[j].add(t)
-            xi[j + chunk // 2] = xi[j + chunk // 2].sub(t)
-            for m in range(chunk // 2 - 1):
-                twiddle = twiddles[(m + 1) * twiddle_chunk]
-                t1 = xi[j + chunk // 2 + m + 1]
-                t1 = t1.mul(twiddle)
-                xi[j + chunk // 2 + m + 1] = xi[j + m + 1]
-                xi[j + m + 1] = xi[j + m + 1].add(t1)  # a + b * w
-                # a - b * w
-                xi[j + chunk // 2 + m + 1] = xi[j + chunk // 2 + m + 1].sub(t1)  
-        chunk *= 2  # Merge up
-        twiddle_chunk //= 2
-    return xi
+# def operator(domain, xi:list[fr.Fr], root:fr.Fr):
+#     log_size = int(math.log2(domain.size))
+#     xi = derange(xi,log_size)
+#     twiddles=precompute_twiddles(domain,root)
+#     chunk = 2
+#     twiddle_chunk = domain.size // 2
+#     for i in range(log_size):
+#         for j in range(0, domain.size, chunk):
+#             t = xi[j + chunk // 2]       # Copy Right[0]
+#             xi[j + chunk // 2] = xi[j]   # Right[0] = Left[0]
+#             xi[j] = xi[j].add(t)
+#             xi[j + chunk // 2] = xi[j + chunk // 2].sub(t)
+#             for m in range(chunk // 2 - 1):
+#                 twiddle = twiddles[(m + 1) * twiddle_chunk]
+#                 t1 = xi[j + chunk // 2 + m + 1]
+#                 t1 = t1.mul(twiddle)
+#                 xi[j + chunk // 2 + m + 1] = xi[j + m + 1]
+#                 xi[j + m + 1] = xi[j + m + 1].add(t1)  # a + b * w
+#                 # a - b * w
+#                 xi[j + chunk // 2 + m + 1] = xi[j + chunk // 2 + m + 1].sub(t1)  
+#         chunk *= 2  # Merge up
+#         twiddle_chunk //= 2
+#     return xi
 
 
 # def resize(self, target_len, padding):
@@ -353,75 +351,6 @@ def skip_leading_zeros_and_convert_to_bigints(p: torch.Tensor):
         num_leading_zeros += 1
     coeffs = convert_to_bigints(p[num_leading_zeros:])  
     return num_leading_zeros, coeffs
-
-
-
-def NTT_1(domain,coeffs:torch.Tensor):
-    # coeffs_value=from_tensor_list(coeffs)
-    # from_list_gmpy(coeffs_value)
-
-    # zero = fr.Fr.zero()
-    #add zero to resize
-    resize_coeffs_value = resize_gpu(coeffs,domain.size)
-    # resize_coeffs_value=from_tensor_list(resize_coeffs_value)
-    evals = operator(domain,resize_coeffs_value,domain.group_gen)
-
-    # from_gmpy_list(evals)
-    # output=from_list_tensor(evals,dtype=torch.BLS12_381_Fr_G1_Mont)
-
-    return evals
-
-def NTT(domain,coeffs:torch.Tensor):
-    coeffs_value=from_tensor_list(coeffs)
-    from_list_gmpy(coeffs_value)
-
-    zero = fr.Fr.zero()
-    #add zero to resize
-    resize_coeffs_value = resize_gpu(coeffs_value,domain.size,zero)
-    # from_gmpy_list(resize_coeffs_value)
-    evals = operator(domain,resize_coeffs_value,domain.group_gen)
-
-    from_gmpy_list(evals)
-    output=from_list_tensor(evals,dtype=torch.BLS12_381_Fr_G1_Mont)
-
-    return output
-
-def INTT_1(domain,evals:torch.Tensor):
-    # temp=from_tensor_list(evals)
-    # from_list_gmpy(temp)
-
-    #add zero to resize
-    # zero = fr.Fr.zero()
-    # b=from_tensor_list(evals)
-    a=evals.clone()
-    a=from_tensor_list(a)
-    from_list_gmpy(a)
-    resize_value = resize_gpu(evals,domain.size)
-
-    evals = operator(domain,resize_value,domain.group_gen_inv)
-    for i in range(len(evals)):
-        # temp[i] = temp[i].mul(domain.size_inv)
-        evals[i] = F.mul_mod( evals[i] ,domain.size_inv.value)
-    return evals
-
-def INTT(domain,evals:torch.Tensor):
-    print(1)
-    temp=from_tensor_list(evals)
-    from_list_gmpy(temp)
-
-    #add zero to resize
-    zero = fr.Fr.zero()
-    resize_evals = resize_gpu(temp,domain.size,zero)
-    # a=from_gmpy_list_1(domain.size_inv)
-    temp = operator(domain,resize_evals,domain.group_gen_inv)
-    temp1=copy.deepcopy(temp)
-    for i in range(len(temp)):
-        temp[i] = temp[i].mul(domain.size_inv)
-
-    from_gmpy_list(temp)
-    output=from_list_tensor(temp,dtype=torch.BLS12_381_Fr_G1_Mont)
-
-    return output
 
 def distribute_powers_new(coeffs:list[fr.Fr], g):
 
@@ -657,7 +586,7 @@ def poly_add_poly_mul_const(self:torch.tensor, f: torch.tensor, other: torch.ten
     elif len(self) >= len(other):
         pass
     else:
-        self = resize_1(self,len(other))
+        self = resize_gpu(self,len(other))
 
     f=extend_tensor(f,len(other))
     temp=F.mul_mod(f,other)
@@ -722,17 +651,14 @@ def batch_inversion(v: list[fr.Fr]):
 #   2. `mul_from_2_to_(n-1) [(X - omega^i)] = (X^n - 1) / (X - 1)`
 # to obtain the expression:
 # L_0(X) = (X^n - 1) / n * (X - 1)
-def compute_first_lagrange_evaluation(
-    domain: Radix2EvaluationDomain, z_h_eval: fr.Fr, z_challenge: fr.Fr):
-    one = torch.tensor([[8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911]],dtype=torch.BLS12_381_Fr_G1_Mont)
-    n_fr = fr.Fr.from_repr(domain.size)
-    n_fr =torch.tensor(from_gmpy_list_1(n_fr),dtype=torch.BLS12_381_Fr_G1_Mont)
-    z_challenge_sub_one =F.sub_mod(z_challenge,one)
-    denom=F.mul_mod(n_fr,z_challenge_sub_one)
-    # single work on cpu
-    denom_in =  F.div_mod(one,denom)
-    denom_in=denom_in.to('cuda')
-    res= F.mul_mod(z_h_eval,denom_in)
+def compute_first_lagrange_evaluation(size, z_h_eval, z_challenge):
+    # single scalar OP on CPU
+    one = fr.Fr.one().value
+    n_fr = fr.Fr.from_repr(size).value
+    z_challenge_sub_one = F.sub_mod(z_challenge, one)
+    denom = F.mul_mod(n_fr, z_challenge_sub_one)
+    denom_in = F.div_mod(one, denom)
+    res = F.mul_mod(z_h_eval,denom_in)
     return res  
 
 # def MSM(bases:list[AffinePointG1], scalars:list[fr.Fr], params):

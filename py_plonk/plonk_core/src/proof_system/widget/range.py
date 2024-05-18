@@ -18,30 +18,29 @@ class RangeValues:
 
 class RangeGate:
     @staticmethod
-    def constraints(four,separation_challenge:fr.Fr, wit_vals:WitnessValues, custom_vals:RangeValues):
-       
-     
-        kappa = F.mul_mod(separation_challenge,separation_challenge)
-        kappa_sq = F.mul_mod(kappa,kappa)
-        kappa_cu = F.mul_mod(kappa_sq,kappa)
+    def constraints(four, separation_challenge, wit_vals:WitnessValues, custom_vals:RangeValues):
+        #single scalar OP on CPU
+        kappa = F.mul_mod(separation_challenge, separation_challenge)
+        kappa_sq = F.mul_mod(kappa, kappa)
+        kappa_cu = F.mul_mod(kappa_sq, kappa)
 
-        b_1_1 = F.mul_mod(four, wit_vals.d_val)
-        f_b1= F.sub_mod(wit_vals.c_val,b_1_1)
-        b_1 = delta(f_b1,0)
+        b_1_1 = F.mul_mod_scalar(wit_vals.d_val, four)
+        f_b1= F.sub_mod(wit_vals.c_val, b_1_1)
+        b_1 = delta(f_b1)
 
         b_2_1 = F.mul_mod(four, wit_vals.c_val)
         b_2_2 = F.sub_mod(wit_vals.b_val,b_2_1)
-        f_b2 = delta(b_2_2,0)
+        f_b2 = delta(b_2_2)
         b_2 = F.mul_mod(f_b2, kappa)
 
         b_3_1 = F.mul_mod(four, wit_vals.b_val)
         b_3_2 = F.sub_mod(wit_vals.a_val,b_3_1)
-        f_b3 = delta(b_3_2,0)
+        f_b3 = delta(b_3_2)
         b_3 = F.mul_mod(f_b3, kappa_sq)
 
         b_4_1 = F.mul_mod(four, wit_vals.a_val)
         b_4_2 = F.sub_mod(custom_vals.d_next_val,b_4_1)
-        f_b4 = delta(b_4_2,0)
+        f_b4 = delta(b_4_2)
         b_4 = F.mul_mod(f_b4, kappa_cu)
 
         mid1 = F.add_mod(b_1, b_2)
@@ -90,7 +89,8 @@ class RangeGate:
         return res
     
     @staticmethod
-    def linearisation_term(four,selector_poly, separation_challenge, wit_vals, custom_vals):
-        temp = RangeGate.constraints(four,separation_challenge, wit_vals, custom_vals)
-        res = poly_mul_const(selector_poly,temp)
+    def linearisation_term(selector_poly, separation_challenge, wit_vals, custom_vals):
+        four = fr.Fr.from_repr(4).value
+        temp = RangeGate.constraints(four.to("cuda"), separation_challenge, wit_vals, custom_vals)
+        res = poly_mul_const(selector_poly, temp)
         return res
