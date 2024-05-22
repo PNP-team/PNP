@@ -36,12 +36,13 @@ class FBSMValues:
     
 class FBSMGate:
     @staticmethod
-    def constraints(separation_challenge:fr.Fr, wit_vals:WitnessValues, custom_vals:FBSMValues):
+    def constraints(separation_challenge, wit_vals:WitnessValues, custom_vals:FBSMValues):
         
         kappa = F.mul_mod(separation_challenge,separation_challenge)
         kappa_sq=F.mul_mod(kappa,kappa)
         kappa_cu=F.mul_mod(kappa_sq,kappa)
-
+        one = fr.Fr.one().value
+        one = one.to("cuda")
         # x_beta_eval = torch.tensor(from_gmpy_list_1(custom_vals.q_l_val),dtype=torch.BLS12_381_Fr_G1_Mont)
         # y_beta_eval = torch.tensor(from_gmpy_list_1(custom_vals.q_r_val),dtype=torch.BLS12_381_Fr_G1_Mont)
 
@@ -57,9 +58,8 @@ class FBSMGate:
         bit = extract_bit(accumulated_bit, accumulated_bit_next)
 
         # Check bit consistency
-        bit_consistency = check_bit_consistency(bit,0)
+        bit_consistency = check_bit_consistency(bit,one)
 
-        one=torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
         y_beta_sub_one = F.sub_mod(custom_vals.q_r_val,one)
         bit2 = F.mul_mod(bit,bit)
         y_alpha_1 = F.mul_mod(bit2, y_beta_sub_one)
@@ -114,7 +114,8 @@ class FBSMGate:
         kappa = F.mul_mod(separation_challenge,separation_challenge)
         kappa_sq = F.mul_mod(kappa,kappa)
         kappa_cu = F.mul_mod(kappa_sq,kappa)
-
+        one = fr.Fr.one().value
+        one = one.to("cuda")
         # x_beta_eval = torch.tensor(from_gmpy_list_1(custom_vals.q_l_val),dtype=torch.BLS12_381_Fr_G1_Mont)
         # y_beta_eval = torch.tensor(from_gmpy_list_1(custom_vals.q_r_val),dtype=torch.BLS12_381_Fr_G1_Mont)
 
@@ -129,7 +130,6 @@ class FBSMGate:
         accumulated_bit_next = custom_vals.d_next_val
         bit = extract_bit(accumulated_bit, accumulated_bit_next)
 
-        one = fr.Fr.one().value
         # Check bit consistency
         bit_consistency = check_bit_consistency(bit, one)
 

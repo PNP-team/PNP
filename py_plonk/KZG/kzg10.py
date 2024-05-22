@@ -5,17 +5,14 @@ from ..field import field
 from ..bls12_381 import fr,fq
 from typing import List
 from ..arithmetic import skip_leading_zeros_and_convert_to_bigints,convert_to_bigints,\
-                         rand_poly,poly_add_poly_mul_const,evaluate,from_coeff_vec,poly_div_poly,MSM_new
+                         rand_poly,poly_add_poly_mul_const,evaluate,from_coeff_vec,poly_div_poly,MSM_new,pow
 from ..plonk_core.src.proof_system.linearisation_poly import ProofEvaluations
 import random
 import torch 
-import copy
-from ..arithmetic import INTT,from_coeff_vec,\
-                        from_gmpy_list,from_list_gmpy,from_list_tensor,from_tensor_list,from_gmpy_list_1
 import torch.nn.functional as F
 from ..jacobian import to_affine,add_assign_mixed,add_assign
-from ..arithmetic import neg
-import time
+
+
 class Randomness:
     def __init__(self, blind_poly: List[fr.Fr]):
         self.blind_poly = blind_poly
@@ -42,36 +39,9 @@ class Randomness:
 class Commitment:
     def __init__(self,value):
         self.value = value
-    # @classmethod
-    # def commit(cls,powers,polynomial:torch.tensor,hiding_bound,params):
-    #     polynomial=from_tensor_list(polynomial)
-    #     from_list_gmpy(polynomial)
-
-    #     num_leading_zeros, plain_coeffs = skip_leading_zeros_and_convert_to_bigints(polynomial)
-        
-    #     # plain_coeffs=from_tensor_list(plain_coeffs)
-    #     # from_list_gmpy(plain_coeffs)
-    #     commitment:ProjectivePointG1 = MSM(
-    #         powers[0][num_leading_zeros:],
-    #         plain_coeffs,
-    #         params
-    #     )
-    #     randomness = Randomness.empty()
-    #     if hiding_bound:
-    #         randomness = Randomness.rand(hiding_bound)
-
-    #     random_ints = convert_to_bigints(randomness.blind_poly)
-
-    #     # random_ints=from_tensor_list(random_ints)
-    #     # from_list_gmpy(random_ints)
-    #     random_commitment:ProjectivePointG1 = MSM(powers[1],random_ints,params)
-    #     random_commitment_affine = random_commitment.to_affine()
-    #     commitment = commitment.add_assign_mixed(random_commitment_affine)
-    #     commitment_affine = commitment.to_affine()
-    #     return Commitment(value=commitment_affine),randomness
     
     @classmethod
-    def commit_new(cls,powers_of_g,powers_of_gamma_g,polynomial:torch.tensor,hiding_bound):
+    def commit_new(cls, powers_of_g, powers_of_gamma_g, polynomial, hiding_bound):
         num_leading_zeros, plain_coeffs = skip_leading_zeros_and_convert_to_bigints(polynomial)
         commitment = MSM_new(powers_of_g[num_leading_zeros:], plain_coeffs)
         randomness = Randomness.empty()
@@ -97,7 +67,7 @@ def open(
     _rng=None
 ):
     
-    combined_polynomial = torch.tensor([],dtype=torch.BLS12_381_Fr_G1_Mont)
+    combined_polynomial = torch.tensor([], dtype = fr.Fr.Dtype)
     combined_rand = Randomness.empty()
 
     opening_challenge_counter = 0
@@ -107,15 +77,15 @@ def open(
    
     i=0
     for polynomial, rand in zip(labeled_polynomials, rands):
-        combined_polynomial = poly_add_poly_mul_const(combined_polynomial,curr_challenge, polynomial.poly)  #polynomial.poly is tensor
+        combined_polynomial = poly_add_poly_mul_const(combined_polynomial, curr_challenge, polynomial.poly)  #polynomial.poly is tensor
         combined_rand.add_assign(curr_challenge, rand)
         curr_challenge = opening_challenges(opening_challenge, opening_challenge_counter)
         opening_challenge_counter += 1
         i=i+1
 
-    powers_of_g = torch.tensor(ck["powers_of_g"],dtype=torch.BLS12_381_Fq_G1_Mont)
-    powers_of_gamma_g = torch.tensor(ck["powers_of_gamma_g"],dtype=torch.BLS12_381_Fq_G1_Mont)
-    proof = open_proof(powers_of_g, powers_of_gamma_g,combined_polynomial, point, combined_rand)
+    powers_of_g = torch.tensor(ck["powers_of_g"], dtype = fq.Fq.Dtype)
+    powers_of_gamma_g = torch.tensor(ck["powers_of_gamma_g"], dtype = fq.Fq.Dtype)
+    proof = open_proof(powers_of_g, powers_of_gamma_g, combined_polynomial.to("cpu"), point, combined_rand)
     return proof
 
 dataclass
@@ -164,8 +134,8 @@ def commit_poly_new(ck:UniversalParams, polys):
         polynomial = labeled_poly.poly
         hiding_bound = labeled_poly.hiding_bound
         label = labeled_poly.label
-        powers_of_g = torch.tensor(ck["powers_of_g"],dtype=torch.BLS12_381_Fq_G1_Mont)
-        powers_of_gamma_g = torch.tensor(ck["powers_of_gamma_g"],dtype=torch.BLS12_381_Fq_G1_Mont)
+        powers_of_g = torch.tensor(ck["powers_of_g"], dtype = fq.Fq.Dtype)
+        powers_of_gamma_g = torch.tensor(ck["powers_of_gamma_g"], dtype = fq.Fq.Dtype)
         # for var in variables:
         #     if isinstance(var, torch.Tensor):
         #         print(var.device)
@@ -180,28 +150,21 @@ def commit_poly_new(ck:UniversalParams, polys):
 
 
 
-def opening_challenges(opening_challenge: fr.Fr, pow):
-    res=opening_challenge.pow(pow)
-    return torch.tensor(from_gmpy_list_1(res),dtype=torch.BLS12_381_Fr_G1_Mont)
+def opening_challenges(opening_challenge, exp):
+    res = pow(opening_challenge, exp)
+    return res
 
 # Compute witness polynomial.
 #
 # The witness polynomial w(x) the quotient of the division (p(x) - p(z)) / (x - z)
 # Observe that this quotient does not change with z because
 # p(z) is the remainder term. We can therefore omit p(z) when computing the quotient.
-def compute_witness_polynomial(p: List[fr.Fr], point: fr.Fr, randomness: Randomness):
-    point =torch.tensor(from_gmpy_list_1(point),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    neg_p = neg(point)
-    neg_p=neg_p.to('cpu')
-    one = torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont)
-    input=[neg_p,one]
-    input = torch.stack(input,dim=0)
-    divisor = from_coeff_vec(input)
-    p=p.to('cuda')
-    witness_polynomial = p[:]
-    divisor=divisor.to('cuda')
-
-    if len(p) != 0:
+def compute_witness_polynomial(p: List[fr.Fr], point, randomness: Randomness):
+    mod = fr.Fr.MODULUS
+    neg_p = F.sub_mod(mod, point)
+    one = fr.Fr.one().value
+    divisor = torch.stack((neg_p, one), dim=0)
+    if p.size(0) != 0:
         witness_polynomial = poly_div_poly(p, divisor)
     random_witness_polynomial = None
     if len(randomness.blind_poly) != 0:
@@ -212,18 +175,18 @@ def compute_witness_polynomial(p: List[fr.Fr], point: fr.Fr, randomness: Randomn
 def open_with_witness_polynomial(
     powers_of_g,
     powers_of_gamma_g, 
-    point: fr.Fr, 
+    point, 
     randomness: Randomness,
     witness_polynomial, 
     hiding_witness_polynomial):
 
 
     num_leading_zeros, witness_coeffs =skip_leading_zeros_and_convert_to_bigints(witness_polynomial)
-    w = MSM_new(powers_of_g[num_leading_zeros:],witness_coeffs)
+    w = MSM_new(powers_of_g[num_leading_zeros:], witness_coeffs)
     random_v = None
     if hiding_witness_polynomial is not None:
         blinding_p = randomness.blind_poly
-        blinding_evaluation = evaluate(blinding_p, point)
+        blinding_evaluation = F.evaluate(blinding_p, point.to("cuda"))
         random_witness_coeffs = convert_to_bigints(hiding_witness_polynomial)
         random_commit = MSM_new(powers_of_gamma_g,random_witness_coeffs)
         w = add_assign(w,random_commit)

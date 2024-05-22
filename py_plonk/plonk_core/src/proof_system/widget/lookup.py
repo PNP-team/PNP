@@ -251,6 +251,7 @@ def compute_quotient_i(
         lookup_sep_cu = lookup_sep_cu.to("cuda")
         one_plus_delta = one_plus_delta.to("cuda")
         epsilon_one_plus_delta = epsilon_one_plus_delta.to("cuda")
+        one = one.to("cuda")
         extend_mod = extend_mod.to("cuda")
 
         # Calculate q_lookup_i * (compressed_tuple - f_i)
@@ -296,38 +297,35 @@ def compute_quotient_i(
 
     
 def compute_linearisation_lookup(
-    l1_eval: fr.Fr,
-    a_eval: fr.Fr,
-    b_eval: fr.Fr,
-    c_eval: fr.Fr,
-    d_eval: fr.Fr,
-    f_eval: fr.Fr,
-    table_eval: fr.Fr,
-    table_next_eval: fr.Fr,
-    h1_next_eval: fr.Fr,
-    h2_eval: fr.Fr,
-    z2_next_eval: fr.Fr,
-    delta: fr.Fr,
-    epsilon: fr.Fr,
-    zeta: fr.Fr,
-    z2_poly: list[fr.Fr],
-    h1_poly: list[fr.Fr],
-    lookup_sep: fr.Fr,
+    l1_eval,
+    a_eval,
+    b_eval,
+    c_eval,
+    d_eval,
+    f_eval,
+    table_eval,
+    table_next_eval,
+    h1_next_eval,
+    h2_eval,
+    z2_next_eval,
+    delta,
+    epsilon,
+    zeta,
+    z2_poly,
+    h1_poly,
+    lookup_sep,
     pk_q_lookup,
 ):
-    lookup_sep=torch.tensor(from_gmpy_list_1(lookup_sep),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    delta=torch.tensor(from_gmpy_list_1(delta),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    epsilon=torch.tensor(from_gmpy_list_1(epsilon),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    zeta=torch.tensor(from_gmpy_list_1(zeta),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    # one = delta.one()
-    one= torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
+    one = fr.Fr.one().value
+    one = one.to("cuda")
+    mod = fr.Fr.MODULUS.to("cuda")
     lookup_sep_sq = F.mul_mod(lookup_sep, lookup_sep)
     lookup_sep_cu = F.mul_mod(lookup_sep_sq, lookup_sep)
     one_plus_delta = F.add_mod(delta, one)
     epsilon_one_plus_delta = F.mul_mod(epsilon, one_plus_delta)
 
     compressed_tuple = lc([a_eval, b_eval, c_eval, d_eval], zeta)
-    compressed_tuple_sub_f_eval = F.sub_mod(compressed_tuple,f_eval)
+    compressed_tuple_sub_f_eval = F.sub_mod(compressed_tuple, f_eval)
     const1 = F.mul_mod(compressed_tuple_sub_f_eval, lookup_sep)
     a = poly_mul_const(pk_q_lookup, const1)
 
@@ -345,7 +343,8 @@ def compute_linearisation_lookup(
     b = poly_mul_const(z2_poly, const2)
 
     # h1(X) * (−z2ω_bar) * (ε(1+δ) + h2_bar  + δh1ω_bar) * lookup_sep^2
-    neg_z2_next_eval=neg(z2_next_eval)
+
+    neg_z2_next_eval = F.sub_mod(mod, z2_next_eval)
     c_0 = F.mul_mod(neg_z2_next_eval, lookup_sep_sq)
     epsilon_one_plus_delta_h2_eval = F.add_mod(epsilon_one_plus_delta, h2_eval)
     delta_h1_next_eval =  F.add_mod(delta, h1_next_eval)

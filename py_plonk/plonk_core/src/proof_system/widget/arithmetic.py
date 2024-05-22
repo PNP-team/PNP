@@ -129,7 +129,7 @@ def compute_linearisation_arithmetic(
         q_arith_eval,
         prover_key_arithmetic):
 
-        mid1_1 =F.mul_mod(a_eval, b_eval)
+        mid1_1 = F.mul_mod(a_eval, b_eval)
 
         mid1 = poly_mul_const(prover_key_arithmetic['q_m']['coeffs'], mid1_1)
         mid2 = poly_mul_const(prover_key_arithmetic['q_l']['coeffs'], a_eval)

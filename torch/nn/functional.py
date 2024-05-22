@@ -5546,6 +5546,7 @@ def evaluate(poly: Tensor, x: Tensor) -> Tensor:
     if poly.size(0) == 0:
         result = torch.zeros(4, dtype = poly.dtype).to("cuda")
     else:
+        x = torch.poly_eval(x, poly.size(0))
         result = torch.poly_reduce(x, poly)
     return result
 

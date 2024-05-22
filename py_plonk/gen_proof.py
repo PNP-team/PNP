@@ -11,11 +11,11 @@ from .plonk_core.src.proof_system.pi import into_dense_poly
 from .plonk_core.src.proof_system import quotient_poly
 from .plonk_core.src.proof_system import linearisation_poly
 import numpy as np
-from .arithmetic import from_coeff_vec,resize_cpu,\
-                        from_list_gmpy_1,INTT
+from .arithmetic import from_coeff_vec,resize_cpu,INTT
 from .KZG import kzg10
 import torch
-import time
+import torch.nn.functional as F
+
 date_set2=["../../data/MERKLE-HEIGHT-9/pp-9.npz","../../data/MERKLE-HEIGHT-9/pk-9.npz","../../data/MERKLE-HEIGHT-9/cs-9.npz","../../data/MERKLE-HEIGHT-9/w_l_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_r_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_o_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_4_scalar-9.npy"]
 
 def split_tx_poly(n,t_x):
@@ -99,7 +99,7 @@ class gen_proof:
         t_multiset = multiset.MultiSet(concatenated_lookup)
 
         
-        compressed_t_multiset = t_multiset.compress(zeta)     
+        compressed_t_multiset = t_multiset.compress(zeta.value)     
         # Compute table poly
 
         compressed_t_poly =INTT(n,compressed_t_multiset.elements)
@@ -142,7 +142,7 @@ class gen_proof:
         f_scalars.elements[2],
         f_scalars.elements[3]], dim=0)
         f_scalars=multiset.MultiSet(concatenated_f_scalars)
-        compressed_f_multiset = f_scalars.compress(zeta)
+        compressed_f_multiset = f_scalars.compress(zeta.value)
 
         # Compute query poly
         compressed_f_poly = INTT(n,compressed_f_multiset.elements)
@@ -202,16 +202,20 @@ class gen_proof:
         assert torch.equal(gamma.value, epsilon.value) == False, "challenges must be different"
         assert torch.equal(delta.value, epsilon.value) == False, "challenges must be different"
         
-        pk_permutation=pk["permutation"].tolist()
+        pk_permutation = pk["permutation"].tolist()
+        pk_permutation['left_sigma']['coeffs'] = torch.tensor(pk_permutation['left_sigma']['coeffs'], dtype = fr.Fr.Dtype)
+        pk_permutation['right_sigma']['coeffs'] = torch.tensor(pk_permutation['right_sigma']['coeffs'], dtype = fr.Fr.Dtype)
+        pk_permutation['out_sigma']['coeffs'] = torch.tensor(pk_permutation['out_sigma']['coeffs'], dtype = fr.Fr.Dtype)
+        pk_permutation['fourth_sigma']['coeffs'] = torch.tensor(pk_permutation['fourth_sigma']['coeffs'], dtype = fr.Fr.Dtype)
         z_poly = mod.compute_permutation_poly(domain,
             (w_l_scalar, w_r_scalar, w_o_scalar, w_4_scalar),
             beta.value,
             gamma.value,
             [
-                torch.tensor(pk_permutation['left_sigma']['coeffs'], dtype = fr.Fr.Dtype),
-                torch.tensor(pk_permutation['right_sigma']['coeffs'], dtype = fr.Fr.Dtype),
-                torch.tensor(pk_permutation['out_sigma']['coeffs'], dtype = fr.Fr.Dtype),
-                torch.tensor(pk_permutation['fourth_sigma']['coeffs'], dtype = fr.Fr.Dtype)
+                pk_permutation['left_sigma']['coeffs'],
+                pk_permutation['right_sigma']['coeffs'],
+                pk_permutation['out_sigma']['coeffs'],
+                pk_permutation['fourth_sigma']['coeffs']
             ]
             )
         # Commit to permutation polynomial.
@@ -322,63 +326,46 @@ class gen_proof:
                 h_2_poly,
                 table_poly)
 
-        # for work on cpu append still uses gmp
-        evaluations.wire_evals.a_eval = evaluations.wire_evals.a_eval.tolist()
-        evaluations.wire_evals.b_eval = evaluations.wire_evals.b_eval.tolist()
-        evaluations.wire_evals.c_eval = evaluations.wire_evals.c_eval.tolist()
-        evaluations.wire_evals.d_eval = evaluations.wire_evals.d_eval.tolist()
-        evaluations.perm_evals.left_sigma_eval = evaluations.perm_evals.left_sigma_eval.tolist()
-        evaluations.perm_evals.right_sigma_eval = evaluations.perm_evals.right_sigma_eval.tolist()
-        evaluations.perm_evals.out_sigma_eval = evaluations.perm_evals.out_sigma_eval.tolist()
-        evaluations.perm_evals.permutation_eval = evaluations.perm_evals.permutation_eval.tolist()
-        evaluations.lookup_evals.f_eval = evaluations.lookup_evals.f_eval.tolist()
-        evaluations.lookup_evals.q_lookup_eval = evaluations.lookup_evals.q_lookup_eval.tolist()
-        evaluations.lookup_evals.z2_next_eval = evaluations.lookup_evals.z2_next_eval.tolist()
-        evaluations.lookup_evals.h1_eval = evaluations.lookup_evals.h1_eval.tolist()
-        evaluations.lookup_evals.h1_next_eval = evaluations.lookup_evals.h1_next_eval.tolist()
-        evaluations.lookup_evals.h2_eval = evaluations.lookup_evals.h2_eval.tolist()
-
-        wea=from_list_gmpy_1(evaluations.wire_evals.a_eval)
-        web=from_list_gmpy_1(evaluations.wire_evals.b_eval)
-        wec=from_list_gmpy_1(evaluations.wire_evals.c_eval)
-        wed=from_list_gmpy_1(evaluations.wire_evals.d_eval)
-        lse=from_list_gmpy_1(evaluations.perm_evals.left_sigma_eval)
-        rse=from_list_gmpy_1(evaluations.perm_evals.right_sigma_eval)
-        ose=from_list_gmpy_1(evaluations.perm_evals.out_sigma_eval)
-        ppe=from_list_gmpy_1(evaluations.perm_evals.permutation_eval)
-        lef=from_list_gmpy_1(evaluations.lookup_evals.f_eval)
-        leqe=from_list_gmpy_1(evaluations.lookup_evals.q_lookup_eval)
-        leze=from_list_gmpy_1(evaluations.lookup_evals.z2_next_eval)
-        lehe1=from_list_gmpy_1(evaluations.lookup_evals.h1_eval)
-        lehne=from_list_gmpy_1(evaluations.lookup_evals.h1_next_eval)
-        lehe2=from_list_gmpy_1(evaluations.lookup_evals.h2_eval)
+        evaluations.wire_evals.a_eval = evaluations.wire_evals.a_eval.to("cpu")
+        evaluations.wire_evals.b_eval = evaluations.wire_evals.b_eval.to("cpu")
+        evaluations.wire_evals.c_eval = evaluations.wire_evals.c_eval.to("cpu")
+        evaluations.wire_evals.d_eval = evaluations.wire_evals.d_eval.to("cpu")
+        evaluations.perm_evals.left_sigma_eval = evaluations.perm_evals.left_sigma_eval.to("cpu")
+        evaluations.perm_evals.right_sigma_eval = evaluations.perm_evals.right_sigma_eval.to("cpu")
+        evaluations.perm_evals.out_sigma_eval = evaluations.perm_evals.out_sigma_eval.to("cpu")
+        evaluations.perm_evals.permutation_eval = evaluations.perm_evals.permutation_eval.to("cpu")
+        evaluations.lookup_evals.f_eval = evaluations.lookup_evals.f_eval.to("cpu")
+        evaluations.lookup_evals.q_lookup_eval = evaluations.lookup_evals.q_lookup_eval.to("cpu")
+        evaluations.lookup_evals.z2_next_eval = evaluations.lookup_evals.z2_next_eval.to("cpu")
+        evaluations.lookup_evals.h1_eval = evaluations.lookup_evals.h1_eval.to("cpu")
+        evaluations.lookup_evals.h1_next_eval = evaluations.lookup_evals.h1_next_eval.to("cpu")
+        evaluations.lookup_evals.h2_eval = evaluations.lookup_evals.h2_eval.to("cpu")
         
         # Add evaluations to transcript.
         # First wire evals
-        transcript.append(b"a_eval",wea)
-        transcript.append(b"b_eval", web)
-        transcript.append(b"c_eval", wec)
-        transcript.append(b"d_eval", wed)
+        transcript.append(b"a_eval", fr.Fr(evaluations.wire_evals.a_eval))
+        transcript.append(b"b_eval", fr.Fr(evaluations.wire_evals.b_eval))
+        transcript.append(b"c_eval", fr.Fr(evaluations.wire_evals.c_eval))
+        transcript.append(b"d_eval", fr.Fr(evaluations.wire_evals.d_eval))
 
         # Second permutation evals
-        transcript.append(b"left_sig_eval", lse)
-        transcript.append(b"right_sig_eval",rse)
-        transcript.append(b"out_sig_eval", ose)
-        transcript.append(b"perm_eval", ppe)
+        transcript.append(b"left_sig_eval", fr.Fr(evaluations.perm_evals.left_sigma_eval))
+        transcript.append(b"right_sig_eval", fr.Fr(evaluations.perm_evals.right_sigma_eval))
+        transcript.append(b"out_sig_eval", fr.Fr(evaluations.perm_evals.out_sigma_eval))
+        transcript.append(b"perm_eval", fr.Fr(evaluations.perm_evals.permutation_eval))
 
         # Third lookup evals
-        transcript.append(b"f_eval", lef)
-        transcript.append(b"q_lookup_eval", leqe)
-        transcript.append(b"lookup_perm_eval",leze)
-        transcript.append(b"h_1_eval", lehe1)
-        transcript.append(b"h_1_next_eval", lehne)
-        transcript.append(b"h_2_eval", lehe2)
+        transcript.append(b"f_eval", fr.Fr(evaluations.lookup_evals.f_eval))
+        transcript.append(b"q_lookup_eval", fr.Fr(evaluations.lookup_evals.q_lookup_eval))
+        transcript.append(b"lookup_perm_eval", fr.Fr(evaluations.lookup_evals.z2_next_eval))
+        transcript.append(b"h_1_eval", fr.Fr(evaluations.lookup_evals.h1_eval))
+        transcript.append(b"h_1_next_eval", fr.Fr(evaluations.lookup_evals.h1_next_eval))
+        transcript.append(b"h_2_eval", fr.Fr(evaluations.lookup_evals.h2_eval))
 
         # Fourth, all evals needed for custom gates
         for label, eval in evaluations.custom_evals.vals:
             static_label = label.encode('utf-8')
-            eval=eval.tolist()
-            eval=from_list_gmpy_1(eval)
+            eval = fr.Fr(eval.to("cpu"))
             transcript.append(static_label, eval)
 
         # 5. Compute Openings using KZG10
@@ -394,45 +381,45 @@ class gen_proof:
         # opening poly. It is being left in for now but it may not
         # be necessary. Warrants further investigation.
         # Ditto with the out_sigma poly.
-        pk_permutation['left_sigma']['coeffs']=torch.tensor(pk_permutation['left_sigma']['coeffs'],dtype=torch.BLS12_381_Fr_G1_Mont)
-        pk_permutation['right_sigma']['coeffs'] =torch.tensor(pk_permutation['right_sigma']['coeffs'],dtype=torch.BLS12_381_Fr_G1_Mont)
-        pk_permutation['out_sigma']['coeffs'] =torch.tensor(pk_permutation['out_sigma']['coeffs'],dtype=torch.BLS12_381_Fr_G1_Mont)
-        aw_polys = [kzg10.LabeledPoly.new(label="lin_poly",hiding_bound=None,poly=lin_poly),
-                    kzg10.LabeledPoly.new(label="prover_key.permutation.left_sigma.0.clone()",hiding_bound=None,poly=pk_permutation['left_sigma']['coeffs']),
-                    kzg10.LabeledPoly.new(label="prover_key.permutation.right_sigma.0.clone()",hiding_bound=None,poly=pk_permutation['right_sigma']['coeffs']),
-                    kzg10.LabeledPoly.new(label="prover_key.permutation.out_sigma.0.clone()",hiding_bound=None,poly=pk_permutation['out_sigma']['coeffs']),
-                    kzg10.LabeledPoly.new(label="f_poly",hiding_bound=None,poly=f_poly),
-                    kzg10.LabeledPoly.new(label="h_2_poly",hiding_bound=None,poly=h_2_poly),
-                    kzg10.LabeledPoly.new(label="table_poly",hiding_bound=None,poly=table_poly)]
+
+        aw_polys = [kzg10.LabeledPoly.new(label="lin_poly", hiding_bound=None, poly=lin_poly),
+                    kzg10.LabeledPoly.new(label="prover_key.permutation.left_sigma.0.clone()", hiding_bound=None, poly=pk_permutation['left_sigma']['coeffs']),
+                    kzg10.LabeledPoly.new(label="prover_key.permutation.right_sigma.0.clone()", hiding_bound=None, poly=pk_permutation['right_sigma']['coeffs']),
+                    kzg10.LabeledPoly.new(label="prover_key.permutation.out_sigma.0.clone()", hiding_bound=None, poly=pk_permutation['out_sigma']['coeffs']),
+                    kzg10.LabeledPoly.new(label="f_poly", hiding_bound=None, poly=f_poly),
+                    kzg10.LabeledPoly.new(label="h_2_poly", hiding_bound=None, poly=h_2_poly),
+                    kzg10.LabeledPoly.new(label="table_poly", hiding_bound=None, poly=table_poly)]
         
 
-        aw_commits, aw_rands = kzg10.commit_poly_new(pp,aw_polys)
+        aw_commits, aw_rands = kzg10.commit_poly_new(pp, aw_polys)
         aw_opening = kzg10.open(
             pp,
             itertools.chain(aw_polys, w_polys),
             itertools.chain(aw_commits, w_commits),
-            z_challenge,
-            aw_challenge,
+            z_challenge.value,
+            aw_challenge.value.to("cuda"),
             itertools.chain(aw_rands, w_rands),
             None
         )
 
         saw_challenge = transcript.challenge_scalar(b"aggregate_witness")
-        saw_polys = [kzg10.LabeledPoly.new(label="z_poly",hiding_bound=None,poly=z_poly),
-                    kzg10.LabeledPoly.new(label="w_l_poly",hiding_bound=None,poly=w_l_poly),
-                    kzg10.LabeledPoly.new(label="w_r_poly",hiding_bound=None,poly=w_r_poly),
-                    kzg10.LabeledPoly.new(label="w_4_poly",hiding_bound=None,poly=w_4_poly),
-                    kzg10.LabeledPoly.new(label="h_1_poly",hiding_bound=None,poly=h_1_poly),
-                    kzg10.LabeledPoly.new(label="z_2_poly",hiding_bound=None,poly=z_2_poly),
-                    kzg10.LabeledPoly.new(label="table_poly",hiding_bound=None,poly=table_poly)]
+        saw_polys = [kzg10.LabeledPoly.new(label="z_poly", hiding_bound=None, poly=z_poly),
+                    kzg10.LabeledPoly.new(label="w_l_poly", hiding_bound=None, poly=w_l_poly),
+                    kzg10.LabeledPoly.new(label="w_r_poly", hiding_bound=None, poly=w_r_poly),
+                    kzg10.LabeledPoly.new(label="w_4_poly", hiding_bound=None, poly=w_4_poly),
+                    kzg10.LabeledPoly.new(label="h_1_poly", hiding_bound=None, poly=h_1_poly),
+                    kzg10.LabeledPoly.new(label="z_2_poly", hiding_bound=None, poly=z_2_poly),
+                    kzg10.LabeledPoly.new(label="table_poly", hiding_bound=None, poly=table_poly)]
         
         saw_commits, saw_rands = kzg10.commit_poly_new(pp,saw_polys)
+        element = domain.element(1)
+        open_point = F.mul_mod(z_challenge.value, element)
         saw_opening = kzg10.open(
             pp,
             saw_polys,
             saw_commits,
-            z_challenge.mul(domain.element(1)),
-            saw_challenge,
+            open_point,
+            saw_challenge.value.to("cuda"),
             saw_rands,
             None
         )

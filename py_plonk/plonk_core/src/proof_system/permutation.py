@@ -381,14 +381,13 @@ def compute_quotient_term_check_one_i(z_i, l1_alpha_sq):
 
 # Computes the permutation term of the linearisation polynomial.
 def compute_linearisation_permutation(
-    n, 
-    z_challenge: fr.Fr, 
-    challengTuple: Tuple[fr.Fr,fr.Fr,fr.Fr], 
-    wireTuple: Tuple[fr.Fr,fr.Fr,fr.Fr,fr.Fr], 
-    sigmaTuple: Tuple[fr.Fr,fr.Fr,fr.Fr], 
-    z_eval, z_poly,domain,
+    z_challenge, 
+    challengTuple, 
+    wireTuple, 
+    sigmaTuple, 
+    z_eval, z_poly, domain,
     pk_fourth_sigma_coeff):
-    z_challenge=z_challenge.to('cuda')
+    mod = fr.Fr.MODULUS.to("cuda")
     a = compute_lineariser_identity_range_check(
         wireTuple[0],wireTuple[1],wireTuple[2],wireTuple[3],
         z_challenge,
@@ -396,14 +395,15 @@ def compute_linearisation_permutation(
         z_poly
     )
     b = compute_lineariser_copy_range_check(
+        mod,
         wireTuple[0], wireTuple[1], wireTuple[2],
         z_eval,
         sigmaTuple[0],sigmaTuple[1],sigmaTuple[2],
         challengTuple[0],challengTuple[1],challengTuple[2],
         pk_fourth_sigma_coeff
     )
-    alpha2 = challengTuple[0].square()
-    alpha2=torch.tensor(from_gmpy_list_1(alpha2),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
+    alpha2 = F.mul_mod(challengTuple[0], challengTuple[0])
+    alpha2 = alpha2.to('cuda')
     c = compute_lineariser_check_is_one(
         domain,
         z_challenge,
@@ -418,17 +418,15 @@ def compute_linearisation_permutation(
 # -(a_eval + beta * sigma_1 + gamma)(b_eval + beta * sigma_2 + gamma)
 # (c_eval + beta * sigma_3 + gamma) * beta *z_eval * alpha^2 * Sigma_4(X)
 def compute_lineariser_copy_range_check(
+    mod,
     a_eval: fr.Fr, b_eval: fr.Fr, c_eval: fr.Fr,
     z_eval: fr.Fr,
     sigma_1_eval: fr.Fr,
     sigma_2_eval: fr.Fr,
     sigma_3_eval: fr.Fr,
     alpha: fr.Fr, beta: fr.Fr, gamma: fr.Fr,
-    fourth_sigma_poly: List[fr.Fr],
+    fourth_sigma_poly,
 ):
-    beta=torch.tensor(from_gmpy_list_1(beta),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    gamma=torch.tensor(from_gmpy_list_1(gamma),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    alpha=torch.tensor(from_gmpy_list_1(alpha),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
     # a_eval + beta * sigma_1 + gamma
     beta_sigma_1 = F.mul_mod(beta, sigma_1_eval)
     a_0 = F.add_mod(a_eval, beta_sigma_1)
@@ -449,8 +447,7 @@ def compute_lineariser_copy_range_check(
     a = F.mul_mod(a, a_2)
     a = F.mul_mod(a, beta_z_eval)
     a = F.mul_mod(a, alpha)
-    neg_a = neg(a)
-
+    neg_a = F.sub_mod(mod, a)
 
     res = poly_mul_const(fourth_sigma_poly,neg_a)
     return res
@@ -462,31 +459,28 @@ def compute_lineariser_identity_range_check(
     a_eval: fr.Fr, b_eval: fr.Fr, c_eval: fr.Fr, d_eval: fr.Fr,
     z_challenge: fr.Fr,
     alpha: fr.Fr, beta: fr.Fr, gamma: fr.Fr,
-    z_poly: List[fr.Fr]
+    z_poly
 ):
-    beta=torch.tensor(from_gmpy_list_1(beta),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    gamma=torch.tensor(from_gmpy_list_1(gamma),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    alpha=torch.tensor(from_gmpy_list_1(alpha),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
     beta_z = F.mul_mod(beta, z_challenge)
     # a_eval + beta * z_challenge + gamma
     a_0 = F.add_mod(a_eval, beta_z)
     a_0 = F.add_mod(a_0, gamma)
 
     # b_eval + beta * K1 * z_challenge + gamma
-    k1=torch.tensor(from_gmpy_list_1(K1()),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    beta_z_k1 = F.mul_mod(k1,beta_z)
+    k1 = K1().value.to('cuda')
+    beta_z_k1 = F.mul_mod(k1, beta_z)
     a_1 = F.add_mod(b_eval, beta_z_k1)
     a_1 = F.add_mod(a_1, gamma)
 
     # c_eval + beta * K2 * z_challenge + gamma
-    k2=torch.tensor(from_gmpy_list_1(K2()),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    beta_z_k2 = F.mul_mod(k2,beta_z)
+    k2 = K2().value.to('cuda')
+    beta_z_k2 = F.mul_mod(k2, beta_z)
     a_2 = F.add_mod(c_eval, beta_z_k2)
     a_2 = F.add_mod(a_2, gamma)
 
     # d_eval + beta * K3 * z_challenge + gamma
-    k3=torch.tensor(from_gmpy_list_1(K3()),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    beta_z_k3 = F.mul_mod(k3,beta_z)
+    k3 = K3().value.to('cuda')
+    beta_z_k3 = F.mul_mod(k3, beta_z)
     a_3 = F.add_mod(d_eval, beta_z_k3)
     a_3 = F.add_mod(a_3, gamma)
 
@@ -506,8 +500,8 @@ def compute_lineariser_check_is_one(
 
     lagrange_coefficients = domain.evaluate_all_lagrange_coefficients(z_challenge)
     l_1_z = lagrange_coefficients[0]
-    const =F.mul_mod(l_1_z,alpha_sq)
-    res = poly_mul_const(z_coeffs,const)
+    const = F.mul_mod(l_1_z, alpha_sq)
+    res = poly_mul_const(z_coeffs, const)
     return res
 
 

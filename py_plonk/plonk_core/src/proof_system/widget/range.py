@@ -18,14 +18,15 @@ class RangeValues:
 
 class RangeGate:
     @staticmethod
-    def constraints(four, separation_challenge, wit_vals:WitnessValues, custom_vals:RangeValues):
-        #single scalar OP on CPU
+    def constraints(separation_challenge, wit_vals:WitnessValues, custom_vals:RangeValues):
+        four = fr.Fr.from_repr(4).value
+        four = four.to("cuda")
         kappa = F.mul_mod(separation_challenge, separation_challenge)
         kappa_sq = F.mul_mod(kappa, kappa)
         kappa_cu = F.mul_mod(kappa_sq, kappa)
 
         b_1_1 = F.mul_mod_scalar(wit_vals.d_val, four)
-        f_b1= F.sub_mod(wit_vals.c_val, b_1_1)
+        f_b1 = F.sub_mod(wit_vals.c_val, b_1_1)
         b_1 = delta(f_b1)
 
         b_2_1 = F.mul_mod(four, wit_vals.c_val)
@@ -90,7 +91,9 @@ class RangeGate:
     
     @staticmethod
     def linearisation_term(selector_poly, separation_challenge, wit_vals, custom_vals):
-        four = fr.Fr.from_repr(4).value
-        temp = RangeGate.constraints(four.to("cuda"), separation_challenge, wit_vals, custom_vals)
-        res = poly_mul_const(selector_poly, temp)
+        temp = RangeGate.constraints(separation_challenge, wit_vals, custom_vals)
+        if selector_poly.size(0) == 0:
+            res = selector_poly.clone()
+        else:
+            res = F.mul_mod_scalar(selector_poly, temp)
         return res

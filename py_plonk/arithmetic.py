@@ -148,7 +148,7 @@ def domain_trans_tensor(domain_ele):
         # domain_ele.value=xx
         return xx
 
-def extend_tensor(input:torch.tensor,size):
+def extend_tensor(input:torch.Tensor,size):
     if size == 0:
         return input
     res = torch.zeros(size, 4, dtype=torch.BLS12_381_Fr_G1_Mont)
@@ -345,6 +345,7 @@ def convert_to_bigints(p: torch.Tensor):
 #     return num_leading_zeros, coeffs
 
 def skip_leading_zeros_and_convert_to_bigints(p: torch.Tensor):
+    p = p.to("cpu")
     num_leading_zeros = 0
     zero = fr.Fr.zero()
     while num_leading_zeros < p.size(0) and torch.equal(p[num_leading_zeros], zero.value):
@@ -419,9 +420,6 @@ def coset_INTT(size, evals:torch.tensor):
 #     return evals
 
 def from_coeff_vec(poly:torch.Tensor):
-    # coeffs=from_tensor_list(coeffs)  
-    # result = coeffs[:]
-    # print(result[-1])
     #TODO 缺少等于
     poly = poly.to("cpu")
     zero = fr.Fr.zero().value
@@ -445,50 +443,28 @@ def from_coeff_vec_list(coeffs:list):
     return output
 
 def poly_add_poly(self: torch.tensor, other: torch.tensor):    #input tensor output tensor
-    maxlengh=max(len(self),len(other))
-    if not self.is_cuda:
-        self=self.to('cuda')
-    if not other.is_cuda:
-        other=other.to('cuda')
-    if len(self) == 0 or torch.equal(self,torch.zeros(4,dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')):
+    if self.size(0) == 0:
         res = other[:]
-      
         return res
-    if len(other) == 0 or torch.equal(other,torch.zeros(4,dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')):
+    if other.size(0) == 0:
         res =self[:]
-  
         return res
     elif len(self) >= len(other):
-        result=self.clone()
-        # for i in range(len(other)):
-        #     result[i] = F.add_mod(result[i],other[i])
-        ##inplace for keep length
+        result = self.clone()
         F.add_mod(result[:len(other)],other,True)
         result = from_coeff_vec(result)
-        
-        return result
+        return result.to("cuda")
     else:
-        result=other.clone()
-        # for i in range(len(self)):
-        #     result[i] = F.add_mod(result[i],self[i])
+        result = other.clone()
         F.add_mod(result[:len(self)],self,True)
         result = from_coeff_vec(result)
-       
-        return result
+        return result.to("cuda")
 
-def poly_mul_const(poly:torch.tensor,elem:torch.tensor):  
-    if not elem.is_cuda:
-        elem=elem.to('cuda')
-    if  not poly.is_cuda:
-        poly=poly.to('cuda')
-    if len(poly) == 0 :
-        return poly.to('cuda')
+def poly_mul_const(poly:torch.Tensor, elem:torch.Tensor):  
+    if poly.size(0) == 0 :
+        return poly
     else:
-        result =poly.clone()
-        # for i in range(len(result)):
-        #     result[i] = F.mul_mod(result[i],elem)
-        elem= extend_tensor(elem,len(result))
-        result=F.mul_mod(result,elem)
+        result = F.mul_mod_scalar(poly,elem)
         return result
 
 
@@ -497,42 +473,37 @@ def to_listtensor(input):
     for i in range(len(input)):
         res.append(input[i])
     return res
-def divide_with_q_and_r(self: list[fr.Fr], divisor: list[fr.Fr]):
-    if len(self) == 0:
+def divide_with_q_and_r(self: torch.Tensor, divisor: torch.Tensor):
+    if self.size(0) == 0:
         return self
-    elif len(divisor) == 0:
-        raise ValueError("Dividing by zero polynomial")
-    elif len(self) < len(divisor):
-        zero = torch.zeros(1,4,dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
+    elif self.size(0) < divisor.size(0):
+        zero = fr.Fr.zero().value
         return zero
     else:
+        one = fr.Fr.one().value
+        quotient = torch.zeros(self.size(0) - divisor.size(0) + 1, fr.Fr.Limbs, dtype = fr.Fr.Dtype)
+        remainder = self
 
-        quotient = torch.zeros(len(self) - len(divisor) + 1,4,dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-        one = torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont)
-        remainder = to_listtensor(self[:])
-
-        divisor_leading = divisor[-1]
-        divisor_leading=divisor_leading.to('cpu')
-        # single ele work on cpu
-        divisor_leading_inv = F.div_mod(one,divisor_leading)
-        divisor_leading_inv=divisor_leading_inv.to('cuda')
-        while len(remainder) != 0 and len(remainder) >= len(divisor):
+        divisor_leading = divisor[-1].clone()
+        divisor_leading_inv = F.div_mod(one, divisor_leading)
+        while remainder.size(0) != 0 and remainder.size(0) >= divisor.size(0):
             remainder_leading = remainder[-1]
-            cur_q_coeff = F.mul_mod(remainder_leading,divisor_leading_inv)
-            cur_q_degree = len(remainder) - len(divisor)
+            cur_q_coeff = F.mul_mod(remainder_leading, divisor_leading_inv)
+            cur_q_degree = remainder.size(0) - divisor.size(0)
             quotient[cur_q_degree] = cur_q_coeff
             for i, div_coeff in enumerate(divisor):
-                temp = F.mul_mod(cur_q_coeff,div_coeff)
-                remainder[cur_q_degree + i] =F.sub_mod(remainder[cur_q_degree + i],temp)
-        
-            while torch.equal(remainder[-1],  torch.zeros(4,dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')):
-                remainder.pop()
+                temp = F.mul_mod(cur_q_coeff, div_coeff)
+                remainder[cur_q_degree + i] = F.sub_mod(remainder[cur_q_degree + i], temp)
 
+            i = 0
+            while torch.equal(remainder[-1 - i], fr.Fr.zero().value):
+                i = i+1
+            remainder = remainder[:remainder.size(0) - i]
         res_quotient = from_coeff_vec(quotient)
         return res_quotient, remainder
             
-def poly_div_poly(self: list[fr.Fr], divisor: list[fr.Fr]):
-        res, remainder = divide_with_q_and_r(self,divisor)
+def poly_div_poly(self: torch.Tensor, divisor: torch.Tensor):
+        res, remainder = divide_with_q_and_r(self, divisor)
         return res
 
 def rand_poly(d):
@@ -569,78 +540,44 @@ def horner_evaluate(poly_coeffs: list, point: fr.Fr):
         result = F.add_mod(result, coeff)
     return result
 
-def poly_add_poly_mul_const(self:torch.tensor, f: torch.tensor, other: torch.tensor):
-    if not other.is_cuda:
-        other=other.to('cuda')
-    if not self.is_cuda:
-        self=self.to('cuda')
-    if len(self) == 0:
-            if len(other)==0 :
-                return torch.tensor([],dtype=torch.BLS12_381_Fr_G1_Mont)
-            f=extend_tensor(f,len(other))
-            self = other.clone()
-            self=F.mul_mod(self,f)
-            return self
-    elif len(other) == 0:
+def poly_add_poly_mul_const(self:torch.Tensor, f: torch.Tensor, other: torch.Tensor):
+    if self.size(0) == 0 and other.size(0) == 0:
+        return torch.tensor([], dtype = self.dtype, device = self.device)
+
+    if self.size(0) == 0:
+        other = other.to('cuda')
+        self = other.clone()
+        self = F.mul_mod_scalar(self, f)
         return self
-    elif len(self) >= len(other):
-        pass
+    elif other.size(0) == 0:
+        self = self.to('cuda')
+        return self
+    elif self.size(0) >= other.size(0):
+        self = self.to('cuda')
+        other = other.to('cuda')
     else:
-        self = resize_gpu(self,len(other))
+        self = self.to('cuda')
+        other = other.to('cuda')
+        self = resize_gpu(self, other.size(0))
+    temp = F.mul_mod_scalar(other, f)
+    F.add_mod(self[:other.size(0)], temp, True)
 
-    f=extend_tensor(f,len(other))
-    temp=F.mul_mod(f,other)
-    torch.add_mod_(self[:len(other)],temp)
-
-    res=copy.deepcopy(self)
-    res = from_coeff_vec(res)
+    res = from_coeff_vec(self)
     
     return res
 
-# Given a vector of field elements {v_i}, compute the vector {coeff * v_i^(-1)}
-# This method is explicitly single core.
-def serial_batch_inversion_and_mul(v: list[fr.Fr], coeff: fr.Fr):
-    prod =[]
-    tmp = torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-
-    i=0
-    ###TODO 111
-    v_cpoy=v.to('cpu')
-    for index in range(len(v)):
-         if not torch.equal(v_cpoy[index],torch.zeros(4,dtype=torch.BLS12_381_Fr_G1_Mont)):
-            tmp = F.mul_mod(tmp,v[index])
-            prod.append(tmp)
-            
-    # Invert `tmp`.individual ele div_mod on cpu
-    tmp=tmp.to('cpu')
-    tmp= F.div_mod(torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont),tmp)
-    # Multiply product by coeff, so all inverses will be scaled by coeff
-    tmp=tmp.to('cuda')
-    tmp = F.mul_mod(tmp,coeff)
-    rev_prod=torch.zeros(len(prod),4,dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    for i in range(0,len(prod)):
-        rev_prod[i]=prod[len(prod)-2-i]
-    rev_prod[len(prod)-1]=torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    
-    # Backwards, skip last element, fill in one for last term.
-    for i,(f, s) in enumerate(zip(reversed(v_cpoy), rev_prod)):
-        if not torch.equal(f,torch.zeros(4,dtype=torch.BLS12_381_Fr_G1_Mont)):
-            ###TODO 
-            # tmp := tmp * f; f := tmp * s = 1/f
-            new_tmp=F.mul_mod(tmp,f.to('cuda'))
-            f= F.mul_mod(tmp,s)
-            tmp = new_tmp
-            v[len(v) - 1 - i] = f  # Update the value of v with the new result
 
 # Given a vector of field elements {v_i}, compute the vector {coeff * v_i^(-1)}
-def batch_inversion_and_mul(v: list[fr.Fr], coeff: fr.Fr):
-    serial_batch_inversion_and_mul(v, coeff)
+def batch_inversion_and_mul(v: list[fr.Fr], coeff):
+    v_inv = F.inv_mod(v)
+    res = F.mul_mod_scalar(v_inv, coeff)
+    return res
 
 # Given a vector of field elements {v_i}, compute the vector {v_i^(-1)}
 def batch_inversion(v: list[fr.Fr]):
-    one = torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    batch_inversion_and_mul(v, one)
-
+    one = fr.Fr.one().value
+    res = batch_inversion_and_mul(v, one.to("cuda"))
+    return res
 # The first lagrange polynomial has the expression:
 # L_0(X) = mul_from_1_to_(n-1) [(X - omega^i) / (1 - omega^i)]
 #
@@ -713,20 +650,20 @@ def compute_first_lagrange_evaluation(size, z_h_eval, z_challenge):
 #     return total
 
 def MSM_new(bases,scalar): #bases POINT scalar SCALAR
-    min_size_1=min(bases.size(0)//2,scalar.size(0))
+    min_size_1 = min(bases.size(0)//2, scalar.size(0))
     
     if min_size_1==0:### empty msm return zero_point
         res =[[],[],[]]
-        res[2]=torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont)
-        res[1]=torch.tensor([8505329371266088957, 17002214543764226050, 6865905132761471162, 8632934651105793861, 6631298214892334189, 1582556514881692819],dtype=torch.BLS12_381_Fq_G1_Mont)
-        res[0]=torch.tensor([8505329371266088957, 17002214543764226050, 6865905132761471162, 8632934651105793861, 6631298214892334189, 1582556514881692819],dtype=torch.BLS12_381_Fq_G1_Mont)
-        commitment=ProjectivePointG1(fq.Fq(res[0]),fq.Fq(res[1]),fq.Fq(res[2]))
+        res[2] = fq.Fq.zero()
+        res[1] = fq.Fq.one()
+        res[0] = fq.Fq.one()
+        commitment=ProjectivePointG1(res[0],res[1],res[2])
         return commitment
     else:
-        base=copy.deepcopy(bases)
-        base = base[:min_size_1].view(-1, 6)# dim2 to 1
-        base=base.to('cuda')
-        scalar=scalar.to('cuda')
-        commitment = F.multi_scalar_mult(base,scalar)
+        base = bases.clone()
+        base = base[:min_size_1].view(-1, 6) # dim2 to 1
+        base = base.to('cuda')
+        scalar = scalar.to('cuda')
+        commitment = F.multi_scalar_mult(base, scalar)
         commitment = ProjectivePointG1(fq.Fq(commitment[0]),fq.Fq(commitment[1]),fq.Fq(commitment[2]))
         return commitment

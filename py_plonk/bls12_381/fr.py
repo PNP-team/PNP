@@ -6,7 +6,7 @@ from ..serialize import buffer_byte_size
 from ..bytes import read
 
 class Fr(field):
-    def __init__(self, value: torch.tensor):
+    def __init__(self, value: torch.Tensor):
         self.value = value
 
     Dtype = torch.BLS12_381_Fr_G1_Mont

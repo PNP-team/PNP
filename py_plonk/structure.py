@@ -26,8 +26,9 @@ class AffinePointG1:
         return cls(x,y)
     
     def is_zero(self):
-        one = self.x.one()
-        return torch.equal(self.x.value, self.x.zero().value) and torch.equal(self.y.value, one.value)
+        one = fq.Fq.one().value
+        return torch.equal(self.x.value, fq.Fq.zero().value)  and torch.equal(one, self.y.value)
+
     
     def serialize(self,writer):
         if self.is_zero():

@@ -23,8 +23,8 @@ class MultiSet:
     #     while len(self.elements) < n:
     #         self.elements.append(self.elements[0])  # use the first element to pad
         
-    def compress(self, alpha: fr.Fr):
-        compress_poly = utils.Multiset_lc(self, alpha.value)
+    def compress(self, alpha):
+        compress_poly = utils.Multiset_lc(self, alpha)
         compress_poly = MultiSet(compress_poly)
         return compress_poly
     

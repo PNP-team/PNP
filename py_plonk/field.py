@@ -35,8 +35,7 @@ class field:
     # Return the Multiplicative identity
     @classmethod
     def one(cls):
-        # cls = type(self)
-        return cls(cls.R)
+        return cls(cls.R.clone())
     
     def add(self,b):
         cls = type(self)
@@ -271,7 +270,7 @@ class field:
         return writer
     
     def serialize(self,writer):
-        writer = self.serialize_with_flags(writer,flags.EmptyFlags)
+        writer = self.serialize_with_flags(writer, flags.EmptyFlags)
         return writer
     
 

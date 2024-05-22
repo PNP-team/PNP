@@ -17,10 +17,12 @@ def extend_tensor(input:torch.tensor,size):
 def Multiset_lc(values, challenge):
     kth_val = values.elements[-1]
     reverse_val=reversed(values.elements[:-1])
-    challenge= extend_tensor(challenge,len(kth_val))
-    for val in reverse_val :
-        kth_val=F.mul_mod(kth_val,challenge)
-        kth_val=F.add_mod(kth_val,val)
+    kth_val = kth_val.to("cuda")
+    reverse_val = reverse_val.to("cuda")    
+    challenge = challenge.to("cuda")
+    for val in reverse_val:
+        kth_val = F.mul_mod_scalar(kth_val,challenge)
+        kth_val = F.add_mod(kth_val,val)
     return kth_val
 
 def lc(values:list, challenge):

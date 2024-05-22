@@ -168,7 +168,7 @@ def compute_permutation_checks(
     size = domain_8n.size
     
     #single scalar OP on CPU
-    alpha2= F.mul_mod(alpha,alpha)
+    alpha2 = F.mul_mod(alpha,alpha)
 
     l1_poly_alpha = compute_first_lagrange_poly_scaled(n, alpha2.to("cuda"))
     l1_alpha_sq_evals = coset_NTT(size, l1_poly_alpha.to('cuda'))
@@ -253,11 +253,11 @@ def compute_quotient_poly(n,
 
     h2_eval_8n = coset_NTT(coset_size,h2_poly.to('cuda'))
 
-    range_challenge = range_challenge.to('cuda')
-    logic_challenge = logic_challenge.to('cuda')
-    fixed_base_challenge = fixed_base_challenge.to('cuda')
-    var_base_challenge = var_base_challenge.to('cuda')
-    lookup_challenge = lookup_challenge.to('cuda')
+    # range_challenge = range_challenge.to('cuda')
+    # logic_challenge = logic_challenge.to('cuda')
+    # fixed_base_challenge = fixed_base_challenge.to('cuda')
+    # var_base_challenge = var_base_challenge.to('cuda')
+    # lookup_challenge = lookup_challenge.to('cuda')
 
     gate_constraints = compute_gate_constraint_satisfiability(
         n,

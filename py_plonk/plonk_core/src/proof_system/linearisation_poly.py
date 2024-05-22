@@ -136,6 +136,8 @@ def compute_linearisation_poly(
     domain_permutation = Radix2EvaluationDomain.new(n)
     #single scalar OP on CPU
     one = fr.Fr.one().value
+    mod = fr.Fr.MODULUS
+    neg_one = F.sub_mod(mod, one)
     shifted_z_challenge = F.mul_mod(z_challenge, omega)
     vanishing_poly_eval = domain.evaluate_vanishing_polynomial(z_challenge)
     z_challenge_to_n = F.add_mod(vanishing_poly_eval, one)
@@ -201,7 +203,7 @@ def compute_linearisation_poly(
         else:
             prover_key_arithmetic[key]['coeffs'] = prover_key_arithmetic[key]['coeffs'].to('cuda')
 
-    prover_key_lookup=prover_key['lookup'].tolist()
+    prover_key_lookup = prover_key['lookup'].tolist()
     convert_to_tensors(prover_key_lookup)
     prover_key_lookup['q_lookup']['coeffs']=prover_key_lookup['q_lookup']['coeffs'].to('cuda')
     # Arith selector evaluation
@@ -271,7 +273,7 @@ def compute_linearisation_poly(
 
    
     lookup = compute_linearisation_lookup(
-        l1_eval,
+        l1_eval.to("cuda"),
         a_eval,
         b_eval,
         c_eval,
@@ -282,19 +284,18 @@ def compute_linearisation_poly(
         h1_next_eval,
         h2_eval,
         z2_next_eval,
-        delta,
-        epsilon,
-        zeta,
+        delta.to("cuda"),
+        epsilon.to("cuda"),
+        zeta.to("cuda"),
         z2_poly,
         h1_poly,
-        lookup_separation_challenge,
+        lookup_separation_challenge.to("cuda"),
         prover_key_lookup['q_lookup']['coeffs'].to('cuda'),
     )
    
     permutation = compute_linearisation_permutation(
-        n,
         z_challenge,
-        (alpha, beta, gamma),
+        (alpha.to("cuda"), beta.to("cuda"), gamma.to("cuda")),
         (a_eval, b_eval, c_eval, d_eval),
         (left_sigma_eval, right_sigma_eval, out_sigma_eval),
         permutation_eval,
@@ -302,6 +303,8 @@ def compute_linearisation_poly(
         domain_permutation,
         pk_fourth_sigma_coeff
     )
+    
+    z_challenge_to_n = z_challenge_to_n.to("cuda")
     # Calculate t_8_poly * z_challenge_to_n
     term_1 = poly_mul_const(t_8_poly , z_challenge_to_n)
 
@@ -338,11 +341,11 @@ def compute_linearisation_poly(
 
     # Calculate (term_7 + t_1_poly) * vanishing_poly_eval
     term_8_1 = poly_add_poly(term_7 , t_1_poly)
+    vanishing_poly_eval = vanishing_poly_eval.to("cuda")
     quotient_term = poly_mul_const(term_8_1, vanishing_poly_eval)
 
-
-    neg_one = neg(one)
-    negative_quotient_term = poly_mul_const(quotient_term,neg_one)
+    neg_one = neg_one.to("cuda")
+    negative_quotient_term = poly_mul_const(quotient_term, neg_one)
     linearisation_polynomial_term_1 = poly_add_poly(gate_constraints, permutation)
     linearisation_polynomial_term_2 = poly_add_poly(lookup, negative_quotient_term)
     linearisation_polynomial = poly_add_poly(linearisation_polynomial_term_1, linearisation_polynomial_term_2)
@@ -378,8 +381,8 @@ def compute_gate_constraint_satisfiability(
     )
 
     pk_range_selector = prover_key['range_selector'].tolist()
-    pk_range_selector['coeffs']=torch.tensor(pk_range_selector['coeffs'], dtype = fr.Fr.Dtype).to('cuda')
-
+    pk_range_selector['coeffs'] = torch.tensor(pk_range_selector['coeffs'], dtype = fr.Fr.Dtype).to('cuda')
+    range_separation_challenge = range_separation_challenge.to("cuda")
     range = RangeGate.linearisation_term(
         pk_range_selector['coeffs'],
         range_separation_challenge,
@@ -387,20 +390,19 @@ def compute_gate_constraint_satisfiability(
         RangeValues.from_evaluations(custom_evals),
     )
 
-    logic_separation_challenge = torch.tensor(from_gmpy_list_1(logic_separation_challenge),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    pk_logic_selector=prover_key['logic_selector'].tolist()
-    pk_logic_selector['coeffs']=torch.tensor(pk_logic_selector['coeffs'],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
+    pk_logic_selector = prover_key['logic_selector'].tolist()
+    pk_logic_selector['coeffs'] = torch.tensor(pk_logic_selector['coeffs'], dtype = fr.Fr.Dtype).to('cuda')
+    logic_separation_challenge = logic_separation_challenge.to("cuda")
     logic = LogicGate.linearisation_term(
         pk_logic_selector['coeffs'],
         logic_separation_challenge,
         wit_vals,
         LogicValues.from_evaluations(custom_evals),
     )
-
-    fixed_base_separation_challenge=torch.tensor(from_gmpy_list_1(fixed_base_separation_challenge),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    pk_fixed_group_add_selector=prover_key['fixed_group_add_selector'].tolist()
-    pk_fixed_group_add_selector['coeffs']=torch.tensor(pk_fixed_group_add_selector['coeffs'],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-
+    
+    pk_fixed_group_add_selector = prover_key['fixed_group_add_selector'].tolist()
+    pk_fixed_group_add_selector['coeffs'] = torch.tensor(pk_fixed_group_add_selector['coeffs'], dtype = fr.Fr.Dtype).to('cuda')
+    fixed_base_separation_challenge = fixed_base_separation_challenge.to('cuda')
     fixed_base_scalar_mul = FBSMGate.linearisation_term(
         pk_fixed_group_add_selector['coeffs'],
         fixed_base_separation_challenge,
@@ -408,9 +410,9 @@ def compute_gate_constraint_satisfiability(
         FBSMValues.from_evaluations(custom_evals),
     )
 
-    var_base_separation_challenge=torch.tensor(from_gmpy_list_1(var_base_separation_challenge),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    pk_variable_group_add_selector=prover_key['variable_group_add_selector'].tolist()
-    pk_variable_group_add_selector['coeffs']=torch.tensor(pk_variable_group_add_selector['coeffs'],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
+    var_base_separation_challenge = var_base_separation_challenge.to('cuda')
+    pk_variable_group_add_selector = prover_key['variable_group_add_selector'].tolist()
+    pk_variable_group_add_selector['coeffs']=torch.tensor(pk_variable_group_add_selector['coeffs'], dtype = fr.Fr.Dtype).to('cuda')
     curve_addition = CAGate.linearisation_term(
         pk_variable_group_add_selector['coeffs'],
         var_base_separation_challenge,

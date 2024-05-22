@@ -4,7 +4,7 @@ from ..field import field
 
 
 class Fq(field):
-    def __init__(self, value: torch.tensor):
+    def __init__(self, value: torch.Tensor):
         self.value = value
     
     Dtype = torch.BLS12_381_Fq_G1_Mont

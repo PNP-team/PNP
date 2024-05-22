@@ -26,7 +26,7 @@ class CAValues:
     
 class CAGate:
     @staticmethod
-    def constraints(separation_challenge: fr.Fr, wit_vals: WitnessValues, custom_vals: CAValues):
+    def constraints(separation_challenge, wit_vals: WitnessValues, custom_vals: CAValues):
         x_1 = wit_vals.a_val
         x_3 = custom_vals.a_next_val
         y_1 = wit_vals.b_val

@@ -266,23 +266,21 @@ def is_zero_AffinePointG1(self):
         one = torch.tensor([8505329371266088957, 17002214543764226050, 6865905132761471162, 8632934651105793861, 6631298214892334189, 1582556514881692819],dtype=torch.BLS12_381_Fq_G1_Mont)
         return torch.equal(self[0] ,torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont) )and  torch.equal(self[1] ,one) # x=0 y=one
 
-def to_affine(input: ProjectivePointG1):  ###fq->fq
+def to_affine(input: ProjectivePointG1): 
         px = input.x.value.clone()
         py = input.y.value.clone()
         pz = input.z.value.clone()
         # p[0]:x p[1]:y p[2]:z
-        one = torch.tensor([8505329371266088957, 17002214543764226050, 6865905132761471162, 8632934651105793861, 6631298214892334189, 1582556514881692819],dtype=torch.BLS12_381_Fq_G1_Mont)
+        one = fq.Fq.one()
         if input.is_zero():
-            x=torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont)
-            y=one
-            return AffinePointG1(fq.Fq(x),fq.Fq(y))##fq y:3380320199399472671518931668520476396067793891014375699959770179129436917079669831430077592723774664465579537268733
-        elif torch.equal(pz , one):
-            # If Z is one, the point is already normalized.
-            return AffinePointG1(fq.Fq(px),fq.Fq(py))
+            x = fq.Fq.zero().value
+            y = one.value
+            return AffinePointG1(fq.Fq(x), fq.Fq(y))
+
         else:
             # Z is nonzero, so it must have an inverse in a field.
             #div_mod work on cpu
-            zinv = F.div_mod(one, pz)
+            zinv = F.div_mod(one.value, pz)
             zinv_squared = F.mul_mod(zinv, zinv)
 
             x = F.mul_mod(px, zinv_squared)
@@ -396,7 +394,7 @@ def double_ProjectivePointG1(self: ProjectivePointG1):
             return ProjectivePointG1(fq.Fq(x), fq.Fq(y), fq.Fq(z))
 
 def add_assign_mixed(self1: ProjectivePointG1, other: 'AffinePointG1'):
-    self=copy.deepcopy(self1)
+    self = copy.deepcopy(self1)
     if  other.is_zero():
         # return ProjectivePointG1(self.x, self.y, self.z)
         output= copy.deepcopy(self1)

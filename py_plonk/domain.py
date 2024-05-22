@@ -87,26 +87,23 @@ class Radix2EvaluationDomain:
     # when i corresponds to the value tau equals, and the coefficient is 0 everywhere else.
     # We handle this case separately, and we can easily detect by checking if the vanishing poly is 0.
     def evaluate_all_lagrange_coefficients(self, tau):
-        from .arithmetic import from_gmpy_list_1
         size = self.size
-        t_size = pow(tau,size)
-        domain_offset = torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-        one = torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-        self.group_gen_inv=torch.tensor(from_gmpy_list_1(self.group_gen_inv),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-        self.group_gen=torch.tensor(from_gmpy_list_1(self.group_gen),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
+        tau = tau.to("cpu")
+        t_size = pow(tau, size)
+        zero = fr.Fr.zero().value
+        one = fr.Fr.one().value
+        mod = fr.Fr.MODULUS
+        domain_offset = one.clone()
         z_h_at_tau = F.sub_mod(t_size, domain_offset)
-        zero = torch.tensor([0,0,0,0],dtype=torch.BLS12_381_Fr_G1_Mont)
-        z_h_at_tau=z_h_at_tau.to('cpu')
 
-        if torch.equal(z_h_at_tau,zero):
-            ##TODO 111
-            u = [zero for _ in range(size)]
+        if torch.equal(z_h_at_tau, zero):
+            u = zero.repeat(size, 1)
             omega_i = domain_offset
             for i in range(size):
-                if omega_i == tau:
-                    u[i] = one
+                if torch.equal(omega_i, tau):
+                    u[i] = one.clone()
                     break
-                omega_i = F.mul_mod(omega_i, self.group_gen)
+                omega_i = F.mul_mod(omega_i, self.group_gen.value)
             return u
         else:
             
@@ -119,30 +116,35 @@ class Radix2EvaluationDomain:
             # and v_i = g * v_{i-1}, it follows that
             # l_i = g^-1 * l_{i-1}
             # TODO: consider caching the computation of l_i to save N multiplications
-            from .arithmetic import batch_inversion,neg
+            from .arithmetic import batch_inversion
 
             # v_0_inv = m * h^(m-1)
-            f_size = fr.Fr.from_repr(size)
-            f_size=torch.tensor(from_gmpy_list_1(f_size),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
+            f_size = fr.Fr.from_repr(size).value
             pow_dof = pow(domain_offset, size - 1)
             v_0_inv = F.mul_mod(f_size, pow_dof)
-            # div_mod work on cpu
-            one=one.to('cpu')
-            z_h_at_tau_inv= F.div_mod(one,z_h_at_tau)
-            z_h_at_tau_inv=z_h_at_tau_inv.to('cuda')
+            v_0_inv = v_0_inv.to("cuda")
+            z_h_at_tau = z_h_at_tau.to("cuda")
+            tau = tau.to("cuda")
+            
+            z_h_at_tau_inv = F.inv_mod(z_h_at_tau)
             l_i = F.mul_mod(z_h_at_tau_inv, v_0_inv)
-            negative_cur_elem = neg(domain_offset)
-            lagrange_coefficients_inverse = [zero for _ in range(size)]
+            
+            negative_cur_elem = F.sub_mod(mod, domain_offset)
+            mod = mod.to("cuda")
+            domain_offset = domain_offset.to("cuda")
+            negative_cur_elem = negative_cur_elem.to("cuda")
+            lagrange_coefficients_inverse = zero.repeat(size, 1)
+            group_gen = self.group_gen.value.to("cuda")
+            group_gen_inv = self.group_gen_inv.value.to("cuda")
             for i in range(size):
                 r_i = F.add_mod(tau, negative_cur_elem)
                 lagrange_coefficients_inverse[i] = F.mul_mod(l_i, r_i)
                 # Increment l_i and negative_cur_elem
-                l_i = F.mul_mod(l_i, self.group_gen_inv)
-                negative_cur_elem = F.mul_mod(negative_cur_elem, self.group_gen)
-            lagrange_coefficients_inverse=torch.stack(lagrange_coefficients_inverse,dim=0)
-            lagrange_coefficients_inverse=lagrange_coefficients_inverse.to('cuda')
-            batch_inversion(lagrange_coefficients_inverse)
-            return lagrange_coefficients_inverse
+                l_i = F.mul_mod(l_i, group_gen_inv)
+                negative_cur_elem = F.mul_mod(negative_cur_elem, group_gen)
+            lagrange_coefficients_inverse = lagrange_coefficients_inverse.to('cuda')
+            res = batch_inversion(lagrange_coefficients_inverse)
+            return res
 
     
     # This evaluates the vanishing polynomial for this domain at tau.
@@ -157,7 +159,9 @@ class Radix2EvaluationDomain:
     # e.g. the `i`-th element is g^i
     def element(self, i):
         # TODO: Consider precomputed exponentiation tables if we need this to be faster.
-        res = self.group_gen.pow(i)
+        res = self.group_gen.value.clone()
+        for j in range(i):
+            res = F.mul_mod(res, self.group_gen.value)
         return res
     
         

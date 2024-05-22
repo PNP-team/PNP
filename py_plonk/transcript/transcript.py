@@ -48,7 +48,7 @@ class Transcript:
     #     bytes = serialize(item,bytes)
     #     self.append_message(label,bytes)
 
-    def append(self,label,item):
+    def append(self, label, item):
         bytes = []
         bytes = item.serialize(bytes)
         self.append_message(label,bytes)

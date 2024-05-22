@@ -28,31 +28,32 @@ class LogicValues:
 class LogicGate:
     @staticmethod
     def constraints(separation_challenge:fr.Fr, wit_vals:WitnessValues, custom_vals:LogicValues):
-        four = fr.Fr.from_repr(4)
-        four=torch.tensor(from_gmpy_list_1(four),dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-        kappa= F.mul_mod(separation_challenge,separation_challenge)
+
+        four = fr.Fr.from_repr(4).value
+        four = four.to("cuda")
+        kappa = F.mul_mod(separation_challenge,separation_challenge)
         kappa_sq =F.mul_mod(kappa,kappa)
-        kappa_cu= F.mul_mod(kappa_sq,kappa)
+        kappa_cu = F.mul_mod(kappa_sq,kappa)
         kappa_qu = F.mul_mod(kappa_cu,kappa)
 
         a_1 = F.mul_mod(four, wit_vals.a_val)
         a = F.sub_mod(custom_vals.a_next_val, a_1)
-        c_0 = delta(a,0)
+        c_0 = delta(a)
 
         b_1 = F.mul_mod(four, wit_vals.b_val)
         b = F.sub_mod(custom_vals.b_next_val, b_1)
-        c_1 = delta(b,0)
+        c_1 = delta(b)
 
         d_1 = F.mul_mod(four, wit_vals.d_val)
         d = F.sub_mod(custom_vals.d_next_val, d_1)
-        c_2 = delta(d,0)
+        c_2 = delta(d)
 
         w = wit_vals.c_val
         w_1 = F.mul_mod(a, b)
         w_2 = F.sub_mod(w, w_1)
         c_3 = F.mul_mod(w_2, kappa_cu)
 
-        c_4_1 = delta_xor_and(a, b, w, d, custom_vals.q_c_val,0)
+        c_4_1 = delta_xor_and(a, b, w, d, custom_vals.q_c_val)
         c_4 = F.mul_mod(c_4_1, kappa_qu)
 
         mid1 = F.add_mod(c_0, c_1)
