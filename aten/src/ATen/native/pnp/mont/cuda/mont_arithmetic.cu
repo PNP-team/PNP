@@ -251,6 +251,11 @@ __global__ void poly_reduce_kernel_second(const int64_t N, const T* temp, T* y) 
   }
 }
 
+template <typename T>
+__global__ void exclusive_scan_kernel(const T* divid_ptr, const T* divis_ptr, const T* temp_ptr, int64_t step){
+    int64_t tid = blockIdx.x * BLOCK_SIZE + threadIdx.x;
+    temp_ptr[tid + step] = divid_ptr[tid] +  
+}
 BIN_KERNEL(add, +);
 BIN_KERNEL(sub, -);
 BIN_KERNEL(mul, *);
@@ -359,6 +364,34 @@ static void poly_reduce_cuda_template(const Tensor& x, const Tensor& coff, Tenso
     poly_reduce_kernel_first<<<grid, BLOCK_SIZE, 0, stream>>>(
         N, x_ptr, coff_ptr, temp_ptr);
     poly_reduce_kernel_second<<<1, grid, 0, stream>>>(grid, temp_ptr, y_ptr);
+    C10_CUDA_KERNEL_LAUNCH_CHECK();
+  });
+}
+
+static void poly_div_cuda_template(const Tensor& divid_poly, const Tensor& divis_poly, const Tensor& c) {
+  AT_DISPATCH_MONT_TYPES(divid_poly.scalar_type(), "poly_div_cuda", [&] {
+    auto divid_ptr = reinterpret_cast<scalar_t::compute_type*>(
+        divid_poly.mutable_data_ptr<scalar_t>());
+    auto divis_ptr = reinterpret_cast<scalar_t::compute_type*>(
+        divis_poly.mutable_data_ptr<scalar_t>());
+    auto c_ptr = reinterpret_cast<scalar_t::compute_type*>(
+        c.mutable_data_ptr<scalar_t>());
+    int64_t divid_len = divid_poly.numel() / num_uint64(divid_poly.scalar_type());
+    int64_t divis_len = divis_poly.numel() / num_uint64(divis_poly.scalar_type());
+    int64_t quotient_degree = divid_len - divis_len + 1
+    TORCH_INTERNAL_ASSERT(divid_len > 0 && divid_len <= std::numeric_limits<int32_t>::max());
+    TORCH_INTERNAL_ASSERT(divid_len > 0);
+    int64_t grid = (divid_len + BLOCK_SIZE - 1) / BLOCK_SIZE;
+    if(divid_len > (BLOCK_SIZE * MAX_NUM_BLOCKS)) {
+      grid = MAX_NUM_BLOCKS;
+    }
+    auto temp = at::empty(
+      {quotient_degree, num_uint64(divid_poly.scalar_type())}, divid_poly.scalar_type(), divid_poly.layout(), divid_poly.device(),
+      c10::nullopt, c10::nullopt);
+    auto temp_ptr = reinterpret_cast<scalar_t::compute_type*>(
+        temp.mutable_data_ptr<scalar_t>());
+    auto stream = at::cuda::getCurrentCUDAStream();
+    exclusive_scan_kernel<<<grid, BLOCK_SIZE, 0, stream>>>(divid_ptr, divis_ptr, c_ptr, temp_ptr);
     C10_CUDA_KERNEL_LAUNCH_CHECK();
   });
 }
