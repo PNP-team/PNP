@@ -253,10 +253,22 @@ __global__ void poly_reduce_kernel_second(const int64_t N, const T* temp, T* y) 
 }
 
 template <typename T>
-__global__ void exclusive_scan_kernel(const T* divid, T* c, T* temp, int64_t N, int64_t step){
+__global__ void exclusive_scan_kernel(const T* in, T* c, T* out, int64_t N, int64_t step){
     int64_t tid = blockIdx.x * BLOCK_SIZE + threadIdx.x;
-    temp_ptr[tid + step] = temp_ptr[tid + step] + divid_ptr[tid] * c_ptr[tid];
+    if(tid < step){
+      out[N-1-tid] = in[N-1-tid];
+    }
+    if(tid < N-step){    
+        if(step & 0xfffffffe){
+          out[N-1-tid - step] = in[N-1-tid - step] + in[N-1-tid] * c[0];
+        }
+        else{
+          out[N-1-tid - step] = in[N-1-tid - step] - in[N-1-tid] * c[0];
+        }
+    }
 }
+
+
 BIN_KERNEL(add, +);
 BIN_KERNEL(sub, -);
 BIN_KERNEL(mul, *);
@@ -369,7 +381,7 @@ static void poly_reduce_cuda_template(const Tensor& x, const Tensor& coff, Tenso
   });
 }
 
-static void poly_div_cuda_template(const Tensor& divid_poly, Tensor& exclusive_sum, Tensor& c) {
+static void poly_div_cuda_template(const Tensor& divid_poly, Tensor& c, Tensor& exclusive_sum){
   AT_DISPATCH_MONT_TYPES(divid_poly.scalar_type(), "poly_div_cuda", [&] {
     auto divid_ptr = reinterpret_cast<scalar_t::compute_type*>(
         divid_poly.mutable_data_ptr<scalar_t>());
@@ -385,9 +397,15 @@ static void poly_div_cuda_template(const Tensor& divid_poly, Tensor& exclusive_s
       grid = MAX_NUM_BLOCKS;
     }
     auto stream = at::cuda::getCurrentCUDAStream();
-    exclusive_scan_kernel<<<grid, BLOCK_SIZE, 0, stream>>>(divid_ptr, sum_ptr, c_ptr);
+    auto in_ptr = divid_ptr;
+    auto out_ptr = sum_ptr;
+    int step = 1;
     for(int step = 1; step<divid_len; step*=2){
-
+      exclusive_scan_kernel<<<grid, BLOCK_SIZE, 0, stream>>>(in_ptr, c_ptr, out_ptr, divid_len, step);
+      mont_mul_mod_kernel_<<<1, 1, 0, stream>>>(1, c_ptr, c_ptr);
+      auto temp = out_ptr;
+      out_ptr = in_ptr;
+      in_ptr = temp;
     }
     C10_CUDA_KERNEL_LAUNCH_CHECK();
   });
@@ -473,18 +491,6 @@ Tensor poly_reduce_cuda(const Tensor& x, const Tensor& coff) {
   return y;
 }
 
-Tensor poly_div_cuda(const Tensor& divid_poly, Tensor& c) {
-  auto exclusive_sum = at::zeros(
-      {divid_poly.numel()/num_uint64(divid_poly.scalar_type()), c.numel()},
-      divid_poly.scalar_type(),
-      divid_poly.layout(),
-      divid_poly.device(),
-      c10::nullopt,
-      c10::nullopt);
-  poly_div_cuda_template(divid_poly, exclusive_sum, c);
-  return y;
-}
-
 BIN_OP(add);
 BIN_OP(sub);
 BIN_OP(mul);
@@ -493,6 +499,16 @@ SCALAR_OP(add);
 SCALAR_OP(sub);
 SCALAR_OP(mul);
 SCALAR_OP(div);
+
+Tensor poly_div_cuda(const Tensor& divid_poly, const Tensor& c) {
+  auto in = divid_poly.clone();
+  auto out = at::empty(
+      {divid_poly.numel()/num_uint64(divid_poly.scalar_type()), num_uint64(divid_poly.scalar_type())},
+      divid_poly.options());
+  auto tiring = c.clone();
+  poly_div_cuda_template(in, tiring, out);
+  return in;
+}
 
 } // namespace native
 } // namespace at

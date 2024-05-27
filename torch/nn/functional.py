@@ -5550,6 +5550,11 @@ def evaluate(poly: Tensor, x: Tensor) -> Tensor:
         result = torch.poly_reduce(x, poly)
     return result
 
+def poly_div_poly(divid: Tensor, c: Tensor) -> Tensor:
+    result = torch.poly_div(divid,c)
+    # pop first element to zero to get the correct quotient
+    return result[1:]
+
 def multi_scalar_mult(points: Tensor, scalars: Tensor, device = "cuda") -> list:
     r"""
         Performs a multi-scalar multiplication(MSM) using Pippenger's algorithm, derived by sppark.

@@ -11,7 +11,7 @@ from ....plonk_core.src.proof_system.widget.logic import LogicGate,LogicValues
 from ....plonk_core.src.proof_system.widget.fixed_base_scalar_mul import FBSMGate,FBSMValues
 from ....plonk_core.src.proof_system.widget.curve_addition import CAGate,CAValues
 from ....plonk_core.src.proof_system.mod import CustomEvaluations
-from ....arithmetic import from_coeff_vec,domain_trans_tensor,calculate_execution_time,coset_NTT,coset_INTT
+from ....arithmetic import from_coeff_vec,calculate_execution_time,coset_NTT,coset_INTT
 import torch.nn as nn
 from  .widget.arithmetic import compute_quotient_i
 from ..proof_system.permutation import permutation_compute_quotient
@@ -301,7 +301,6 @@ def compute_quotient_poly(n,
     
     numerator = F.add_mod(gate_constraints, permutation)
     numerator = F.add_mod(numerator, lookup)
-    # multielement div_mod work on cuda
     denominator = F.inv_mod(prover_key_v_h_coset_8n_evals)
     res = F.mul_mod(numerator, denominator)
     quotient_poly = coset_INTT(coset_size, res)

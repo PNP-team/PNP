@@ -53,7 +53,6 @@ def lookup_ratio(one ,delta, epsilon, f, t, t_next,
     mid10= F.mul_mod(h_1_next,delta)
     mid11 = F.add_mod(mid9,mid10)
     mid12 = F.mul_mod(mid8,mid11)
-    # multielement on cuda
     mid12 = F.div_mod(one,mid12)
     result= F.mul_mod(result,mid12)
 

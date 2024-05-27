@@ -5,7 +5,7 @@ from ..field import field
 from ..bls12_381 import fr,fq
 from typing import List
 from ..arithmetic import skip_leading_zeros_and_convert_to_bigints,convert_to_bigints,\
-                         rand_poly,poly_add_poly_mul_const,evaluate,from_coeff_vec,poly_div_poly,MSM_new,pow
+                         rand_poly,poly_add_poly_mul_const,from_coeff_vec,MSM_new,pow_single
 from ..plonk_core.src.proof_system.linearisation_poly import ProofEvaluations
 import random
 import torch 
@@ -77,7 +77,7 @@ def open(
    
     i=0
     for polynomial, rand in zip(labeled_polynomials, rands):
-        combined_polynomial = poly_add_poly_mul_const(combined_polynomial, curr_challenge, polynomial.poly)  #polynomial.poly is tensor
+        combined_polynomial = poly_add_poly_mul_const(combined_polynomial, curr_challenge.to("cuda"), polynomial.poly)  #polynomial.poly is tensor
         combined_rand.add_assign(curr_challenge, rand)
         curr_challenge = opening_challenges(opening_challenge, opening_challenge_counter)
         opening_challenge_counter += 1
@@ -85,7 +85,7 @@ def open(
 
     powers_of_g = torch.tensor(ck["powers_of_g"], dtype = fq.Fq.Dtype)
     powers_of_gamma_g = torch.tensor(ck["powers_of_gamma_g"], dtype = fq.Fq.Dtype)
-    proof = open_proof(powers_of_g, powers_of_gamma_g, combined_polynomial.to("cpu"), point, combined_rand)
+    proof = open_proof(powers_of_g, powers_of_gamma_g, combined_polynomial.to("cuda"), point, combined_rand)
     return proof
 
 dataclass
@@ -151,7 +151,7 @@ def commit_poly_new(ck:UniversalParams, polys):
 
 
 def opening_challenges(opening_challenge, exp):
-    res = pow(opening_challenge, exp)
+    res = pow_single(opening_challenge, exp)
     return res
 
 # Compute witness polynomial.
@@ -159,17 +159,16 @@ def opening_challenges(opening_challenge, exp):
 # The witness polynomial w(x) the quotient of the division (p(x) - p(z)) / (x - z)
 # Observe that this quotient does not change with z because
 # p(z) is the remainder term. We can therefore omit p(z) when computing the quotient.
+import time
 def compute_witness_polynomial(p: List[fr.Fr], point, randomness: Randomness):
-    mod = fr.Fr.MODULUS
+    mod = fr.Fr.MODULUS.to("cuda")
     neg_p = F.sub_mod(mod, point)
-    one = fr.Fr.one().value
-    divisor = torch.stack((neg_p, one), dim=0)
     if p.size(0) != 0:
-        witness_polynomial = poly_div_poly(p, divisor)
+        witness_polynomial = F.poly_div_poly(p, neg_p)
     random_witness_polynomial = None
     if len(randomness.blind_poly) != 0:
         random_p = randomness.blind_poly
-        random_witness_polynomial = poly_div_poly(random_p, divisor)
+        random_witness_polynomial = F.poly_div_poly(random_p, neg_p)
     return witness_polynomial, random_witness_polynomial
 
 def open_with_witness_polynomial(

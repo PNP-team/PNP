@@ -1,4 +1,3 @@
-import gmpy2
 import copy
 from .bls12_381 import fr,fq
 from .structure import AffinePointG1
@@ -18,12 +17,12 @@ def extend_tensor(input:torch.tensor,size):
         res[i] = input
     return res.to('cuda')
 
-def transtompz(input:torch.tensor):  ###tensor to gmp
-    a=input[0].tolist()
-    b=input[1].tolist()
-    a=from_list_gmpy_1_fq(a)
-    b=from_list_gmpy_1_fq(b)
-    return AffinePointG1(x=a,y=b)
+# def transtompz(input:torch.tensor):  ###tensor to gmp
+#     a=input[0].tolist()
+#     b=input[1].tolist()
+#     a=from_list_gmpy_1_fq(a)
+#     b=from_list_gmpy_1_fq(b)
+#     return AffinePointG1(x=a,y=b)
 
 def calculate_execution_time(func):
         def wrapper(*args, **kwargs):
@@ -91,13 +90,13 @@ def tensor_to_int(input:torch.Tensor):
         output = output | i
     return output
 
-def from_list_gmpy(input:list):
-    for i in range(len(input)):
-        output = 0 
-        for j in reversed(input[i].value):
-            output = output<<64
-            output = output | j
-        input[i] =  fr.Fr(value = gmpy2.mpz(output))
+# def from_list_gmpy(input:list):
+#     for i in range(len(input)):
+#         output = 0 
+#         for j in reversed(input[i].value):
+#             output = output<<64
+#             output = output | j
+#         input[i] =  fr.Fr(value = gmpy2.mpz(output))
 
 def from_gmpy_list(input:list): ##inplace
     if(len(input)==0):
@@ -127,19 +126,19 @@ def challenge_to_tensor(input:fr.Fr):
     output=torch.tensor(output,dtype=torch.BLS12_381_Fr_G1_Mont)
     return output
 
-def from_list_gmpy_1(input:list):
-        output = 0 
-        for j in reversed(input):
-            output = output<<64
-            output = output | j
-        return fr.Fr(value = gmpy2.mpz(output))
+# def from_list_gmpy_1(input:list):
+#         output = 0 
+#         for j in reversed(input):
+#             output = output<<64
+#             output = output | j
+#         return fr.Fr(value = gmpy2.mpz(output))
 
-def from_list_gmpy_1_fq(input:list):
-        output = 0 
-        for j in reversed(input):
-            output = output<<64
-            output = output | j
-        return fq.Fq(value = gmpy2.mpz(output))
+# def from_list_gmpy_1_fq(input:list):
+#         output = 0 
+#         for j in reversed(input):
+#             output = output<<64
+#             output = output | j
+#         return fq.Fq(value = gmpy2.mpz(output))
 
 def domain_trans_tensor(domain_ele):
         a=copy.deepcopy(domain_ele)
@@ -156,9 +155,17 @@ def extend_tensor(input:torch.Tensor,size):
         res[i] = input
     return res.to('cuda')
 
-def pow(self,exp):
+def pow(self, exp):
     res = self.clone()
-    for i in range(exp - 1):
+    for i in range(exp-1):
+        res = F.mul_mod(res, self)
+    return res
+
+def pow_single(self, exp):
+    res = fr.Fr.one().value
+    if self.is_cuda:
+        res = res.to("cuda")
+    for i in range(exp):
         res = F.mul_mod(res, self)
     return res
 
@@ -306,7 +313,7 @@ def resize_cpu(self: torch.Tensor, target_len):
 #     return res
 
 
-def distribute_powers(coeffs:list[fr.Fr], g):
+def distribute_powers(coeffs, g):
     g_field = fr.Fr(value = g)
     one = g_field.one()
     distribute_powers_and_mul_by_const(coeffs, g_field, one)
@@ -353,7 +360,7 @@ def skip_leading_zeros_and_convert_to_bigints(p: torch.Tensor):
     coeffs = convert_to_bigints(p[num_leading_zeros:])  
     return num_leading_zeros, coeffs
 
-def distribute_powers_new(coeffs:list[fr.Fr], g):
+def distribute_powers_new(coeffs, g):
 
     g=torch.tensor([64424509425, 1721329240476523535, 18418692815241631664, 3824455624000121028],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
     one = torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
@@ -420,27 +427,13 @@ def coset_INTT(size, evals:torch.tensor):
 #     return evals
 
 def from_coeff_vec(poly:torch.Tensor):
-    #TODO 缺少等于
-    poly = poly.to("cpu")
+    poly1 = poly.to("cpu")
     zero = fr.Fr.zero().value
-    while poly.size(0) != 0 and torch.equal(poly[-1], zero):
-        poly = poly[:-1]
-    return poly
+    counter = 0
+    while counter < poly1.size(0) and torch.equal(poly1[-counter-1], zero):
+        counter += 1
+    return poly[:poly.size(0)-counter]
 
-def from_coeff_vec_list(coeffs:list):
-    temp=[]
-    for i in range(0,1024):
-        temp.append(from_tensor_list(coeffs[i]) )
-
-    result = temp[:]
-    # print(result[-1])
-    while result and result[-1]== 0:
-        result.pop()
-    
-    output=[]
-    for i in range(0,1024):
-        output.append(from_list_tensor(result[i]) )
-    return output
 
 def poly_add_poly(self: torch.tensor, other: torch.tensor):    #input tensor output tensor
     if self.size(0) == 0:
@@ -467,78 +460,69 @@ def poly_mul_const(poly:torch.Tensor, elem:torch.Tensor):
         result = F.mul_mod_scalar(poly,elem)
         return result
 
+# def divide_with_q_and_r(self: torch.Tensor, divisor: torch.Tensor):
+#     if self.size(0) == 0:
+#         return self
+#     elif self.size(0) < divisor.size(0):
+#         zero = fr.Fr.zero().value
+#         return zero
+#     else:
+#         one = fr.Fr.one().value
+#         quotient = torch.zeros(self.size(0) - divisor.size(0) + 1, fr.Fr.Limbs, dtype = fr.Fr.Dtype)
+#         remainder = self
 
-def to_listtensor(input):
-    res=[]
-    for i in range(len(input)):
-        res.append(input[i])
-    return res
-def divide_with_q_and_r(self: torch.Tensor, divisor: torch.Tensor):
-    if self.size(0) == 0:
-        return self
-    elif self.size(0) < divisor.size(0):
-        zero = fr.Fr.zero().value
-        return zero
-    else:
-        one = fr.Fr.one().value
-        quotient = torch.zeros(self.size(0) - divisor.size(0) + 1, fr.Fr.Limbs, dtype = fr.Fr.Dtype)
-        remainder = self
+#         divisor_leading = divisor[-1].clone()
+#         divisor_leading_inv = F.div_mod(one, divisor_leading)
+#         while remainder.size(0) != 0 and remainder.size(0) >= divisor.size(0):
+#             remainder_leading = remainder[-1]
+#             cur_q_coeff = F.mul_mod(remainder_leading, divisor_leading_inv)
+#             cur_q_degree = remainder.size(0) - divisor.size(0)
+#             quotient[cur_q_degree] = cur_q_coeff
+#             for i, div_coeff in enumerate(divisor):
+#                 temp = F.mul_mod(cur_q_coeff, div_coeff)
+#                 remainder[cur_q_degree + i] = F.sub_mod(remainder[cur_q_degree + i], temp)
 
-        divisor_leading = divisor[-1].clone()
-        divisor_leading_inv = F.div_mod(one, divisor_leading)
-        while remainder.size(0) != 0 and remainder.size(0) >= divisor.size(0):
-            remainder_leading = remainder[-1]
-            cur_q_coeff = F.mul_mod(remainder_leading, divisor_leading_inv)
-            cur_q_degree = remainder.size(0) - divisor.size(0)
-            quotient[cur_q_degree] = cur_q_coeff
-            for i, div_coeff in enumerate(divisor):
-                temp = F.mul_mod(cur_q_coeff, div_coeff)
-                remainder[cur_q_degree + i] = F.sub_mod(remainder[cur_q_degree + i], temp)
-
-            i = 0
-            while torch.equal(remainder[-1 - i], fr.Fr.zero().value):
-                i = i+1
-            remainder = remainder[:remainder.size(0) - i]
-        res_quotient = from_coeff_vec(quotient)
-        return res_quotient, remainder
+#             i = 0
+#             while torch.equal(remainder[-1 - i], fr.Fr.zero().value):
+#                 i = i+1
+#             remainder = remainder[:remainder.size(0) - i]
+#         res_quotient = from_coeff_vec(quotient)
+#         return res_quotient, remainder
             
-def poly_div_poly(self: torch.Tensor, divisor: torch.Tensor):
-        res, remainder = divide_with_q_and_r(self, divisor)
-        return res
+# def poly_div_poly(self: torch.Tensor, divisor: torch.Tensor):
+#         res, remainder = divide_with_q_and_r(self, divisor)
+#         return res
 
 def rand_poly(d):
     random.seed(42)
     random_coeffs = [fr.Fr.from_repr(random.random) for _ in range(d + 1)]
     return from_coeff_vec(random_coeffs)
 
-def ln_without_floats(a):
-    # log2(a) * ln(2)
-    return int(math.log2(a) * 69 / 100)
 
 # Evaluates `self` at the given `point` in `Self::Point`.
-def evaluate(self, point: fr.Fr):
-    zero =torch.tensor([0,0,0,0],dtype=torch.BLS12_381_Fr_G1_Mont)
-    if point.is_cuda:
-        point=point.to('cpu')
+# def evaluate(self, point: fr.Fr):
+#     zero =torch.tensor([0,0,0,0],dtype=torch.BLS12_381_Fr_G1_Mont)
+#     if point.is_cuda:
+#         point=point.to('cpu')
 
-    if len(self) == 0:
-        return zero.to('cuda')
-    elif torch.equal(point,zero):
-        return self[0]
-    return horner_evaluate(self, point.to('cuda'))
+#     if len(self) == 0:
+#         return zero.to('cuda')
+#     elif torch.equal(point,zero):
+#         return self[0]
+#     return horner_evaluate(self, point.to('cuda'))
 
 # Horner's method for polynomial evaluation
-def horner_evaluate(poly_coeffs: list, point: fr.Fr):
+# def horner_evaluate(poly_coeffs: list, point: fr.Fr):
 
-    result =torch.tensor([0,0,0,0],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    repoly_coeffs=copy.deepcopy(poly_coeffs)
-    repoly_coeffs=repoly_coeffs.to('cpu')
-    repoly_coeffs=reversed(repoly_coeffs)
-    repoly_coeffs=repoly_coeffs.to('cuda')
-    for coeff in repoly_coeffs:
-        result = F.mul_mod(result, point)
-        result = F.add_mod(result, coeff)
-    return result
+#     result =torch.tensor([0,0,0,0],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
+#     repoly_coeffs=copy.deepcopy(poly_coeffs)
+#     repoly_coeffs=repoly_coeffs.to('cpu')
+#     repoly_coeffs=reversed(repoly_coeffs)
+#     repoly_coeffs=repoly_coeffs.to('cuda')
+#     for coeff in repoly_coeffs:
+#         result = F.mul_mod(result, point)
+#         result = F.add_mod(result, coeff)
+#     return result
 
 def poly_add_poly_mul_const(self:torch.Tensor, f: torch.Tensor, other: torch.Tensor):
     if self.size(0) == 0 and other.size(0) == 0:
@@ -568,13 +552,13 @@ def poly_add_poly_mul_const(self:torch.Tensor, f: torch.Tensor, other: torch.Ten
 
 
 # Given a vector of field elements {v_i}, compute the vector {coeff * v_i^(-1)}
-def batch_inversion_and_mul(v: list[fr.Fr], coeff):
+def batch_inversion_and_mul(v, coeff):
     v_inv = F.inv_mod(v)
     res = F.mul_mod_scalar(v_inv, coeff)
     return res
 
 # Given a vector of field elements {v_i}, compute the vector {v_i^(-1)}
-def batch_inversion(v: list[fr.Fr]):
+def batch_inversion(v):
     one = fr.Fr.one().value
     res = batch_inversion_and_mul(v, one.to("cuda"))
     return res

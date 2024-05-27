@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from .bls12_381 import fr
-from .arithmetic import pow
+from .arithmetic import pow_single
 import torch
 import torch.nn.functional as F
 
@@ -89,13 +89,13 @@ class Radix2EvaluationDomain:
     def evaluate_all_lagrange_coefficients(self, tau):
         size = self.size
         tau = tau.to("cpu")
-        t_size = pow(tau, size)
+        t_size = pow_single(tau, size)
         zero = fr.Fr.zero().value
         one = fr.Fr.one().value
         mod = fr.Fr.MODULUS
         domain_offset = one.clone()
         z_h_at_tau = F.sub_mod(t_size, domain_offset)
-
+        z_h_at_tau_inv = F.div_mod(one, z_h_at_tau)
         if torch.equal(z_h_at_tau, zero):
             u = zero.repeat(size, 1)
             omega_i = domain_offset
@@ -120,13 +120,13 @@ class Radix2EvaluationDomain:
 
             # v_0_inv = m * h^(m-1)
             f_size = fr.Fr.from_repr(size).value
-            pow_dof = pow(domain_offset, size - 1)
+            pow_dof = pow_single(domain_offset, size - 1)
             v_0_inv = F.mul_mod(f_size, pow_dof)
             v_0_inv = v_0_inv.to("cuda")
-            z_h_at_tau = z_h_at_tau.to("cuda")
             tau = tau.to("cuda")
+            z_h_at_tau = z_h_at_tau.to("cuda")
+            z_h_at_tau_inv = z_h_at_tau_inv.to("cuda")
             
-            z_h_at_tau_inv = F.inv_mod(z_h_at_tau)
             l_i = F.mul_mod(z_h_at_tau_inv, v_0_inv)
             
             negative_cur_elem = F.sub_mod(mod, domain_offset)
@@ -151,7 +151,7 @@ class Radix2EvaluationDomain:
     # For multiplicative subgroups, this polynomial is `z(X) = X^self.size - 1`.
     def evaluate_vanishing_polynomial(self, tau):
         one = fr.Fr.one().value
-        pow_tau = pow(tau, self.size)
+        pow_tau = pow_single(tau, self.size)
         return F.sub_mod(pow_tau, one)
     
     # Returns the `i`-th element of the domain, where elements are ordered by

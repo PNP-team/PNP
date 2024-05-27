@@ -5,7 +5,7 @@ from typing import List, Tuple
 import torch
 import torch.nn.functional as F
 from .....plonk_core.src.utils import lc
-from .....arithmetic import poly_add_poly,poly_mul_const,from_gmpy_list,from_list_gmpy,from_list_tensor,from_tensor_list,from_gmpy_list_1,neg,extend_tensor,neg_extend
+from .....arithmetic import poly_add_poly,poly_mul_const,from_gmpy_list_1,neg
 @dataclass
 class Lookup:
     # Lookup selector

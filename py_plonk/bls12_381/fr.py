@@ -1,4 +1,3 @@
-import gmpy2
 import torch
 from ..field import field
 from ..transcript import flags

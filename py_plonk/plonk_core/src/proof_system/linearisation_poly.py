@@ -9,7 +9,7 @@ from ....plonk_core.src.proof_system.widget.range import RangeGate,RangeValues
 from ....plonk_core.src.proof_system.widget.logic import LogicGate,LogicValues
 from ....plonk_core.src.proof_system.widget.fixed_base_scalar_mul import FBSMGate,FBSMValues
 from ....plonk_core.src.proof_system.widget.curve_addition import CAGate,CAValues
-from ....arithmetic import poly_mul_const,poly_add_poly,evaluate,compute_first_lagrange_evaluation,from_gmpy_list,from_list_gmpy,from_list_tensor,from_tensor_list,from_gmpy_list_1,calculate_execution_time,neg
+from ....arithmetic import poly_mul_const,poly_add_poly,compute_first_lagrange_evaluation,calculate_execution_time
 import torch
 import torch.nn.functional as F
 import numpy as np

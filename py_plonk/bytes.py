@@ -1,4 +1,3 @@
-import gmpy2
 import struct
 import torch
 

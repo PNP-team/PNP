@@ -1,34 +1,18 @@
-# import time
-# from load import read_pk_data,read_pp_data,read_cs_data
-# from composer import StandardComposer
-# import gen_proof
-# from transcript import transcript
-
 import time
-# from py_plonk.load import read_pk_data,read_pp_data,read_cs_data
-# from py_plonk.transform import read_pk_data,read_pp_data,read_cs_data
 from py_plonk.composer import StandardComposer
 from py_plonk.gen_proof import gen_proof
 from py_plonk.transcript import transcript
-from torch.profiler import profile, record_function, ProfilerActivity
 import numpy as np
-import torch
-import torchviz
-from py_plonk.gen_proof import gen_proof
-from torchviz import make_dot
-#date_set2=["../../data/pp-3.npz","../../data/pk-3.npz","../../data/cs-3.npz","../../data/w_l_scalar_scalar-3.npy","../../data/w_r_scalar_scalar-3.npy","../../data/w_o_scalar_scalar-3.npy","../../data/w_4_scalar_scalar-3.npy"]
-#date_set2=["../../data/pp-17.npz","../../data/pk-17.npz","../../data/cs-17.npz","../../data/w_l_scalar-17.npy","../../data/w_r_scalar-17.npy","../../data/w_o_scalar-17.npy","../../data/w_4_scalar-17.npy"]
-date_set2=["../../data/MERKLE-HEIGHT-9/pp-9.npz","../../data/MERKLE-HEIGHT-9/pk-9.npz","../../data/MERKLE-HEIGHT-9/cs-9.npz","../../data/MERKLE-HEIGHT-9/w_l_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_r_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_o_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_4_scalar-9.npy"]
+
+#data_set2=["../../data/MERKLE-HEIGHT-3/pp-3.npz","../../data/MERKLE-HEIGHT-3/pk-3.npz","../../data/MERKLE-HEIGHT-3/cs-3.npz","../../data/MERKLE-HEIGHT-3/w_l_scalar-3.npy","../../data/MERKLE-HEIGHT-3/w_r_scalar-3.npy","../../data/MERKLE-HEIGHT-3/w_o_scalar-3.npy","../../data/MERKLE-HEIGHT-3/w_4_scalar-3.npy"]
+#data_set2=["../../data/pp-17.npz","../../data/pk-17.npz","../../data/cs-17.npz","../../data/w_l_scalar-17.npy","../../data/w_r_scalar-17.npy","../../data/w_o_scalar-17.npy","../../data/w_4_scalar-17.npy"]
+data_set2=["../../data/MERKLE-HEIGHT-9/pp-9.npz","../../data/MERKLE-HEIGHT-9/pk-9.npz","../../data/MERKLE-HEIGHT-9/cs-9.npz","../../data/MERKLE-HEIGHT-9/w_l_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_r_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_o_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_4_scalar-9.npy"]
 if __name__ == "__main__":
 
-    # pp_file  = "py_plonk/params.txt"
-    # pk_file = "py_plonk/pk.txt"
-    # cs_file = "py_plonk/cs.txt"
-
     start_time = time.time()
-    pp = np.load(date_set2[0],allow_pickle=True)
-    pk = np.load(date_set2[1], allow_pickle=True)
-    csdata = np.load(date_set2[2],allow_pickle=True)
+    pp = np.load(data_set2[0],allow_pickle=True)
+    pk = np.load(data_set2[1], allow_pickle=True)
+    csdata = np.load(data_set2[2],allow_pickle=True)
     end_time = time.time()
     load_time = end_time - start_time
     print(f"load time: {load_time} s")

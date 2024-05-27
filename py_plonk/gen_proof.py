@@ -11,15 +11,15 @@ from .plonk_core.src.proof_system.pi import into_dense_poly
 from .plonk_core.src.proof_system import quotient_poly
 from .plonk_core.src.proof_system import linearisation_poly
 import numpy as np
-from .arithmetic import from_coeff_vec,resize_cpu,INTT
+from .arithmetic import from_coeff_vec,resize_gpu,INTT
 from .KZG import kzg10
 import torch
 import torch.nn.functional as F
-
-date_set2=["../../data/MERKLE-HEIGHT-9/pp-9.npz","../../data/MERKLE-HEIGHT-9/pk-9.npz","../../data/MERKLE-HEIGHT-9/cs-9.npz","../../data/MERKLE-HEIGHT-9/w_l_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_r_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_o_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_4_scalar-9.npy"]
+#data_set2=["../../data/MERKLE-HEIGHT-3/pp-3.npz","../../data/MERKLE-HEIGHT-3/pk-3.npz","../../data/MERKLE-HEIGHT-3/cs-3.npz","../../data/MERKLE-HEIGHT-3/w_l_scalar-3.npy","../../data/MERKLE-HEIGHT-3/w_r_scalar-3.npy","../../data/MERKLE-HEIGHT-3/w_o_scalar-3.npy","../../data/MERKLE-HEIGHT-3/w_4_scalar-3.npy"]
+data_set2=["../../data/MERKLE-HEIGHT-9/pp-9.npz","../../data/MERKLE-HEIGHT-9/pk-9.npz","../../data/MERKLE-HEIGHT-9/cs-9.npz","../../data/MERKLE-HEIGHT-9/w_l_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_r_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_o_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_4_scalar-9.npy"]
 
 def split_tx_poly(n,t_x):
-    t_x = resize_cpu(t_x, n<<3)
+    t_x = resize_gpu(t_x, n<<3)
     return [
         from_coeff_vec(t_x[0:n]),
         from_coeff_vec(t_x[n:2 * n]),
@@ -43,10 +43,10 @@ class gen_proof:
         transcript.append_pi(b"pi", fr.Fr(torch.tensor(cs.public_inputs,dtype=torch.BLS12_381_Fr_G1_Mont)), int(cs.intended_pi_pos))
 
         #1. Compute witness Polynomials
-        w_l_scalar=torch.tensor(np.load(date_set2[3],allow_pickle=True),dtype=torch.BLS12_381_Fr_G1_Mont)
-        w_r_scalar=torch.tensor(np.load(date_set2[4],allow_pickle=True),dtype=torch.BLS12_381_Fr_G1_Mont)
-        w_o_scalar=torch.tensor(np.load(date_set2[5],allow_pickle=True),dtype=torch.BLS12_381_Fr_G1_Mont)
-        w_4_scalar=torch.tensor(np.load(date_set2[6],allow_pickle=True),dtype=torch.BLS12_381_Fr_G1_Mont)
+        w_l_scalar=torch.tensor(np.load(data_set2[3],allow_pickle=True),dtype=torch.BLS12_381_Fr_G1_Mont)
+        w_r_scalar=torch.tensor(np.load(data_set2[4],allow_pickle=True),dtype=torch.BLS12_381_Fr_G1_Mont)
+        w_o_scalar=torch.tensor(np.load(data_set2[5],allow_pickle=True),dtype=torch.BLS12_381_Fr_G1_Mont)
+        w_4_scalar=torch.tensor(np.load(data_set2[6],allow_pickle=True),dtype=torch.BLS12_381_Fr_G1_Mont)
         w_l_scalar = w_l_scalar.to('cuda')
         w_r_scalar = w_r_scalar.to('cuda')
         w_o_scalar = w_o_scalar.to('cuda')
@@ -396,7 +396,7 @@ class gen_proof:
             pp,
             itertools.chain(aw_polys, w_polys),
             itertools.chain(aw_commits, w_commits),
-            z_challenge.value,
+            z_challenge.value.to("cuda"),
             aw_challenge.value.to("cuda"),
             itertools.chain(aw_rands, w_rands),
             None
@@ -418,7 +418,7 @@ class gen_proof:
             pp,
             saw_polys,
             saw_commits,
-            open_point,
+            open_point.to("cuda"),
             saw_challenge.value.to("cuda"),
             saw_rands,
             None

@@ -1,4 +1,3 @@
-import gmpy2
 import math
 from dataclasses import dataclass
 from .serialize import buffer_byte_size
