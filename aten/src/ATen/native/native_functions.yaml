@@ -15342,8 +15342,8 @@
 - func: add_mod.out(Tensor self, Tensor in_b, *, Tensor(a!) out) -> Tensor(a!)
   device_check: NoCheck   # TensorIterator
   dispatch:
-    CPU: add_mod_cpu_out
-    CUDA: add_mod_cuda_out
+    CPU: add_mod_out_cpu
+    CUDA: add_mod_out_cuda
 
 - func: sub_mod(Tensor self, Tensor in_b) -> Tensor
   device_check: NoCheck   # TensorIterator
@@ -15360,8 +15360,8 @@
 - func: sub_mod.out(Tensor self, Tensor in_b, *, Tensor(a!) out) -> Tensor(a!)
   device_check: NoCheck   # TensorIterator
   dispatch:
-    CPU: sub_mod_cpu_out
-    CUDA: sub_mod_cuda_out
+    CPU: sub_mod_out_cpu
+    CUDA: sub_mod_out_cuda
 
 - func: mul_mod(Tensor self, Tensor in_b) -> Tensor
   device_check: NoCheck   # TensorIterator
@@ -15378,8 +15378,8 @@
 - func: mul_mod.out(Tensor self, Tensor in_b, *, Tensor(a!) out) -> Tensor(a!)
   device_check: NoCheck   # TensorIterator
   dispatch:
-    CPU: mul_mod_cpu_out
-    CUDA: mul_mod_cuda_out
+    CPU: mul_mod_out_cpu
+    CUDA: mul_mod_out_cuda
 
 - func: div_mod(Tensor self, Tensor in_b) -> Tensor
   device_check: NoCheck   # TensorIterator
@@ -15396,8 +15396,8 @@
 - func: div_mod.out(Tensor self, Tensor in_b, *, Tensor(a!) out) -> Tensor(a!)
   device_check: NoCheck   # TensorIterator
   dispatch:
-    CPU: div_mod_cpu_out 
-    CUDA: div_mod_cuda_out
+    CPU: div_mod_out_cpu 
+    CUDA: div_mod_out_cuda
 
 - func: add_mod_scalar(Tensor self, Tensor in_b) -> Tensor
   device_check: NoCheck   # TensorIterator
@@ -15412,7 +15412,7 @@
 - func: add_mod_scalar.out(Tensor self, Tensor in_b, *, Tensor(a!) out) -> Tensor(a!)
   device_check: NoCheck   # TensorIterator
   dispatch:
-    CUDA: add_mod_scalar_cuda_out
+    CUDA: add_mod_scalar_out_cuda
 
 - func: sub_mod_scalar(Tensor self, Tensor in_b) -> Tensor
   device_check: NoCheck   # TensorIterator
@@ -15427,7 +15427,7 @@
 - func: sub_mod_scalar.out(Tensor self, Tensor in_b, *, Tensor(a!) out) -> Tensor(a!)
   device_check: NoCheck   # TensorIterator
   dispatch:
-    CUDA: sub_mod_scalar_cuda_out
+    CUDA: sub_mod_scalar_out_cuda
 
 - func: mul_mod_scalar(Tensor self, Tensor in_b) -> Tensor
   device_check: NoCheck   # TensorIterator
@@ -15442,7 +15442,7 @@
 - func: mul_mod_scalar.out(Tensor self, Tensor in_b, *, Tensor(a!) out) -> Tensor(a!)
   device_check: NoCheck   # TensorIterator
   dispatch:
-    CUDA: mul_mod_scalar_cuda_out
+    CUDA: mul_mod_scalar_out_cuda
 
 - func: div_mod_scalar(Tensor self, Tensor in_b) -> Tensor
   device_check: NoCheck   # TensorIterator
@@ -15457,7 +15457,25 @@
 - func: div_mod_scalar.out(Tensor self, Tensor in_b, *, Tensor(a!) out) -> Tensor(a!)
   device_check: NoCheck   # TensorIterator
   dispatch:
-    CUDA: div_mod_scalar_cuda_out
+    CUDA: div_mod_scalar_out_cuda
+
+- func: exp_mod(Tensor self, int exp) -> Tensor
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+    CPU: exp_mod_cpu
+    CUDA: exp_mod_cuda
+
+- func: exp_mod_(Tensor(a!) self, int exp) -> Tensor(a!)
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+    CPU: exp_mod_cpu_
+    CUDA: exp_mod_cuda_
+
+- func: exp_mod.out(Tensor self, int exp, *, Tensor(a!) out) -> Tensor(a!)
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+    CPU: exp_mod_out_cpu
+    CUDA: exp_mod_out_cuda
 
 - func: poly_eval(Tensor a, int N) -> Tensor
   device_check: NoCheck
