@@ -80,11 +80,7 @@ def compute_permutation_poly(domain, wires, beta, gamma, sigma_polys: torch.Tens
     # wr_i, wo_i, ... ] where each row contains the wire and sigma
     # values for a single gate
     # Compute all roots, same as calculating twiddles, but doubled in size
-    roots = zero.repeat(n,1)
-    roots[0] = fr.Fr.one()
-    for idx in range(1, roots.size(0)):
-        roots[idx] = F.mul_mod(roots[idx - 1], domain.group_gen)
-    roots = roots.to('cuda')
+    roots = F.gen_sequence(n, domain.group_gen.to("cuda"))
 
     numerator_product = one.clone()
     denominator_product = one.clone()

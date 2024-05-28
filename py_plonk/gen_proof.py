@@ -455,19 +455,12 @@ class gen_proof:
                 print(f"An error occurred while writing to the file: {e}")
 
 
-        attributes = vars(Proof)
-        for attribute, value in attributes.items():
-            try:
-                my_data = {f"{attribute}: {value[0]},{value[1]}"}
-                print(f"{attribute}: {value[0]},{value[1]}")
-                write_to_file(my_data, 'proof_data_new.txt')
-            except :  # Check whether the attribute is of openproof type
-                try:
-                    my_data = {f"{attribute}: {value.w[0]},{value.w[1]}"}
-                    print(f"{attribute}: {value.w[0]},{value.w[1]}")
-                    write_to_file(my_data, 'proof_data_new.txt')
-                except:
-                    pass
+        # attributes = vars(Proof)
+        # for attribute, value in attributes.items():
+        #     my_data = {f"{attribute}: {value[0]},{value[1]}"}
+        #     print(f"{attribute}: {value[0]},{value[1]}")
+        #     write_to_file(my_data, 'proof_data_new.txt')
+            
         
         return Proof
 

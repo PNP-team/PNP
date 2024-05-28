@@ -118,24 +118,23 @@ class Radix2EvaluationDomain:
             # TODO: consider caching the computation of l_i to save N multiplications
             from .arithmetic import batch_inversion
 
-            tau = tau.to("cuda")
-            mod = mod.to("cuda")
-            group_gen = group_gen.to("cuda")
-            f_size = fr.Fr.from_repr(size).to("cuda")
-            domain_offset = domain_offset.to("cuda")
-            z_h_at_tau = z_h_at_tau.to("cuda")
-
+            f_size = fr.Fr.from_repr(size)
             pow_dof = F.exp_mod(domain_offset, size - 1) 
             v_0_inv = F.mul_mod(f_size, pow_dof)
-            v_0 = F.inv_mod(v_0_inv)
-            coeff_v = F.gen_sequence(size, group_gen)
-            coeff_v = F.mul_mod_scalar(coeff_v, v_0)
-            nominator = F.mul_mod_scalar(coeff_v, z_h_at_tau)
-
+            v_0 = F.div_mod(one, v_0_inv)
             negative_cur_elem = F.sub_mod(mod, domain_offset)
             r_0 = F.add_mod(tau, negative_cur_elem)
+
+            tau = tau.to("cuda")
+            group_gen = group_gen.to("cuda")
+            z_h_at_tau = z_h_at_tau.to("cuda")
+
+            coeff_v = F.gen_sequence(size, group_gen)
+            coeff_v = F.mul_mod_scalar(coeff_v, v_0.to("cuda"))
+            nominator = F.mul_mod_scalar(coeff_v, z_h_at_tau)
+
             coeff_r = F.gen_sequence(size, group_gen)
-            coeff_r = F.mul_mod_scalar(coeff_r, r_0)
+            # coeff_r = F.mul_mod_scalar(coeff_r, r_0.to("cuda"))
             coeff_tau = tau.repeat(size, 1)
             denominator = F.sub_mod(coeff_tau, coeff_r)
             denominator_inv = F.inv_mod(denominator)

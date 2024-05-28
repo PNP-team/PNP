@@ -5,6 +5,19 @@ import math
 import warnings
 import importlib
 
+import traceback
+import functools
+
+def trace(func):
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+        print(f"Call stack for {func.__name__}:")
+        for line in stack:
+            print(line, end='')  # Print each line of the stack trace
+        print("\n")
+        return func(*args, **kwargs)
+    return wrapper
 try:
     import numpy as np
 except ModuleNotFoundError:
@@ -6087,6 +6100,7 @@ def multi_head_attention_forward(
 
 
 # Below are for BigInteger
+@trace
 def to_mont(input: Tensor, inplace: bool = False) -> Tensor:
     r"""
     Convert input to Montgomery domain. Only for Elliptic Curve.
@@ -6097,7 +6111,7 @@ def to_mont(input: Tensor, inplace: bool = False) -> Tensor:
         result = torch.to_mont(input)
     return result
 
-
+@trace
 def to_base(input: Tensor, inplace: bool = False) -> Tensor:
     r"""
     Convert input to base domain. Only for Elliptic Curve.
@@ -6108,7 +6122,7 @@ def to_base(input: Tensor, inplace: bool = False) -> Tensor:
         result = torch.to_base(input)
     return result
 
-
+@trace
 def add_mod(input1: Tensor, input2: Tensor, inplace: bool = False) -> Tensor:
     if inplace:
         result = torch.add_mod_(input1, input2)
@@ -6116,7 +6130,7 @@ def add_mod(input1: Tensor, input2: Tensor, inplace: bool = False) -> Tensor:
         result = torch.add_mod(input1, input2)
     return result
 
-
+@trace
 def sub_mod(input1: Tensor, input2: Tensor, inplace: bool = False) -> Tensor:
     if inplace:
         result = torch.sub_mod_(input1, input2)
@@ -6124,7 +6138,7 @@ def sub_mod(input1: Tensor, input2: Tensor, inplace: bool = False) -> Tensor:
         result = torch.sub_mod(input1, input2)
     return result
 
-
+@trace
 def mul_mod(input1: Tensor, input2: Tensor, inplace: bool = False) -> Tensor:
     if inplace:
         result = torch.mul_mod_(input1, input2)
@@ -6132,7 +6146,7 @@ def mul_mod(input1: Tensor, input2: Tensor, inplace: bool = False) -> Tensor:
         result = torch.mul_mod(input1, input2)
     return result
 
-
+@trace
 def div_mod(input1: Tensor, input2: Tensor, inplace: bool = False) -> Tensor:
     if inplace:
         result = torch.div_mod_(input1, input2)
@@ -6140,7 +6154,7 @@ def div_mod(input1: Tensor, input2: Tensor, inplace: bool = False) -> Tensor:
         result = torch.div_mod(input1, input2)
     return result
 
-
+@trace
 def inv_mod(input: Tensor, inplace: bool = False) -> Tensor:
     if inplace:
         result = torch.inv_mod_(input)
@@ -6148,7 +6162,7 @@ def inv_mod(input: Tensor, inplace: bool = False) -> Tensor:
         result = torch.inv_mod(input)
     return result
 
-
+@trace
 def exp_mod(input: Tensor, exp: int, inplace: bool = False) -> Tensor:
     if inplace:
         result = torch.exp_mod_(input, exp)
@@ -6156,7 +6170,7 @@ def exp_mod(input: Tensor, exp: int, inplace: bool = False) -> Tensor:
         result = torch.exp_mod(input, exp)
     return result
 
-
+@trace
 def add_mod_scalar(input1: Tensor, input2: Tensor, inplace: bool = False) -> Tensor:
     if inplace:
         result = torch.add_mod_scalar_(input1, input2)
@@ -6164,7 +6178,7 @@ def add_mod_scalar(input1: Tensor, input2: Tensor, inplace: bool = False) -> Ten
         result = torch.add_mod_scalar(input1, input2)
     return result
 
-
+@trace
 def sub_mod_scalar(input1: Tensor, input2: Tensor, inplace: bool = False) -> Tensor:
     if inplace:
         result = torch.sub_mod_scalar_(input1, input2)
@@ -6172,7 +6186,7 @@ def sub_mod_scalar(input1: Tensor, input2: Tensor, inplace: bool = False) -> Ten
         result = torch.sub_mod_scalar(input1, input2)
     return result
 
-
+@trace
 def mul_mod_scalar(input1: Tensor, input2: Tensor, inplace: bool = False) -> Tensor:
     if inplace:
         result = torch.mul_mod_scalar_(input1, input2)
@@ -6180,7 +6194,7 @@ def mul_mod_scalar(input1: Tensor, input2: Tensor, inplace: bool = False) -> Ten
         result = torch.mul_mod_scalar(input1, input2)
     return result
 
-
+@trace
 def div_mod_scalar(input1: Tensor, input2: Tensor, inplace: bool = False) -> Tensor:
     if inplace:
         result = torch.div_mod_scalar_(input1, input2)
@@ -6188,12 +6202,12 @@ def div_mod_scalar(input1: Tensor, input2: Tensor, inplace: bool = False) -> Ten
         result = torch.div_mod_scalar(input1, input2)
     return result
 
-
+@trace
 def gen_sequence(N: int, x: Tensor) -> Tensor:
     result = torch.poly_eval(x, N)
     return result
 
-
+@trace
 def evaluate(poly: Tensor, x: Tensor) -> Tensor:
     if poly.size(0) == 0:
         result = torch.zeros(4, dtype = poly.dtype).to("cuda")
@@ -6202,13 +6216,13 @@ def evaluate(poly: Tensor, x: Tensor) -> Tensor:
         result = torch.poly_reduce(x, poly)
     return result
 
-
+@trace
 def poly_div_poly(divid: Tensor, c: Tensor) -> Tensor:
     result = torch.poly_div(divid,c)
     # pop first element to zero to get the correct quotient
     return result[1:]
 
-
+@trace
 def multi_scalar_mult(points: Tensor, scalars: Tensor, device="cuda") -> list:
     r"""
         Performs a multi-scalar multiplication(MSM) using Pippenger's algorithm, derived by sppark.
