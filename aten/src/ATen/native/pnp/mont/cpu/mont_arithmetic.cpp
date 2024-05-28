@@ -133,12 +133,21 @@ static void div_template(
 }
 
 static void exp_template(Tensor& out, int exp) {
+  if (exp == 1) {
+    return;
+  }
   AT_DISPATCH_MONT_TYPES(out.scalar_type(), "exp_mod_cpu", [&] {
     auto c_ptr = reinterpret_cast<scalar_t::compute_type*>(
         out.mutable_data_ptr<scalar_t>());
     int64_t num_ = out.numel() / num_uint64(out.scalar_type());
-    for (auto i = 0; i < num_; i++) {
-      c_ptr[i] = c_ptr[i] ^ exp;
+    if (exp == 0) {
+      for (auto i = 0; i < num_; i++) {
+        c_ptr[i].one(false); // or_zero = false
+      }
+    } else {
+      for (auto i = 0; i < num_; i++) {
+        c_ptr[i] = c_ptr[i] ^ exp;
+      }
     }
   });
 }

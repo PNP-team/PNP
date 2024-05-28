@@ -204,6 +204,14 @@ __global__ void exp_mod_kernel_(const int64_t N, T* data, int exp) {
 }
 
 template <typename T>
+__global__ void one_kernel_(const int64_t N, T* data) {
+  int64_t i = blockIdx.x * blockDim.x + threadIdx.x;
+  if (i < N) {
+    data[i].one(false); // or_zero = false
+  }
+}
+
+template <typename T>
 __global__ void poly_eval_kernel(const int64_t N, const T* x, T* data) {
   int64_t tid = blockIdx.x * blockDim.x + threadIdx.x;
   if (tid == 0) {
@@ -334,6 +342,9 @@ static void inv_mod_cuda_template(Tensor& self) {
 }
 
 static void exp_mod_cuda_template(Tensor& self, int exp) {
+  if (exp == 1) {
+    return;
+  }
   AT_DISPATCH_MONT_TYPES(self.scalar_type(), "exp_mod_cuda", [&] {
     auto self_ptr = reinterpret_cast<scalar_t::compute_type*>(
         self.mutable_data_ptr<scalar_t>());
@@ -341,7 +352,11 @@ static void exp_mod_cuda_template(Tensor& self, int exp) {
     TORCH_INTERNAL_ASSERT(N > 0 && N <= std::numeric_limits<int32_t>::max());
     int64_t grid = (N + block_work_size() - 1) / block_work_size();
     auto stream = at::cuda::getCurrentCUDAStream();
-    exp_mod_kernel_<<<grid, block_work_size(), 0, stream>>>(N, self_ptr, exp);
+    if (exp == 0) {
+      one_kernel_<<<grid, block_work_size(), 0, stream>>>(N, self_ptr);
+    } else {
+      exp_mod_kernel_<<<grid, block_work_size(), 0, stream>>>(N, self_ptr, exp);
+    }
     C10_CUDA_KERNEL_LAUNCH_CHECK();
   });
 }

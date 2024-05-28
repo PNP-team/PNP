@@ -6150,9 +6150,6 @@ def inv_mod(input: Tensor, inplace: bool = False) -> Tensor:
 
 
 def exp_mod(input: Tensor, exp: int, inplace: bool = False) -> Tensor:
-    assert exp != 0, "exp cannot be 0"
-    if exp == 1:
-        return input
     if inplace:
         result = torch.exp_mod_(input, exp)
     else:
