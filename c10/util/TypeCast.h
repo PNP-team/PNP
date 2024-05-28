@@ -1,10 +1,10 @@
 #pragma once
 #include <c10/macros/Macros.h>
 #include <c10/util/BFloat16.h>
+#include <c10/util/BigInteger.h>
 #include <c10/util/Float8_e4m3fn.h>
 #include <c10/util/Float8_e5m2.h>
 #include <c10/util/Half.h>
-#include <c10/util/BigInteger.h>
 #include <type_traits>
 
 C10_CLANG_DIAGNOSTIC_PUSH()
@@ -120,16 +120,22 @@ struct static_cast_with_inter_type<
   }
 };
 
-#define BIGINTEGER_CAST(name)                                       \
-template <>                                                         \
-struct static_cast_with_inter_type<                                 \
-    uint64_t,                                                       \
-    c10::name> {                                                    \
-  C10_HOST_DEVICE __ubsan_ignore_undefined__ static inline uint64_t \
-  apply(c10::name src) {                                            \
-    return src.val_;                                                \
-  }                                                                 \
-};
+#define BIGINTEGER_CAST(name)                                                \
+  template <>                                                                \
+  struct static_cast_with_inter_type<uint64_t, c10::name> {                  \
+    C10_HOST_DEVICE __ubsan_ignore_undefined__ static inline uint64_t apply( \
+        c10::name src) {                                                     \
+      return src.val_;                                                       \
+    }                                                                        \
+  };                                                                         \
+  template <>                                                                \
+  struct static_cast_with_inter_type<c10::complex<c10::Half>, c10::name> {   \
+    C10_HOST_DEVICE __ubsan_ignore_undefined__ static inline c10::complex<   \
+        c10::Half>                                                           \
+    apply(c10::name src) {                                                   \
+      return static_cast<c10::complex<c10::Half>>(c10::complex<float>{0});   \
+    }                                                                        \
+  };
 
 APPLY_ALL_BIGINTEGER_CASE(BIGINTEGER_CAST);
 
