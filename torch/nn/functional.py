@@ -6154,9 +6154,9 @@ def exp_mod(input: Tensor, exp: int, inplace: bool = False) -> Tensor:
     if exp == 1:
         return input
     if inplace:
-        result = torch.mod_mod_(input, exp)
+        result = torch.exp_mod_(input, exp)
     else:
-        result = torch.mod_mod(input, exp)
+        result = torch.exp_mod(input, exp)
     return result
 
 
