@@ -1,10 +1,7 @@
 from .....bls12_381 import fr
 from .....plonk_core.src.proof_system.mod import CustomEvaluations
 from .....plonk_core.src.proof_system.widget.mod import WitnessValues,delta
-from .arithmetic import poly_mul_const
-from .....arithmetic import extend_tensor
 import torch.nn.functional as F
-import torch
 
 
 class RangeValues:

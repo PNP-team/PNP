@@ -5,7 +5,7 @@ from ..field import field
 from ..bls12_381 import fr,fq
 from typing import List
 from ..arithmetic import skip_leading_zeros_and_convert_to_bigints,convert_to_bigints,\
-                         rand_poly,poly_add_poly_mul_const,from_coeff_vec,MSM_new,pow_single
+                         rand_poly,poly_add_poly_mul_const,MSM_new,pow_single,calculate_execution_time
 from ..plonk_core.src.proof_system.linearisation_poly import ProofEvaluations
 import random
 import torch 
@@ -57,6 +57,7 @@ class Commitment:
     
 # On input a list of labeled polynomials and a query point, `open` outputs a proof of evaluation
 # of the polynomials at the query point.
+@calculate_execution_time
 def open(
     ck: UniversalParams,
     labeled_polynomials: 'LabeledPoly',

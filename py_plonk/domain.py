@@ -136,6 +136,7 @@ class Radix2EvaluationDomain:
             lagrange_coefficients_inverse = zero.repeat(size, 1)
             group_gen = self.group_gen.value.to("cuda")
             group_gen_inv = self.group_gen_inv.value.to("cuda")
+            #TODO
             for i in range(size):
                 r_i = F.add_mod(tau, negative_cur_elem)
                 lagrange_coefficients_inverse[i] = F.mul_mod(l_i, r_i)

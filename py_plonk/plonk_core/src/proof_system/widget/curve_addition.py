@@ -4,7 +4,6 @@ from .....plonk_core.src.proof_system.mod import CustomEvaluations
 from .....plonk_core.src.proof_system.widget.mod import WitnessValues
 from .....bls12_381.edwards import EdwardsParameters as P
 from .arithmetic import poly_mul_const
-from .....arithmetic import extend_tensor
 import torch
 import torch.nn.functional as F
 @dataclass

@@ -34,8 +34,7 @@ def compute_gate_constraint_satisfiability(n,
     var_base_challenge, prover_key, wl_eval_8n, wr_eval_8n, 
     wo_eval_8n, w4_eval_8n, pi_poly):
 
-    domain_8n = Radix2EvaluationDomain.new(8 * n)
-    size = domain_8n.size
+    size = 8 * n
     pi_poly = pi_poly.to('cuda')
     pi_eval_8n = coset_NTT(size,pi_poly)
 
@@ -71,13 +70,13 @@ def compute_gate_constraint_satisfiability(n,
     prover_key_variable_group_add_selector['evals']=prover_key_variable_group_add_selector['evals'].to('cuda')
 
 
-    timings = {
-    'compute_quotient_i': 0,
-    'RangeGate_quotient_term': 0,
-    'LogicGate_quotient_term': 0,
-    'FBSMGate_quotient_term': 0,
-    'CAGate_quotient_term': 0
-    }
+    # timings = {
+    # 'compute_quotient_i': 0,
+    # 'RangeGate_quotient_term': 0,
+    # 'LogicGate_quotient_term': 0,
+    # 'FBSMGate_quotient_term': 0,
+    # 'CAGate_quotient_term': 0
+    # }
     
     wit_vals = WitnessValues(
         a_val = wl_eval_8n[:size],
@@ -100,49 +99,49 @@ def compute_gate_constraint_satisfiability(n,
                 ("q_h4_eval", prover_key_arithmetic['q_h4']['evals'].clone())
             ]
     )
-    start = time.time()
+    # start = time.time()
     arithmetic = compute_quotient_i(prover_key_arithmetic, wit_vals)
-    timings['compute_quotient_i'] += time.time() - start
+    # timings['compute_quotient_i'] += time.time() - start
 
  
-    start = time.time()
+    # start = time.time()
     range_term = RangeGate.quotient_term(
         prover_key_range_selector['evals'],
         range_challenge,
         wit_vals,
         RangeValues.from_evaluations(custom_vals),
     )
-    timings['RangeGate_quotient_term'] += time.time() - start
+    # timings['RangeGate_quotient_term'] += time.time() - start
 
   
-    start = time.time()
+    # start = time.time()
     logic_term = LogicGate.quotient_term(
         prover_key_logic_selector['evals'],
         logic_challenge,
         wit_vals,
         LogicValues.from_evaluations(custom_vals)
     )
-    timings['LogicGate_quotient_term'] += time.time() - start
+    # timings['LogicGate_quotient_term'] += time.time() - start
 
     
-    start = time.time()
+    # start = time.time()
     fixed_base_scalar_mul_term = FBSMGate.quotient_term(
         prover_key_fixed_group_add_selector['evals'],
         fixed_base_challenge,
         wit_vals,
         FBSMValues.from_evaluations(custom_vals)
     )
-    timings['FBSMGate_quotient_term'] += time.time() - start
+    # timings['FBSMGate_quotient_term'] += time.time() - start
 
  
-    start = time.time()
+    # start = time.time()
     curve_addition_term = CAGate.quotient_term(
         prover_key_variable_group_add_selector['evals'],
         var_base_challenge,
         wit_vals,
         CAValues.from_evaluations(custom_vals),
     )
-    timings['CAGate_quotient_term'] += time.time() - start
+    # timings['CAGate_quotient_term'] += time.time() - start
 
     mid1 = F.add_mod(arithmetic ,pi_eval_8n[:size])
     mid2 = F.add_mod(mid1, range_term)
@@ -151,11 +150,10 @@ def compute_gate_constraint_satisfiability(n,
     gate_contributions = F.add_mod(mid4, curve_addition_term)
 
 
-    for function, total_time in timings.items():
-        print(f"Total time for {function}: {total_time:.6f} seconds")
+    # for function, total_time in timings.items():
+    #     print(f"Total time for {function}: {total_time:.6f} seconds")
     return gate_contributions
 
-@calculate_execution_time
 def compute_permutation_checks(
     n,
     prover_key,
@@ -163,9 +161,7 @@ def compute_permutation_checks(
     wo_eval_8n, w4_eval_8n,
     z_eval_8n, alpha, beta, gamma):
 
-    #get NTT domain
-    domain_8n:Radix2EvaluationDomain = Radix2EvaluationDomain.new(8 * n)
-    size = domain_8n.size
+    size = 8 * n
     
     #single scalar OP on CPU
     alpha2 = F.mul_mod(alpha,alpha)
@@ -218,9 +214,8 @@ def compute_quotient_poly(n,
             range_challenge, logic_challenge, 
             fixed_base_challenge, var_base_challenge, 
             lookup_challenge):
-    #get NTT domain
-    domain_8n = Radix2EvaluationDomain.new(8 * n)
-    coset_size = domain_8n.size
+
+    coset_size = 8 * n
     one = fr.Fr.one().value
     l1_poly = compute_first_lagrange_poly_scaled(n,one) 
     

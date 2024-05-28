@@ -117,10 +117,6 @@ def compute_permutation_poly(domain, wires, beta, gamma, sigma_polys: torch.Tens
         denominator_temps = denominator_irreducible(wires[index], sigma_mappings[index], beta, extend_gamma)
         denominator_product = F.mul_mod(denominator_temps, denominator_product)
 
-        # Calculate the product coefficient for the gate
-        # denominator_product_under = fr.Fr.inverse(denominator_product)
-
-    #div_mod work on CUDA
     denominator_product_under = F.div_mod(extend_one, denominator_product)
     gate_coefficient = F.mul_mod(numerator_product, denominator_product_under)
     z = torch.tensor([], dtype = fr.Fr.Dtype).to("cuda")

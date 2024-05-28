@@ -17,12 +17,6 @@ def extend_tensor(input:torch.tensor,size):
         res[i] = input
     return res.to('cuda')
 
-# def transtompz(input:torch.tensor):  ###tensor to gmp
-#     a=input[0].tolist()
-#     b=input[1].tolist()
-#     a=from_list_gmpy_1_fq(a)
-#     b=from_list_gmpy_1_fq(b)
-#     return AffinePointG1(x=a,y=b)
 
 def calculate_execution_time(func):
         def wrapper(*args, **kwargs):
@@ -30,7 +24,7 @@ def calculate_execution_time(func):
             result = func(*args, **kwargs)
             end_time = time.time()    # 记录函数执行结束的时间
             execution_time = end_time - start_time  # 计算函数执行时间
-            print(f"函数 {func.__name__} 执行时间为：{execution_time} 秒")
+            print(f"func {func.__name__} consumed: {execution_time} s")
             return result
         return wrapper
 

@@ -6,8 +6,6 @@ from ....arithmetic import poly_mul_const,poly_add_poly,from_gmpy_list_1,neg
 from ....plonk_core.src.permutation.constants import K1,K2,K3
 import torch.nn.functional as F
 import torch
-import copy
-from ....arithmetic import extend_tensor
 @dataclass
 class Permutation:
     # Left Permutation

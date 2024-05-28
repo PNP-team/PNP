@@ -37,8 +37,7 @@ class Lookup:
         zeta: fr.Fr,
         lookup_sep:fr.Fr):
 
-        domain_8n:Radix2EvaluationDomain = Radix2EvaluationDomain.new(8 * domain.size)
-
+        coset_size = 8 * domain.size
         # Initialize result list
         result = []
 
@@ -48,7 +47,7 @@ class Lookup:
         # from_gmpy_list(self.q_lookup[1])
         # proverkey_q_lookup=from_list_tensor(self.q_lookup[1])
         # Calculate lookup quotient term for each index
-        for i in range(domain_8n.size):
+        for i in range(coset_size):
             quotient_i = self.compute_quotient_i(
                 i,
                 wl_eval_8n[i],
@@ -376,8 +375,7 @@ def compute_lookup_quotient_term(
     lookup_sep,
     pk_lookup_qlookup_evals):
 
-    domain_8n:Radix2EvaluationDomain = Radix2EvaluationDomain.new(8 * n)
-    size= domain_8n.size
+    size = 8 * n
   
     # Calculate lookup quotient term for each index
     quotient = compute_quotient_i(

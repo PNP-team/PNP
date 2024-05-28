@@ -87,6 +87,7 @@ class Arith:
         return result
 # Computes the arithmetic gate contribution to the quotient polynomial at
 # the element of the domain at the given `index`.
+import json
 def compute_quotient_i(self, wit_vals: WitnessValues):
 
     mult = F.mul_mod(wit_vals.a_val, wit_vals.b_val)
@@ -95,7 +96,13 @@ def compute_quotient_i(self, wit_vals: WitnessValues):
     right = F.mul_mod(wit_vals.b_val, self['q_r']['evals'])
     out = F.mul_mod(wit_vals.c_val, self['q_o']['evals'])
     fourth = F.mul_mod(wit_vals.d_val, self['q_4']['evals'])
+    inputlist = wit_vals.a_val.tolist()
+    with open ("input.json","w") as f:
+         json.dump(inputlist,f)
     a_high = pow(wit_vals.a_val, SBOX_ALPHA)
+    outputlist = a_high.tolist()
+    with open ("output.json","w") as f:
+         json.dump(outputlist,f)
     b_high = pow(wit_vals.b_val, SBOX_ALPHA)
     f_high = pow(wit_vals.d_val, SBOX_ALPHA)
 

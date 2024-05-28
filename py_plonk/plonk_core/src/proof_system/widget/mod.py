@@ -1,9 +1,7 @@
 from .....bls12_381 import fr
 from dataclasses import dataclass
-from .....arithmetic import from_gmpy_list_1
 import torch
-import  torch.nn.functional as F
-from .....arithmetic import extend_tensor
+import torch.nn.functional as F
 @dataclass
 class WitnessValues:
     a_val: fr.Fr  # Left Value
