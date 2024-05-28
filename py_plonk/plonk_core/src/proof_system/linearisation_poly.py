@@ -132,10 +132,10 @@ def compute_linearisation_poly(
     table_poly: torch.tensor
     ):
     n = domain.size
-    omega = domain.group_gen.value
+    omega = domain.group_gen
     domain_permutation = Radix2EvaluationDomain.new(n)
     #single scalar OP on CPU
-    one = fr.Fr.one().value
+    one = fr.Fr.one()
     mod = fr.Fr.MODULUS
     neg_one = F.sub_mod(mod, one)
     shifted_z_challenge = F.mul_mod(z_challenge, omega)

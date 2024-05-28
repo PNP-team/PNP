@@ -26,14 +26,14 @@ class AffinePointG1:
         return cls(x,y)
     
     def is_zero(self):
-        one = fq.Fq.one().value
-        return torch.equal(self.x.value, fq.Fq.zero().value)  and torch.equal(one, self.y.value)
+        one = fq.Fq.one()
+        return torch.equal(self.x.value, fq.Fq.zero())  and torch.equal(one, self.y.value)
 
     
     def serialize(self,writer):
         if self.is_zero():
             flag = flags.SWFlags.infinity()
-            zero = fq.Fq.zero()
+            zero = fq.Fq(fq.Fq.zero())
             writer = zero.serialize_with_flags(writer,flag)
             return writer
         else:

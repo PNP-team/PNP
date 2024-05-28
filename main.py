@@ -36,8 +36,8 @@ if __name__ == "__main__":
     # with profile(activities=[ProfilerActivity.CPU]) as prof:
     #     with record_function("gen_proof"):
     # pi = gen_proof(pp,pk,cs,preprocessed_transcript)
-    model= gen_proof()
-    y=model(pp,pk,cs,preprocessed_transcript)
+    model = gen_proof()
+    y = model(pp,pk,cs,preprocessed_transcript)
     # with profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA]) as prof:
     #     y=model(pp,pk,cs,preprocessed_transcript)
 

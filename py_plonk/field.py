@@ -27,14 +27,14 @@ class field:
 
     @classmethod
     def zero(cls):
-        return cls(torch.tensor([0 for _ in range(cls.Limbs)], dtype=cls.Dtype))
+        return torch.tensor([0 for _ in range(cls.Limbs)], dtype=cls.Dtype)
     # def zero(cls):
     #     return cls(gmpy2.mpz(0))
     
     # Return the Multiplicative identity
     @classmethod
     def one(cls):
-        return cls(cls.R.clone())
+        return cls.R.clone()
     
     def add(self,b):
         cls = type(self)
@@ -49,7 +49,7 @@ class field:
     
     def neg(self):
         cls = type(self)
-        if torch.equal(self.value, cls.zero().value) :
+        if torch.equal(self.value, cls.zero()) :
             return self
         else:
             temp = cls(cls.MODULUS)
@@ -110,7 +110,7 @@ class field:
         if(type(r) == int):
             r = to_tensor_base(r,cls)
         r = F.to_mont(r)
-        return cls(r)
+        return r
     # @classmethod
     # def from_repr(cls, r):
     #     if r == 0:
@@ -157,12 +157,12 @@ class field:
     #         return x
     @classmethod
     def inverse(cls,self):
-        if torch.equal(self.value, cls.zero().value):
+        if torch.equal(self, cls.zero()):
              print("cannot invert zero!\n")
              return  None
         one = cls.one()
-        res = F.div_mod(one.value, self.value)
-        return cls(res)
+        res = F.div_mod(one, self)
+        return res
     
     # def inverse(cls,self):
     #     if self == 0:
@@ -221,7 +221,7 @@ class field:
     # Returns the multiplicative generator of `char()` - 1 order.
     @classmethod
     def multiplicative_generator(cls):
-        return cls(cls.GENERATOR)
+        return cls.GENERATOR
 
     # Returns the root of unity of order n, if one exists.
     # If no small multiplicative subgroup is defined, this is the 2-adic root of unity of order n
@@ -238,15 +238,10 @@ class field:
         # It should be 2^(log_size_of_group) root of unity.
         omega = cls.two_adic_root_of_unity()
         # R_inv=gmpy2.invert(cls.R,cls.MODULUS)
-        for _ in range(log_size_of_group, cls.TWO_ADICITY):
-            #modsquare
-            omega = F.mul_mod(omega,omega)
-            # omega *=omega
-            # omega *=R_inv
-            # omega %=cls.MODULUS
+        omega = F.exp_mod(omega, 1<<(cls.TWO_ADICITY-log_size_of_group))
             
         # return torch.tensor(from_gmpy_list_1(omega),dtype=torch.BLS12_381_Fr_G1_Mont)
-        return cls(omega)
+        return omega
             
 
     def write(self,writer):

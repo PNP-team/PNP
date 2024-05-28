@@ -61,14 +61,14 @@ def lookup_ratio(one ,delta, epsilon, f, t, t_next,
 @calculate_execution_time
 def compute_permutation_poly(domain, wires, beta, gamma, sigma_polys: torch.Tensor):
     n = domain.size
-    zero = fr.Fr.zero().value
-    one = fr.Fr.one().value
+    zero = fr.Fr.zero()
+    one = fr.Fr.one()
     # Constants defining cosets H, k1H, k2H, etc
     ks = [[],[],[],[]]
-    ks[0] = fr.Fr.one().value
-    ks[1] = constants.K1().value
-    ks[2] = constants.K2().value
-    ks[3] = constants.K3().value
+    ks[0] = fr.Fr.one()
+    ks[1] = constants.K1()
+    ks[2] = constants.K2()
+    ks[3] = constants.K3()
     sigma_mappings = [[],[],[],[]]
     sigma_mappings[0] = NTT(n, sigma_polys[0].to("cuda"))
     sigma_mappings[1] = NTT(n, sigma_polys[1].to("cuda"))
@@ -81,9 +81,9 @@ def compute_permutation_poly(domain, wires, beta, gamma, sigma_polys: torch.Tens
     # values for a single gate
     # Compute all roots, same as calculating twiddles, but doubled in size
     roots = zero.repeat(n,1)
-    roots[0] = fr.Fr.one().value
+    roots[0] = fr.Fr.one()
     for idx in range(1, roots.size(0)):
-        roots[idx] = F.mul_mod(roots[idx - 1], domain.group_gen.value)
+        roots[idx] = F.mul_mod(roots[idx - 1], domain.group_gen)
     roots = roots.to('cuda')
 
     numerator_product = one.clone()
@@ -153,7 +153,7 @@ def compute_lookup_permutation_poly(n, f, t, h_1, h_2, delta, epsilon):  ####输
     h_1_next[:n-1] = h_1[1:].clone()
     h_1_next[-1] = h_1[0].clone()
 
-    one = fr.Fr.one().value
+    one = fr.Fr.one()
     extend_one = one.repeat(n,1)
     extend_delta = delta.repeat(n,1)
     extend_epsilon = epsilon.repeat(n,1)

@@ -12,9 +12,9 @@ class WitnessValues:
 
 def delta(f: torch.Tensor):
     
-    one = fr.Fr.one().value
-    two = fr.Fr.from_repr(2).value
-    three = fr.Fr.from_repr(3).value
+    one = fr.Fr.one()
+    two = fr.Fr.from_repr(2)
+    three = fr.Fr.from_repr(3)
 
     f_1 = F.sub_mod_scalar(f, one.to("cuda"))
     f_2 = F.sub_mod_scalar(f, two.to("cuda"))

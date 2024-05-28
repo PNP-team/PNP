@@ -5,7 +5,7 @@ import torch.nn.functional as F
 from typing import List, Tuple
 from .....plonk_core.src.proof_system.widget.mod import WitnessValues
 from .....plonk_core.src.constraint_system.hash import SBOX_ALPHA
-from .....arithmetic import poly_mul_const,poly_add_poly,pow
+from .....arithmetic import poly_mul_const,poly_add_poly
 # @dataclass
 class Arith:
     q_m: Tuple[List,List]
@@ -67,11 +67,11 @@ class Arith:
         mid3 = poly_mul_const(self.q_r[0] ,b_eval)
         mid4 = poly_mul_const(self.q_o[0] ,c_eval)
         mid5 = poly_mul_const(self.q_4[0] ,d_eval)
-        mid6_1 = pow(a_eval,SBOX_ALPHA)
+        mid6_1 = F.exp_mod(a_eval,SBOX_ALPHA)
         mid6 = poly_mul_const(self.q_hl[0] ,mid6_1)
-        mid7_1 =pow(b_eval,SBOX_ALPHA)
+        mid7_1 = F.exp_mod(b_eval,SBOX_ALPHA)
         mid7 = poly_mul_const(self.q_hr[0] ,mid7_1)
-        mid8_1 = pow(d_eval,SBOX_ALPHA)
+        mid8_1 = F.exp_mod(d_eval,SBOX_ALPHA)
         mid8 = poly_mul_const(self.q_h4[0],mid8_1)
 
         add1 = poly_add_poly(mid1, mid2)   
@@ -96,15 +96,10 @@ def compute_quotient_i(self, wit_vals: WitnessValues):
     right = F.mul_mod(wit_vals.b_val, self['q_r']['evals'])
     out = F.mul_mod(wit_vals.c_val, self['q_o']['evals'])
     fourth = F.mul_mod(wit_vals.d_val, self['q_4']['evals'])
-    inputlist = wit_vals.a_val.tolist()
-    with open ("input.json","w") as f:
-         json.dump(inputlist,f)
-    a_high = pow(wit_vals.a_val, SBOX_ALPHA)
-    outputlist = a_high.tolist()
-    with open ("output.json","w") as f:
-         json.dump(outputlist,f)
-    b_high = pow(wit_vals.b_val, SBOX_ALPHA)
-    f_high = pow(wit_vals.d_val, SBOX_ALPHA)
+
+    a_high = F.exp_mod(wit_vals.a_val, SBOX_ALPHA)
+    b_high = F.exp_mod(wit_vals.b_val, SBOX_ALPHA)
+    f_high = F.exp_mod(wit_vals.d_val, SBOX_ALPHA)
 
     a_high = F.mul_mod(a_high, self['q_hl']['evals'])
     b_high = F.mul_mod(b_high, self['q_hr']['evals'])
@@ -141,11 +136,11 @@ def compute_linearisation_arithmetic(
         mid3 = poly_mul_const(prover_key_arithmetic['q_r']['coeffs'], b_eval)
         mid4 = poly_mul_const(prover_key_arithmetic['q_o']['coeffs'], c_eval)
         mid5 = poly_mul_const(prover_key_arithmetic['q_4']['coeffs'], d_eval)
-        mid6_1 = pow(a_eval,SBOX_ALPHA)
+        mid6_1 = F.exp_mod(a_eval,SBOX_ALPHA)
         mid6 = poly_mul_const(prover_key_arithmetic['q_hl']['coeffs'], mid6_1)
-        mid7_1 =pow(b_eval,SBOX_ALPHA)
+        mid7_1 = F.exp_mod(b_eval,SBOX_ALPHA)
         mid7 = poly_mul_const(prover_key_arithmetic['q_hr']['coeffs'],mid7_1)
-        mid8_1 = pow(d_eval,SBOX_ALPHA)
+        mid8_1 = F.exp_mod(d_eval,SBOX_ALPHA)
         mid8 = poly_mul_const(prover_key_arithmetic['q_h4']['coeffs'],mid8_1)
 
         add1 = poly_add_poly(mid1, mid2)   

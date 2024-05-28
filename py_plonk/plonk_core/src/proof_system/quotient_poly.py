@@ -216,7 +216,7 @@ def compute_quotient_poly(n,
             lookup_challenge):
 
     coset_size = 8 * n
-    one = fr.Fr.one().value
+    one = fr.Fr.one()
     l1_poly = compute_first_lagrange_poly_scaled(n,one) 
     
     l1_eval_8n = coset_NTT(coset_size,l1_poly.to('cuda'))

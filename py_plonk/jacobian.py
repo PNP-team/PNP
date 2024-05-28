@@ -5,11 +5,7 @@ from .bls12_381 import fq
 import torch
 import torch.nn.functional as F
 import copy
-# from .transcript import flags
-# from .serialize import buffer_byte_size
-# from .arithmetic import neg_fq
-# from .ele import into_repr_fq
-# from .bytes import write
+
 COEFF_A=0
 @dataclass
 
@@ -29,7 +25,7 @@ class ProjectivePointG1:
         return cls(x,y,z)
     
     def is_zero(self):
-        return torch.equal(self.z.value,torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont)) 
+        return torch.equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont)) 
     
     def double(self):
         if self.is_zero():
@@ -273,14 +269,14 @@ def to_affine(input: ProjectivePointG1):
         # p[0]:x p[1]:y p[2]:z
         one = fq.Fq.one()
         if input.is_zero():
-            x = fq.Fq.zero().value
-            y = one.value
+            x = fq.Fq.zero()
+            y = one
             return AffinePointG1(fq.Fq(x), fq.Fq(y))
 
         else:
             # Z is nonzero, so it must have an inverse in a field.
             #div_mod work on cpu
-            zinv = F.div_mod(one.value, pz)
+            zinv = F.div_mod(one, pz)
             zinv_squared = F.mul_mod(zinv, zinv)
 
             x = F.mul_mod(px, zinv_squared)

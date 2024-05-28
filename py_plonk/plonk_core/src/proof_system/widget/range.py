@@ -16,7 +16,7 @@ class RangeValues:
 class RangeGate:
     @staticmethod
     def constraints(separation_challenge, wit_vals:WitnessValues, custom_vals:RangeValues):
-        four = fr.Fr.from_repr(4).value
+        four = fr.Fr.from_repr(4)
         four = four.to("cuda")
         kappa = F.mul_mod(separation_challenge, separation_challenge)
         kappa_sq = F.mul_mod(kappa, kappa)
@@ -52,7 +52,7 @@ class RangeGate:
     def quotient_term(selector, separation_challenge: fr.Fr, wit_vals, custom_vals):
 
         four = fr.Fr.from_repr(4)
-        four = four.value.to('cuda')
+        four = four.to('cuda')
 
         #single scalar OP on CPU
         kappa = F.mul_mod(separation_challenge,separation_challenge) 

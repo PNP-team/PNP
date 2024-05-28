@@ -284,9 +284,9 @@ def compute_quotient_identity_range_check_i(
     w_l_i, w_r_i, w_o_i, w_4_i,
     z_i, alpha, beta ,gamma):
 
-    k1 = K1().value
-    k2 = K2().value
-    k3 = K3().value
+    k1 = K1()
+    k2 = K2()
+    k3 = K3()
 
     #single scalar OP on CPU
     mid2_1_1 = F.mul_mod(beta, k1)
@@ -372,7 +372,7 @@ def compute_quotient_copy_range_check_i(
 # Computes the following:
 # L_1(X)[Z(X) - 1]
 def compute_quotient_term_check_one_i(z_i, l1_alpha_sq):
-    one = fr.Fr.one().value
+    one = fr.Fr.one()
     z_i_sub_one = F.sub_mod_scalar(z_i, one.to("cuda"))
     res = F.mul_mod(z_i_sub_one, l1_alpha_sq)
     return res
@@ -465,19 +465,19 @@ def compute_lineariser_identity_range_check(
     a_0 = F.add_mod(a_0, gamma)
 
     # b_eval + beta * K1 * z_challenge + gamma
-    k1 = K1().value.to('cuda')
+    k1 = K1().to('cuda')
     beta_z_k1 = F.mul_mod(k1, beta_z)
     a_1 = F.add_mod(b_eval, beta_z_k1)
     a_1 = F.add_mod(a_1, gamma)
 
     # c_eval + beta * K2 * z_challenge + gamma
-    k2 = K2().value.to('cuda')
+    k2 = K2().to('cuda')
     beta_z_k2 = F.mul_mod(k2, beta_z)
     a_2 = F.add_mod(c_eval, beta_z_k2)
     a_2 = F.add_mod(a_2, gamma)
 
     # d_eval + beta * K3 * z_challenge + gamma
-    k3 = K3().value.to('cuda')
+    k3 = K3().to('cuda')
     beta_z_k3 = F.mul_mod(k3, beta_z)
     a_3 = F.add_mod(d_eval, beta_z_k3)
     a_3 = F.add_mod(a_3, gamma)

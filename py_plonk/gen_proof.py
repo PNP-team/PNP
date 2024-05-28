@@ -38,7 +38,7 @@ class gen_proof:
        
     def __call__(self,pp, pk: Prover_Key, cs: StandardComposer, transcript: transcript.Transcript):
         #get FFT domaim
-        domain=Radix2EvaluationDomain.new(cs.circuit_bound())
+        domain = Radix2EvaluationDomain.new(cs.circuit_bound())
         n=domain.size
         transcript.append_pi(b"pi", fr.Fr(torch.tensor(cs.public_inputs,dtype=torch.BLS12_381_Fr_G1_Mont)), int(cs.intended_pi_pos))
 

@@ -156,7 +156,7 @@ def pow(self, exp):
     return res
 
 def pow_single(self, exp):
-    res = fr.Fr.one().value
+    res = fr.Fr.one()
     if self.is_cuda:
         res = res.to("cuda")
     for i in range(exp):
@@ -349,7 +349,7 @@ def skip_leading_zeros_and_convert_to_bigints(p: torch.Tensor):
     p = p.to("cpu")
     num_leading_zeros = 0
     zero = fr.Fr.zero()
-    while num_leading_zeros < p.size(0) and torch.equal(p[num_leading_zeros], zero.value):
+    while num_leading_zeros < p.size(0) and torch.equal(p[num_leading_zeros], zero):
         num_leading_zeros += 1
     coeffs = convert_to_bigints(p[num_leading_zeros:])  
     return num_leading_zeros, coeffs
@@ -422,7 +422,7 @@ def coset_INTT(size, evals:torch.tensor):
 
 def from_coeff_vec(poly:torch.Tensor):
     poly1 = poly.to("cpu")
-    zero = fr.Fr.zero().value
+    zero = fr.Fr.zero()
     counter = 0
     while counter < poly1.size(0) and torch.equal(poly1[-counter-1], zero):
         counter += 1
@@ -553,7 +553,7 @@ def batch_inversion_and_mul(v, coeff):
 
 # Given a vector of field elements {v_i}, compute the vector {v_i^(-1)}
 def batch_inversion(v):
-    one = fr.Fr.one().value
+    one = fr.Fr.one()
     res = batch_inversion_and_mul(v, one.to("cuda"))
     return res
 # The first lagrange polynomial has the expression:
@@ -568,12 +568,12 @@ def batch_inversion(v):
 # L_0(X) = (X^n - 1) / n * (X - 1)
 def compute_first_lagrange_evaluation(size, z_h_eval, z_challenge):
     # single scalar OP on CPU
-    one = fr.Fr.one().value
-    n_fr = fr.Fr.from_repr(size).value
+    one = fr.Fr.one()
+    n_fr = fr.Fr.from_repr(size)
     z_challenge_sub_one = F.sub_mod(z_challenge, one)
     denom = F.mul_mod(n_fr, z_challenge_sub_one)
     denom_in = F.div_mod(one, denom)
-    res = F.mul_mod(z_h_eval,denom_in)
+    res = F.mul_mod(z_h_eval, denom_in)
     return res  
 
 # def MSM(bases:list[AffinePointG1], scalars:list[fr.Fr], params):
@@ -635,7 +635,7 @@ def MSM_new(bases,scalar): #bases POINT scalar SCALAR
         res[2] = fq.Fq.zero()
         res[1] = fq.Fq.one()
         res[0] = fq.Fq.one()
-        commitment=ProjectivePointG1(res[0],res[1],res[2])
+        commitment=ProjectivePointG1(fq.Fq(res[0]),fq.Fq(res[1]),fq.Fq(res[2]))
         return commitment
     else:
         base = bases.clone()

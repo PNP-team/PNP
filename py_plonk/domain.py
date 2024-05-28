@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from .bls12_381 import fr
-from .arithmetic import pow_single
 import torch
 import torch.nn.functional as F
 
@@ -17,11 +16,11 @@ def neg(self):
 class Radix2EvaluationDomain:
     size: int
     log_size_of_group: int
-    size_as_field_element: fr.Fr
-    size_inv: fr.Fr
-    group_gen: fr.Fr
-    group_gen_inv: fr.Fr
-    generator_inv: fr.Fr
+    size_as_field_element: torch.Tensor
+    size_inv: torch.Tensor
+    group_gen: torch.Tensor
+    group_gen_inv: torch.Tensor
+    generator_inv: torch.Tensor
 
     @classmethod
     def new(cls, num_coeffs: int):
@@ -38,8 +37,8 @@ class Radix2EvaluationDomain:
         group_gen = fr.Fr.get_root_of_unity(size)
         
         # Check that it is indeed the 2^(log_size_of_group) root of unity.
-        group_gen_pow = group_gen.pow(size)
-        assert torch.equal(group_gen_pow.value, fr.Fr.one().value)
+        group_gen_pow = F.exp_mod(group_gen,size)
+        assert torch.equal(group_gen_pow, fr.Fr.one())
 
         size_as_field_element=fr.Fr.from_repr(size)
         size_inv = fr.Fr.inverse(size_as_field_element)
@@ -88,14 +87,15 @@ class Radix2EvaluationDomain:
     # We handle this case separately, and we can easily detect by checking if the vanishing poly is 0.
     def evaluate_all_lagrange_coefficients(self, tau):
         size = self.size
+        group_gen = self.group_gen
         tau = tau.to("cpu")
-        t_size = pow_single(tau, size)
-        zero = fr.Fr.zero().value
-        one = fr.Fr.one().value
+        t_size = F.exp_mod(tau, size)
+        zero = fr.Fr.zero()
+        one = fr.Fr.one()
         mod = fr.Fr.MODULUS
         domain_offset = one.clone()
         z_h_at_tau = F.sub_mod(t_size, domain_offset)
-        z_h_at_tau_inv = F.div_mod(one, z_h_at_tau)
+
         if torch.equal(z_h_at_tau, zero):
             u = zero.repeat(size, 1)
             omega_i = domain_offset
@@ -103,7 +103,7 @@ class Radix2EvaluationDomain:
                 if torch.equal(omega_i, tau):
                     u[i] = one.clone()
                     break
-                omega_i = F.mul_mod(omega_i, self.group_gen.value)
+                omega_i = F.mul_mod(omega_i, group_gen)
             return u
         else:
             
@@ -118,41 +118,54 @@ class Radix2EvaluationDomain:
             # TODO: consider caching the computation of l_i to save N multiplications
             from .arithmetic import batch_inversion
 
-            # v_0_inv = m * h^(m-1)
-            f_size = fr.Fr.from_repr(size).value
-            pow_dof = pow_single(domain_offset, size - 1)
-            v_0_inv = F.mul_mod(f_size, pow_dof)
-            v_0_inv = v_0_inv.to("cuda")
             tau = tau.to("cuda")
-            z_h_at_tau = z_h_at_tau.to("cuda")
-            z_h_at_tau_inv = z_h_at_tau_inv.to("cuda")
-            
-            l_i = F.mul_mod(z_h_at_tau_inv, v_0_inv)
-            
-            negative_cur_elem = F.sub_mod(mod, domain_offset)
             mod = mod.to("cuda")
+            group_gen = group_gen.to("cuda")
+            f_size = fr.Fr.from_repr(size).to("cuda")
             domain_offset = domain_offset.to("cuda")
-            negative_cur_elem = negative_cur_elem.to("cuda")
-            lagrange_coefficients_inverse = zero.repeat(size, 1)
-            group_gen = self.group_gen.value.to("cuda")
-            group_gen_inv = self.group_gen_inv.value.to("cuda")
-            #TODO
-            for i in range(size):
-                r_i = F.add_mod(tau, negative_cur_elem)
-                lagrange_coefficients_inverse[i] = F.mul_mod(l_i, r_i)
-                # Increment l_i and negative_cur_elem
-                l_i = F.mul_mod(l_i, group_gen_inv)
-                negative_cur_elem = F.mul_mod(negative_cur_elem, group_gen)
-            lagrange_coefficients_inverse = lagrange_coefficients_inverse.to('cuda')
-            res = batch_inversion(lagrange_coefficients_inverse)
-            return res
+            z_h_at_tau = z_h_at_tau.to("cuda")
+
+            pow_dof = F.exp_mod(domain_offset, size - 1) 
+            v_0_inv = F.mul_mod(f_size, pow_dof)
+            v_0 = F.inv_mod(v_0_inv)
+            coeff_v = F.gen_sequence(size, group_gen)
+            coeff_v = F.mul_mod_scalar(coeff_v, v_0)
+            nominator = F.mul_mod_scalar(coeff_v, z_h_at_tau)
+
+            negative_cur_elem = F.sub_mod(mod, domain_offset)
+            r_0 = F.add_mod(tau, negative_cur_elem)
+            coeff_r = F.gen_sequence(size, group_gen)
+            coeff_r = F.mul_mod_scalar(coeff_r, r_0)
+            coeff_tau = tau.repeat(size, 1)
+            denominator = F.sub_mod(coeff_tau, coeff_r)
+            denominator_inv = F.inv_mod(denominator)
+
+            lagrange_coefficients = F.mul_mod(nominator, denominator_inv)
+            # l_i = F.mul_mod(z_h_at_tau_inv, v_0_inv)
+            
+            # mod = mod.to("cuda")
+            # domain_offset = domain_offset.to("cuda")
+            # negative_cur_elem = negative_cur_elem.to("cuda")
+            # lagrange_coefficients_inverse = zero.repeat(size, 1)
+            # group_gen = self.group_gen.to("cuda")
+            # group_gen_inv = self.group_gen_inv.to("cuda")
+            # #TODO
+            # for i in range(size):
+            #     r_i = F.add_mod(tau, negative_cur_elem)
+            #     lagrange_coefficients_inverse[i] = F.mul_mod(l_i, r_i)
+            #     # Increment l_i and negative_cur_elem
+            #     l_i = F.mul_mod(l_i, group_gen_inv)
+            #     negative_cur_elem = F.mul_mod(negative_cur_elem, group_gen)
+            # lagrange_coefficients_inverse = lagrange_coefficients_inverse.to('cuda')
+            # res = batch_inversion(lagrange_coefficients_inverse)
+            return lagrange_coefficients
 
     
     # This evaluates the vanishing polynomial for this domain at tau.
     # For multiplicative subgroups, this polynomial is `z(X) = X^self.size - 1`.
     def evaluate_vanishing_polynomial(self, tau):
-        one = fr.Fr.one().value
-        pow_tau = pow_single(tau, self.size)
+        one = fr.Fr.one()
+        pow_tau = F.exp_mod(tau, self.size)
         return F.sub_mod(pow_tau, one)
     
     # Returns the `i`-th element of the domain, where elements are ordered by
@@ -160,9 +173,9 @@ class Radix2EvaluationDomain:
     # e.g. the `i`-th element is g^i
     def element(self, i):
         # TODO: Consider precomputed exponentiation tables if we need this to be faster.
-        res = self.group_gen.value.clone()
+        res = self.group_gen.clone()
         for j in range(i):
-            res = F.mul_mod(res, self.group_gen.value)
+            res = F.mul_mod(res, self.group_gen)
         return res
     
         

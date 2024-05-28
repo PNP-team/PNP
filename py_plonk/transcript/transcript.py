@@ -65,4 +65,4 @@ class Transcript:
         buf = bytes([0] * size)
         modified_buf = self.challenge_bytes(label, buf)
         c_s = fr.from_random_bytes(modified_buf)
-        return c_s
+        return fr.Fr(c_s)
