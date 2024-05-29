@@ -413,7 +413,7 @@ class gen_proof:
         
         saw_commits, saw_rands = kzg10.commit_poly_new(pp,saw_polys)
         element = domain.element(1)
-        open_point = F.mul_mod(z_challenge.value, element)
+        open_point = F.mul_mod(z_challenge.value.to("cuda"), element)
         saw_opening = kzg10.open(
             pp,
             saw_polys,

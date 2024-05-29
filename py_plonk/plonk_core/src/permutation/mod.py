@@ -115,18 +115,13 @@ def compute_permutation_poly(domain, wires, beta, gamma, sigma_polys: torch.Tens
 
     denominator_product_under = F.div_mod(extend_one, denominator_product)
     gate_coefficient = F.mul_mod(numerator_product, denominator_product_under)
-    z = torch.tensor([], dtype = fr.Fr.Dtype).to("cuda")
+    # z = torch.tensor([], dtype = fr.Fr.Dtype).to("cuda")
 
     # First element is one
-    state = one.clone().to("cuda")
-    z = torch.cat((z, state))
+    # state = one.clone().unsqueeze(0).to("cuda")
     # Accumulate by successively multiplying the scalars   
-    for s in gate_coefficient:
-        state = F.mul_mod(state, s)
-        z = torch.cat((z, state))
-    z = z.reshape(-1, fr.Fr.Limbs)   
-    # Remove the last(n+1'th) element
-    z = z[:-1] 
+    z = F.accumulate_mul_poly(gate_coefficient)
+    # z = torch.cat((state, z), dim = 0)
 
     #Compute z poly
     z_poly = INTT(n,z)
@@ -156,14 +151,16 @@ def compute_lookup_permutation_poly(n, f, t, h_1, h_2, delta, epsilon):  ####输
 
     product_arguments = lookup_ratio(extend_one.to("cuda") ,extend_delta.to("cuda"), extend_epsilon.to("cuda"), f.to('cuda'), t.to('cuda'), t_next.to('cuda'), h_1, h_1_next.to('cuda'), h_2)
 
-    state = one.clone().to("cuda")
-    p = torch.tensor([], dtype = fr.Fr.Dtype).to('cuda')
-    p = torch.cat((p,state))
-    for s in product_arguments:
-        state = F.mul_mod(state,s)
-        p = torch.cat((p,state))
-    p = p.reshape(-1, fr.Fr.Limbs)
-    p = p[:-1]
+    # state = one.clone().unsqueeze(0).to("cuda")
+    # p = torch.tensor([], dtype = fr.Fr.Dtype).to('cuda')
+    # p = torch.cat((p,state))
+    p = F.accumulate_mul_poly(product_arguments)
+
+    # for s in product_arguments:
+    #     state = F.mul_mod(state,s)
+    #     p = torch.cat((p,state))
+    # p = p.reshape(-1, fr.Fr.Limbs)
+    # p = p[:-1]
 
     p_poly = INTT(n, p)
     p_poly = from_coeff_vec(p_poly)

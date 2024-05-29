@@ -152,7 +152,7 @@ def commit_poly_new(ck:UniversalParams, polys):
 
 
 def opening_challenges(opening_challenge, exp):
-    res = pow_single(opening_challenge, exp)
+    res = F.exp_mod(opening_challenge, exp)
     return res
 
 # Compute witness polynomial.

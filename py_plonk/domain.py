@@ -172,9 +172,8 @@ class Radix2EvaluationDomain:
     # e.g. the `i`-th element is g^i
     def element(self, i):
         # TODO: Consider precomputed exponentiation tables if we need this to be faster.
-        res = self.group_gen.clone()
-        for j in range(i):
-            res = F.mul_mod(res, self.group_gen)
-        return res
+        group_gen = self.group_gen.clone()
+        coeff = F.gen_sequence(self.size, group_gen.to("cuda"))
+        return coeff[i]
     
         

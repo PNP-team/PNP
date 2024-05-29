@@ -15491,6 +15491,11 @@
   device_check: NoCheck
   dispatch:
     CUDA: poly_div_cuda
+  
+- func: accumulate_mul_poly(Tensor product_poly) -> Tensor
+  device_check: NoCheck
+  dispatch:
+    CUDA: accumulate_mul_poly_cuda
 
 - func: params_zkp(int domain_size, bool is_intt, *, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor
   device_check: NoCheck
