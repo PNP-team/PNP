@@ -274,7 +274,7 @@ __global__ void poly_reduce_kernel_second(
 }
 
 template <typename T>
-__global__ void exclusive_scan_kernel(const T* in, T* c, T* out, int64_t N, int64_t step){
+__global__ void exclusive_scan_add_kernel(const T* in, T* c, T* out, int64_t N, int64_t step){
     int64_t tid = blockIdx.x * BLOCK_SIZE + threadIdx.x;
     if(tid < step){
       out[N-1-tid] = in[N-1-tid];
@@ -289,6 +289,38 @@ __global__ void exclusive_scan_kernel(const T* in, T* c, T* out, int64_t N, int6
     }
 }
 
+template <typename T>
+__global__ void exclusive_scan_mul_kernel(const T* in, T* out, int64_t N, int64_t step){
+    int64_t tid = blockIdx.x * BLOCK_SIZE + threadIdx.x;
+    if(tid < step){
+      out[tid] = in[tid];
+    }
+    if(tid < N-step){    
+      out[tid + step] = in[tid + step] * in[tid];
+    }
+}
+
+template <typename T>
+__global__ void exclusive_scan_shift_one_kernel(const T* in, T* out, int64_t N){
+    int64_t tid = blockIdx.x * BLOCK_SIZE + threadIdx.x;
+    if(tid == 0){
+      out[0] = T::one();
+    }
+    else if(tid<N){
+      out[tid] = in[tid-1];
+    }
+}
+
+template <typename T>
+__global__ void exclusive_scan_shift_zero_kernel(const T* in, T* out, int64_t N){
+    int64_t tid = blockIdx.x * BLOCK_SIZE + threadIdx.x;
+    if(tid < N - 1){
+      out[tid] = in[tid + 1];
+    }
+    else if(tid == N-1){
+      out[tid].zero();
+    }
+}
 
 BIN_KERNEL(add, +);
 BIN_KERNEL(sub, -);
@@ -429,7 +461,7 @@ static void poly_reduce_cuda_template(
   });
 }
 
-static void poly_div_cuda_template(const Tensor& divid_poly, Tensor& c, Tensor& exclusive_sum){
+static void poly_div_cuda_template(Tensor& divid_poly, Tensor& c, Tensor& exclusive_sum){
   AT_DISPATCH_MONT_TYPES(divid_poly.scalar_type(), "poly_div_cuda", [&] {
     auto divid_ptr = reinterpret_cast<scalar_t::compute_type*>(
         divid_poly.mutable_data_ptr<scalar_t>());
@@ -437,24 +469,60 @@ static void poly_div_cuda_template(const Tensor& divid_poly, Tensor& c, Tensor& 
         exclusive_sum.mutable_data_ptr<scalar_t>());
     auto c_ptr = reinterpret_cast<scalar_t::compute_type*>(
         c.mutable_data_ptr<scalar_t>());
-    int64_t divid_len = divid_poly.numel() / num_uint64(divid_poly.scalar_type());
-    TORCH_INTERNAL_ASSERT(divid_len > 0 && divid_len <= std::numeric_limits<int32_t>::max());
-    TORCH_INTERNAL_ASSERT(divid_len > 0);
-    int64_t grid = (divid_len + BLOCK_SIZE - 1) / BLOCK_SIZE;
-    if(divid_len > (BLOCK_SIZE * MAX_NUM_BLOCKS)) {
-      grid = MAX_NUM_BLOCKS;
-    }
+    int64_t N = divid_poly.numel() / num_uint64(divid_poly.scalar_type());
+    TORCH_INTERNAL_ASSERT(N > 0 && N <= std::numeric_limits<int32_t>::max());
+    TORCH_INTERNAL_ASSERT(N > 0);
+    int64_t grid = (N + block_work_size() - 1) / block_work_size();
     auto stream = at::cuda::getCurrentCUDAStream();
     auto in_ptr = divid_ptr;
     auto out_ptr = sum_ptr;
     int step = 1;
-    for(int step = 1; step<divid_len; step*=2){
-      exclusive_scan_kernel<<<grid, BLOCK_SIZE, 0, stream>>>(in_ptr, c_ptr, out_ptr, divid_len, step);
+    for(int step = 1; step<N; step*=2){
+      exclusive_scan_add_kernel<<<grid, block_work_size(), 0, stream>>>(in_ptr, c_ptr, out_ptr, N, step);
       mont_mul_mod_kernel_<<<1, 1, 0, stream>>>(1, c_ptr, c_ptr);
       auto temp = out_ptr;
       out_ptr = in_ptr;
       in_ptr = temp;
     }
+    if(in_ptr != sum_ptr) {
+      cudaMemcpy(
+      sum_ptr,
+      in_ptr,
+      divid_poly.numel() * sizeof(uint64_t),
+      cudaMemcpyDeviceToDevice);
+    }
+    exclusive_scan_shift_zero_kernel<<<grid, block_work_size(), 0, stream>>>(sum_ptr, divid_ptr, N);
+    C10_CUDA_KERNEL_LAUNCH_CHECK();
+  });
+}
+
+static void accumulate_mul_poly_cuda_template(Tensor& product_poly, Tensor& accumulate_mul_poly){
+  AT_DISPATCH_MONT_TYPES(product_poly.scalar_type(), "accumulate_mul_poly_cuda", [&] {
+    auto product_ptr = reinterpret_cast<scalar_t::compute_type*>(
+        product_poly.mutable_data_ptr<scalar_t>());
+    auto accumulate_ptr = reinterpret_cast<scalar_t::compute_type*>(
+        accumulate_mul_poly.mutable_data_ptr<scalar_t>());
+    int64_t N = product_poly.numel() / num_uint64(product_poly.scalar_type());
+    TORCH_INTERNAL_ASSERT(N > 0 && N <= std::numeric_limits<int32_t>::max());
+    int64_t grid = (N + block_work_size() - 1) / block_work_size();
+    auto stream = at::cuda::getCurrentCUDAStream();
+    auto in_ptr = product_ptr;
+    auto out_ptr = accumulate_ptr;
+    int step = 1;
+    for(int step = 1; step < N; step*=2){
+      exclusive_scan_mul_kernel<<<grid, block_work_size(), 0, stream>>>(in_ptr, out_ptr, N, step);
+      auto temp = out_ptr;
+      out_ptr = in_ptr;
+      in_ptr = temp;
+    }
+    if(in_ptr != accumulate_ptr) {
+      cudaMemcpy(
+      accumulate_ptr,
+      in_ptr,
+      product_poly.numel() * sizeof(uint64_t),
+      cudaMemcpyDeviceToDevice);
+    }
+    exclusive_scan_shift_one_kernel<<<grid, block_work_size(), 0, stream>>>(accumulate_ptr, product_ptr, N);
     C10_CUDA_KERNEL_LAUNCH_CHECK();
   });
 }
@@ -570,6 +638,15 @@ Tensor poly_div_cuda(const Tensor& divid_poly, const Tensor& c) {
       divid_poly.options());
   auto tiring = c.clone();
   poly_div_cuda_template(in, tiring, out);
+  return in;
+}
+
+Tensor accumulate_mul_poly_cuda(const Tensor& product_poly) {
+  auto in = product_poly.clone();
+  auto out = at::empty(
+      {product_poly.numel()/num_uint64(product_poly.scalar_type()), num_uint64(product_poly.scalar_type())},
+      product_poly.options());
+  accumulate_mul_poly_cuda_template(in, out);
   return in;
 }
 
