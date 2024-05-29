@@ -208,7 +208,7 @@ template <typename T>
 __global__ void one_kernel_(const int64_t N, T* data) {
   int64_t i = blockIdx.x * blockDim.x + threadIdx.x;
   if (i < N) {
-    data[i].one(false); // or_zero = false
+    data[i] = T::one();
   }
 }
 

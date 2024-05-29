@@ -142,7 +142,7 @@ static void exp_template(Tensor& out, int exp) {
     int64_t num_ = out.numel() / num_uint64(out.scalar_type());
     if (exp == 0) {
       for (auto i = 0; i < num_; i++) {
-        c_ptr[i].one(false); // or_zero = false
+        c_ptr[i] = c_ptr[i].one();
       }
     } else {
       for (auto i = 0; i < num_; i++) {
