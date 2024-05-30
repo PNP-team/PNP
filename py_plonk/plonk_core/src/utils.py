@@ -14,9 +14,10 @@ def extend_tensor(input:torch.tensor,size):
     for i in range(len(res)):
         res[i] = input
     return res
+
 def Multiset_lc(values, challenge):
-    kth_val = values.elements[-1]
-    reverse_val=reversed(values.elements[:-1])
+    kth_val = values[-1]
+    reverse_val=reversed(values[:-1])
     kth_val = kth_val.to("cuda")
     reverse_val = reverse_val.to("cuda")    
     challenge = challenge.to("cuda")

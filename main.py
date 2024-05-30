@@ -38,7 +38,7 @@ if __name__ == "__main__":
     # pi = gen_proof(pp,pk,cs,preprocessed_transcript)
     model = gen_proof()
     y = model(pp,pk,cs,preprocessed_transcript)
-    # with profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA]) as prof:
+    # with profile(activities=[ProfilerActivity.CUDA]) as prof:
     #     y=model(pp,pk,cs,preprocessed_transcript)
 
     # prof.export_chrome_trace("trace.json")

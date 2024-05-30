@@ -4886,16 +4886,6 @@
   autogen: relu.out
   tags: pointwise
 
-- func: msm_zkp(Tensor points, Tensor scalars, int smcount, Device? device=None, Layout? layout=None, bool? pin_memory=None) -> Tensor
-  device_check: NoCheck   # TensorIterator
-  dispatch:
-    CUDA: msm_zkp_cuda
-
-- func: msm_collect(Tensor step1res, int npoints) -> Tensor
-  device_check: NoCheck   # TensorIterator
-  dispatch:
-    CPU: msm_collect_cpu
-
 - func: relu6(Tensor self) -> Tensor
   python_module: nn
 
@@ -15516,3 +15506,29 @@
   device_check: NoCheck
   dispatch:
     CUDA: ntt_zkp_out_cuda
+
+- func: msm_zkp(Tensor points, Tensor scalars, int smcount, Device? device=None, Layout? layout=None, bool? pin_memory=None) -> Tensor
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+    CUDA: msm_zkp_cuda
+
+- func: msm_collect(Tensor step1res, int npoints) -> Tensor
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+    CPU: msm_collect_cpu
+
+- func: padding(Tensor input, int pad_len) -> Tensor
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+    CUDA: padding_cuda
+
+- func: compute_query_table(Tensor padded_q_lookup, Tensor w_l_scalar, Tensor w_r_scalar, Tensor w_o_scalar,
+                            Tensor w_4_scalar, Tensor t_poly) -> Tensor
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+    CUDA: compute_query_table_cuda
+
+- func: compress(Tensor f_0, Tensor f_1, Tensor f_2, Tensor f_3, Tensor challenge) -> Tensor
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+    CUDA: compress_cuda

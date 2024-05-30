@@ -4,7 +4,7 @@ from .transcript import transcript
 from .composer import StandardComposer
 from .transcript import transcript
 from .bls12_381 import fr
-from .plonk_core.lookup import multiset
+from .plonk_core.lookup.multiset import combine_split
 from .plonk_core.src.permutation import mod 
 from .plonk_core.src.proof_system.prover_key import Prover_Key
 from .plonk_core.src.proof_system.pi import into_dense_poly
@@ -15,6 +15,8 @@ from .arithmetic import from_coeff_vec,resize_gpu,INTT
 from .KZG import kzg10
 import torch
 import torch.nn.functional as F
+from torch.pnp import zkp
+import time
 #data_set2=["../../data/MERKLE-HEIGHT-3/pp-3.npz","../../data/MERKLE-HEIGHT-3/pk-3.npz","../../data/MERKLE-HEIGHT-3/cs-3.npz","../../data/MERKLE-HEIGHT-3/w_l_scalar-3.npy","../../data/MERKLE-HEIGHT-3/w_r_scalar-3.npy","../../data/MERKLE-HEIGHT-3/w_o_scalar-3.npy","../../data/MERKLE-HEIGHT-3/w_4_scalar-3.npy"]
 data_set2=["../../data/MERKLE-HEIGHT-9/pp-9.npz","../../data/MERKLE-HEIGHT-9/pk-9.npz","../../data/MERKLE-HEIGHT-9/cs-9.npz","../../data/MERKLE-HEIGHT-9/w_l_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_r_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_o_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_4_scalar-9.npy"]
 
@@ -85,24 +87,23 @@ class gen_proof:
         transcript.append(b"zeta",zeta)
 
         pk_lookup=pk["lookup"].tolist()
-        pk_lookup_table1=torch.tensor(pk_lookup["table1"]['coeffs'],dtype=torch.BLS12_381_Fr_G1_Mont)
-        pk_lookup_table2=torch.tensor(pk_lookup["table2"]['coeffs'],dtype=torch.BLS12_381_Fr_G1_Mont)
-        pk_lookup_table3=torch.tensor(pk_lookup["table3"]['coeffs'],dtype=torch.BLS12_381_Fr_G1_Mont)
-        pk_lookup_table4=torch.tensor(pk_lookup["table4"]['coeffs'],dtype=torch.BLS12_381_Fr_G1_Mont)
+        pk_lookup_table1=torch.tensor(pk_lookup["table1"]['coeffs'],dtype=torch.BLS12_381_Fr_G1_Mont).to("cuda")
+        pk_lookup_table2=torch.tensor(pk_lookup["table2"]['coeffs'],dtype=torch.BLS12_381_Fr_G1_Mont).to("cuda")
+        pk_lookup_table3=torch.tensor(pk_lookup["table3"]['coeffs'],dtype=torch.BLS12_381_Fr_G1_Mont).to("cuda")
+        pk_lookup_table4=torch.tensor(pk_lookup["table4"]['coeffs'],dtype=torch.BLS12_381_Fr_G1_Mont).to("cuda")
         # Compress lookup table into vector of single elements
-        concatenated_lookup=torch.stack([
+        t_multiset = torch.stack([
         pk_lookup_table1,
         pk_lookup_table2,
         pk_lookup_table3,
         pk_lookup_table4], dim=0)
 
-        t_multiset = multiset.MultiSet(concatenated_lookup)
+        # t_multiset = multiset.MultiSet(concatenated_lookup)
 
-        
-        compressed_t_multiset = t_multiset.compress(zeta.value)     
+        compressed_t_multiset = zkp.compress([pk_lookup_table1,pk_lookup_table2,pk_lookup_table3,pk_lookup_table4], zeta.value.to("cuda"))     
         # Compute table poly
 
-        compressed_t_poly =INTT(n,compressed_t_multiset.elements)
+        compressed_t_poly =INTT(n,compressed_t_multiset)
         table_poly = from_coeff_vec(compressed_t_poly)
 
         
@@ -113,39 +114,44 @@ class gen_proof:
         # This ensures the ith element of the compressed query table
         # is an element of the compressed lookup table even when
         # q_lookup[i] is 0 so the lookup check will pass
-        q_lookup_pad = [0 for _ in range(n-len(cs.q_lookup))]
-        padded_q_lookup = list(cs.q_lookup) + q_lookup_pad
+        # q_lookup_pad = [0 for _ in range(n-len(cs.q_lookup))]
+        # padded_q_lookup = list(cs.q_lookup) + q_lookup_pad
 
-        f_scalars = multiset.MultiSet([[],[],[],[]])
-        f_scalars.elements[0]=torch.zeros(n,4,dtype=torch.BLS12_381_Fr_G1_Mont)
-        f_scalars.elements[1]=torch.zeros(n,4,dtype=torch.BLS12_381_Fr_G1_Mont)
-        f_scalars.elements[2]=torch.zeros(n,4,dtype=torch.BLS12_381_Fr_G1_Mont)
-        f_scalars.elements[3]=torch.zeros(n,4,dtype=torch.BLS12_381_Fr_G1_Mont)
-        index=0
-        for q_lookup, w_l, w_r, w_o, w_4 in zip(padded_q_lookup, w_l_scalar, w_r_scalar, w_o_scalar, w_4_scalar):
-            if np.array_equal(q_lookup, np.zeros(4, dtype = np.uint64)):
-                f_scalars.elements[0][index]=compressed_t_multiset.elements[0]
-                for key in range(1,4):
-                        f_scalars.elements[key][index]=torch.tensor([0,0,0,0],dtype=torch.BLS12_381_Fr_G1_Mont)
-            else:
-                f_scalars.elements[0][index]=w_l
-                f_scalars.elements[1][index]=w_r
-                f_scalars.elements[2][index]=w_o
-                f_scalars.elements[3][index]=w_4
+        # f_scalars = multiset.MultiSet([[],[],[],[]])
+        # f_scalars_0=torch.zeros(n, fr.Fr.Limbs, dtype = fr.Fr.Dtype).to("cuda")
+        # f_scalars_1=torch.zeros(n, fr.Fr.Limbs, dtype = fr.Fr.Dtype).to("cuda")
+        # f_scalars_2=torch.zeros(n, fr.Fr.Limbs, dtype = fr.Fr.Dtype).to("cuda")
+        # f_scalars_3=torch.zeros(n, fr.Fr.Limbs, dtype = fr.Fr.Dtype).to("cuda")
+        # f_scalars = (f_scalars_0, f_scalars_1, f_scalars_2, f_scalars_3)
+        compressed_f_multiset = zkp.compute_query_table(torch.tensor(cs.q_lookup, dtype = fr.Fr.Dtype).to("cuda"), 
+                                                         w_l_scalar, w_r_scalar, w_o_scalar, w_4_scalar, 
+                                                         compressed_t_multiset, zeta.value.to("cuda"))
 
-            index=index+1
+        # index=0
+        # for q_lookup, w_l, w_r, w_o, w_4 in zip(padded_q_lookup, w_l_scalar, w_r_scalar, w_o_scalar, w_4_scalar):
+        #     if np.array_equal(q_lookup, np.zeros(4, dtype = np.uint64)):
+        #         f_scalars.elements[0][index]=compressed_t_multiset.elements[0]
+        #         for key in range(1,4):
+        #                 f_scalars.elements[key][index]=torch.tensor([0,0,0,0],dtype=torch.BLS12_381_Fr_G1_Mont)
+        #     else:
+        #         f_scalars.elements[0][index]=w_l
+        #         f_scalars.elements[1][index]=w_r
+        #         f_scalars.elements[2][index]=w_o
+        #         f_scalars.elements[3][index]=w_4
+
+        #     index=index+1
 
         # Compress all wires into a single vector
-        concatenated_f_scalars=torch.stack([
-        f_scalars.elements[0],
-        f_scalars.elements[1],
-        f_scalars.elements[2],
-        f_scalars.elements[3]], dim=0)
-        f_scalars=multiset.MultiSet(concatenated_f_scalars)
-        compressed_f_multiset = f_scalars.compress(zeta.value)
+        # concatenated_f_scalars=torch.stack([
+        # f_scalars.elements[0],
+        # f_scalars.elements[1],
+        # f_scalars.elements[2],
+        # f_scalars.elements[3]], dim=0)
+        # f_scalars=multiset.MultiSet(concatenated_f_scalars)
+
 
         # Compute query poly
-        compressed_f_poly = INTT(n,compressed_f_multiset.elements)
+        compressed_f_poly = INTT(n,compressed_f_multiset)
         f_poly= from_coeff_vec(compressed_f_poly)
         f_polys = [kzg10.LabeledPoly.new(label="f_poly",hiding_bound=None,poly=f_poly)]
 
@@ -155,7 +161,7 @@ class gen_proof:
 
         # Compute s, as the sorted and concatenated version of f and t 
         # work on cpu
-        h_1, h_2 = compressed_t_multiset.combine_split(compressed_f_multiset)
+        h_1, h_2 = combine_split(compressed_t_multiset, compressed_f_multiset)
 
         # Compute h polys
         h_1=h_1.to('cuda')
@@ -230,8 +236,8 @@ class gen_proof:
         # Compute lookup permutation poly
         z_2_poly = mod.compute_lookup_permutation_poly(
             n,
-            compressed_f_multiset.elements,
-            compressed_t_multiset.elements,
+            compressed_f_multiset,
+            compressed_t_multiset,
             h_1,
             h_2,
             delta.value,
@@ -279,7 +285,10 @@ class gen_proof:
             var_base_sep_challenge.value,
             lookup_sep_challenge.value)
         
+        start = time.time()
         t_i_poly = split_tx_poly(n, t_poly)
+        elapse = time.time() - start
+        print("split time:",elapse)
 
         t_i_polys = [kzg10.LabeledPoly.new(label="t_i_polys[0]",hiding_bound=None,poly=t_i_poly[0]),
                     kzg10.LabeledPoly.new(label="t_i_polys[1]",hiding_bound=None,poly=t_i_poly[1]),
@@ -455,11 +464,24 @@ class gen_proof:
                 print(f"An error occurred while writing to the file: {e}")
 
 
-        # attributes = vars(Proof)
-        # for attribute, value in attributes.items():
-        #     my_data = {f"{attribute}: {value[0]},{value[1]}"}
-        #     print(f"{attribute}: {value[0]},{value[1]}")
-        #     write_to_file(my_data, 'proof_data_new.txt')
+        attributes = vars(Proof)
+        for attribute, value in attributes.items():
+            try:
+                my_data = {f"{attribute}: {value.x.value},{value.y.value}"}
+                print(f"{attribute}: {value.x.value},{value.y.value}")
+                write_to_file(my_data, 'proof_data_new.txt')
+            except:
+                try:
+                    my_data = {f"{attribute}: {value.w.x.value},{value.w.y.value}"}
+                    print(f"{attribute}: {value.w.x.value},{value.w.y.value}")
+                    write_to_file(my_data, 'proof_data_new.txt')
+                except:
+                    try:
+                        my_data = {f"{attribute}: {value}"}
+                        print(f"{attribute}: {value.w.x.value},{value.w.y.value}")
+                        write_to_file(my_data, 'proof_data_new.txt')
+                    except:
+                        pass
             
         
         return Proof
