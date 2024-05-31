@@ -10,9 +10,11 @@ COEFF_A=0
 @dataclass
 
 class ProjectivePointG1: 
-    x: fq.Fq
-    y: fq.Fq
-    z: fq.Fq
+
+    def __init__(self, x, y, z):
+        self.x = x
+        self.y = y
+        self.z = z
 
     @classmethod
     #Returns the point at infinity, which always has Z = 0.
@@ -25,7 +27,7 @@ class ProjectivePointG1:
         return cls(x,y,z)
     
     def is_zero(self):
-        return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont)) 
+        return F.trace_equal(self.z, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont)) 
     
     def double(self):
         if self.is_zero():
@@ -160,7 +162,7 @@ class ProjectivePointG1:
         s2 = F.mul_mod(other.y, self.z)
         s2 = F.mul_mod(s2, z1z1)
 
-        if u1.value == u2.value and s1.value == s2.value:
+        if u1 == u2 and s1 == s2:
             # The two points are equal, so we double.
             return self.double()
         else:
@@ -211,7 +213,7 @@ class ProjectivePointG1:
             s2 = F.mul_mod(other.y, self.z)
             s2 = F.mul_mod(s2, z1z1)
 
-            if self.x.value == u2.value and self.y.value == s2.value:
+            if self.x == u2 and self.y == s2:
                 # The two points are equal, so we double.
                 return self.double()
             else:
@@ -263,13 +265,13 @@ def is_zero_AffinePointG1(self):
         return F.trace_equal(self[0] ,torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont) )and  F.trace_equal(self[1] ,one) # x=0 y=one
 
 def to_affine(input: ProjectivePointG1): 
-        px = input.x.value.clone()
-        py = input.y.value.clone()
-        pz = input.z.value.clone()
+        px = input.x.clone()
+        py = input.y.clone()
+        pz = input.z.clone()
         # p[0]:x p[1]:y p[2]:z
-        one = fq.Fq.one()
+        one = fq.one()
         if input.is_zero():
-            x = fq.Fq.zero()
+            x = fq.zero()
             y = one
             return AffinePointG1(fq.Fq(x), fq.Fq(y))
 
@@ -348,16 +350,16 @@ def double_ProjectivePointG1(self: ProjectivePointG1):
 
         if COEFF_A == 0:
             # A = X1^2
-            a = F.mul_mod(self.x.value, self.x.value)
+            a = F.mul_mod(self.x, self.x)
 
             # B = Y1^2
-            b = F.mul_mod(self.y.value, self.y.value)
+            b = F.mul_mod(self.y, self.y)
 
             # C = B^2
             c = F.mul_mod(b, b)
 
             # D = 2*((X1+B)^2-A-C)
-            mid1 = F.add_mod(self.x.value, b)
+            mid1 = F.add_mod(self.x, b)
             mid1 = F.mul_mod(mid1, mid1)
             mid2 = F.sub_mod(mid1, a)
             mid2 = F.sub_mod(mid2, c)
@@ -371,7 +373,7 @@ def double_ProjectivePointG1(self: ProjectivePointG1):
             f = F.mul_mod(e, e)
 
             # Z3 = 2*Y1*Z1
-            mid1 = F.mul_mod(self.y.value, self.z.value)
+            mid1 = F.mul_mod(self.y, self.z)
             z = F.add_mod(mid1, mid1)
 
             # X3 = F-2*D
@@ -405,21 +407,21 @@ def add_assign_mixed(self1: ProjectivePointG1, other: 'AffinePointG1'):
         return ProjectivePointG1(x,y,z)
     else:
         # Z1Z1 = Z1^2
-        z1z1 = F.mul_mod(self.z.value, self.z.value)
+        z1z1 = F.mul_mod(self.z, self.z)
 
         # U2 = X2*Z1Z1
-        u2 = F.mul_mod(other.x.value, z1z1)
+        u2 = F.mul_mod(other.x, z1z1)
 
         # S2 = Y2*Z1*Z1Z1
-        s2 = F.mul_mod(other.y.value, self.z.value)
+        s2 = F.mul_mod(other.y, self.z)
         s2 = F.mul_mod(s2, z1z1)
 
-        if F.trace_equal(self.x.value, u2) and F.trace_equal(self.y.value, s2):
+        if F.trace_equal(self.x, u2) and F.trace_equal(self.y, s2):
             # The two points are equal, so we double.
             return double_ProjectivePointG1(self)
         else:
             # H = U2-X1
-            h = F.sub_mod(u2, self.x.value)
+            h = F.sub_mod(u2, self.x)
 
             # I = 4*(H^2)
             i = F.mul_mod(h, h)
@@ -430,11 +432,11 @@ def add_assign_mixed(self1: ProjectivePointG1, other: 'AffinePointG1'):
             j = F.mul_mod(h, i)
 
             # r = 2*(S2-Y1)
-            r = F.sub_mod(s2, self.y.value)
+            r = F.sub_mod(s2, self.y)
             r = F.add_mod(r, r)
 
             # V = X1*I
-            v = F.mul_mod(self.x.value, i)
+            v = F.mul_mod(self.x, i)
 
             # X3 = r^2 - J - 2*V
             x = F.mul_mod(r, r)
@@ -445,12 +447,12 @@ def add_assign_mixed(self1: ProjectivePointG1, other: 'AffinePointG1'):
             # Y3 = r*(V-X3) - 2*Y1*J
             y = F.sub_mod(v, x)
             y = F.mul_mod(r, y)
-            s1j = F.mul_mod(self.y.value, j)
+            s1j = F.mul_mod(self.y, j)
             s1j2 = F.add_mod(s1j, s1j)
             y = F.sub_mod(y, s1j2)
 
             # Z3 = (Z1+H)^2 - Z1Z1 - H^2
-            z = F.add_mod(self.z.value, h)
+            z = F.add_mod(self.z, h)
             z = F.mul_mod(z, z)
             z = F.sub_mod(z, z1z1)
             hh = F.mul_mod(h, h)

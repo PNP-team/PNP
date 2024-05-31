@@ -84,8 +84,8 @@ def open(
         opening_challenge_counter += 1
         i=i+1
 
-    powers_of_g = torch.tensor(ck["powers_of_g"], dtype = fq.Fq.Dtype)
-    powers_of_gamma_g = torch.tensor(ck["powers_of_gamma_g"], dtype = fq.Fq.Dtype)
+    powers_of_g = torch.tensor(ck["powers_of_g"], dtype = fq.TYPE)
+    powers_of_gamma_g = torch.tensor(ck["powers_of_gamma_g"], dtype = fq.TYPE)
     proof = open_proof(powers_of_g, powers_of_gamma_g, combined_polynomial.to("cuda"), point, combined_rand)
     return proof
 
@@ -135,8 +135,8 @@ def commit_poly_new(ck:UniversalParams, polys):
         polynomial = labeled_poly.poly
         hiding_bound = labeled_poly.hiding_bound
         label = labeled_poly.label
-        powers_of_g = torch.tensor(ck["powers_of_g"], dtype = fq.Fq.Dtype)
-        powers_of_gamma_g = torch.tensor(ck["powers_of_gamma_g"], dtype = fq.Fq.Dtype)
+        powers_of_g = torch.tensor(ck["powers_of_g"], dtype = fq.TYPE)
+        powers_of_gamma_g = torch.tensor(ck["powers_of_gamma_g"], dtype = fq.TYPE)
         # for var in variables:
         #     if isinstance(var, torch.Tensor):
         #         print(var.device)

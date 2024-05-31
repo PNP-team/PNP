@@ -4,6 +4,7 @@ from .bls12_381 import fq
 from .transcript import flags
 import torch
 import torch.nn.functional as F
+from .serialize import serialize_with_flags
 
 
 @dataclass
@@ -13,8 +14,11 @@ class G2Coordinate:
 
 @dataclass
 class AffinePointG1:
-    x: fq.Fq
-    y: fq.Fq
+
+    def __init__(self,x,y):
+        self.x = x
+        self.y = y
+
 
     @classmethod
     def new(cls,x,y):
@@ -23,20 +27,20 @@ class AffinePointG1:
     #Returns the point at infinity, which always has Z = 0.
     @classmethod
     def zero(cls):
-        x=fq.Fq.zero()
+        x=fq.zero()
         y=x.one()
         return cls(x,y)
     
     def is_zero(self):
-        one = fq.Fq.one()
-        return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+        one = fq.one()
+        return F.trace_equal(self.x.value, fq.zero())  and F.trace_equal(one, self.y.value)
 
     
     def serialize(self,writer):
         if self.is_zero():
             flag = flags.SWFlags.infinity()
-            zero = fq.Fq(fq.Fq.zero())
-            writer = zero.serialize_with_flags(writer,flag)
+            # zero = fq.Fq(fq.zero())
+            writer = serialize_with_flags(fq.zero(), writer,flag) # zero.serialize_with_flags(writer,flag)
             return writer
         else:
             a = F.to_base(self.y.value)

@@ -120,20 +120,6 @@ def challenge_to_tensor(input:fr.Fr):
     output=torch.tensor(output,dtype=torch.BLS12_381_Fr_G1_Mont)
     return output
 
-# def from_list_gmpy_1(input:list):
-#         output = 0 
-#         for j in reversed(input):
-#             output = output<<64
-#             output = output | j
-#         return fr.Fr(value = gmpy2.mpz(output))
-
-# def from_list_gmpy_1_fq(input:list):
-#         output = 0 
-#         for j in reversed(input):
-#             output = output<<64
-#             output = output | j
-#         return fq.Fq(value = gmpy2.mpz(output))
-
 def domain_trans_tensor(domain_ele):
         a=copy.deepcopy(domain_ele)
         temp=from_gmpy_list_1(a)
@@ -634,10 +620,10 @@ def MSM_new(bases,scalar): #bases POINT scalar SCALAR
     
     if min_size_1==0:### empty msm return zero_point
         res =[[],[],[]]
-        res[2] = fq.Fq.zero()
-        res[1] = fq.Fq.one()
-        res[0] = fq.Fq.one()
-        commitment=ProjectivePointG1(fq.Fq(res[0]),fq.Fq(res[1]),fq.Fq(res[2]))
+        res[2] = fq.zero()
+        res[1] = fq.one()
+        res[0] = fq.one()
+        commitment=ProjectivePointG1(res[0],res[1],res[2])
         return commitment
     else:
         base = bases.clone()
@@ -645,5 +631,5 @@ def MSM_new(bases,scalar): #bases POINT scalar SCALAR
         base = base.to('cuda')
         scalar = scalar.to('cuda')
         commitment = F.multi_scalar_mult(base, scalar)
-        commitment = ProjectivePointG1(fq.Fq(commitment[0]),fq.Fq(commitment[1]),fq.Fq(commitment[2]))
+        commitment = ProjectivePointG1(commitment[0],commitment[1],commitment[2])
         return commitment

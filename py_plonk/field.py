@@ -53,7 +53,11 @@ class field:
             print("Not enough space")
             return
 
-        output_byte_size = buffer_byte_size(self.MODULUS_BITS + flag.BIT_SIZE)
+        if flag.BIT_SIZE != 0:
+            print("Flag size is not zero", flag.BIT_SIZE)
+
+        output_byte_size = self.value.size()[-1] * 8
+        # output_byte_size = buffer_byte_size(self.MODULUS_BITS + flag.BIT_SIZE)
 
         bytes = bytearray(self.BYTE_SIZE+1)
         modified_bytes = self.write(bytes[:self.BYTE_SIZE])
@@ -68,4 +72,3 @@ class field:
     
 
 
-        

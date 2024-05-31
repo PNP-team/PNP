@@ -2,22 +2,37 @@ import torch
 from dataclasses import dataclass
 from ..field import field
 
+TYPE = torch.BLS12_381_Fq_G1_Mont
+MODULUS_BITS = 381
+BYTE_SIZE = (MODULUS_BITS + 7) // 8
+LIMBS = (MODULUS_BITS + 63) // 64
+
+
+def zero():
+    return torch.tensor([0, 0, 0, 0, 0, 0], dtype=TYPE)
+
+
+def one():
+    return torch.tensor(
+        [
+            8505329371266088957,
+            17002214543764226050,
+            6865905132761471162,
+            8632934651105793861,
+            6631298214892334189,
+            1582556514881692819,
+        ],
+        dtype=torch.BLS12_381_Fq_G1_Mont,
+    )
+
 
 class Fq(field):
     def __init__(self, value: torch.Tensor):
         self.value = value
-    
-    Dtype = torch.BLS12_381_Fq_G1_Mont
-
-    Limbs: int = 6
 
     MODULUS_BITS: int = 381
 
-    R = torch.tensor([ 8505329371266088957, 17002214543764226050,  6865905132761471162,
-         8632934651105793861,  6631298214892334189,  1582556514881692819],
-       dtype=torch.BLS12_381_Fq_G1_Mont)
-
-    #384bits
+    # # 384bits
     BYTE_SIZE: int = 48
 
 
