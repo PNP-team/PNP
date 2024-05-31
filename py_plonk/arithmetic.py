@@ -30,7 +30,7 @@ def calculate_execution_time(func):
 
 def neg(self):
     a=torch.tensor([18446744069414584321, 6034159408538082302, 3691218898639771653, 8353516859464449352],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    if torch.equal(self,torch.tensor([0,0,0,0],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')):
+    if F.trace_equal(self,torch.tensor([0,0,0,0],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')):
         return self
     else:
         res= F.sub_mod(a,self)
@@ -43,7 +43,7 @@ def neg_extend(self,size):
     extend_one=extend_tensor(one,size)
     record=[]
     for i in range(len(self)):
-        if torch.equal(self[i],torch.tensor([0,0,0,0],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')):
+        if F.trace_equal(self[i],torch.tensor([0,0,0,0],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')):
             record.append(i)
     res=F.sub_mod(extend_one,self)
     #
@@ -55,7 +55,7 @@ def neg_extend(self,size):
 def neg_fq(self):
     # a is fq modualr
     a=torch.tensor([13402431016077863595, 2210141511517208575, 7435674573564081700, 7239337960414712511, 5412103778470702295, 1873798617647539866],dtype=torch.BLS12_381_Fq_G1_Mont)
-    if torch.equal(self,torch.tensor([0,0,0,0,0,0],dtype=torch.BLS12_381_Fq_G1_Mont)):
+    if F.trace_equal(self,torch.tensor([0,0,0,0,0,0],dtype=torch.BLS12_381_Fq_G1_Mont)):
         return self
     else:
         res= F.sub_mod(a,self)
@@ -346,12 +346,13 @@ def convert_to_bigints(p: torch.Tensor):
 #     return num_leading_zeros, coeffs
 
 def skip_leading_zeros_and_convert_to_bigints(p: torch.Tensor):
-    p = p.to("cpu")
-    num_leading_zeros = 0
-    zero = fr.Fr.zero()
-    while num_leading_zeros < p.size(0) and torch.equal(p[num_leading_zeros], zero):
-        num_leading_zeros += 1
-    coeffs = convert_to_bigints(p[num_leading_zeros:])  
+    # p = p.to("cpu")
+    # num_leading_zeros = 0
+    # zero = fr.Fr.zero()
+    # while num_leading_zeros < p.size(0) and torch.equal(p[num_leading_zeros], zero):
+    #     num_leading_zeros += 1
+    # coeffs = convert_to_bigints(p[num_leading_zeros:])  
+    return 0, convert_to_bigints(p.to('cpu'))
     return num_leading_zeros, coeffs
 
 def distribute_powers_new(coeffs, g):
@@ -421,6 +422,7 @@ def coset_INTT(size, evals:torch.tensor):
 #     return evals
 
 def from_coeff_vec(poly:torch.Tensor):
+    return poly
     poly1 = poly.to("cpu")
     zero = fr.Fr.zero()
     counter = 0
@@ -477,7 +479,7 @@ def poly_mul_const(poly:torch.Tensor, elem:torch.Tensor):
 #                 remainder[cur_q_degree + i] = F.sub_mod(remainder[cur_q_degree + i], temp)
 
 #             i = 0
-#             while torch.equal(remainder[-1 - i], fr.Fr.zero().value):
+#             while F.trace_equal(remainder[-1 - i], fr.Fr.zero().value):
 #                 i = i+1
 #             remainder = remainder[:remainder.size(0) - i]
 #         res_quotient = from_coeff_vec(quotient)
@@ -489,7 +491,7 @@ def poly_mul_const(poly:torch.Tensor, elem:torch.Tensor):
 
 def rand_poly(d):
     random.seed(42)
-    random_coeffs = [fr.Fr.from_repr(random.random) for _ in range(d + 1)]
+    random_coeffs = [fr.Fr.make_tensor(random.random) for _ in range(d + 1)]
     return from_coeff_vec(random_coeffs)
 
 
@@ -501,7 +503,7 @@ def rand_poly(d):
 
 #     if len(self) == 0:
 #         return zero.to('cuda')
-#     elif torch.equal(point,zero):
+#     elif F.trace_equal(point,zero):
 #         return self[0]
 #     return horner_evaluate(self, point.to('cuda'))
 
@@ -569,7 +571,7 @@ def batch_inversion(v):
 def compute_first_lagrange_evaluation(size, z_h_eval, z_challenge):
     # single scalar OP on CPU
     one = fr.Fr.one()
-    n_fr = fr.Fr.from_repr(size)
+    n_fr = fr.Fr.make_tensor(size)
     z_challenge_sub_one = F.sub_mod(z_challenge, one)
     denom = F.mul_mod(n_fr, z_challenge_sub_one)
     denom_in = F.div_mod(one, denom)

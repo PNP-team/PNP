@@ -1,0 +1,2936 @@
+load time: 0.0006086826324462891 s
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 43, in __call__
+    domain = Radix2EvaluationDomain.new(cs.circuit_bound())
+  File "/home/zrji/pyZKP/py_plonk/domain.py", line 41, in new
+    assert F.trace_equal(group_gen_pow, fr.Fr.one())
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 43, in __call__
+    domain = Radix2EvaluationDomain.new(cs.circuit_bound())
+  File "/home/zrji/pyZKP/py_plonk/domain.py", line 44, in new
+    size_inv = fr.Fr.inverse(size_as_field_element)
+  File "/home/zrji/pyZKP/py_plonk/field.py", line 160, in inverse
+    if F.trace_equal(self, cls.zero()):
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 43, in __call__
+    domain = Radix2EvaluationDomain.new(cs.circuit_bound())
+  File "/home/zrji/pyZKP/py_plonk/domain.py", line 45, in new
+    group_gen_inv = fr.Fr.inverse(group_gen)
+  File "/home/zrji/pyZKP/py_plonk/field.py", line 160, in inverse
+    if F.trace_equal(self, cls.zero()):
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 43, in __call__
+    domain = Radix2EvaluationDomain.new(cs.circuit_bound())
+  File "/home/zrji/pyZKP/py_plonk/domain.py", line 46, in new
+    generator_inv = fr.Fr.inverse(fr.Fr.multiplicative_generator())
+  File "/home/zrji/pyZKP/py_plonk/field.py", line 160, in inverse
+    if F.trace_equal(self, cls.zero()):
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 72, in __call__
+    w_commits, w_rands = kzg10.commit_poly_new(pp,w_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 53, in commit_new
+    random_commitment_affine = to_affine(random_commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 72, in __call__
+    w_commits, w_rands = kzg10.commit_poly_new(pp,w_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 72, in __call__
+    w_commits, w_rands = kzg10.commit_poly_new(pp,w_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 72, in __call__
+    w_commits, w_rands = kzg10.commit_poly_new(pp,w_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 55, in commit_new
+    commitment_affine = to_affine(commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 72, in __call__
+    w_commits, w_rands = kzg10.commit_poly_new(pp,w_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 53, in commit_new
+    random_commitment_affine = to_affine(random_commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 72, in __call__
+    w_commits, w_rands = kzg10.commit_poly_new(pp,w_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 72, in __call__
+    w_commits, w_rands = kzg10.commit_poly_new(pp,w_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 72, in __call__
+    w_commits, w_rands = kzg10.commit_poly_new(pp,w_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 55, in commit_new
+    commitment_affine = to_affine(commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 72, in __call__
+    w_commits, w_rands = kzg10.commit_poly_new(pp,w_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 53, in commit_new
+    random_commitment_affine = to_affine(random_commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 72, in __call__
+    w_commits, w_rands = kzg10.commit_poly_new(pp,w_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 72, in __call__
+    w_commits, w_rands = kzg10.commit_poly_new(pp,w_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 72, in __call__
+    w_commits, w_rands = kzg10.commit_poly_new(pp,w_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 55, in commit_new
+    commitment_affine = to_affine(commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 72, in __call__
+    w_commits, w_rands = kzg10.commit_poly_new(pp,w_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 53, in commit_new
+    random_commitment_affine = to_affine(random_commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 72, in __call__
+    w_commits, w_rands = kzg10.commit_poly_new(pp,w_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 72, in __call__
+    w_commits, w_rands = kzg10.commit_poly_new(pp,w_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 72, in __call__
+    w_commits, w_rands = kzg10.commit_poly_new(pp,w_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 55, in commit_new
+    commitment_affine = to_affine(commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 78, in __call__
+    transcript.append(b"w_l",w_commits[0].commitment.value)
+  File "/home/zrji/pyZKP/py_plonk/transcript/transcript.py", line 53, in append
+    bytes = item.serialize(bytes)
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 36, in serialize
+    if self.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 78, in __call__
+    transcript.append(b"w_l",w_commits[0].commitment.value)
+  File "/home/zrji/pyZKP/py_plonk/transcript/transcript.py", line 53, in append
+    bytes = item.serialize(bytes)
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 42, in serialize
+    neg_y = self.y.neg()
+  File "/home/zrji/pyZKP/py_plonk/field.py", line 52, in neg
+    if F.trace_equal(self.value, cls.zero()) :
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 79, in __call__
+    transcript.append(b"w_r",w_commits[1].commitment.value)
+  File "/home/zrji/pyZKP/py_plonk/transcript/transcript.py", line 53, in append
+    bytes = item.serialize(bytes)
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 36, in serialize
+    if self.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 79, in __call__
+    transcript.append(b"w_r",w_commits[1].commitment.value)
+  File "/home/zrji/pyZKP/py_plonk/transcript/transcript.py", line 53, in append
+    bytes = item.serialize(bytes)
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 42, in serialize
+    neg_y = self.y.neg()
+  File "/home/zrji/pyZKP/py_plonk/field.py", line 52, in neg
+    if F.trace_equal(self.value, cls.zero()) :
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 80, in __call__
+    transcript.append(b"w_o",w_commits[2].commitment.value)
+  File "/home/zrji/pyZKP/py_plonk/transcript/transcript.py", line 53, in append
+    bytes = item.serialize(bytes)
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 36, in serialize
+    if self.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 80, in __call__
+    transcript.append(b"w_o",w_commits[2].commitment.value)
+  File "/home/zrji/pyZKP/py_plonk/transcript/transcript.py", line 53, in append
+    bytes = item.serialize(bytes)
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 42, in serialize
+    neg_y = self.y.neg()
+  File "/home/zrji/pyZKP/py_plonk/field.py", line 52, in neg
+    if F.trace_equal(self.value, cls.zero()) :
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 81, in __call__
+    transcript.append(b"w_4",w_commits[3].commitment.value)
+  File "/home/zrji/pyZKP/py_plonk/transcript/transcript.py", line 53, in append
+    bytes = item.serialize(bytes)
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 36, in serialize
+    if self.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 81, in __call__
+    transcript.append(b"w_4",w_commits[3].commitment.value)
+  File "/home/zrji/pyZKP/py_plonk/transcript/transcript.py", line 53, in append
+    bytes = item.serialize(bytes)
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 42, in serialize
+    neg_y = self.y.neg()
+  File "/home/zrji/pyZKP/py_plonk/field.py", line 52, in neg
+    if F.trace_equal(self.value, cls.zero()) :
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+zeta tensor([13079090771015357942, 10883643360237731018,  5079415601321386059,
+         7477449844475037103], dtype=torch.BLS12_381_Fr_G1_Mont)
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 161, in __call__
+    f_poly_commit, _ = kzg10.commit_poly_new(pp,f_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 53, in commit_new
+    random_commitment_affine = to_affine(random_commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 161, in __call__
+    f_poly_commit, _ = kzg10.commit_poly_new(pp,f_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 161, in __call__
+    f_poly_commit, _ = kzg10.commit_poly_new(pp,f_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 161, in __call__
+    f_poly_commit, _ = kzg10.commit_poly_new(pp,f_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 55, in commit_new
+    commitment_affine = to_affine(commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 162, in __call__
+    transcript.append(b"f",f_poly_commit[0].commitment.value)
+  File "/home/zrji/pyZKP/py_plonk/transcript/transcript.py", line 53, in append
+    bytes = item.serialize(bytes)
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 36, in serialize
+    if self.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 162, in __call__
+    transcript.append(b"f",f_poly_commit[0].commitment.value)
+  File "/home/zrji/pyZKP/py_plonk/transcript/transcript.py", line 53, in append
+    bytes = item.serialize(bytes)
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 36, in serialize
+    if self.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 179, in __call__
+    h_1_poly_commit,_ = kzg10.commit_poly_new(pp,h_1_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 53, in commit_new
+    random_commitment_affine = to_affine(random_commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 179, in __call__
+    h_1_poly_commit,_ = kzg10.commit_poly_new(pp,h_1_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 179, in __call__
+    h_1_poly_commit,_ = kzg10.commit_poly_new(pp,h_1_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 179, in __call__
+    h_1_poly_commit,_ = kzg10.commit_poly_new(pp,h_1_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 55, in commit_new
+    commitment_affine = to_affine(commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 180, in __call__
+    h_2_poly_commit,_ = kzg10.commit_poly_new(pp,h_2_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 53, in commit_new
+    random_commitment_affine = to_affine(random_commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 180, in __call__
+    h_2_poly_commit,_ = kzg10.commit_poly_new(pp,h_2_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 180, in __call__
+    h_2_poly_commit,_ = kzg10.commit_poly_new(pp,h_2_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 180, in __call__
+    h_2_poly_commit,_ = kzg10.commit_poly_new(pp,h_2_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 55, in commit_new
+    commitment_affine = to_affine(commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 183, in __call__
+    transcript.append(b"h1", h_1_poly_commit[0].commitment.value)
+  File "/home/zrji/pyZKP/py_plonk/transcript/transcript.py", line 53, in append
+    bytes = item.serialize(bytes)
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 36, in serialize
+    if self.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 183, in __call__
+    transcript.append(b"h1", h_1_poly_commit[0].commitment.value)
+  File "/home/zrji/pyZKP/py_plonk/transcript/transcript.py", line 53, in append
+    bytes = item.serialize(bytes)
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 36, in serialize
+    if self.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 184, in __call__
+    transcript.append(b"h2", h_2_poly_commit[0].commitment.value)
+  File "/home/zrji/pyZKP/py_plonk/transcript/transcript.py", line 53, in append
+    bytes = item.serialize(bytes)
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 36, in serialize
+    if self.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 184, in __call__
+    transcript.append(b"h2", h_2_poly_commit[0].commitment.value)
+  File "/home/zrji/pyZKP/py_plonk/transcript/transcript.py", line 53, in append
+    bytes = item.serialize(bytes)
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 36, in serialize
+    if self.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 206, in __call__
+    assert F.trace_equal(beta.value, gamma.value) == False, "challenges must be different"
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 207, in __call__
+    assert F.trace_equal(beta.value, delta.value) == False, "challenges must be different"
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 208, in __call__
+    assert F.trace_equal(beta.value, epsilon.value) == False, "challenges must be different"
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 209, in __call__
+    assert F.trace_equal(gamma.value, delta.value) == False, "challenges must be different"
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 210, in __call__
+    assert F.trace_equal(gamma.value, epsilon.value) == False, "challenges must be different"
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 211, in __call__
+    assert F.trace_equal(delta.value, epsilon.value) == False, "challenges must be different"
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+func compute_permutation_poly consumed: 0.08569455146789551 s
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 232, in __call__
+    z_poly_commit,_ = kzg10.commit_poly_new(pp,z_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 53, in commit_new
+    random_commitment_affine = to_affine(random_commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 232, in __call__
+    z_poly_commit,_ = kzg10.commit_poly_new(pp,z_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 232, in __call__
+    z_poly_commit,_ = kzg10.commit_poly_new(pp,z_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 232, in __call__
+    z_poly_commit,_ = kzg10.commit_poly_new(pp,z_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 55, in commit_new
+    commitment_affine = to_affine(commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 235, in __call__
+    transcript.append(b"z", z_poly_commit[0].commitment.value)
+  File "/home/zrji/pyZKP/py_plonk/transcript/transcript.py", line 53, in append
+    bytes = item.serialize(bytes)
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 36, in serialize
+    if self.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 235, in __call__
+    transcript.append(b"z", z_poly_commit[0].commitment.value)
+  File "/home/zrji/pyZKP/py_plonk/transcript/transcript.py", line 53, in append
+    bytes = item.serialize(bytes)
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 42, in serialize
+    neg_y = self.y.neg()
+  File "/home/zrji/pyZKP/py_plonk/field.py", line 52, in neg
+    if F.trace_equal(self.value, cls.zero()) :
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+func compute_lookup_permutation_poly consumed: 0.04194068908691406 s
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 250, in __call__
+    z_2_poly_commit,_ = kzg10.commit_poly_new(pp,z_2_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 53, in commit_new
+    random_commitment_affine = to_affine(random_commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 250, in __call__
+    z_2_poly_commit,_ = kzg10.commit_poly_new(pp,z_2_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 250, in __call__
+    z_2_poly_commit,_ = kzg10.commit_poly_new(pp,z_2_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 250, in __call__
+    z_2_poly_commit,_ = kzg10.commit_poly_new(pp,z_2_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 55, in commit_new
+    commitment_affine = to_affine(commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+func compute_quotient_poly consumed: 0.8781223297119141 s
+split time: 5.054473876953125e-05
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 304, in __call__
+    t_commits, _ = kzg10.commit_poly_new(pp,t_i_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 53, in commit_new
+    random_commitment_affine = to_affine(random_commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 304, in __call__
+    t_commits, _ = kzg10.commit_poly_new(pp,t_i_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 304, in __call__
+    t_commits, _ = kzg10.commit_poly_new(pp,t_i_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 304, in __call__
+    t_commits, _ = kzg10.commit_poly_new(pp,t_i_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 55, in commit_new
+    commitment_affine = to_affine(commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 304, in __call__
+    t_commits, _ = kzg10.commit_poly_new(pp,t_i_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 53, in commit_new
+    random_commitment_affine = to_affine(random_commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 304, in __call__
+    t_commits, _ = kzg10.commit_poly_new(pp,t_i_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 304, in __call__
+    t_commits, _ = kzg10.commit_poly_new(pp,t_i_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 304, in __call__
+    t_commits, _ = kzg10.commit_poly_new(pp,t_i_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 55, in commit_new
+    commitment_affine = to_affine(commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 304, in __call__
+    t_commits, _ = kzg10.commit_poly_new(pp,t_i_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 53, in commit_new
+    random_commitment_affine = to_affine(random_commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 304, in __call__
+    t_commits, _ = kzg10.commit_poly_new(pp,t_i_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 304, in __call__
+    t_commits, _ = kzg10.commit_poly_new(pp,t_i_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 304, in __call__
+    t_commits, _ = kzg10.commit_poly_new(pp,t_i_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 55, in commit_new
+    commitment_affine = to_affine(commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 304, in __call__
+    t_commits, _ = kzg10.commit_poly_new(pp,t_i_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 53, in commit_new
+    random_commitment_affine = to_affine(random_commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 304, in __call__
+    t_commits, _ = kzg10.commit_poly_new(pp,t_i_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 304, in __call__
+    t_commits, _ = kzg10.commit_poly_new(pp,t_i_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 304, in __call__
+    t_commits, _ = kzg10.commit_poly_new(pp,t_i_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 55, in commit_new
+    commitment_affine = to_affine(commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 304, in __call__
+    t_commits, _ = kzg10.commit_poly_new(pp,t_i_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 53, in commit_new
+    random_commitment_affine = to_affine(random_commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 304, in __call__
+    t_commits, _ = kzg10.commit_poly_new(pp,t_i_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 304, in __call__
+    t_commits, _ = kzg10.commit_poly_new(pp,t_i_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 304, in __call__
+    t_commits, _ = kzg10.commit_poly_new(pp,t_i_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 55, in commit_new
+    commitment_affine = to_affine(commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 304, in __call__
+    t_commits, _ = kzg10.commit_poly_new(pp,t_i_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 53, in commit_new
+    random_commitment_affine = to_affine(random_commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 304, in __call__
+    t_commits, _ = kzg10.commit_poly_new(pp,t_i_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 304, in __call__
+    t_commits, _ = kzg10.commit_poly_new(pp,t_i_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 304, in __call__
+    t_commits, _ = kzg10.commit_poly_new(pp,t_i_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 55, in commit_new
+    commitment_affine = to_affine(commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 304, in __call__
+    t_commits, _ = kzg10.commit_poly_new(pp,t_i_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 53, in commit_new
+    random_commitment_affine = to_affine(random_commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 304, in __call__
+    t_commits, _ = kzg10.commit_poly_new(pp,t_i_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 304, in __call__
+    t_commits, _ = kzg10.commit_poly_new(pp,t_i_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 304, in __call__
+    t_commits, _ = kzg10.commit_poly_new(pp,t_i_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 55, in commit_new
+    commitment_affine = to_affine(commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 304, in __call__
+    t_commits, _ = kzg10.commit_poly_new(pp,t_i_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 53, in commit_new
+    random_commitment_affine = to_affine(random_commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 304, in __call__
+    t_commits, _ = kzg10.commit_poly_new(pp,t_i_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 304, in __call__
+    t_commits, _ = kzg10.commit_poly_new(pp,t_i_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 304, in __call__
+    t_commits, _ = kzg10.commit_poly_new(pp,t_i_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 55, in commit_new
+    commitment_affine = to_affine(commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 308, in __call__
+    transcript.append(f"t_{i+1}".encode(), t_commits[i].commitment.value)
+  File "/home/zrji/pyZKP/py_plonk/transcript/transcript.py", line 53, in append
+    bytes = item.serialize(bytes)
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 36, in serialize
+    if self.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 308, in __call__
+    transcript.append(f"t_{i+1}".encode(), t_commits[i].commitment.value)
+  File "/home/zrji/pyZKP/py_plonk/transcript/transcript.py", line 53, in append
+    bytes = item.serialize(bytes)
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 42, in serialize
+    neg_y = self.y.neg()
+  File "/home/zrji/pyZKP/py_plonk/field.py", line 52, in neg
+    if F.trace_equal(self.value, cls.zero()) :
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 308, in __call__
+    transcript.append(f"t_{i+1}".encode(), t_commits[i].commitment.value)
+  File "/home/zrji/pyZKP/py_plonk/transcript/transcript.py", line 53, in append
+    bytes = item.serialize(bytes)
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 36, in serialize
+    if self.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 308, in __call__
+    transcript.append(f"t_{i+1}".encode(), t_commits[i].commitment.value)
+  File "/home/zrji/pyZKP/py_plonk/transcript/transcript.py", line 53, in append
+    bytes = item.serialize(bytes)
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 42, in serialize
+    neg_y = self.y.neg()
+  File "/home/zrji/pyZKP/py_plonk/field.py", line 52, in neg
+    if F.trace_equal(self.value, cls.zero()) :
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 308, in __call__
+    transcript.append(f"t_{i+1}".encode(), t_commits[i].commitment.value)
+  File "/home/zrji/pyZKP/py_plonk/transcript/transcript.py", line 53, in append
+    bytes = item.serialize(bytes)
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 36, in serialize
+    if self.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 308, in __call__
+    transcript.append(f"t_{i+1}".encode(), t_commits[i].commitment.value)
+  File "/home/zrji/pyZKP/py_plonk/transcript/transcript.py", line 53, in append
+    bytes = item.serialize(bytes)
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 42, in serialize
+    neg_y = self.y.neg()
+  File "/home/zrji/pyZKP/py_plonk/field.py", line 52, in neg
+    if F.trace_equal(self.value, cls.zero()) :
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 308, in __call__
+    transcript.append(f"t_{i+1}".encode(), t_commits[i].commitment.value)
+  File "/home/zrji/pyZKP/py_plonk/transcript/transcript.py", line 53, in append
+    bytes = item.serialize(bytes)
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 36, in serialize
+    if self.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 308, in __call__
+    transcript.append(f"t_{i+1}".encode(), t_commits[i].commitment.value)
+  File "/home/zrji/pyZKP/py_plonk/transcript/transcript.py", line 53, in append
+    bytes = item.serialize(bytes)
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 42, in serialize
+    neg_y = self.y.neg()
+  File "/home/zrji/pyZKP/py_plonk/field.py", line 52, in neg
+    if F.trace_equal(self.value, cls.zero()) :
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 308, in __call__
+    transcript.append(f"t_{i+1}".encode(), t_commits[i].commitment.value)
+  File "/home/zrji/pyZKP/py_plonk/transcript/transcript.py", line 53, in append
+    bytes = item.serialize(bytes)
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 36, in serialize
+    if self.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 308, in __call__
+    transcript.append(f"t_{i+1}".encode(), t_commits[i].commitment.value)
+  File "/home/zrji/pyZKP/py_plonk/transcript/transcript.py", line 53, in append
+    bytes = item.serialize(bytes)
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 42, in serialize
+    neg_y = self.y.neg()
+  File "/home/zrji/pyZKP/py_plonk/field.py", line 52, in neg
+    if F.trace_equal(self.value, cls.zero()) :
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 308, in __call__
+    transcript.append(f"t_{i+1}".encode(), t_commits[i].commitment.value)
+  File "/home/zrji/pyZKP/py_plonk/transcript/transcript.py", line 53, in append
+    bytes = item.serialize(bytes)
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 36, in serialize
+    if self.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 308, in __call__
+    transcript.append(f"t_{i+1}".encode(), t_commits[i].commitment.value)
+  File "/home/zrji/pyZKP/py_plonk/transcript/transcript.py", line 53, in append
+    bytes = item.serialize(bytes)
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 42, in serialize
+    neg_y = self.y.neg()
+  File "/home/zrji/pyZKP/py_plonk/field.py", line 52, in neg
+    if F.trace_equal(self.value, cls.zero()) :
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 308, in __call__
+    transcript.append(f"t_{i+1}".encode(), t_commits[i].commitment.value)
+  File "/home/zrji/pyZKP/py_plonk/transcript/transcript.py", line 53, in append
+    bytes = item.serialize(bytes)
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 36, in serialize
+    if self.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 308, in __call__
+    transcript.append(f"t_{i+1}".encode(), t_commits[i].commitment.value)
+  File "/home/zrji/pyZKP/py_plonk/transcript/transcript.py", line 53, in append
+    bytes = item.serialize(bytes)
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 36, in serialize
+    if self.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 308, in __call__
+    transcript.append(f"t_{i+1}".encode(), t_commits[i].commitment.value)
+  File "/home/zrji/pyZKP/py_plonk/transcript/transcript.py", line 53, in append
+    bytes = item.serialize(bytes)
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 36, in serialize
+    if self.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 308, in __call__
+    transcript.append(f"t_{i+1}".encode(), t_commits[i].commitment.value)
+  File "/home/zrji/pyZKP/py_plonk/transcript/transcript.py", line 53, in append
+    bytes = item.serialize(bytes)
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 36, in serialize
+    if self.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 314, in __call__
+    lin_poly, evaluations = linearisation_poly.compute_linearisation_poly(
+  File "/home/zrji/pyZKP/py_plonk/arithmetic.py", line 24, in wrapper
+    result = func(*args, **kwargs)
+  File "/home/zrji/pyZKP/py_plonk/plonk_core/src/proof_system/linearisation_poly.py", line 136, in compute_linearisation_poly
+    domain_permutation = Radix2EvaluationDomain.new(n)
+  File "/home/zrji/pyZKP/py_plonk/domain.py", line 41, in new
+    assert F.trace_equal(group_gen_pow, fr.Fr.one())
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 314, in __call__
+    lin_poly, evaluations = linearisation_poly.compute_linearisation_poly(
+  File "/home/zrji/pyZKP/py_plonk/arithmetic.py", line 24, in wrapper
+    result = func(*args, **kwargs)
+  File "/home/zrji/pyZKP/py_plonk/plonk_core/src/proof_system/linearisation_poly.py", line 136, in compute_linearisation_poly
+    domain_permutation = Radix2EvaluationDomain.new(n)
+  File "/home/zrji/pyZKP/py_plonk/domain.py", line 44, in new
+    size_inv = fr.Fr.inverse(size_as_field_element)
+  File "/home/zrji/pyZKP/py_plonk/field.py", line 160, in inverse
+    if F.trace_equal(self, cls.zero()):
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 314, in __call__
+    lin_poly, evaluations = linearisation_poly.compute_linearisation_poly(
+  File "/home/zrji/pyZKP/py_plonk/arithmetic.py", line 24, in wrapper
+    result = func(*args, **kwargs)
+  File "/home/zrji/pyZKP/py_plonk/plonk_core/src/proof_system/linearisation_poly.py", line 136, in compute_linearisation_poly
+    domain_permutation = Radix2EvaluationDomain.new(n)
+  File "/home/zrji/pyZKP/py_plonk/domain.py", line 45, in new
+    group_gen_inv = fr.Fr.inverse(group_gen)
+  File "/home/zrji/pyZKP/py_plonk/field.py", line 160, in inverse
+    if F.trace_equal(self, cls.zero()):
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 314, in __call__
+    lin_poly, evaluations = linearisation_poly.compute_linearisation_poly(
+  File "/home/zrji/pyZKP/py_plonk/arithmetic.py", line 24, in wrapper
+    result = func(*args, **kwargs)
+  File "/home/zrji/pyZKP/py_plonk/plonk_core/src/proof_system/linearisation_poly.py", line 136, in compute_linearisation_poly
+    domain_permutation = Radix2EvaluationDomain.new(n)
+  File "/home/zrji/pyZKP/py_plonk/domain.py", line 46, in new
+    generator_inv = fr.Fr.inverse(fr.Fr.multiplicative_generator())
+  File "/home/zrji/pyZKP/py_plonk/field.py", line 160, in inverse
+    if F.trace_equal(self, cls.zero()):
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 314, in __call__
+    lin_poly, evaluations = linearisation_poly.compute_linearisation_poly(
+  File "/home/zrji/pyZKP/py_plonk/arithmetic.py", line 24, in wrapper
+    result = func(*args, **kwargs)
+  File "/home/zrji/pyZKP/py_plonk/plonk_core/src/proof_system/linearisation_poly.py", line 296, in compute_linearisation_poly
+    permutation = compute_linearisation_permutation(
+  File "/home/zrji/pyZKP/py_plonk/plonk_core/src/proof_system/permutation.py", line 405, in compute_linearisation_permutation
+    c = compute_lineariser_check_is_one(
+  File "/home/zrji/pyZKP/py_plonk/plonk_core/src/proof_system/permutation.py", line 499, in compute_lineariser_check_is_one
+    lagrange_coefficients = domain.evaluate_all_lagrange_coefficients(z_challenge)
+  File "/home/zrji/pyZKP/py_plonk/domain.py", line 99, in evaluate_all_lagrange_coefficients
+    if F.trace_equal(z_h_at_tau, zero):
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+func compute_linearisation_poly consumed: 0.5816183090209961 s
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 405, in __call__
+    aw_commits, aw_rands = kzg10.commit_poly_new(pp, aw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 53, in commit_new
+    random_commitment_affine = to_affine(random_commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 405, in __call__
+    aw_commits, aw_rands = kzg10.commit_poly_new(pp, aw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 405, in __call__
+    aw_commits, aw_rands = kzg10.commit_poly_new(pp, aw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 405, in __call__
+    aw_commits, aw_rands = kzg10.commit_poly_new(pp, aw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 55, in commit_new
+    commitment_affine = to_affine(commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 405, in __call__
+    aw_commits, aw_rands = kzg10.commit_poly_new(pp, aw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 53, in commit_new
+    random_commitment_affine = to_affine(random_commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 405, in __call__
+    aw_commits, aw_rands = kzg10.commit_poly_new(pp, aw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 405, in __call__
+    aw_commits, aw_rands = kzg10.commit_poly_new(pp, aw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 405, in __call__
+    aw_commits, aw_rands = kzg10.commit_poly_new(pp, aw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 55, in commit_new
+    commitment_affine = to_affine(commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 405, in __call__
+    aw_commits, aw_rands = kzg10.commit_poly_new(pp, aw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 53, in commit_new
+    random_commitment_affine = to_affine(random_commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 405, in __call__
+    aw_commits, aw_rands = kzg10.commit_poly_new(pp, aw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 405, in __call__
+    aw_commits, aw_rands = kzg10.commit_poly_new(pp, aw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 405, in __call__
+    aw_commits, aw_rands = kzg10.commit_poly_new(pp, aw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 55, in commit_new
+    commitment_affine = to_affine(commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 405, in __call__
+    aw_commits, aw_rands = kzg10.commit_poly_new(pp, aw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 53, in commit_new
+    random_commitment_affine = to_affine(random_commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 405, in __call__
+    aw_commits, aw_rands = kzg10.commit_poly_new(pp, aw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 405, in __call__
+    aw_commits, aw_rands = kzg10.commit_poly_new(pp, aw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 405, in __call__
+    aw_commits, aw_rands = kzg10.commit_poly_new(pp, aw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 55, in commit_new
+    commitment_affine = to_affine(commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 405, in __call__
+    aw_commits, aw_rands = kzg10.commit_poly_new(pp, aw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 53, in commit_new
+    random_commitment_affine = to_affine(random_commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 405, in __call__
+    aw_commits, aw_rands = kzg10.commit_poly_new(pp, aw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 405, in __call__
+    aw_commits, aw_rands = kzg10.commit_poly_new(pp, aw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 405, in __call__
+    aw_commits, aw_rands = kzg10.commit_poly_new(pp, aw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 55, in commit_new
+    commitment_affine = to_affine(commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 405, in __call__
+    aw_commits, aw_rands = kzg10.commit_poly_new(pp, aw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 53, in commit_new
+    random_commitment_affine = to_affine(random_commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 405, in __call__
+    aw_commits, aw_rands = kzg10.commit_poly_new(pp, aw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 405, in __call__
+    aw_commits, aw_rands = kzg10.commit_poly_new(pp, aw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 405, in __call__
+    aw_commits, aw_rands = kzg10.commit_poly_new(pp, aw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 55, in commit_new
+    commitment_affine = to_affine(commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 405, in __call__
+    aw_commits, aw_rands = kzg10.commit_poly_new(pp, aw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 53, in commit_new
+    random_commitment_affine = to_affine(random_commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 405, in __call__
+    aw_commits, aw_rands = kzg10.commit_poly_new(pp, aw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 405, in __call__
+    aw_commits, aw_rands = kzg10.commit_poly_new(pp, aw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 405, in __call__
+    aw_commits, aw_rands = kzg10.commit_poly_new(pp, aw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 55, in commit_new
+    commitment_affine = to_affine(commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 406, in __call__
+    aw_opening = kzg10.open(
+  File "/home/zrji/pyZKP/py_plonk/arithmetic.py", line 24, in wrapper
+    result = func(*args, **kwargs)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 89, in open
+    proof = open_proof(powers_of_g, powers_of_gamma_g, combined_polynomial.to("cuda"), point, combined_rand)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 200, in open_proof
+    proof = open_with_witness_polynomial(
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 195, in open_with_witness_polynomial
+    return OpenProof(to_affine(w), random_v)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+func open consumed: 0.08670926094055176 s
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 425, in __call__
+    saw_commits, saw_rands = kzg10.commit_poly_new(pp,saw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 53, in commit_new
+    random_commitment_affine = to_affine(random_commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 425, in __call__
+    saw_commits, saw_rands = kzg10.commit_poly_new(pp,saw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 425, in __call__
+    saw_commits, saw_rands = kzg10.commit_poly_new(pp,saw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 425, in __call__
+    saw_commits, saw_rands = kzg10.commit_poly_new(pp,saw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 55, in commit_new
+    commitment_affine = to_affine(commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 425, in __call__
+    saw_commits, saw_rands = kzg10.commit_poly_new(pp,saw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 53, in commit_new
+    random_commitment_affine = to_affine(random_commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 425, in __call__
+    saw_commits, saw_rands = kzg10.commit_poly_new(pp,saw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 425, in __call__
+    saw_commits, saw_rands = kzg10.commit_poly_new(pp,saw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 425, in __call__
+    saw_commits, saw_rands = kzg10.commit_poly_new(pp,saw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 55, in commit_new
+    commitment_affine = to_affine(commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 425, in __call__
+    saw_commits, saw_rands = kzg10.commit_poly_new(pp,saw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 53, in commit_new
+    random_commitment_affine = to_affine(random_commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 425, in __call__
+    saw_commits, saw_rands = kzg10.commit_poly_new(pp,saw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 425, in __call__
+    saw_commits, saw_rands = kzg10.commit_poly_new(pp,saw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 425, in __call__
+    saw_commits, saw_rands = kzg10.commit_poly_new(pp,saw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 55, in commit_new
+    commitment_affine = to_affine(commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 425, in __call__
+    saw_commits, saw_rands = kzg10.commit_poly_new(pp,saw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 53, in commit_new
+    random_commitment_affine = to_affine(random_commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 425, in __call__
+    saw_commits, saw_rands = kzg10.commit_poly_new(pp,saw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 425, in __call__
+    saw_commits, saw_rands = kzg10.commit_poly_new(pp,saw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 425, in __call__
+    saw_commits, saw_rands = kzg10.commit_poly_new(pp,saw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 55, in commit_new
+    commitment_affine = to_affine(commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 425, in __call__
+    saw_commits, saw_rands = kzg10.commit_poly_new(pp,saw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 53, in commit_new
+    random_commitment_affine = to_affine(random_commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 425, in __call__
+    saw_commits, saw_rands = kzg10.commit_poly_new(pp,saw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 425, in __call__
+    saw_commits, saw_rands = kzg10.commit_poly_new(pp,saw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 425, in __call__
+    saw_commits, saw_rands = kzg10.commit_poly_new(pp,saw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 55, in commit_new
+    commitment_affine = to_affine(commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 425, in __call__
+    saw_commits, saw_rands = kzg10.commit_poly_new(pp,saw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 53, in commit_new
+    random_commitment_affine = to_affine(random_commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 425, in __call__
+    saw_commits, saw_rands = kzg10.commit_poly_new(pp,saw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 425, in __call__
+    saw_commits, saw_rands = kzg10.commit_poly_new(pp,saw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 425, in __call__
+    saw_commits, saw_rands = kzg10.commit_poly_new(pp,saw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 55, in commit_new
+    commitment_affine = to_affine(commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 425, in __call__
+    saw_commits, saw_rands = kzg10.commit_poly_new(pp,saw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 53, in commit_new
+    random_commitment_affine = to_affine(random_commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 425, in __call__
+    saw_commits, saw_rands = kzg10.commit_poly_new(pp,saw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 425, in __call__
+    saw_commits, saw_rands = kzg10.commit_poly_new(pp,saw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 54, in commit_new
+    commitment = add_assign_mixed(commitment,random_commitment_affine)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 394, in add_assign_mixed
+    if  other.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/structure.py", line 32, in is_zero
+    return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 425, in __call__
+    saw_commits, saw_rands = kzg10.commit_poly_new(pp,saw_polys)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 145, in commit_poly_new
+    comm,rand = Commitment.commit_new(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 55, in commit_new
+    commitment_affine = to_affine(commitment)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+Call stack for trace_equal:
+  File "main.py", line 41, in <module>
+    y = model(pp,pk,cs,preprocessed_transcript)
+  File "/home/zrji/pyZKP/py_plonk/gen_proof.py", line 428, in __call__
+    saw_opening = kzg10.open(
+  File "/home/zrji/pyZKP/py_plonk/arithmetic.py", line 24, in wrapper
+    result = func(*args, **kwargs)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 89, in open
+    proof = open_proof(powers_of_g, powers_of_gamma_g, combined_polynomial.to("cuda"), point, combined_rand)
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 200, in open_proof
+    proof = open_with_witness_polynomial(
+  File "/home/zrji/pyZKP/py_plonk/KZG/kzg10.py", line 195, in open_with_witness_polynomial
+    return OpenProof(to_affine(w), random_v)
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 271, in to_affine
+    if input.is_zero():
+  File "/home/zrji/pyZKP/py_plonk/jacobian.py", line 28, in is_zero
+    return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont))
+  File "/home/zrji/pyZKP/torch/nn/functional.py", line 14, in wrapper
+    stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+
+
+func open consumed: 0.08561849594116211 s
+a_comm: tensor([11300828134154745203, 12119313313578655817,   117374658974187469,
+        16447203688451801838,  9228672852459768340,   456690576839997171],
+       dtype=torch.BLS12_381_Fq_G1_Mont),tensor([ 193872918323365291, 9015265894286123788, 4418205737047514267,
+        5305003413992559862, 6010442720934366894,   62653485709040704],
+       dtype=torch.BLS12_381_Fq_G1_Mont)
+Data is successfully written to the file proof_data_new.txt
+b_comm: tensor([  871485407365947847, 14241200511526169826, 10943342144547125093,
+         4215961257213692077, 15662204557095431990,  1419776451413937565],
+       dtype=torch.BLS12_381_Fq_G1_Mont),tensor([13687639421479952072,  5673016712414650946,  8212026417355544425,
+        18107662929377239648, 13518060516030750720,  1838548814682814543],
+       dtype=torch.BLS12_381_Fq_G1_Mont)
+Data is successfully written to the file proof_data_new.txt
+c_comm: tensor([13795765554564124146,  6276893767248219700,  9841597240995254022,
+         8259509994870684738, 10241689180128588953,  1150220638510276576],
+       dtype=torch.BLS12_381_Fq_G1_Mont),tensor([3879154756027765678, 5586535472916838484, 2525961163643736964,
+        4270232466466615993, 7104842211222841048,  308178109175060784],
+       dtype=torch.BLS12_381_Fq_G1_Mont)
+Data is successfully written to the file proof_data_new.txt
+d_comm: tensor([17518425246114073894,  6124888424147629897,  7639532380499955000,
+        15342834503341872384,  4951132275647753378,  1446441633035390845],
+       dtype=torch.BLS12_381_Fq_G1_Mont),tensor([1783424364220926360, 8521655505214477017, 6711153604026432963,
+        4906600284636419836, 1038995704967995129,  562859457237204984],
+       dtype=torch.BLS12_381_Fq_G1_Mont)
+Data is successfully written to the file proof_data_new.txt
+z_comm: tensor([17023485903963818809,  8747200107415077495, 11080299013089366352,
+        15548517035683636432,  5228023404259672233,  1545703505495883887],
+       dtype=torch.BLS12_381_Fq_G1_Mont),tensor([ 5385237637567027055,  7168059888524965653,  3995445102005027653,
+         6717724313386841876, 16321983078089463992,   457116426952804259],
+       dtype=torch.BLS12_381_Fq_G1_Mont)
+Data is successfully written to the file proof_data_new.txt
+f_comm: tensor([0, 0, 0, 0, 0, 0], dtype=torch.BLS12_381_Fq_G1_Mont),tensor([ 8505329371266088957, 17002214543764226050,  6865905132761471162,
+         8632934651105793861,  6631298214892334189,  1582556514881692819],
+       dtype=torch.BLS12_381_Fq_G1_Mont)
+Data is successfully written to the file proof_data_new.txt
+h_1_comm: tensor([0, 0, 0, 0, 0, 0], dtype=torch.BLS12_381_Fq_G1_Mont),tensor([ 8505329371266088957, 17002214543764226050,  6865905132761471162,
+         8632934651105793861,  6631298214892334189,  1582556514881692819],
+       dtype=torch.BLS12_381_Fq_G1_Mont)
+Data is successfully written to the file proof_data_new.txt
+h_2_comm: tensor([0, 0, 0, 0, 0, 0], dtype=torch.BLS12_381_Fq_G1_Mont),tensor([ 8505329371266088957, 17002214543764226050,  6865905132761471162,
+         8632934651105793861,  6631298214892334189,  1582556514881692819],
+       dtype=torch.BLS12_381_Fq_G1_Mont)
+Data is successfully written to the file proof_data_new.txt
+z_2_comm: tensor([ 4887241460807276678, 17411707247357241055,  8358219804467972958,
+        12959064388900254838, 18241641673817840086,  1183134823693693186],
+       dtype=torch.BLS12_381_Fq_G1_Mont),tensor([ 4208485269793751781,  5109594448370338851,  9108495610232894355,
+        11971982643575008522, 12228710975329972993,   524003776799357237],
+       dtype=torch.BLS12_381_Fq_G1_Mont)
+Data is successfully written to the file proof_data_new.txt
+t_1_comm: tensor([ 7474190493491544667,  4710008234737499368,  6551532204276314710,
+        15698334090848120498,   200958459093313945,  1116863825609986886],
+       dtype=torch.BLS12_381_Fq_G1_Mont),tensor([ 1185635144303974223, 12717983436507955063,  9302732839086311702,
+         7882014483493538077, 17670376438273684621,   293522862607614419],
+       dtype=torch.BLS12_381_Fq_G1_Mont)
+Data is successfully written to the file proof_data_new.txt
+t_2_comm: tensor([ 6446211224212355044,  3106139435608389826, 16330478728371172134,
+        16287455594178338673,  4896104237580475217,   815379295102789091],
+       dtype=torch.BLS12_381_Fq_G1_Mont),tensor([12647941963300074684, 18022978549226104208,  1750362736066291586,
+         3308290270011138557,  9769060332729754612,  1242012434290726832],
+       dtype=torch.BLS12_381_Fq_G1_Mont)
+Data is successfully written to the file proof_data_new.txt
+t_3_comm: tensor([12799176519266416370,  8248286078742463649,  3611137957970357583,
+         2931942937704302496,  6398258001524302177,  1277909937461060855],
+       dtype=torch.BLS12_381_Fq_G1_Mont),tensor([ 9093690630452447766,  7755415669663560110, 10942540856280623206,
+         6803148262122723019, 16348563466394290607,  1209043473192019320],
+       dtype=torch.BLS12_381_Fq_G1_Mont)
+Data is successfully written to the file proof_data_new.txt
+t_4_comm: tensor([  269552812547716384, 10241182607385123835, 10510826831979203913,
+         5296081417654554456, 11701163626386798394,  1771422000523710132],
+       dtype=torch.BLS12_381_Fq_G1_Mont),tensor([14738049164464344312,  9538143453409135017,  8596219821472679411,
+         6127928850462853479, 13675246220124602925,  1772687803885265833],
+       dtype=torch.BLS12_381_Fq_G1_Mont)
+Data is successfully written to the file proof_data_new.txt
+t_5_comm: tensor([17728284344179900619,  3695287914291282090,   997148115580292343,
+         1151344098928782175, 12033208860236808292,   463084531605108838],
+       dtype=torch.BLS12_381_Fq_G1_Mont),tensor([ 3906132052610928682, 17657763518999638703, 17145571335530212221,
+         8242990893384099783, 11203239977345195553,   153633060521830879],
+       dtype=torch.BLS12_381_Fq_G1_Mont)
+Data is successfully written to the file proof_data_new.txt
+t_6_comm: tensor([17327921798682860095,  2368449837807002908, 14062560357066536633,
+        14645155547193629994, 11135994380475790901,   227180693804311878],
+       dtype=torch.BLS12_381_Fq_G1_Mont),tensor([17893095224609719475, 13698216086893538871, 11733192673445171694,
+        17503541899974989669,  8637624485554970089,   729016325984119749],
+       dtype=torch.BLS12_381_Fq_G1_Mont)
+Data is successfully written to the file proof_data_new.txt
+t_7_comm: tensor([0, 0, 0, 0, 0, 0], dtype=torch.BLS12_381_Fq_G1_Mont),tensor([ 8505329371266088957, 17002214543764226050,  6865905132761471162,
+         8632934651105793861,  6631298214892334189,  1582556514881692819],
+       dtype=torch.BLS12_381_Fq_G1_Mont)
+Data is successfully written to the file proof_data_new.txt
+t_8_comm: tensor([0, 0, 0, 0, 0, 0], dtype=torch.BLS12_381_Fq_G1_Mont),tensor([ 8505329371266088957, 17002214543764226050,  6865905132761471162,
+         8632934651105793861,  6631298214892334189,  1582556514881692819],
+       dtype=torch.BLS12_381_Fq_G1_Mont)
+Data is successfully written to the file proof_data_new.txt
+aw_opening: tensor([ 8268525042005134023, 13764411337809887494, 10487427005759289554,
+         9210103057490857122,  5343150453380710419,    86800460180954529],
+       dtype=torch.BLS12_381_Fq_G1_Mont),tensor([15378641165011603997, 10504454034753072276,  2234903693678343695,
+         7872438690602204223, 12392693275661907541,  1575757560467930540],
+       dtype=torch.BLS12_381_Fq_G1_Mont)
+Data is successfully written to the file proof_data_new.txt
+saw_opening: tensor([ 1711734661472593120,  8370606193502049019,  5311104777376549693,
+        13303229891407798570, 12463442254816469442,  1143112816499341980],
+       dtype=torch.BLS12_381_Fq_G1_Mont),tensor([16342270629687138729,  4214533076957091300,  3114140417656656953,
+        13831426553505863730, 15924014340889089069,  1463880085503176752],
+       dtype=torch.BLS12_381_Fq_G1_Mont)
+Data is successfully written to the file proof_data_new.txt
+Generate proof successfully
+
+execution time: 4.641990423202515 s

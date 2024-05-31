@@ -197,6 +197,14 @@ __global__ void inv_mod_kernel_(const int64_t N, T* data) {
 }
 
 template <typename T>
+__global__ void neg_mod_kernel_(const int64_t N, T* data) {
+  int64_t i = blockIdx.x * blockDim.x + threadIdx.x;
+  if (i < N) {
+    data[i].cneg(true);
+  }
+}
+
+template <typename T>
 __global__ void exp_mod_kernel_(const int64_t N, T* data, int exp) {
   int64_t i = blockIdx.x * blockDim.x + threadIdx.x;
   if (i < N) {
@@ -391,6 +399,19 @@ static void inv_mod_cuda_template(Tensor& self) {
   });
 }
 
+static void neg_mod_cuda_template(Tensor& self) {
+  AT_DISPATCH_MONT_TYPES(self.scalar_type(), "neg_mod_cuda", [&] {
+    auto self_ptr = reinterpret_cast<scalar_t::compute_type*>(
+        self.mutable_data_ptr<scalar_t>());
+    int64_t N = self.numel() / num_uint64(self.scalar_type());
+    TORCH_INTERNAL_ASSERT(N > 0 && N <= std::numeric_limits<int32_t>::max());
+    int64_t grid = (N + block_work_size() - 1) / block_work_size();
+    auto stream = at::cuda::getCurrentCUDAStream();
+    neg_mod_kernel_<<<grid, block_work_size(), 0, stream>>>(N, self_ptr);
+    C10_CUDA_KERNEL_LAUNCH_CHECK();
+  });
+}
+
 static void exp_mod_cuda_template(Tensor& self, int exp) {
   if (exp == 1) {
     return;
@@ -580,6 +601,21 @@ Tensor& inv_mod_cuda_(Tensor& self) {
 Tensor& inv_mod_out_cuda(const Tensor& input, Tensor& output) {
   copy(output, input);
   inv_mod_cuda_template(output);
+  return output;
+}
+
+Tensor neg_mod_cuda(const Tensor& input) {
+  Tensor output = input.clone();
+  neg_mod_cuda_template(output);
+  return output;
+}
+Tensor& neg_mod_cuda_(Tensor& self) {
+  neg_mod_cuda_template(self);
+  return self;
+}
+Tensor& neg_mod_out_cuda(const Tensor& input, Tensor& output) {
+  copy(output, input);
+  neg_mod_cuda_template(output);
   return output;
 }
 

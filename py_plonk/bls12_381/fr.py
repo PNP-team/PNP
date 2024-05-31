@@ -3,6 +3,7 @@ from ..field import field
 from ..transcript import flags
 from ..serialize import buffer_byte_size
 from ..bytes import read
+import torch.nn.functional as F
 
 class Fr(field):
     def __init__(self, value: torch.Tensor):
@@ -52,6 +53,10 @@ class Fr(field):
     T_MINUS_ONE_DIV_TWO = torch.tensor([9223141137265459199,   347036667491570177, 10722717374829358084,
                    972477353], dtype=torch.BLS12_381_Fr_G1_Mont)
 
+
+    OMEGA = torch.tensor([11864420382399758890, 18195565927427728881, 16759393787988053888,
+         8029136087195778842], dtype=torch.BLS12_381_Fr_G1_Mont)
+
     #256bits
     BYTE_SIZE:int = 32
     
@@ -64,7 +69,7 @@ def deserialize(reader):
     flag = flags.EmptyFlags.from_u8_remove_flags(masked_bytes[output_byte_size - 1])
 
     element = read(masked_bytes,Fr)
-    field_element = Fr.from_repr(element)
+    field_element = F.to_mont(element)
     return field_element, flag
 
     

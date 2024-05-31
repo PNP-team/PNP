@@ -6,7 +6,7 @@ import torch.nn.functional as F
 
 def neg(self):
     a=torch.tensor([18446744069414584321, 6034159408538082302, 3691218898639771653, 8353516859464449352],dtype=torch.BLS12_381_Fr_G1_Mont)
-    if torch.equal(self,torch.tensor([0,0,0,0],dtype=torch.BLS12_381_Fr_G1_Mont)):
+    if F.trace_equal(self,torch.tensor([0,0,0,0],dtype=torch.BLS12_381_Fr_G1_Mont)):
         return self
     else:
         res= F.sub_mod(a,self)
@@ -38,12 +38,12 @@ class Radix2EvaluationDomain:
         
         # Check that it is indeed the 2^(log_size_of_group) root of unity.
         group_gen_pow = F.exp_mod(group_gen,size)
-        assert torch.equal(group_gen_pow, fr.Fr.one())
+        assert F.trace_equal(group_gen_pow, fr.Fr.one())
 
-        size_as_field_element=fr.Fr.from_repr(size)
-        size_inv = fr.Fr.inverse(size_as_field_element)
-        group_gen_inv = fr.Fr.inverse(group_gen)
-        generator_inv = fr.Fr.inverse(fr.Fr.multiplicative_generator())
+        size_as_field_element=fr.Fr.make_tensor(size)
+        size_inv = F.inv_mod(size_as_field_element)
+        group_gen_inv = F.inv_mod(group_gen)
+        generator_inv = F.inv_mod(fr.Fr.multiplicative_generator())
 
         return cls(size, log_size_of_group, size_as_field_element, size_inv, group_gen, group_gen_inv, generator_inv)
     
@@ -66,7 +66,7 @@ class Radix2EvaluationDomain:
     #     group_gen_pow = group_gen.pow(size)
     #     assert group_gen_pow == fr.Fr.one()
 
-    #     size_as_field_element=fr.Fr.from_repr(size)
+    #     size_as_field_element=fr.Fr.make_tensor(size)
     #     size_inv = fr.Fr.inverse(size_as_field_element)
     #     group_gen_inv = fr.Fr.inverse(group_gen)
     #     generator_inv = fr.Fr.inverse(fr.Fr.multiplicative_generator())
@@ -96,11 +96,11 @@ class Radix2EvaluationDomain:
         domain_offset = one.clone()
         z_h_at_tau = F.sub_mod(t_size, domain_offset)
 
-        if torch.equal(z_h_at_tau, zero):
+        if F.trace_equal(z_h_at_tau, zero):
             u = zero.repeat(size, 1)
             omega_i = domain_offset
             for i in range(size):
-                if torch.equal(omega_i, tau):
+                if F.trace_equal(omega_i, tau):
                     u[i] = one.clone()
                     break
                 omega_i = F.mul_mod(omega_i, group_gen)
@@ -118,7 +118,7 @@ class Radix2EvaluationDomain:
             # TODO: consider caching the computation of l_i to save N multiplications
             from .arithmetic import batch_inversion
 
-            f_size = fr.Fr.from_repr(size)
+            f_size = fr.Fr.make_tensor(size)
             pow_dof = F.exp_mod(domain_offset, size - 1) 
             v_0_inv = F.mul_mod(f_size, pow_dof)
             v_0 = F.div_mod(one, v_0_inv)

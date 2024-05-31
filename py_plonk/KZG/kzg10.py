@@ -267,3 +267,10 @@ class Proof:
 
     # Subset of all of the evaluations added to the proof.
     evaluations: ProofEvaluations
+
+    def __hash__(self) -> int:
+        return 0
+
+    def size(self) -> int:
+        return [1024]
+    

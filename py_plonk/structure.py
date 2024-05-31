@@ -3,6 +3,8 @@ from typing import List
 from .bls12_381 import fq
 from .transcript import flags
 import torch
+import torch.nn.functional as F
+
 
 @dataclass
 class G2Coordinate:
@@ -27,7 +29,7 @@ class AffinePointG1:
     
     def is_zero(self):
         one = fq.Fq.one()
-        return torch.equal(self.x.value, fq.Fq.zero())  and torch.equal(one, self.y.value)
+        return F.trace_equal(self.x.value, fq.Fq.zero())  and F.trace_equal(one, self.y.value)
 
     
     def serialize(self,writer):
@@ -37,9 +39,8 @@ class AffinePointG1:
             writer = zero.serialize_with_flags(writer,flag)
             return writer
         else:
-            neg_y = self.y.neg()
-            a = self.y.into_repr()
-            b = neg_y.into_repr()
+            a = F.to_base(self.y.value)
+            b = F.to_base(F.neg_mod(self.y.value))
             a_most_sig = a[-1].tolist()
             b_most_sig = b[-1].tolist()
             flag = flags.SWFlags.from_y_sign(a_most_sig > b_most_sig) #a > b

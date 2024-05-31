@@ -17,8 +17,8 @@ import torch
 import torch.nn.functional as F
 from torch.pnp import zkp
 import time
-#data_set2=["../../data/MERKLE-HEIGHT-3/pp-3.npz","../../data/MERKLE-HEIGHT-3/pk-3.npz","../../data/MERKLE-HEIGHT-3/cs-3.npz","../../data/MERKLE-HEIGHT-3/w_l_scalar-3.npy","../../data/MERKLE-HEIGHT-3/w_r_scalar-3.npy","../../data/MERKLE-HEIGHT-3/w_o_scalar-3.npy","../../data/MERKLE-HEIGHT-3/w_4_scalar-3.npy"]
-data_set2=["../../data/MERKLE-HEIGHT-9/pp-9.npz","../../data/MERKLE-HEIGHT-9/pk-9.npz","../../data/MERKLE-HEIGHT-9/cs-9.npz","../../data/MERKLE-HEIGHT-9/w_l_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_r_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_o_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_4_scalar-9.npy"]
+data_set2=["../../data/MERKLE-HEIGHT-3/pp-3.npz","../../data/MERKLE-HEIGHT-3/pk-3.npz","../../data/MERKLE-HEIGHT-3/cs-3.npz","../../data/MERKLE-HEIGHT-3/w_l_scalar-3.npy","../../data/MERKLE-HEIGHT-3/w_r_scalar-3.npy","../../data/MERKLE-HEIGHT-3/w_o_scalar-3.npy","../../data/MERKLE-HEIGHT-3/w_4_scalar-3.npy"]
+# data_set2=["../../data/MERKLE-HEIGHT-9/pp-9.npz","../../data/MERKLE-HEIGHT-9/pk-9.npz","../../data/MERKLE-HEIGHT-9/cs-9.npz","../../data/MERKLE-HEIGHT-9/w_l_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_r_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_o_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_4_scalar-9.npy"]
 
 def split_tx_poly(n,t_x):
     t_x = resize_gpu(t_x, n<<3)
@@ -34,12 +34,18 @@ def split_tx_poly(n,t_x):
     ]
 
 
-class gen_proof:
+class gen_proof(torch.nn.Module):
     def __init__ (self):
-        pass
+        super(gen_proof, self).__init__()
        
     def __call__(self,pp, pk: Prover_Key, cs: StandardComposer, transcript: transcript.Transcript):
         #get FFT domaim
+
+        # for i in range(100):
+        #     r = fr.Fr.get_root_of_unity(2 ** i)
+        #     print(i, ":", r)
+
+
         domain = Radix2EvaluationDomain.new(cs.circuit_bound())
         n=domain.size
         transcript.append_pi(b"pi", fr.Fr(torch.tensor(cs.public_inputs,dtype=torch.BLS12_381_Fr_G1_Mont)), int(cs.intended_pi_pos))
@@ -85,6 +91,8 @@ class gen_proof:
         # Generate table compression factor
         zeta = transcript.challenge_scalar(b"zeta")
         transcript.append(b"zeta",zeta)
+
+        print("zeta", zeta.value)
 
         pk_lookup=pk["lookup"].tolist()
         pk_lookup_table1=torch.tensor(pk_lookup["table1"]['coeffs'],dtype=torch.BLS12_381_Fr_G1_Mont).to("cuda")
@@ -171,6 +179,8 @@ class gen_proof:
         h_1_poly = from_coeff_vec(h_1_temp)  
         h_2_poly = from_coeff_vec(h_2_temp)  
         
+        # return 230.582
+
         # Commit to h polys
         h_1_polys = [kzg10.LabeledPoly.new(label="h_1_poly",hiding_bound=None,poly=h_1_poly)]
         h_2_polys = [kzg10.LabeledPoly.new(label="h_2_poly",hiding_bound=None,poly=h_2_poly)]
@@ -201,12 +211,12 @@ class gen_proof:
     
 
         # Challenges must be different
-        assert torch.equal(beta.value, gamma.value) == False, "challenges must be different"
-        assert torch.equal(beta.value, delta.value) == False, "challenges must be different"
-        assert torch.equal(beta.value, epsilon.value) == False, "challenges must be different"
-        assert torch.equal(gamma.value, delta.value) == False, "challenges must be different"
-        assert torch.equal(gamma.value, epsilon.value) == False, "challenges must be different"
-        assert torch.equal(delta.value, epsilon.value) == False, "challenges must be different"
+        assert F.trace_equal(beta.value, gamma.value) == False, "challenges must be different"
+        assert F.trace_equal(beta.value, delta.value) == False, "challenges must be different"
+        assert F.trace_equal(beta.value, epsilon.value) == False, "challenges must be different"
+        assert F.trace_equal(gamma.value, delta.value) == False, "challenges must be different"
+        assert F.trace_equal(gamma.value, epsilon.value) == False, "challenges must be different"
+        assert F.trace_equal(delta.value, epsilon.value) == False, "challenges must be different"
         
         pk_permutation = pk["permutation"].tolist()
         pk_permutation['left_sigma']['coeffs'] = torch.tensor(pk_permutation['left_sigma']['coeffs'], dtype = fr.Fr.Dtype)
@@ -232,6 +242,8 @@ class gen_proof:
         # Add permutation polynomial commitment to transcript.
         transcript.append(b"z", z_poly_commit[0].commitment.value)
         
+        # return 438.730
+
         # Compute mega permutation polynomial.
         # Compute lookup permutation poly
         z_2_poly = mod.compute_lookup_permutation_poly(
@@ -246,6 +258,8 @@ class gen_proof:
         # Commit to lookup permutation polynomial.
         z_2_polys = [kzg10.LabeledPoly.new(label="z_2_poly",hiding_bound=None,poly=z_2_poly)]
         z_2_poly_commit,_ = kzg10.commit_poly_new(pp,z_2_polys)
+
+        # return 477.107
 
         # 3. Compute public inputs polynomial
         cs_public_inputs = torch.tensor(cs.public_inputs, dtype = fr.Fr.Dtype)
@@ -272,7 +286,7 @@ class gen_proof:
         lookup_sep_challenge = transcript.challenge_scalar(b"lookup separation challenge")
         transcript.append(b"lookup separation challenge", lookup_sep_challenge)
 
-        
+        # return 486.133
         t_poly = quotient_poly.compute_quotient_poly(
             n,pk,
             z_poly, z_2_poly,
@@ -285,10 +299,13 @@ class gen_proof:
             var_base_sep_challenge.value,
             lookup_sep_challenge.value)
         
+        # return 778.620
+        
         start = time.time()
         t_i_poly = split_tx_poly(n, t_poly)
         elapse = time.time() - start
         print("split time:",elapse)
+
 
         t_i_polys = [kzg10.LabeledPoly.new(label="t_i_polys[0]",hiding_bound=None,poly=t_i_poly[0]),
                     kzg10.LabeledPoly.new(label="t_i_polys[1]",hiding_bound=None,poly=t_i_poly[1]),
@@ -299,11 +316,15 @@ class gen_proof:
                     kzg10.LabeledPoly.new(label="t_i_polys[6]",hiding_bound=None,poly=t_i_poly[6]),
                     kzg10.LabeledPoly.new(label="t_i_polys[7]",hiding_bound=None,poly=t_i_poly[7])]
         
+        # return 812.774
         t_commits, _ = kzg10.commit_poly_new(pp,t_i_polys)
+        # return 
         
         # Add quotient polynomial commitments to transcript
         for i in range(0, 8):
             transcript.append(f"t_{i+1}".encode(), t_commits[i].commitment.value)
+        
+        # return 1.071s
 
         # 4. Compute linearisation polynomial
         # Compute evaluation challenge `z`.
@@ -463,6 +484,8 @@ class gen_proof:
             except Exception as e:
                 print(f"An error occurred while writing to the file: {e}")
 
+        with open('proof_data_new.txt', 'w') as f:
+            pass
 
         attributes = vars(Proof)
         for attribute, value in attributes.items():
@@ -482,9 +505,11 @@ class gen_proof:
                         write_to_file(my_data, 'proof_data_new.txt')
                     except:
                         pass
-            
         
+        return w_commits[0].commitment.value
+    
         return Proof
+    
 
 
 

@@ -25,7 +25,7 @@ class ProjectivePointG1:
         return cls(x,y,z)
     
     def is_zero(self):
-        return torch.equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont)) 
+        return F.trace_equal(self.z.value, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont)) 
     
     def double(self):
         if self.is_zero():
@@ -118,7 +118,7 @@ class ProjectivePointG1:
         one = torch.tensor([8505329371266088957, 17002214543764226050, 6865905132761471162, 8632934651105793861],dtype=torch.BLS12_381_Fr_G1_Mont)
         if p.is_zero():
             return AffinePointG1.zero()
-        elif torch.equal(p.z , one):
+        elif F.trace_equal(p.z , one):
             # If Z is one, the point is already normalized.
             return AffinePointG1.new(p.x, p.y)
         else:
@@ -256,11 +256,11 @@ class ProjectivePointG1:
                 return ProjectivePointG1(x, y, z) 
                 
 def is_zero_ProjectivePointG1(self):
-    return torch.equal(self[2],torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont)) ##z
+    return F.trace_equal(self[2],torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont)) ##z
 
 def is_zero_AffinePointG1(self):
         one = torch.tensor([8505329371266088957, 17002214543764226050, 6865905132761471162, 8632934651105793861, 6631298214892334189, 1582556514881692819],dtype=torch.BLS12_381_Fq_G1_Mont)
-        return torch.equal(self[0] ,torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont) )and  torch.equal(self[1] ,one) # x=0 y=one
+        return F.trace_equal(self[0] ,torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont) )and  F.trace_equal(self[1] ,one) # x=0 y=one
 
 def to_affine(input: ProjectivePointG1): 
         px = input.x.value.clone()
@@ -312,7 +312,7 @@ def add_assign(self, other: 'ProjectivePointG1'):
     s2 = F.mul_mod(other[1], self[2])
     s2 = F.mul_mod(s2, z1z1)
 
-    if  torch.equal(u1 ,u2)and torch.equal(s1 ,s2):
+    if  F.trace_equal(u1 ,u2)and F.trace_equal(s1 ,s2):
         # The two points are equal, so we double.
         return double_ProjectivePointG1(self)
     else:
@@ -414,7 +414,7 @@ def add_assign_mixed(self1: ProjectivePointG1, other: 'AffinePointG1'):
         s2 = F.mul_mod(other.y.value, self.z.value)
         s2 = F.mul_mod(s2, z1z1)
 
-        if torch.equal(self.x.value, u2) and torch.equal(self.y.value, s2):
+        if F.trace_equal(self.x.value, u2) and F.trace_equal(self.y.value, s2):
             # The two points are equal, so we double.
             return double_ProjectivePointG1(self)
         else:

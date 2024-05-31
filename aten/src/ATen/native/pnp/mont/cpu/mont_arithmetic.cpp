@@ -152,6 +152,29 @@ static void exp_template(Tensor& out, int exp) {
   });
 }
 
+
+static void inv_template(Tensor& out) {
+  AT_DISPATCH_MONT_TYPES(out.scalar_type(), "inv_mod_cpu", [&] {
+    auto c_ptr = reinterpret_cast<scalar_t::compute_type*>(
+        out.mutable_data_ptr<scalar_t>());
+    int64_t num_ = out.numel() / num_uint64(out.scalar_type());
+    for (auto i = 0; i < num_; i++) {
+      c_ptr[i] = 1 / c_ptr[i];
+    }
+  });
+}
+
+static void neg_template(Tensor& out) {
+  AT_DISPATCH_MONT_TYPES(out.scalar_type(), "neg_mod_cpu", [&] {
+    auto c_ptr = reinterpret_cast<scalar_t::compute_type*>(
+        out.mutable_data_ptr<scalar_t>());
+    int64_t num_ = out.numel() / num_uint64(out.scalar_type());
+    for (auto i = 0; i < num_; i++) {
+      c_ptr[i] = -c_ptr[i];
+    }
+  });
+}
+
 } // anonymous namespace
 
 Tensor to_mont_cpu(const Tensor& input) {
@@ -264,6 +287,36 @@ Tensor& exp_mod_cpu_(Tensor& self, long exp) {
 Tensor& exp_mod_out_cpu(const Tensor& input, long exp, Tensor& output) {
   copy(output, input);
   exp_template(output, exp);
+  return output;
+}
+
+Tensor inv_mod_cpu(const Tensor& input) {
+  Tensor output = input.clone();
+  inv_template(output);
+  return output;
+}
+Tensor& inv_mod_cpu_(Tensor& self) {
+  inv_template(self);
+  return self;
+}
+Tensor& inv_mod_out_cpu(const Tensor& input, Tensor& output) {
+  copy(output, input);
+  inv_template(output);
+  return output;
+}
+
+Tensor neg_mod_cpu(const Tensor& input) {
+  Tensor output = input.clone();
+  neg_template(output);
+  return output;
+}
+Tensor& neg_mod_cpu_(Tensor& self) {
+  neg_template(self);
+  return self;
+}
+Tensor& neg_mod_out_cpu(const Tensor& input, Tensor& output) {
+  copy(output, input);
+  neg_template(output);
   return output;
 }
 

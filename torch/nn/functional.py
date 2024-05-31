@@ -11,11 +11,11 @@ import functools
 def trace(func):
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        # stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
-        # print(f"Call stack for {func.__name__}:")
-        # for line in stack:
-        #     print(line, end='')  # Print each line of the stack trace
-        # print("\n")
+        stack = traceback.format_stack(limit=None)  # Capture the stack as a list of strings
+        print(f"Call stack for {func.__name__}:")
+        for line in stack:
+            print(line, end='')  # Print each line of the stack trace
+        print("\n")
         return func(*args, **kwargs)
     return wrapper
 try:
@@ -6123,6 +6123,28 @@ def to_base(input: Tensor, inplace: bool = False) -> Tensor:
     return result
 
 # @trace
+def neg_mod(input: Tensor, inplace: bool = False) -> Tensor:
+    r"""
+    Convert input to base domain. Only for Elliptic Curve.
+    """
+    if inplace:
+        result = torch.neg_mod_(input)
+    else:
+        result = torch.neg_mod(input)
+    return result
+
+# @trace
+def inv_mod(input: Tensor, inplace: bool = False) -> Tensor:
+    r"""
+    Convert input to base domain. Only for Elliptic Curve.
+    """
+    if inplace:
+        result = torch.inv_mod_(input)
+    else:
+        result = torch.inv_mod(input)
+    return result
+
+# @trace
 def add_mod(input1: Tensor, input2: Tensor, inplace: bool = False) -> Tensor:
     if inplace:
         result = torch.add_mod_(input1, input2)
@@ -6253,3 +6275,7 @@ def multi_scalar_mult(points: Tensor, scalars: Tensor, device="cuda") -> list:
     step1_cpu = step1_res.to("cpu")
     res_jacobian = torch.msm_collect(step1_cpu, 1024)
     return res_jacobian
+
+# @trace
+def trace_equal(a, b):
+    return torch.equal(a, b)
