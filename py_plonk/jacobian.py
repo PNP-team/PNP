@@ -273,7 +273,7 @@ def to_affine(input: ProjectivePointG1):
         if input.is_zero():
             x = fq.zero()
             y = one
-            return AffinePointG1(fq.Fq(x), fq.Fq(y))
+            return AffinePointG1(x, y)
 
         else:
             # Z is nonzero, so it must have an inverse in a field.
@@ -285,7 +285,7 @@ def to_affine(input: ProjectivePointG1):
             mid1 = F.mul_mod(zinv_squared, zinv)
             y = F.mul_mod(py, mid1)
          
-            return AffinePointG1(fq.Fq(x),fq.Fq(y))
+            return AffinePointG1(x,y)
 def add_assign(self, other: 'ProjectivePointG1'):
     if is_zero_ProjectivePointG1(self):
         x, y, z = other[0], other[1], other[2]
@@ -389,7 +389,7 @@ def double_ProjectivePointG1(self: ProjectivePointG1):
             y = F.sub_mod(mid3, mid2)
 
             # return ProjectivePointG1(x, y, z)
-            return ProjectivePointG1(fq.Fq(x), fq.Fq(y), fq.Fq(z))
+            return ProjectivePointG1(x, y, z)
 
 def add_assign_mixed(self1: ProjectivePointG1, other: 'AffinePointG1'):
     self = copy.deepcopy(self1)
@@ -403,7 +403,7 @@ def add_assign_mixed(self1: ProjectivePointG1, other: 'AffinePointG1'):
         x = copy.deepcopy(other.x)
         y = copy.deepcopy(other.y)
         #z = self.z.one()  # Assuming z.one() is a method to get a representation of one.
-        z=  fq.Fq(torch.tensor([8505329371266088957, 17002214543764226050, 6865905132761471162, 8632934651105793861, 6631298214892334189, 1582556514881692819],dtype=torch.BLS12_381_Fq_G1_Mont))
+        z=  torch.tensor([8505329371266088957, 17002214543764226050, 6865905132761471162, 8632934651105793861, 6631298214892334189, 1582556514881692819],dtype=torch.BLS12_381_Fq_G1_Mont)
         return ProjectivePointG1(x,y,z)
     else:
         # Z1Z1 = Z1^2
@@ -458,4 +458,4 @@ def add_assign_mixed(self1: ProjectivePointG1, other: 'AffinePointG1'):
             hh = F.mul_mod(h, h)
             z = F.sub_mod(z, hh)
 
-            return ProjectivePointG1(fq.Fq(x), fq.Fq(y), fq.Fq(z))
+            return ProjectivePointG1(x, y, z)

@@ -4,6 +4,8 @@ from ..transcript import strobe
 from ..structure import AffinePointG1, serialize_BTreeMap
 from ..bls12_381 import fr
 from ..transcript import flags
+import torch
+from ..serialize import todo_serialize
 
 MERLIN_PROTOCOL_LABEL = b"Merlin v1.0"
 
@@ -50,7 +52,10 @@ class Transcript:
 
     def append(self, label, item):
         bytes = []
-        bytes = item.serialize(bytes)
+        if isinstance(item, torch.Tensor):
+            bytes = todo_serialize(item, bytes)
+        else:
+            bytes = item.serialize(bytes)
         self.append_message(label,bytes)
     
     def challenge_bytes(self, label, dest):
@@ -65,4 +70,4 @@ class Transcript:
         buf = bytes([0] * size)
         modified_buf = self.challenge_bytes(label, buf)
         c_s = fr.from_random_bytes(modified_buf)
-        return fr.Fr(c_s)
+        return c_s

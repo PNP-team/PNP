@@ -20,9 +20,8 @@ import numpy as np
 import time
 # Computes the first lagrange polynomial with the given `scale` over `domain`.
 def compute_first_lagrange_poly_scaled(n, scale: torch.Tensor):
-    # x_evals = [fr.Fr.zero() for _ in range(domain.size)]
-    inttclass = nn.Intt(n, fr.Fr.Dtype)
-    x_evals=torch.zeros(n, fr.Fr.Limbs, dtype = fr.Fr.Dtype)
+    inttclass = nn.Intt(n, fr.TYPE)
+    x_evals=torch.zeros(n, fr.Fr.Limbs, dtype = fr.TYPE)
     x_evals[0] = scale.clone()
 
     x_coeffs = inttclass.forward(x_evals.to('cuda'))
@@ -46,7 +45,7 @@ def compute_gate_constraint_satisfiability(n,
             elif isinstance(value, np.ndarray):##4575657222473777152 ndarray problem
                 if np.array_equal(value,np.array(0,dtype=np.uint64)):
                     value=[]
-                data[key] = torch.tensor(value, dtype = fr.Fr.Dtype)  # Convert numpy array to tensor
+                data[key] = torch.tensor(value, dtype = fr.TYPE)  # Convert numpy array to tensor
     
     prover_key_arithmetic = prover_key["arithmetic"].tolist()
     convert_to_tensors(prover_key_arithmetic)
@@ -173,11 +172,11 @@ def compute_permutation_checks(
     pk_permutation = prover_key['permutation'].tolist()
     pk_linear_evaluations=prover_key["linear_evaluations"].tolist()
 
-    pk_linear_evaluations_evals = torch.tensor(pk_linear_evaluations['evals'], dtype = fr.Fr.Dtype).to('cuda')
-    pk_left_sigma_evals = torch.tensor(pk_permutation["left_sigma"]['evals'], dtype = fr.Fr.Dtype).to('cuda')
-    pk_right_sigma_evals = torch.tensor(pk_permutation["right_sigma"]['evals'], dtype = fr.Fr.Dtype).to('cuda')
-    pk_out_sigma_evals = torch.tensor(pk_permutation["out_sigma"]['evals'], dtype = fr.Fr.Dtype).to('cuda')
-    pk_fourth_sigma_evals = torch.tensor(pk_permutation["fourth_sigma"]['evals'], dtype = fr.Fr.Dtype).to('cuda')
+    pk_linear_evaluations_evals = torch.tensor(pk_linear_evaluations['evals'], dtype = fr.TYPE).to('cuda')
+    pk_left_sigma_evals = torch.tensor(pk_permutation["left_sigma"]['evals'], dtype = fr.TYPE).to('cuda')
+    pk_right_sigma_evals = torch.tensor(pk_permutation["right_sigma"]['evals'], dtype = fr.TYPE).to('cuda')
+    pk_out_sigma_evals = torch.tensor(pk_permutation["out_sigma"]['evals'], dtype = fr.TYPE).to('cuda')
+    pk_fourth_sigma_evals = torch.tensor(pk_permutation["fourth_sigma"]['evals'], dtype = fr.TYPE).to('cuda')
     
     # Calculate permutation contribution for each index
     
@@ -216,7 +215,7 @@ def compute_quotient_poly(n,
             lookup_challenge):
 
     coset_size = 8 * n
-    one = fr.Fr.one()
+    one = fr.one()
     l1_poly = compute_first_lagrange_poly_scaled(n,one) 
     
     l1_eval_8n = coset_NTT(coset_size,l1_poly.to('cuda'))
@@ -269,7 +268,7 @@ def compute_quotient_poly(n,
         alpha, beta, gamma,
     )
     pk_lookup = prover_key['lookup'].tolist()
-    pk_lookup_qlookup_evals = torch.tensor(pk_lookup['q_lookup']['evals'], dtype = fr.Fr.Dtype).to('cuda')
+    pk_lookup_qlookup_evals = torch.tensor(pk_lookup['q_lookup']['evals'], dtype = fr.TYPE).to('cuda')
     
     lookup = compute_lookup_quotient_term(
         n,
@@ -291,7 +290,7 @@ def compute_quotient_poly(n,
     )
 
     prover_key_v_h_coset_8n = prover_key["v_h_coset_8n"].tolist()
-    prover_key_v_h_coset_8n_evals = torch.tensor(prover_key_v_h_coset_8n['evals'], dtype = fr.Fr.Dtype).to('cuda')
+    prover_key_v_h_coset_8n_evals = torch.tensor(prover_key_v_h_coset_8n['evals'], dtype = fr.TYPE).to('cuda')
     
     
     numerator = F.add_mod(gate_constraints, permutation)

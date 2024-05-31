@@ -142,7 +142,7 @@ def pow(self, exp):
     return res
 
 def pow_single(self, exp):
-    res = fr.Fr.one()
+    res = fr.one()
     if self.is_cuda:
         res = res.to("cuda")
     for i in range(exp):
@@ -274,14 +274,14 @@ def derange(xi, log_len):
 def resize_gpu(self: torch.Tensor, target_len):
     res = self.clone()
     if res.size(0) < target_len:
-        padding = torch.zeros((target_len - res.size(0), fr.Fr.Limbs), dtype = fr.Fr.Dtype).to("cuda")
+        padding = torch.zeros((target_len - res.size(0), fr.Fr.Limbs), dtype = fr.TYPE).to("cuda")
         res = torch.cat((res, padding))
     return res
 
 def resize_cpu(self: torch.Tensor, target_len):
     res = self.clone()
     if res.size(0) < target_len:
-        padding = torch.zeros((target_len - res.size(0), fr.Fr.Limbs), dtype = fr.Fr.Dtype)
+        padding = torch.zeros((target_len - res.size(0), fr.Fr.Limbs), dtype = fr.TYPE)
         res = torch.cat((res, padding))
     return res
 
@@ -356,26 +356,26 @@ def distribute_powers_and_mul_by_const_new(coeffs, g, c):
     return coeffs
 
 def INTT(size, evals: torch.Tensor):
-    inttclass = nn.Intt(fr.Fr.TWO_ADICITY, fr.Fr.Dtype)
+    inttclass = nn.Intt(fr.TWO_ADICITY, fr.TYPE)
     evals_resize = resize_gpu(evals, size)
     res = inttclass.forward(evals_resize)
     return res
 
 def NTT(size, evals:torch.Tensor):
-    nttclass = nn.Ntt(fr.Fr.TWO_ADICITY, fr.Fr.Dtype)
+    nttclass = nn.Ntt(fr.TWO_ADICITY, fr.TYPE)
     evals_resize=resize_gpu(evals,size)
     res= nttclass.forward(evals_resize)
     return res
 
 def coset_NTT(size, coeffs:torch.Tensor):
-    ntt_coset_class = nn.Ntt_coset(fr.Fr.TWO_ADICITY, fr.Fr.Dtype)
+    ntt_coset_class = nn.Ntt_coset(fr.TWO_ADICITY, fr.TYPE)
     resize_coeffs= resize_gpu(coeffs, size)
     evals = ntt_coset_class.forward(resize_coeffs)
     return evals
 
 
 def coset_INTT(size, evals:torch.tensor):
-    ntt_class = nn.Intt_coset(fr.Fr.TWO_ADICITY, fr.Fr.Dtype)
+    ntt_class = nn.Intt_coset(fr.TWO_ADICITY, fr.TYPE)
     resize_evals= resize_gpu(evals, size)
     coeffs = ntt_class.forward(resize_evals)
     return coeffs
@@ -410,7 +410,7 @@ def coset_INTT(size, evals:torch.tensor):
 def from_coeff_vec(poly:torch.Tensor):
     return poly
     poly1 = poly.to("cpu")
-    zero = fr.Fr.zero()
+    zero = fr.zero()
     counter = 0
     while counter < poly1.size(0) and torch.equal(poly1[-counter-1], zero):
         counter += 1
@@ -450,7 +450,7 @@ def poly_mul_const(poly:torch.Tensor, elem:torch.Tensor):
 #         return zero
 #     else:
 #         one = fr.Fr.one().value
-#         quotient = torch.zeros(self.size(0) - divisor.size(0) + 1, fr.Fr.Limbs, dtype = fr.Fr.Dtype)
+#         quotient = torch.zeros(self.size(0) - divisor.size(0) + 1, fr.Fr.Limbs, dtype = fr.TYPE)
 #         remainder = self
 
 #         divisor_leading = divisor[-1].clone()
@@ -541,7 +541,7 @@ def batch_inversion_and_mul(v, coeff):
 
 # Given a vector of field elements {v_i}, compute the vector {v_i^(-1)}
 def batch_inversion(v):
-    one = fr.Fr.one()
+    one = fr.one()
     res = batch_inversion_and_mul(v, one.to("cuda"))
     return res
 # The first lagrange polynomial has the expression:
@@ -556,7 +556,7 @@ def batch_inversion(v):
 # L_0(X) = (X^n - 1) / n * (X - 1)
 def compute_first_lagrange_evaluation(size, z_h_eval, z_challenge):
     # single scalar OP on CPU
-    one = fr.Fr.one()
+    one = fr.one()
     n_fr = fr.Fr.make_tensor(size)
     z_challenge_sub_one = F.sub_mod(z_challenge, one)
     denom = F.mul_mod(n_fr, z_challenge_sub_one)

@@ -11,12 +11,10 @@ def this_write(x,writer):
     new_writer = write(content,writer)
     return new_writer
 
-def serialize_with_flags(x, writer:list, flag:flags):
+def todo_serialize_with_flags(x, writer:list, flag:flags):
     if flag.BIT_SIZE > 8:
         print("Not enough space")
         return
-
-    print(x.dtype)
 
     output_byte_size = x.size()[-1] * 8 # buffer_byte_size(self.MODULUS_BITS + flag.BIT_SIZE)
 
@@ -27,6 +25,6 @@ def serialize_with_flags(x, writer:list, flag:flags):
     writer.extend(bytes[:output_byte_size])
     return writer
 
-def serialize(x,writer):
-    writer = serialize_with_flags(x, writer, flags.EmptyFlags)
+def todo_serialize(x,writer):
+    writer = todo_serialize_with_flags(x, writer, flags.EmptyFlags)
     return writer

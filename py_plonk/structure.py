@@ -4,7 +4,7 @@ from .bls12_381 import fq
 from .transcript import flags
 import torch
 import torch.nn.functional as F
-from .serialize import serialize_with_flags
+from .serialize import todo_serialize, todo_serialize_with_flags
 
 
 @dataclass
@@ -19,7 +19,6 @@ class AffinePointG1:
         self.x = x
         self.y = y
 
-
     @classmethod
     def new(cls,x,y):
         return cls(x,y)
@@ -33,22 +32,22 @@ class AffinePointG1:
     
     def is_zero(self):
         one = fq.one()
-        return F.trace_equal(self.x.value, fq.zero())  and F.trace_equal(one, self.y.value)
+        return F.trace_equal(self.x, fq.zero())  and F.trace_equal(one, self.y)
 
     
     def serialize(self,writer):
         if self.is_zero():
             flag = flags.SWFlags.infinity()
             # zero = fq.Fq(fq.zero())
-            writer = serialize_with_flags(fq.zero(), writer,flag) # zero.serialize_with_flags(writer,flag)
+            writer = todo_serialize_with_flags(fq.zero(), writer,flag) # zero.todo_serialize_with_flags(writer,flag)
             return writer
         else:
-            a = F.to_base(self.y.value)
-            b = F.to_base(F.neg_mod(self.y.value))
+            a = F.to_base(self.y)
+            b = F.to_base(F.neg_mod(self.y))
             a_most_sig = a[-1].tolist()
             b_most_sig = b[-1].tolist()
             flag = flags.SWFlags.from_y_sign(a_most_sig > b_most_sig) #a > b
-            writer = self.x.serialize_with_flags(writer, flag)
+            writer = todo_serialize_with_flags(self.x, writer, flag)
             return writer
 @dataclass
 class AffinePointG2:
@@ -65,7 +64,7 @@ def serialize_BTreeMap(item, pos, writer: list):
     len = 1    # len = item.length
     writer = serialize_u64(len, writer)
     writer = serialize_u64(pos, writer)
-    writer = item.serialize(writer)
+    writer = todo_serialize(item.value, writer)
     return writer
 
 @dataclass

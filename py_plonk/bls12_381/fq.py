@@ -1,6 +1,4 @@
 import torch
-from dataclasses import dataclass
-from ..field import field
 
 TYPE = torch.BLS12_381_Fq_G1_Mont
 MODULUS_BITS = 381
@@ -22,18 +20,18 @@ def one():
             6631298214892334189,
             1582556514881692819,
         ],
-        dtype=torch.BLS12_381_Fq_G1_Mont,
+        dtype=TYPE,
     )
 
 
-class Fq(field):
-    def __init__(self, value: torch.Tensor):
-        self.value = value
+# class Fq(field):
+#     def __init__(self, value: torch.Tensor):
+#         self.value = value
 
-    MODULUS_BITS: int = 381
+#     MODULUS_BITS: int = 381
 
-    # # 384bits
-    BYTE_SIZE: int = 48
+#     # # 384bits
+    # BYTE_SIZE: int = 48
 
 
 # FQ_ONE = 1

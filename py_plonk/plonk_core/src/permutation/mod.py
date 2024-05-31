@@ -61,11 +61,11 @@ def lookup_ratio(one ,delta, epsilon, f, t, t_next,
 @calculate_execution_time
 def compute_permutation_poly(domain, wires, beta, gamma, sigma_polys: torch.Tensor):
     n = domain.size
-    zero = fr.Fr.zero()
-    one = fr.Fr.one()
+    zero = fr.zero()
+    one = fr.one()
     # Constants defining cosets H, k1H, k2H, etc
     ks = [[],[],[],[]]
-    ks[0] = fr.Fr.one()
+    ks[0] = fr.one()
     ks[1] = constants.K1()
     ks[2] = constants.K2()
     ks[3] = constants.K3()
@@ -115,7 +115,7 @@ def compute_permutation_poly(domain, wires, beta, gamma, sigma_polys: torch.Tens
 
     denominator_product_under = F.div_mod(extend_one, denominator_product)
     gate_coefficient = F.mul_mod(numerator_product, denominator_product_under)
-    # z = torch.tensor([], dtype = fr.Fr.Dtype).to("cuda")
+    # z = torch.tensor([], dtype = fr.TYPE).to("cuda")
 
     # First element is one
     # state = one.clone().unsqueeze(0).to("cuda")
@@ -144,7 +144,7 @@ def compute_lookup_permutation_poly(n, f, t, h_1, h_2, delta, epsilon):  ####输
     h_1_next[:n-1] = h_1[1:].clone()
     h_1_next[-1] = h_1[0].clone()
 
-    one = fr.Fr.one()
+    one = fr.one()
     extend_one = one.repeat(n,1)
     extend_delta = delta.repeat(n,1)
     extend_epsilon = epsilon.repeat(n,1)
@@ -152,7 +152,7 @@ def compute_lookup_permutation_poly(n, f, t, h_1, h_2, delta, epsilon):  ####输
     product_arguments = lookup_ratio(extend_one.to("cuda") ,extend_delta.to("cuda"), extend_epsilon.to("cuda"), f.to('cuda'), t.to('cuda'), t_next.to('cuda'), h_1, h_1_next.to('cuda'), h_2)
 
     # state = one.clone().unsqueeze(0).to("cuda")
-    # p = torch.tensor([], dtype = fr.Fr.Dtype).to('cuda')
+    # p = torch.tensor([], dtype = fr.TYPE).to('cuda')
     # p = torch.cat((p,state))
     p = F.accumulate_mul_poly(product_arguments)
 

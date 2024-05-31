@@ -24,26 +24,37 @@ class Radix2EvaluationDomain:
 
     @classmethod
     def new(cls, num_coeffs: int):
+
+        def get_root_of_unity(n):
+            assert n > 0 and (n & (n - 1)) == 0, "n must be a power of 2"
+            log_size_of_group = n.bit_length() - 1
+            assert log_size_of_group <= fr.TWO_ADICITY, "logn must <= TWO_ADICITY"
+
+            base = fr.TWO_ADIC_ROOT_OF_UNITY()
+            exponent = 1 << (fr.TWO_ADICITY - log_size_of_group)
+            return F.exp_mod(base, exponent)
+
+
         # Compute the size of our evaluation domain
         size = num_coeffs if num_coeffs & (num_coeffs - 1) == 0 else 2 ** num_coeffs.bit_length()
         log_size_of_group = size.bit_length()-1
         
         # Check if log_size_of_group exceeds TWO_ADICITY
-        if log_size_of_group > fr.Fr.TWO_ADICITY:
+        if log_size_of_group > fr.TWO_ADICITY:
             return None
 
         # Compute the generator for the multiplicative subgroup.
         # It should be the 2^(log_size_of_group) root of unity.
-        group_gen = fr.Fr.get_root_of_unity(size)
+        group_gen = get_root_of_unity(size)
         
         # Check that it is indeed the 2^(log_size_of_group) root of unity.
         group_gen_pow = F.exp_mod(group_gen,size)
-        assert F.trace_equal(group_gen_pow, fr.Fr.one())
+        assert F.trace_equal(group_gen_pow, fr.one())
 
         size_as_field_element=fr.Fr.make_tensor(size)
         size_inv = F.inv_mod(size_as_field_element)
         group_gen_inv = F.inv_mod(group_gen)
-        generator_inv = F.inv_mod(fr.Fr.multiplicative_generator())
+        generator_inv = F.inv_mod(fr.GENERATOR())
 
         return cls(size, log_size_of_group, size_as_field_element, size_inv, group_gen, group_gen_inv, generator_inv)
     
@@ -55,7 +66,7 @@ class Radix2EvaluationDomain:
     #     log_size_of_group = size.bit_length()-1
         
     #     # Check if log_size_of_group exceeds TWO_ADICITY
-    #     if log_size_of_group > fr.Fr.TWO_ADICITY:
+    #     if log_size_of_group > fr.TWO_ADICITY:
     #         return None
 
     #     # Compute the generator for the multiplicative subgroup.
@@ -90,9 +101,9 @@ class Radix2EvaluationDomain:
         group_gen = self.group_gen
         tau = tau.to("cpu")
         t_size = F.exp_mod(tau, size)
-        zero = fr.Fr.zero()
-        one = fr.Fr.one()
-        mod = fr.Fr.MODULUS
+        zero = fr.zero()
+        one = fr.one()
+        mod = fr.MODULUS()
         domain_offset = one.clone()
         z_h_at_tau = F.sub_mod(t_size, domain_offset)
 
@@ -163,7 +174,7 @@ class Radix2EvaluationDomain:
     # This evaluates the vanishing polynomial for this domain at tau.
     # For multiplicative subgroups, this polynomial is `z(X) = X^self.size - 1`.
     def evaluate_vanishing_polynomial(self, tau):
-        one = fr.Fr.one()
+        one = fr.one()
         pow_tau = F.exp_mod(tau, self.size)
         return F.sub_mod(pow_tau, one)
     

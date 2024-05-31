@@ -233,8 +233,8 @@ def compute_quotient_i(
     ):
         # q_lookup(X) * (a(X) + zeta * b(X) + (zeta^2 * c(X)) + (zeta^3 * d(X) - f(X))) * α_1
 
-        one = fr.Fr.one()
-        extend_mod = fr.Fr.MODULUS.repeat(size,1)
+        one = fr.one()
+        extend_mod = fr.MODULUS().repeat(size,1)
 
         #single scalar OP on CPU
         lookup_sep_sq = F.mul_mod(lookup_sep, lookup_sep)  # Calculate the square of lookup_sep
@@ -315,9 +315,9 @@ def compute_linearisation_lookup(
     lookup_sep,
     pk_q_lookup,
 ):
-    one = fr.Fr.one()
+    one = fr.one()
     one = one.to("cuda")
-    mod = fr.Fr.MODULUS.to("cuda")
+    mod = fr.MODULUS().to("cuda")
     lookup_sep_sq = F.mul_mod(lookup_sep, lookup_sep)
     lookup_sep_cu = F.mul_mod(lookup_sep_sq, lookup_sep)
     one_plus_delta = F.add_mod(delta, one)

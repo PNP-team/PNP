@@ -68,7 +68,7 @@ def open(
     _rng=None
 ):
     
-    combined_polynomial = torch.tensor([], dtype = fr.Fr.Dtype)
+    combined_polynomial = torch.tensor([], dtype = fr.TYPE)
     combined_rand = Randomness.empty()
 
     opening_challenge_counter = 0
@@ -162,7 +162,7 @@ def opening_challenges(opening_challenge, exp):
 # p(z) is the remainder term. We can therefore omit p(z) when computing the quotient.
 import time
 def compute_witness_polynomial(p: List[fr.Fr], point, randomness: Randomness):
-    mod = fr.Fr.MODULUS.to("cuda")
+    mod = fr.MODULUS().to("cuda")
     neg_p = F.sub_mod(mod, point)
     if p.size(0) != 0:
         witness_polynomial = F.poly_div_poly(p, neg_p)

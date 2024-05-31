@@ -1,9 +1,10 @@
 from dataclasses import dataclass
 from typing import List, Tuple
-from ....field import field
 @dataclass
 class CustomEvaluations:
-    vals: List[Tuple[str, field]]
+    def __init__(self, vals):
+        self.vals = vals
+    # vals: List[Tuple[str, field]]
     # Get the evaluation of the specified label.
     # This funtions panics if the requested label is not found
     def get(self, label):

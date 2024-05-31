@@ -12,7 +12,7 @@ class WitnessValues:
 
 def delta(f: torch.Tensor):
     
-    one = fr.Fr.one()
+    one = fr.one()
     two = fr.Fr.make_tensor(2)
     three = fr.Fr.make_tensor(3)
 

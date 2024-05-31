@@ -365,14 +365,14 @@ def compute_quotient_copy_range_check_i(
     mid5 = F.mul_mod(mid5, z_i_next)
     product = F.mul_mod_scalar(mid5, alpha)    
 
-    extend_mod = fr.Fr.MODULUS.repeat(size, 1)     
+    extend_mod = fr.MODULUS().repeat(size, 1)     
     res = F.sub_mod(extend_mod.to("cuda"), product)
     return res
 
 # Computes the following:
 # L_1(X)[Z(X) - 1]
 def compute_quotient_term_check_one_i(z_i, l1_alpha_sq):
-    one = fr.Fr.one()
+    one = fr.one()
     z_i_sub_one = F.sub_mod_scalar(z_i, one.to("cuda"))
     res = F.mul_mod(z_i_sub_one, l1_alpha_sq)
     return res
@@ -385,7 +385,7 @@ def compute_linearisation_permutation(
     sigmaTuple, 
     z_eval, z_poly, domain,
     pk_fourth_sigma_coeff):
-    mod = fr.Fr.MODULUS.to("cuda")
+    mod = fr.MODULUS().to("cuda")
     a = compute_lineariser_identity_range_check(
         wireTuple[0],wireTuple[1],wireTuple[2],wireTuple[3],
         z_challenge,
