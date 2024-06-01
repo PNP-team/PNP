@@ -2,9 +2,8 @@ from dataclasses import dataclass
 from typing import List
 from .bls12_381 import fq
 from .transcript import flags
-import torch
 import torch.nn.functional as F
-from .serialize import todo_serialize, todo_serialize_with_flags
+from .serialize import todo_serialize_with_flags
 
 
 @dataclass
@@ -64,7 +63,7 @@ def serialize_BTreeMap(item, pos, writer: list):
     len = 1    # len = item.length
     writer = serialize_u64(len, writer)
     writer = serialize_u64(pos, writer)
-    writer = todo_serialize(item, writer)
+    writer = todo_serialize_with_flags(item, writer)
     return writer
 
 @dataclass

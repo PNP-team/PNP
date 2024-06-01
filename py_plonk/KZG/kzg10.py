@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from ..structure import UniversalParams,OpenProof
 from ..jacobian import ProjectivePointG1
-from ..field import field
 from ..bls12_381 import fr,fq
 from typing import List
 from ..arithmetic import skip_leading_zeros_and_convert_to_bigints,convert_to_bigints,\
@@ -33,7 +32,7 @@ class Randomness:
         hiding_poly_degree = cls.calculate_hiding_polynomial_degree(hiding_bound)
         return cls(blind_poly = rand_poly(hiding_poly_degree))
     
-    def add_assign(self, f:field, other: 'Randomness'):
+    def add_assign(self, f, other: 'Randomness'):
         self.blind_poly = poly_add_poly_mul_const(self.blind_poly, f, other.blind_poly)
 
 class Commitment:
@@ -63,7 +62,7 @@ def open(
     labeled_polynomials: 'LabeledPoly',
     _commitments: 'LabeledCommitment',
     point,
-    opening_challenge: field,
+    opening_challenge,
     rands,
     _rng=None
 ):
@@ -195,7 +194,7 @@ def open_with_witness_polynomial(
     return OpenProof(to_affine(w), random_v)
 
 # On input a polynomial `p` and a point `point`, outputs a proof for the same.
-def open_proof(powers_of_g,powers_of_gamma_g, p: List[field], point: field, rand: Randomness):
+def open_proof(powers_of_g,powers_of_gamma_g, p: list, point, rand: Randomness):
     witness_poly, hiding_witness_poly = compute_witness_polynomial(p, point, rand)
     proof = open_with_witness_polynomial(
             powers_of_g,

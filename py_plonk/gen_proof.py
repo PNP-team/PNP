@@ -11,7 +11,7 @@ from .plonk_core.src.proof_system.pi import into_dense_poly
 from .plonk_core.src.proof_system import quotient_poly
 from .plonk_core.src.proof_system import linearisation_poly
 import numpy as np
-from .arithmetic import from_coeff_vec, resize_gpu, INTT
+from .arithmetic import from_coeff_vec, resize_gpu
 from .KZG import kzg10
 import torch
 import torch.nn.functional as F
@@ -20,16 +20,16 @@ import time
 import torch.nn as nn
 
 
-data_set2 = [
-    "../../data/MERKLE-HEIGHT-3/pp-3.npz",
-    "../../data/MERKLE-HEIGHT-3/pk-3.npz",
-    "../../data/MERKLE-HEIGHT-3/cs-3.npz",
-    "../../data/MERKLE-HEIGHT-3/w_l_scalar-3.npy",
-    "../../data/MERKLE-HEIGHT-3/w_r_scalar-3.npy",
-    "../../data/MERKLE-HEIGHT-3/w_o_scalar-3.npy",
-    "../../data/MERKLE-HEIGHT-3/w_4_scalar-3.npy",
-]
-# data_set2=["../../data/MERKLE-HEIGHT-9/pp-9.npz","../../data/MERKLE-HEIGHT-9/pk-9.npz","../../data/MERKLE-HEIGHT-9/cs-9.npz","../../data/MERKLE-HEIGHT-9/w_l_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_r_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_o_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_4_scalar-9.npy"]
+# data_set2 = [
+#     "../../data/MERKLE-HEIGHT-3/pp-3.npz",
+#     "../../data/MERKLE-HEIGHT-3/pk-3.npz",
+#     "../../data/MERKLE-HEIGHT-3/cs-3.npz",
+#     "../../data/MERKLE-HEIGHT-3/w_l_scalar-3.npy",
+#     "../../data/MERKLE-HEIGHT-3/w_r_scalar-3.npy",
+#     "../../data/MERKLE-HEIGHT-3/w_o_scalar-3.npy",
+#     "../../data/MERKLE-HEIGHT-3/w_4_scalar-3.npy",
+# ]
+data_set2=["../../data/MERKLE-HEIGHT-9/pp-9.npz","../../data/MERKLE-HEIGHT-9/pk-9.npz","../../data/MERKLE-HEIGHT-9/cs-9.npz","../../data/MERKLE-HEIGHT-9/w_l_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_r_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_o_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_4_scalar-9.npy"]
 
 
 def split_tx_poly(n, t_x):

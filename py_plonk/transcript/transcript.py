@@ -5,7 +5,7 @@ from ..structure import AffinePointG1, serialize_BTreeMap
 from ..bls12_381 import fr
 from ..transcript import flags
 import torch
-from ..serialize import todo_serialize
+from ..serialize import todo_serialize_with_flags
 
 MERLIN_PROTOCOL_LABEL = b"Merlin v1.0"
 
@@ -53,7 +53,7 @@ class Transcript:
     def append(self, label, item):
         bytes = []
         if isinstance(item, torch.Tensor):
-            bytes = todo_serialize(item, bytes)
+            bytes = todo_serialize_with_flags(item, bytes)
         else:
             bytes = item.serialize(bytes)
         self.append_message(label,bytes)

@@ -1,30 +1,20 @@
 from .transcript import flags
 import torch.nn.functional as F
-from .bytes import write
 
 
 def buffer_byte_size(modulus_bits):
     return (modulus_bits + 7) // 8
 
-def this_write(x,writer):
-    content = F.to_base(x)
-    new_writer = write(content,writer)
-    return new_writer
+def write(content):
+    bytes_content = bytearray()
+    for partial in content.tolist():
+        bytes_content.extend(partial.to_bytes(8, byteorder='little'))
+    return bytes_content
 
-def todo_serialize_with_flags(x, writer:list, flag:flags):
-    if flag.BIT_SIZE > 8:
-        print("Not enough space")
-        return
-
-    output_byte_size = x.size()[-1] * 8 # buffer_byte_size(self.MODULUS_BITS() + flag.BIT_SIZE)
-
-    bytes = bytearray(output_byte_size+1)
-    modified_bytes = this_write(x, bytes[:output_byte_size])
-    bytes = modified_bytes+bytes[output_byte_size:]
-    bytes[output_byte_size - 1] |= flag.u8_bitmask()
-    writer.extend(bytes[:output_byte_size])
-    return writer
-
-def todo_serialize(x,writer):
-    writer = todo_serialize_with_flags(x, writer, flags.EmptyFlags)
+def todo_serialize_with_flags(x, writer:list, flag = flags.EmptyFlags):
+    assert flag.BIT_SIZE <= 8, "not enough space"
+    x_base = F.to_base(x)
+    bytes = write(x_base)
+    bytes[- 1] |= flag.u8_bitmask()
+    writer.extend(bytes)
     return writer

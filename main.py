@@ -3,18 +3,10 @@ from py_plonk.composer import StandardComposer
 from py_plonk.gen_proof import gen_proof
 from py_plonk.transcript import transcript
 import numpy as np
-import torch
 from torch.profiler import profile, record_function, ProfilerActivity
-from torchviz import make_dot
 
-import torch.nn.functional as F
-
-
-# import torchviz
-# from torchviz import make_dot
-data_set2=["../../data/MERKLE-HEIGHT-3/pp-3.npz","../../data/MERKLE-HEIGHT-3/pk-3.npz","../../data/MERKLE-HEIGHT-3/cs-3.npz","../../data/MERKLE-HEIGHT-3/w_l_scalar-3.npy","../../data/MERKLE-HEIGHT-3/w_r_scalar-3.npy","../../data/MERKLE-HEIGHT-3/w_o_scalar-3.npy","../../data/MERKLE-HEIGHT-3/w_4_scalar-3.npy"]
-#data_set2=["../../data/pp-17.npz","../../data/pk-17.npz","../../data/cs-17.npz","../../data/w_l_scalar-17.npy","../../data/w_r_scalar-17.npy","../../data/w_o_scalar-17.npy","../../data/w_4_scalar-17.npy"]
-# data_set2=["../../data/MERKLE-HEIGHT-9/pp-9.npz","../../data/MERKLE-HEIGHT-9/pk-9.npz","../../data/MERKLE-HEIGHT-9/cs-9.npz","../../data/MERKLE-HEIGHT-9/w_l_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_r_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_o_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_4_scalar-9.npy"]
+#data_set2=["../../data/MERKLE-HEIGHT-3/pp-3.npz","../../data/MERKLE-HEIGHT-3/pk-3.npz","../../data/MERKLE-HEIGHT-3/cs-3.npz","../../data/MERKLE-HEIGHT-3/w_l_scalar-3.npy","../../data/MERKLE-HEIGHT-3/w_r_scalar-3.npy","../../data/MERKLE-HEIGHT-3/w_o_scalar-3.npy","../../data/MERKLE-HEIGHT-3/w_4_scalar-3.npy"]
+data_set2=["../../data/MERKLE-HEIGHT-9/pp-9.npz","../../data/MERKLE-HEIGHT-9/pk-9.npz","../../data/MERKLE-HEIGHT-9/cs-9.npz","../../data/MERKLE-HEIGHT-9/w_l_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_r_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_o_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_4_scalar-9.npy"]
 if __name__ == "__main__":
 
     start_time = time.time()
@@ -42,29 +34,8 @@ if __name__ == "__main__":
     #     with record_function("gen_proof"):
     # pi = gen_proof(pp,pk,cs,preprocessed_transcript)
     model = gen_proof()
-    # with profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA]) as prof:
+
     y = model(pp,pk,cs,preprocessed_transcript)
-
-    # make_dot(y, params=dict(list(model.named_parameters()))).render("rnn_torchviz", format="png")
-
-    # print(prof.key_averages().table(sort_by="cpu_time_total", row_limit=20))
-    
-    # prof.export_chrome_trace("trace.json")
-
-    # prof.export_chrome_trace("trace.json")
-    # with profile(
-    # activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA],
-    # with_stack=True,) as prof:
-    #     y=model(pp,pk,cs,preprocessed_transcript)
-
-    # print(prof.key_averages(group_by_stack_n=5).table(sort_by="self_cuda_time_total"))
-
-    # dot = make_dot(y)
-    # dot.render('dataflow_graph', format='png')  # 保存图像为PNG格式
-    # print(prof.key_averages().table(sort_by="cpu_time_total", row_limit=10))
-    # pi = gen_proof(pp,pk,cs,preprocessed_transcript)
-    # prof.export_chrome_trace("trace.json")
-    # pi = gen_proof(pp,pk,cs,preprocessed_transcript)
 
     end_time = time.time()
     print("Generate proof successfully\n")

@@ -4,14 +4,6 @@ import torch
 import torch.nn.functional as F
 
 
-def neg(self):
-    a=torch.tensor([18446744069414584321, 6034159408538082302, 3691218898639771653, 8353516859464449352],dtype=torch.BLS12_381_Fr_G1_Mont)
-    if F.trace_equal(self,torch.tensor([0,0,0,0],dtype=torch.BLS12_381_Fr_G1_Mont)):
-        return self
-    else:
-        res= F.sub_mod(a,self)
-        return res
-
 @dataclass
 class Radix2EvaluationDomain:
     size: int
@@ -58,31 +50,6 @@ class Radix2EvaluationDomain:
 
         return cls(size, log_size_of_group, size_as_field_element, size_inv, group_gen, group_gen_inv, generator_inv)
     
-    # @classmethod
-    # def new(cls,num_coeffs:int):
-    #     # Compute the size of our evaluation domain
-    #     size = num_coeffs if num_coeffs & (num_coeffs - 1) == 0 else 2 ** num_coeffs.bit_length()
-    #     # print(size)
-    #     log_size_of_group = size.bit_length()-1
-        
-    #     # Check if log_size_of_group exceeds TWO_ADICITY
-    #     if log_size_of_group > fr.TWO_ADICITY():
-    #         return None
-
-    #     # Compute the generator for the multiplicative subgroup.
-    #     # It should be the 2^(log_size_of_group) root of unity.
-    #     group_gen = fr.Fr.get_root_of_unity(size)
-        
-    #     # Check that it is indeed the 2^(log_size_of_group) root of unity.
-    #     group_gen_pow = group_gen.pow(size)
-    #     assert group_gen_pow == fr.Fr.one()
-
-    #     size_as_field_element=fr.make_tensor(size)
-    #     size_inv = fr.Fr.inverse(size_as_field_element)
-    #     group_gen_inv = fr.Fr.inverse(group_gen)
-    #     generator_inv = fr.Fr.inverse(fr.Fr.multiplicative_generator())
-
-    #     return cls(size, log_size_of_group, size_as_field_element, size_inv, group_gen, group_gen_inv, generator_inv)
     
     # Evaluate all Lagrange polynomials at tau to get the lagrange coefficients.
     # Define the following as
@@ -151,23 +118,6 @@ class Radix2EvaluationDomain:
             denominator_inv = F.inv_mod(denominator)
 
             lagrange_coefficients = F.mul_mod(nominator, denominator_inv)
-            # l_i = F.mul_mod(z_h_at_tau_inv, v_0_inv)
-            
-            # mod = mod.to("cuda")
-            # domain_offset = domain_offset.to("cuda")
-            # negative_cur_elem = negative_cur_elem.to("cuda")
-            # lagrange_coefficients_inverse = zero.repeat(size, 1)
-            # group_gen = self.group_gen.to("cuda")
-            # group_gen_inv = self.group_gen_inv.to("cuda")
-            # #TODO
-            # for i in range(size):
-            #     r_i = F.add_mod(tau, negative_cur_elem)
-            #     lagrange_coefficients_inverse[i] = F.mul_mod(l_i, r_i)
-            #     # Increment l_i and negative_cur_elem
-            #     l_i = F.mul_mod(l_i, group_gen_inv)
-            #     negative_cur_elem = F.mul_mod(negative_cur_elem, group_gen)
-            # lagrange_coefficients_inverse = lagrange_coefficients_inverse.to('cuda')
-            # res = batch_inversion(lagrange_coefficients_inverse)
             return lagrange_coefficients
 
     

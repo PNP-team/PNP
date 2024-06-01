@@ -23,21 +23,7 @@ def write_new(content,writer:list):
     return writer
 
 
-def write(content,writer:list):
-    limbs = len(writer)//8
-    bytes_content = [[] for _ in range(limbs)]
-    
-    for i in range(limbs):
-        partial = int(content[i].tolist())
-        if partial == 0:
-            bytes_content[i] = b'\x00' * 8  # 以8个字节的空字节填充
-        else:
-            bytes_content[i] = partial.to_bytes(8, byteorder='little')
 
-    little_endian_bytes = [item for sublist in bytes_content for item in sublist]
-    for i in range(len(writer)):
-        writer[i] = little_endian_bytes[i]
-    return writer
 
 def read(reader):
     format_string = "<" + "Q" * fr.LIMBS()

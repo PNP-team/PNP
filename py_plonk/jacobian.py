@@ -16,15 +16,6 @@ class ProjectivePointG1:
         self.y = y
         self.z = z
 
-    @classmethod
-    #Returns the point at infinity, which always has Z = 0.
-    def zero(cls):
-        # fq R=3380320199399472671518931668520476396067793891014375699959770179129436917079669831430077592723774664465579537268733
-        # x=field_elemnt.one()
-        x= torch.tensor([8505329371266088957, 17002214543764226050, 6865905132761471162, 8632934651105793861],dtype=torch.BLS12_381_Fr_G1_Mont)
-        y=torch.tensor([8505329371266088957, 17002214543764226050, 6865905132761471162, 8632934651105793861],dtype=torch.BLS12_381_Fr_G1_Mont)
-        z=torch.zeros(1,4,dtype=torch.BLS12_381_Fr_G1_Mont)
-        return cls(x,y,z)
     
     def is_zero(self):
         return F.trace_equal(self.z, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont)) 
@@ -115,160 +106,18 @@ class ProjectivePointG1:
         #     self.z = (old_y + self.z).square() - yy - zz
         #     return self
 
-    def to_affine(p: 'ProjectivePointG1'):
-        # one = p.z.one()
-        one = torch.tensor([8505329371266088957, 17002214543764226050, 6865905132761471162, 8632934651105793861],dtype=torch.BLS12_381_Fr_G1_Mont)
-        if p.is_zero():
-            return AffinePointG1.zero()
-        elif F.trace_equal(p.z , one):
-            # If Z is one, the point is already normalized.
-            return AffinePointG1.new(p.x, p.y)
-        else:
-            # Z is nonzero, so it must have an inverse in a field.
-            #div_mod work on cpu
-            zinv = F.div_mod(torch.tensor([8505329371266088957, 17002214543764226050, 6865905132761471162, 8632934651105793861],dtype=torch.BLS12_381_Fr_G1_Mont),p.z)
-            zinv_squared = F.mul_mod(zinv, zinv)
 
-            x = F.mul_mod(p.x, zinv_squared)
-            mid1 = F.mul_mod(zinv_squared, zinv)
-            y = F.mul_mod(p.y, mid1)
-            return AffinePointG1.new(x, y)
 
-    def add_assign(self, other: 'ProjectivePointG1'):
-        if self.is_zero():
-            x, y, z = other.x, other.y, other.z
-            return ProjectivePointG1(x, y, z)
-
-        if other.is_zero():
-            return ProjectivePointG1(self.x, self.y, self.z)
-
-        # Z1Z1 = Z1^2
-        z1z1 = F.mul_mod(self.z, self.z)
-
-        # Z2Z2 = Z2^2
-        z2z2 = F.mul_mod(other.z, other.z)
-
-        # U1 = X1*Z2Z2
-        u1 = F.mul_mod(self.x, z2z2)
-
-        # U2 = X2*Z1Z1
-        u2 = F.mul_mod(other.x, z1z1)
-
-        # S1 = Y1*Z2*Z2Z2
-        s1 = F.mul_mod(self.y, other.z)
-        s1 = F.mul_mod(s1, z2z2)
-        
-        # S2 = Y2*Z1*Z1Z1
-        s2 = F.mul_mod(other.y, self.z)
-        s2 = F.mul_mod(s2, z1z1)
-
-        if u1 == u2 and s1 == s2:
-            # The two points are equal, so we double.
-            return self.double()
-        else:
-            # H = U2-U1
-            h = F.sub_mod(u2, u1)
-
-            # I = (2*H)^2
-            i = F.mul_mod(F.add_mod(h, h), F.add_mod(h, h))
-
-            # J = H*I
-            j = F.mul_mod(h, i)
-
-            # r = 2*(S2-S1)
-            r = F.add_mod(F.sub_mod(s2, s1), F.sub_mod(s2, s1))
-
-            # V = U1*I
-            v = F.mul_mod(u1, i)
-
-            # X3 = r^2 - J - 2*V
-            x = F.sub_mod(F.sub_mod(F.mul_mod(r, r), j), F.add_mod(v, v))
-
-            # Y3 = r*(V - X3) - 2*S1*J
-            y = F.sub_mod(F.mul_mod(r, F.sub_mod(v, x)), F.add_mod(F.mul_mod(s1, j), F.mul_mod(s1, j)))
-
-            # Z3 = ((Z1+Z2)^2 - Z1Z1 - Z2Z2)*H
-            z = F.mul_mod(F.sub_mod(F.sub_mod(F.mul_mod(F.add_mod(self.z, other.z), F.add_mod(self.z, other.z)), z1z1), z2z2), h)
-            return ProjectivePointG1(x, y, z)
-
-    def add_assign_mixed(self, other: 'AffinePointG1'):
-        if other.is_zero():
-            return ProjectivePointG1(self.x, self.y, self.z)
-
-        elif self.is_zero():
-            # If self is zero, return the other point in projective coordinates.
-            x = other.x
-            y = other.y
-            #z = self.z.one()  # Assuming z.one() is a method to get a representation of one.
-            z=  torch.tensor([8505329371266088957, 17002214543764226050, 6865905132761471162, 8632934651105793861],dtype=torch.BLS12_381_Fr_G1_Mont)
-            return ProjectivePointG1(x, y, z)
-        else:
-            # Z1Z1 = Z1^2
-            z1z1 = F.mul_mod(self.z, self.z)
-
-            # U2 = X2*Z1Z1
-            u2 = F.mul_mod(other.x, z1z1)
-
-            # S2 = Y2*Z1*Z1Z1
-            s2 = F.mul_mod(other.y, self.z)
-            s2 = F.mul_mod(s2, z1z1)
-
-            if self.x == u2 and self.y == s2:
-                # The two points are equal, so we double.
-                return self.double()
-            else:
-                # H = U2-X1
-                h = F.sub_mod(u2, self.x)
-
-                # I = 4*(H^2)
-                i = F.mul_mod(h, h)
-                i = F.add_mod(i, i)
-                i = F.add_mod(i, i)
-
-                # J = H*I
-                j = F.mul_mod(h, i)
-
-                # r = 2*(S2-Y1)
-                r = F.sub_mod(s2, self.y)
-                r = F.add_mod(r, r)
-
-                # V = X1*I
-                v = F.mul_mod(self.x, i)
-
-                # X3 = r^2 - J - 2*V
-                x = F.mul_mod(r, r)
-                x = F.sub_mod(x, j)
-                v2 = F.add_mod(v, v)
-                x = F.sub_mod(x, v2)
-
-                # Y3 = r*(V-X3) - 2*Y1*J
-                y = F.sub_mod(v, x)
-                y = F.mul_mod(r, y)
-                s1j = F.mul_mod(self.y, j)
-                s1j2 = F.add_mod(s1j, s1j)
-                y = F.sub_mod(y, s1j2)
-
-                # Z3 = (Z1+H)^2 - Z1Z1 - H^2
-                z = F.add_mod(self.z, h)
-                z = F.mul_mod(z, z)
-                z = F.sub_mod(z, z1z1)
-                hh = F.mul_mod(h, h)
-                z = F.sub_mod(z, hh)
-
-                return ProjectivePointG1(x, y, z) 
                 
 def is_zero_ProjectivePointG1(self):
-    return F.trace_equal(self[2],torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont)) ##z
+    return F.trace_equal(self[2], torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont)) ##z
 
-def is_zero_AffinePointG1(self):
-        one = torch.tensor([8505329371266088957, 17002214543764226050, 6865905132761471162, 8632934651105793861, 6631298214892334189, 1582556514881692819],dtype=torch.BLS12_381_Fq_G1_Mont)
-        return F.trace_equal(self[0] ,torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont) )and  F.trace_equal(self[1] ,one) # x=0 y=one
 
 def to_affine(input: ProjectivePointG1): 
         px = input.x.clone()
         py = input.y.clone()
         pz = input.z.clone()
-        # p[0]:x p[1]:y p[2]:z
+        
         one = fq.one()
         if input.is_zero():
             x = fq.zero()
@@ -286,6 +135,7 @@ def to_affine(input: ProjectivePointG1):
             y = F.mul_mod(py, mid1)
          
             return AffinePointG1(x,y)
+        
 def add_assign(self, other: 'ProjectivePointG1'):
     if is_zero_ProjectivePointG1(self):
         x, y, z = other[0], other[1], other[2]
@@ -403,7 +253,7 @@ def add_assign_mixed(self1: ProjectivePointG1, other: 'AffinePointG1'):
         x = copy.deepcopy(other.x)
         y = copy.deepcopy(other.y)
         #z = self.z.one()  # Assuming z.one() is a method to get a representation of one.
-        z=  torch.tensor([8505329371266088957, 17002214543764226050, 6865905132761471162, 8632934651105793861, 6631298214892334189, 1582556514881692819],dtype=torch.BLS12_381_Fq_G1_Mont)
+        z =  fq.one()
         return ProjectivePointG1(x,y,z)
     else:
         # Z1Z1 = Z1^2

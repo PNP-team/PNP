@@ -1,8 +1,6 @@
 from ....plonk_core.src.permutation import constants
 from ....arithmetic import NTT,INTT,from_coeff_vec
 from ....bls12_381 import fr
-import copy
-import math
 import torch
 import torch.nn.functional as F
 from ....arithmetic import from_coeff_vec, calculate_execution_time,INTT,NTT
