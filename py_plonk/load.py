@@ -282,7 +282,7 @@ def read_pk_data(filename):
         elif not(line.endswith(":")):
             value = parse_bigint(line)
             print(value)
-            value = fr.Fr.make_tensor(value)
+            value = fr.make_tensor(value)
             if subkey==None and subsubkey==None:
                 data[current_key].append(value)
             elif subkey and subsubkey==None:
@@ -629,7 +629,7 @@ def read_pk_data_1(filename):
             data[current_key][subkey][subsubkey]=[]
         elif not(line.endswith(":")):
             value = parse_bigint(line)
-            value = fr.Fr.make_tensor(value)
+            value = fr.make_tensor(value)
             if subkey==None and subsubkey==None:
                 data[current_key].append(value)
             elif subkey and subsubkey==None:

@@ -28,11 +28,11 @@ def combine_split(t_elements: torch.Tensor, f_elements: torch.Tensor):
             raise ValueError("ElementNotIndexed")
 
     # Split s into two alternating halves evens and odd
-    evens = torch.tensor([], dtype = fr.TYPE)
-    odds = torch.tensor([], dtype = fr.TYPE)
+    evens = torch.tensor([], dtype = fr.TYPE())
+    odds = torch.tensor([], dtype = fr.TYPE())
     parity = 0
     for key, value in counters.items():
-        item = fr.Fr.make_tensor(key, to_mont=False)
+        item = fr.make_tensor(key, to_mont=False)
         half_count = value//2
         item_repeat = item.repeat(half_count, 1)
         evens = torch.cat((evens,item_repeat))

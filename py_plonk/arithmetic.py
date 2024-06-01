@@ -97,7 +97,7 @@ def from_gmpy_list(input:list): ##inplace
         input=torch.tensor([],dtype=torch.uint64)
     for i in range(len(input)):
         output = []
-        for j in range(fr.Fr.Limbs):
+        for j in range(fr.LIMBS()):
             output.append( int(input[i].value & 0xFFFFFFFFFFFFFFFF) )
             input[i].value = input[i].value >> 64
         input[i] = fr.Fr(value = output)
@@ -105,7 +105,7 @@ def from_gmpy_list(input:list): ##inplace
 def from_gmpy_list_1(input:fr.Fr):
     output = []
     input_copy=copy.deepcopy(input)
-    for j in range(fr.Fr.Limbs):
+    for j in range(fr.LIMBS()):
         output.append( int(input_copy.value & 0xFFFFFFFFFFFFFFFF) )
         input_copy.value = input_copy.value >> 64
     # input=fr.Fr(value=output)
@@ -114,7 +114,7 @@ def from_gmpy_list_1(input:fr.Fr):
 def challenge_to_tensor(input:fr.Fr):
     output = []
     input_copy=copy.deepcopy(input)
-    for j in range(fr.Fr.Limbs):
+    for j in range(fr.LIMBS()):
         output.append( int(input_copy.value & 0xFFFFFFFFFFFFFFFF) )
         input_copy.value = input_copy.value >> 64
     output=torch.tensor(output,dtype=torch.BLS12_381_Fr_G1_Mont)
@@ -274,14 +274,14 @@ def derange(xi, log_len):
 def resize_gpu(self: torch.Tensor, target_len):
     res = self.clone()
     if res.size(0) < target_len:
-        padding = torch.zeros((target_len - res.size(0), fr.Fr.Limbs), dtype = fr.TYPE).to("cuda")
+        padding = torch.zeros((target_len - res.size(0), fr.LIMBS()), dtype = fr.TYPE()).to("cuda")
         res = torch.cat((res, padding))
     return res
 
 def resize_cpu(self: torch.Tensor, target_len):
     res = self.clone()
     if res.size(0) < target_len:
-        padding = torch.zeros((target_len - res.size(0), fr.Fr.Limbs), dtype = fr.TYPE)
+        padding = torch.zeros((target_len - res.size(0), fr.LIMBS()), dtype = fr.TYPE())
         res = torch.cat((res, padding))
     return res
 
@@ -313,7 +313,7 @@ def degree(poly):
 
 def convert_to_bigints(p: torch.Tensor):
     if p.size(0) == 0:
-        return torch.tensor([],dtype = fr.Fr.Base_type)
+        return F.to_base(fr.make_tensor(0, 0))
     else:
         res = F.to_base(p)
         return res
@@ -356,26 +356,26 @@ def distribute_powers_and_mul_by_const_new(coeffs, g, c):
     return coeffs
 
 def INTT(size, evals: torch.Tensor):
-    inttclass = nn.Intt(fr.TWO_ADICITY, fr.TYPE)
+    inttclass = nn.Intt(fr.TWO_ADICITY(), fr.TYPE())
     evals_resize = resize_gpu(evals, size)
     res = inttclass.forward(evals_resize)
     return res
 
 def NTT(size, evals:torch.Tensor):
-    nttclass = nn.Ntt(fr.TWO_ADICITY, fr.TYPE)
+    nttclass = nn.Ntt(fr.TWO_ADICITY(), fr.TYPE())
     evals_resize=resize_gpu(evals,size)
     res= nttclass.forward(evals_resize)
     return res
 
 def coset_NTT(size, coeffs:torch.Tensor):
-    ntt_coset_class = nn.Ntt_coset(fr.TWO_ADICITY, fr.TYPE)
+    ntt_coset_class = nn.Ntt_coset(fr.TWO_ADICITY(), fr.TYPE())
     resize_coeffs= resize_gpu(coeffs, size)
     evals = ntt_coset_class.forward(resize_coeffs)
     return evals
 
 
 def coset_INTT(size, evals:torch.tensor):
-    ntt_class = nn.Intt_coset(fr.TWO_ADICITY, fr.TYPE)
+    ntt_class = nn.Intt_coset(fr.TWO_ADICITY(), fr.TYPE())
     resize_evals= resize_gpu(evals, size)
     coeffs = ntt_class.forward(resize_evals)
     return coeffs
@@ -450,7 +450,7 @@ def poly_mul_const(poly:torch.Tensor, elem:torch.Tensor):
 #         return zero
 #     else:
 #         one = fr.Fr.one().value
-#         quotient = torch.zeros(self.size(0) - divisor.size(0) + 1, fr.Fr.Limbs, dtype = fr.TYPE)
+#         quotient = torch.zeros(self.size(0) - divisor.size(0) + 1, fr.LIMBS(), dtype = fr.TYPE())
 #         remainder = self
 
 #         divisor_leading = divisor[-1].clone()
@@ -477,7 +477,7 @@ def poly_mul_const(poly:torch.Tensor, elem:torch.Tensor):
 
 def rand_poly(d):
     random.seed(42)
-    random_coeffs = [fr.Fr.make_tensor(random.random) for _ in range(d + 1)]
+    random_coeffs = [fr.make_tensor(random.random) for _ in range(d + 1)]
     return from_coeff_vec(random_coeffs)
 
 
@@ -557,7 +557,7 @@ def batch_inversion(v):
 def compute_first_lagrange_evaluation(size, z_h_eval, z_challenge):
     # single scalar OP on CPU
     one = fr.one()
-    n_fr = fr.Fr.make_tensor(size)
+    n_fr = fr.make_tensor(size)
     z_challenge_sub_one = F.sub_mod(z_challenge, one)
     denom = F.mul_mod(n_fr, z_challenge_sub_one)
     denom_in = F.div_mod(one, denom)
@@ -572,7 +572,7 @@ def compute_first_lagrange_evaluation(size, z_h_eval, z_challenge):
 #     scalars_and_bases_iter = [(s, b) for s, b in zip(scalars, bases) if not s==0]
 
 #     c = 3 if size < 32 else ln_without_floats(size) + 2
-#     num_bits = fr.Fr.MODULUS_BITS
+#     num_bits = fr.Fr.MODULUS_BITS()
 #     fr_one = params.one()
 #     fr_one = fr_one.into_repr()
 

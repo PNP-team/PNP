@@ -64,7 +64,7 @@ def serialize_BTreeMap(item, pos, writer: list):
     len = 1    # len = item.length
     writer = serialize_u64(len, writer)
     writer = serialize_u64(pos, writer)
-    writer = todo_serialize(item.value, writer)
+    writer = todo_serialize(item, writer)
     return writer
 
 @dataclass

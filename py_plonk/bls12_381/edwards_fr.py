@@ -77,14 +77,14 @@ class Fr(field):
         size = 2 ** (n.bit_length()-1)
         log_size_of_group = int(math.log2(size))
 
-        if n != size or log_size_of_group > self.TWO_ADICITY:
+        if n != size or log_size_of_group > self.TWO_ADICITY():
             return None
 
         # Compute the generator for the multiplicative subgroup.
         # It should be 2^(log_size_of_group) root of unity.
         omega = self.two_adic_root_of_unity()
         R_inv=gmpy2.invert(self.R,self.MODULUS)
-        for _ in range(log_size_of_group, self.TWO_ADICITY):
+        for _ in range(log_size_of_group, self.TWO_ADICITY()):
             #modsquare
             omega *=omega
             omega *=R_inv

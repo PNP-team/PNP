@@ -1,5 +1,6 @@
 import struct
 import torch
+from .bls12_381 import fr
 
 def write_new(content,writer:list):
     limbs = len(writer)//8
@@ -38,8 +39,8 @@ def write(content,writer:list):
         writer[i] = little_endian_bytes[i]
     return writer
 
-def read(reader,cls):
-    format_string = "<" + "Q" * cls.Limbs
+def read(reader):
+    format_string = "<" + "Q" * fr.LIMBS()
     data = struct.unpack_from(format_string, reader)
-    res = torch.tensor(data, dtype = cls.Base_type)
+    res = torch.tensor(data, dtype = fr.BASE_TYPE())
     return res

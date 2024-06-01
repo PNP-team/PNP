@@ -16,7 +16,7 @@ def todo_serialize_with_flags(x, writer:list, flag:flags):
         print("Not enough space")
         return
 
-    output_byte_size = x.size()[-1] * 8 # buffer_byte_size(self.MODULUS_BITS + flag.BIT_SIZE)
+    output_byte_size = x.size()[-1] * 8 # buffer_byte_size(self.MODULUS_BITS() + flag.BIT_SIZE)
 
     bytes = bytearray(output_byte_size+1)
     modified_bytes = this_write(x, bytes[:output_byte_size])

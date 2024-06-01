@@ -115,7 +115,7 @@ def compute_permutation_poly(domain, wires, beta, gamma, sigma_polys: torch.Tens
 
     denominator_product_under = F.div_mod(extend_one, denominator_product)
     gate_coefficient = F.mul_mod(numerator_product, denominator_product_under)
-    # z = torch.tensor([], dtype = fr.TYPE).to("cuda")
+    # z = torch.tensor([], dtype = fr.TYPE()).to("cuda")
 
     # First element is one
     # state = one.clone().unsqueeze(0).to("cuda")
@@ -152,15 +152,9 @@ def compute_lookup_permutation_poly(n, f, t, h_1, h_2, delta, epsilon):  ####输
     product_arguments = lookup_ratio(extend_one.to("cuda") ,extend_delta.to("cuda"), extend_epsilon.to("cuda"), f.to('cuda'), t.to('cuda'), t_next.to('cuda'), h_1, h_1_next.to('cuda'), h_2)
 
     # state = one.clone().unsqueeze(0).to("cuda")
-    # p = torch.tensor([], dtype = fr.TYPE).to('cuda')
+    # p = torch.tensor([], dtype = fr.TYPE()).to('cuda')
     # p = torch.cat((p,state))
     p = F.accumulate_mul_poly(product_arguments)
-
-    # for s in product_arguments:
-    #     state = F.mul_mod(state,s)
-    #     p = torch.cat((p,state))
-    # p = p.reshape(-1, fr.Fr.Limbs)
-    # p = p[:-1]
 
     p_poly = INTT(n, p)
     p_poly = from_coeff_vec(p_poly)

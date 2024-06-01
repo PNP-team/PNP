@@ -37,7 +37,7 @@ class Transcript:
         self.strobe.meta_ad(data_len, True)
         self.strobe.ad(message, False)
     
-    def append_pi(self, label, item: fr.Fr, pos):
+    def append_pi(self, label, item, pos):
         # pi_bytes = [1, 0, 0, 0, 0, 0, 0, 0, 71, 2, 0, 0, 0, 0, 0, 0, 175, 183, 188, 23, 25,
         #             155, 195, 172, 246, 232, 114, 89, 255, 117, 123, 226, 161, 86, 112, 46,
         #             124, 69, 74, 38, 91, 197, 152, 114, 132, 231, 67, 72]
@@ -66,7 +66,7 @@ class Transcript:
         return modified_dest
     
     def challenge_scalar(self, label: bytes):
-        size = fr.Fr.MODULUS_BITS // 8
+        size = fr.MODULUS_BITS() // 8
         buf = bytes([0] * size)
         modified_buf = self.challenge_bytes(label, buf)
         c_s = fr.from_random_bytes(modified_buf)

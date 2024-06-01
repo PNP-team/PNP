@@ -28,7 +28,7 @@ class LogicGate:
     @staticmethod
     def constraints(separation_challenge:fr.Fr, wit_vals:WitnessValues, custom_vals:LogicValues):
 
-        four = fr.Fr.make_tensor(4)
+        four = fr.make_tensor(4)
         four = four.to("cuda")
         kappa = F.mul_mod(separation_challenge,separation_challenge)
         kappa_sq =F.mul_mod(kappa,kappa)
@@ -67,7 +67,7 @@ class LogicGate:
     @staticmethod
     def quotient_term(selector: torch.Tensor, separation_challenge: torch.Tensor, 
                       wit_vals: WitnessValues, custom_vals:LogicValues):
-        four = fr.Fr.make_tensor(4)
+        four = fr.make_tensor(4)
         four = four.to('cuda')
 
         # single scalar OP on CPU
@@ -118,13 +118,13 @@ class LogicGate:
 # F = w[w(4w - 18(a+b) + 81) + 18(a^2 + b^2) - 81(a+b) + 83]
 def delta_xor_and(a: torch.Tensor, b: torch.Tensor, w: torch.Tensor, c: torch.Tensor, q_c: torch.Tensor):
 
-    nine = fr.Fr.make_tensor(9).to("cuda")
-    two = fr.Fr.make_tensor(2).to("cuda")
-    three = fr.Fr.make_tensor(3).to("cuda")
-    four = fr.Fr.make_tensor(4).to("cuda")
-    eighteen = fr.Fr.make_tensor(18).to("cuda")
-    eighty_one = fr.Fr.make_tensor(81).to("cuda")
-    eighty_three = fr.Fr.make_tensor(83).to("cuda")
+    nine = fr.make_tensor(9).to("cuda")
+    two = fr.make_tensor(2).to("cuda")
+    three = fr.make_tensor(3).to("cuda")
+    four = fr.make_tensor(4).to("cuda")
+    eighteen = fr.make_tensor(18).to("cuda")
+    eighty_one = fr.make_tensor(81).to("cuda")
+    eighty_three = fr.make_tensor(83).to("cuda")
 
 
     f_1_1 = F.mul_mod_scalar(w, four)

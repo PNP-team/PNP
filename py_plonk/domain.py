@@ -28,10 +28,10 @@ class Radix2EvaluationDomain:
         def get_root_of_unity(n):
             assert n > 0 and (n & (n - 1)) == 0, "n must be a power of 2"
             log_size_of_group = n.bit_length() - 1
-            assert log_size_of_group <= fr.TWO_ADICITY, "logn must <= TWO_ADICITY"
+            assert log_size_of_group <= fr.TWO_ADICITY(), "logn must <= TWO_ADICITY"
 
             base = fr.TWO_ADIC_ROOT_OF_UNITY()
-            exponent = 1 << (fr.TWO_ADICITY - log_size_of_group)
+            exponent = 1 << (fr.TWO_ADICITY() - log_size_of_group)
             return F.exp_mod(base, exponent)
 
 
@@ -40,7 +40,7 @@ class Radix2EvaluationDomain:
         log_size_of_group = size.bit_length()-1
         
         # Check if log_size_of_group exceeds TWO_ADICITY
-        if log_size_of_group > fr.TWO_ADICITY:
+        if log_size_of_group > fr.TWO_ADICITY():
             return None
 
         # Compute the generator for the multiplicative subgroup.
@@ -51,7 +51,7 @@ class Radix2EvaluationDomain:
         group_gen_pow = F.exp_mod(group_gen,size)
         assert F.trace_equal(group_gen_pow, fr.one())
 
-        size_as_field_element=fr.Fr.make_tensor(size)
+        size_as_field_element=fr.make_tensor(size)
         size_inv = F.inv_mod(size_as_field_element)
         group_gen_inv = F.inv_mod(group_gen)
         generator_inv = F.inv_mod(fr.GENERATOR())
@@ -66,7 +66,7 @@ class Radix2EvaluationDomain:
     #     log_size_of_group = size.bit_length()-1
         
     #     # Check if log_size_of_group exceeds TWO_ADICITY
-    #     if log_size_of_group > fr.TWO_ADICITY:
+    #     if log_size_of_group > fr.TWO_ADICITY():
     #         return None
 
     #     # Compute the generator for the multiplicative subgroup.
@@ -77,7 +77,7 @@ class Radix2EvaluationDomain:
     #     group_gen_pow = group_gen.pow(size)
     #     assert group_gen_pow == fr.Fr.one()
 
-    #     size_as_field_element=fr.Fr.make_tensor(size)
+    #     size_as_field_element=fr.make_tensor(size)
     #     size_inv = fr.Fr.inverse(size_as_field_element)
     #     group_gen_inv = fr.Fr.inverse(group_gen)
     #     generator_inv = fr.Fr.inverse(fr.Fr.multiplicative_generator())
@@ -129,7 +129,7 @@ class Radix2EvaluationDomain:
             # TODO: consider caching the computation of l_i to save N multiplications
             from .arithmetic import batch_inversion
 
-            f_size = fr.Fr.make_tensor(size)
+            f_size = fr.make_tensor(size)
             pow_dof = F.exp_mod(domain_offset, size - 1) 
             v_0_inv = F.mul_mod(f_size, pow_dof)
             v_0 = F.div_mod(one, v_0_inv)

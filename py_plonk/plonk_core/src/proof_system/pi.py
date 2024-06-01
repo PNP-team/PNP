@@ -3,7 +3,7 @@ from ....arithmetic import INTT,from_coeff_vec
 import torch
 
 def as_evals(public_inputs,pi_pos,n):
-    pi = torch.zeros(n, fr.Fr.Limbs, dtype = fr.TYPE)
+    pi = torch.zeros(n, fr.LIMBS(), dtype = fr.TYPE())
     pi[pi_pos] = public_inputs
     return pi
 

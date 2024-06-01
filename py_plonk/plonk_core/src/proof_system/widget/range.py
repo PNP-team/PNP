@@ -16,7 +16,7 @@ class RangeValues:
 class RangeGate:
     @staticmethod
     def constraints(separation_challenge, wit_vals:WitnessValues, custom_vals:RangeValues):
-        four = fr.Fr.make_tensor(4)
+        four = fr.make_tensor(4)
         four = four.to("cuda")
         kappa = F.mul_mod(separation_challenge, separation_challenge)
         kappa_sq = F.mul_mod(kappa, kappa)
@@ -51,7 +51,7 @@ class RangeGate:
     @staticmethod
     def quotient_term(selector, separation_challenge: fr.Fr, wit_vals, custom_vals):
 
-        four = fr.Fr.make_tensor(4)
+        four = fr.make_tensor(4)
         four = four.to('cuda')
 
         #single scalar OP on CPU

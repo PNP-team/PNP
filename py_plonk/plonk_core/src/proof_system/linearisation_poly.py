@@ -179,10 +179,10 @@ def compute_linearisation_poly(
 
     # Permutation evaluations
     pk_permutation = prover_key['permutation'].tolist()
-    pk_left_sigma_coeff = torch.tensor(pk_permutation["left_sigma"]['coeffs'], dtype = fr.TYPE).to('cuda')
-    pk_right_sigma_coeff = torch.tensor(pk_permutation["right_sigma"]['coeffs'], dtype = fr.TYPE).to('cuda')
-    pk_out_sigma_coeff = torch.tensor(pk_permutation["out_sigma"]['coeffs'], dtype = fr.TYPE).to('cuda')
-    pk_fourth_sigma_coeff = torch.tensor(pk_permutation["fourth_sigma"]['coeffs'], dtype = fr.TYPE).to('cuda')
+    pk_left_sigma_coeff = torch.tensor(pk_permutation["left_sigma"]['coeffs'], dtype = fr.TYPE()).to('cuda')
+    pk_right_sigma_coeff = torch.tensor(pk_permutation["right_sigma"]['coeffs'], dtype = fr.TYPE()).to('cuda')
+    pk_out_sigma_coeff = torch.tensor(pk_permutation["out_sigma"]['coeffs'], dtype = fr.TYPE()).to('cuda')
+    pk_fourth_sigma_coeff = torch.tensor(pk_permutation["fourth_sigma"]['coeffs'], dtype = fr.TYPE()).to('cuda')
     left_sigma_eval = F.evaluate(pk_left_sigma_coeff, z_challenge)
     right_sigma_eval = F.evaluate(pk_right_sigma_coeff, z_challenge)
     out_sigma_eval = F.evaluate(pk_out_sigma_coeff, z_challenge)
@@ -381,7 +381,7 @@ def compute_gate_constraint_satisfiability(
     )
 
     pk_range_selector = prover_key['range_selector'].tolist()
-    pk_range_selector['coeffs'] = torch.tensor(pk_range_selector['coeffs'], dtype = fr.TYPE).to('cuda')
+    pk_range_selector['coeffs'] = torch.tensor(pk_range_selector['coeffs'], dtype = fr.TYPE()).to('cuda')
     range_separation_challenge = range_separation_challenge.to("cuda")
     range = RangeGate.linearisation_term(
         pk_range_selector['coeffs'],
@@ -391,7 +391,7 @@ def compute_gate_constraint_satisfiability(
     )
 
     pk_logic_selector = prover_key['logic_selector'].tolist()
-    pk_logic_selector['coeffs'] = torch.tensor(pk_logic_selector['coeffs'], dtype = fr.TYPE).to('cuda')
+    pk_logic_selector['coeffs'] = torch.tensor(pk_logic_selector['coeffs'], dtype = fr.TYPE()).to('cuda')
     logic_separation_challenge = logic_separation_challenge.to("cuda")
     logic = LogicGate.linearisation_term(
         pk_logic_selector['coeffs'],
@@ -401,7 +401,7 @@ def compute_gate_constraint_satisfiability(
     )
     
     pk_fixed_group_add_selector = prover_key['fixed_group_add_selector'].tolist()
-    pk_fixed_group_add_selector['coeffs'] = torch.tensor(pk_fixed_group_add_selector['coeffs'], dtype = fr.TYPE).to('cuda')
+    pk_fixed_group_add_selector['coeffs'] = torch.tensor(pk_fixed_group_add_selector['coeffs'], dtype = fr.TYPE()).to('cuda')
     fixed_base_separation_challenge = fixed_base_separation_challenge.to('cuda')
     fixed_base_scalar_mul = FBSMGate.linearisation_term(
         pk_fixed_group_add_selector['coeffs'],
@@ -412,7 +412,7 @@ def compute_gate_constraint_satisfiability(
 
     var_base_separation_challenge = var_base_separation_challenge.to('cuda')
     pk_variable_group_add_selector = prover_key['variable_group_add_selector'].tolist()
-    pk_variable_group_add_selector['coeffs']=torch.tensor(pk_variable_group_add_selector['coeffs'], dtype = fr.TYPE).to('cuda')
+    pk_variable_group_add_selector['coeffs']=torch.tensor(pk_variable_group_add_selector['coeffs'], dtype = fr.TYPE()).to('cuda')
     curve_addition = CAGate.linearisation_term(
         pk_variable_group_add_selector['coeffs'],
         var_base_separation_challenge,
