@@ -5,6 +5,10 @@
 #include <ATen/core/interned_strings.h>
 #include <ATen/native/pnp/mont/cpu/curve_def.h>
 #include <ATen/ops/copy.h>
+#include <ATen/ops/zeros.h>
+#include <ATen/ops/empty.h>
+
+// #include <ATen/ATen.h>
 
 #pragma clang diagnostic ignored "-Wmissing-prototypes"
 
@@ -151,7 +155,6 @@ static void exp_template(Tensor& out, int exp) {
     }
   });
 }
-
 
 static void inv_template(Tensor& out) {
   AT_DISPATCH_MONT_TYPES(out.scalar_type(), "inv_mod_cpu", [&] {
@@ -318,6 +321,27 @@ Tensor& neg_mod_out_cpu(const Tensor& input, Tensor& output) {
   copy(output, input);
   neg_template(output);
   return output;
+}
+
+Tensor pad_poly_cpu(const Tensor& input, int64_t N) {
+  Tensor output =
+      at::zeros({N, num_uint64(input.scalar_type())}, input.options());
+  memcpy(output.data_ptr(), input.data_ptr(), input.numel() * sizeof(uint64_t));
+  return output;
+}
+
+Tensor scalar_from_int_cpu(
+    int64_t value,
+    c10::optional<ScalarType> dtype,
+    c10::optional<Layout> layout,
+    c10::optional<Device> device,
+    c10::optional<bool> pin_memory) {
+  auto output = at::empty(
+      {num_uint64(*dtype)}, dtype, layout, device, pin_memory, c10::nullopt);
+  auto output_ptr = reinterpret_cast<uint64_t*>(output.data_ptr());
+  output_ptr[0] = value;
+  output.set_dtype(get_corresponding_type(output.scalar_type()));
+  return to_mont_cpu_(output);
 }
 
 } // namespace native

@@ -6245,6 +6245,12 @@ def poly_div_poly(divid: Tensor, c: Tensor) -> Tensor:
     return result
 
 # @trace
+def pad_poly(x: Tensor, N: int) -> Tensor:
+    prev = x.shape[0] if x.dim() > 1 else 1
+    assert prev < N, "input size must < N"
+    return torch.pad_poly(x, N)
+
+# @trace
 def accumulate_mul_poly(product: Tensor) -> Tensor:
     result = torch.accumulate_mul_poly(product)
     # pop first element to zero to get the correct quotient
@@ -6275,6 +6281,10 @@ def multi_scalar_mult(points: Tensor, scalars: Tensor, device="cuda") -> list:
     step1_cpu = step1_res.to("cpu")
     res_jacobian = torch.msm_collect(step1_cpu, 1024)
     return res_jacobian
+
+def scalar_from_int(val, _dtype):
+    assert val.bit_length() < 64
+    return torch.scalar_from_int(val, dtype=_dtype, device='cpu')
 
 # @trace
 def trace_equal(a, b):

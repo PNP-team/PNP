@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from .....bls12_381 import fr
 from .....plonk_core.src.proof_system.mod import CustomEvaluations
 from .....plonk_core.src.proof_system.widget.mod import WitnessValues
-from .....bls12_381.edwards import EdwardsParameters as P
+from .....bls12_381 import edwards as P
 from .arithmetic import poly_mul_const
 import torch
 import torch.nn.functional as F
@@ -46,7 +46,7 @@ class CAGate:
 
         # Check that `x_3` is correct
         x3_lhs = F.add_mod(x1_y2, y1_x2)
-        x_3_D = F.mul_mod(x_3, P.COEFF_D)
+        x_3_D = F.mul_mod(x_3, P.COEFF_D())
         x_3_D_x1_y2 = F.mul_mod(x_3_D, x1_y2)
         x_3_D_x1_y2_y1_x2 = F.mul_mod(x_3_D_x1_y2, y1_x2)
         x3_rhs = F.add_mod(x_3, x_3_D_x1_y2_y1_x2)
@@ -54,9 +54,9 @@ class CAGate:
         x3_consistency = F.mul_mod(x3_l_sub_r, kappa)
 
         # Check that `y_3` is correct
-        x1_x2_A = F.mul_mod(P.COEFF_A, x1_x2)
+        x1_x2_A = F.mul_mod(P.COEFF_A(), x1_x2)
         y3_lhs = F.sub_mod(y1_y2, x1_x2_A)
-        y_3_D = F.mul_mod(y_3, P.COEFF_D)
+        y_3_D = F.mul_mod(y_3, P.COEFF_D())
         y_3_D_x1_y2 = F.mul_mod(y_3_D, x1_y2)
         y_3_D_x1_y2_y1_x2 = F.mul_mod(y_3_D_x1_y2, y1_x2)
         y3_rhs = F.sub_mod(y_3, y_3_D_x1_y2_y1_x2)
@@ -96,7 +96,7 @@ class CAGate:
 
         # Check that `x_3` is correct
         x3_lhs = F.add_mod(x1_y2, y1_x2)
-        x_3_D = F.mul_mod_scalar(x_3, P.COEFF_D.to("cuda"))
+        x_3_D = F.mul_mod_scalar(x_3, P.COEFF_D().to("cuda"))
         x_3_D_x1_y2 = F.mul_mod(x_3_D, x1_y2)
         x_3_D_x1_y2_y1_x2 = F.mul_mod(x_3_D_x1_y2, y1_x2)
         x3_rhs = F.add_mod(x_3, x_3_D_x1_y2_y1_x2)
@@ -104,9 +104,9 @@ class CAGate:
         x3_consistency = F.mul_mod_scalar(x3_l_sub_r, kappa.to("cuda"))
 
         # Check that `y_3` is correct
-        x1_x2_A = F.mul_mod_scalar(x1_x2, P.COEFF_A.to("cuda"))
+        x1_x2_A = F.mul_mod_scalar(x1_x2, P.COEFF_A().to("cuda"))
         y3_lhs = F.sub_mod(y1_y2, x1_x2_A)
-        y_3_D = F.mul_mod_scalar(y_3, P.COEFF_D.to("cuda"))
+        y_3_D = F.mul_mod_scalar(y_3, P.COEFF_D().to("cuda"))
         y_3_D_x1_y2 = F.mul_mod(y_3_D, x1_y2)
         y_3_D_x1_y2_y1_x2 = F.mul_mod(y_3_D_x1_y2, y1_x2)
         y3_rhs = F.sub_mod(y_3, y_3_D_x1_y2_y1_x2)

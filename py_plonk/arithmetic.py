@@ -313,7 +313,7 @@ def degree(poly):
 
 def convert_to_bigints(p: torch.Tensor):
     if p.size(0) == 0:
-        return F.to_base(fr.make_tensor(0, 0))
+        return F.to_base(p)
     else:
         res = F.to_base(p)
         return res
@@ -341,11 +341,11 @@ def skip_leading_zeros_and_convert_to_bigints(p: torch.Tensor):
     return 0, convert_to_bigints(p.to('cpu'))
     return num_leading_zeros, coeffs
 
-def distribute_powers_new(coeffs, g):
+# def distribute_powers_new(coeffs, g):
 
-    g=torch.tensor([64424509425, 1721329240476523535, 18418692815241631664, 3824455624000121028],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    one = torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    return distribute_powers_and_mul_by_const_new(coeffs, g, one)
+#     g=torch.tensor([64424509425, 1721329240476523535, 18418692815241631664, 3824455624000121028],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
+#     one = torch.tensor([8589934590, 6378425256633387010, 11064306276430008309, 1739710354780652911],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
+#     return distribute_powers_and_mul_by_const_new(coeffs, g, one)
 
 # Multiply the `i`-th element of `coeffs` with `c*g^i`.
 def distribute_powers_and_mul_by_const_new(coeffs, g, c):
@@ -357,27 +357,27 @@ def distribute_powers_and_mul_by_const_new(coeffs, g, c):
 
 def INTT(size, evals: torch.Tensor):
     inttclass = nn.Intt(fr.TWO_ADICITY(), fr.TYPE())
-    evals_resize = resize_gpu(evals, size)
-    res = inttclass.forward(evals_resize)
+    # evals_resize = resize_gpu(evals, size)
+    res = inttclass.forward(evals)
     return res
 
 def NTT(size, evals:torch.Tensor):
     nttclass = nn.Ntt(fr.TWO_ADICITY(), fr.TYPE())
-    evals_resize=resize_gpu(evals,size)
-    res= nttclass.forward(evals_resize)
+    # evals_resize=resize_gpu(evals,size)
+    res= nttclass.forward(evals)
     return res
 
 def coset_NTT(size, coeffs:torch.Tensor):
     ntt_coset_class = nn.Ntt_coset(fr.TWO_ADICITY(), fr.TYPE())
-    resize_coeffs= resize_gpu(coeffs, size)
+    resize_coeffs= F.pad_poly(coeffs, size)
     evals = ntt_coset_class.forward(resize_coeffs)
     return evals
 
 
 def coset_INTT(size, evals:torch.tensor):
     ntt_class = nn.Intt_coset(fr.TWO_ADICITY(), fr.TYPE())
-    resize_evals= resize_gpu(evals, size)
-    coeffs = ntt_class.forward(resize_evals)
+    # resize_evals= resize_gpu(evals, size)
+    coeffs = ntt_class.forward(evals)
     return coeffs
 
 

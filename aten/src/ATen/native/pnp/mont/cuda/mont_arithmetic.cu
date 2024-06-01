@@ -9,6 +9,7 @@
 #include <ATen/ops/empty.h>
 #include <ATen/ops/zeros.h>
 #include <ATen/native/pnp/mont/cuda/curve_def.cuh>
+// #include <ATen/ATen.h>
 
 #pragma clang diagnostic ignored "-Wmissing-prototypes"
 
@@ -631,6 +632,19 @@ Tensor& exp_mod_cuda_(Tensor& self, int64_t exp) {
 Tensor& exp_mod_out_cuda(const Tensor& input, int64_t exp, Tensor& output) {
   copy(output, input);
   exp_mod_cuda_template(output, exp);
+  return output;
+}
+
+Tensor pad_poly_cuda(const Tensor& input, int64_t N) {
+  Tensor output = at::empty(
+      {N, num_uint64(input.scalar_type())},
+      input.options());
+  cudaMemset(output.data_ptr(), 0, output.numel() * sizeof(uint64_t));
+  cudaMemcpy(
+      output.data_ptr(),
+      input.data_ptr(),
+      input.numel() * sizeof(uint64_t),
+      cudaMemcpyDeviceToDevice);
   return output;
 }
 

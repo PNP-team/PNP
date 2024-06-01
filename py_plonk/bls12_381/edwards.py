@@ -1,25 +1,26 @@
-import gmpy2
-from dataclasses import dataclass
-from ..bls12_381.fr import Fr as Fq
-from ..bls12_381.edwards_fr import Fr
 import torch
+from ..bls12_381 import fr
 
 
-GENERATOR_X = torch.tensor([ 4497696437803487787, 16658651183625237090,  9701709870209645883,
-         1286620319555068288], dtype=torch.BLS12_381_Fr_G1_Mont)
-GENERATOR_Y = torch.tensor([14717630602976334506,  4478471787023236823, 10597865444426039491,
-         2112818184693946903], dtype=torch.BLS12_381_Fr_G1_Mont)
-@dataclass
-class EdwardsParameters:
-    COEFF_A = torch.tensor([18446744060824649731, 18102478225614246908, 11073656695919314959, 6613806504683796440],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
+def COEFF_A():
+    return torch.tensor(
+        [
+            18446744060824649731,
+            18102478225614246908,
+            11073656695919314959,
+            6613806504683796440,
+        ],
+        dtype=fr.TYPE(),
+    ).to("cuda")
 
-    COEFF_D = torch.tensor([3049539848285517488, 18189135023605205683, 8793554888777148625, 6339087681201251886],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    
-    COFACTOR = 8
 
-    COFACTOR_INV = torch.tensor([6490498278660957591, 1498858728380236304, 2363518304504940384,
-         130523700929132021], dtype=torch.BLS12_381_Fr_G1_Mont)
-    
-    # AFFINE_GENERATOR_COEFFS = (GENERATOR_X, GENERATOR_Y)
-    AFFINE_GENERATOR_COEFFS = (GENERATOR_X, GENERATOR_Y)
-
+def COEFF_D():
+    return torch.tensor(
+        [
+            3049539848285517488,
+            18189135023605205683,
+            8793554888777148625,
+            6339087681201251886,
+        ],
+        dtype=fr.TYPE(),
+    ).to("cuda")

@@ -15488,6 +15488,12 @@
     CPU: exp_mod_out_cpu
     CUDA: exp_mod_out_cuda
 
+- func: pad_poly(Tensor self, int N) -> Tensor
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+    CPU: pad_poly_cpu
+    CUDA: pad_poly_cuda
+
 - func: poly_eval(Tensor a, int N) -> Tensor
   device_check: NoCheck
   dispatch:
@@ -15543,6 +15549,11 @@
   dispatch:
     CUDA: padding_cuda
 
+- func: scalar_from_int(int value, *, ScalarType? dtype=None, Layout? layout=None, Device? device=None, bool? pin_memory=None) -> Tensor
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+    CPU: scalar_from_int_cpu
+
 - func: compute_query_table(Tensor padded_q_lookup, Tensor w_l_scalar, Tensor w_r_scalar, Tensor w_o_scalar,
                             Tensor w_4_scalar, Tensor t_poly) -> Tensor
   device_check: NoCheck   # TensorIterator
@@ -15553,3 +15564,4 @@
   device_check: NoCheck   # TensorIterator
   dispatch:
     CUDA: compress_cuda
+

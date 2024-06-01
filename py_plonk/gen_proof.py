@@ -5,114 +5,154 @@ from .composer import StandardComposer
 from .transcript import transcript
 from .bls12_381 import fr
 from .plonk_core.lookup.multiset import combine_split
-from .plonk_core.src.permutation import mod 
+from .plonk_core.src.permutation import mod
 from .plonk_core.src.proof_system.prover_key import Prover_Key
 from .plonk_core.src.proof_system.pi import into_dense_poly
 from .plonk_core.src.proof_system import quotient_poly
 from .plonk_core.src.proof_system import linearisation_poly
 import numpy as np
-from .arithmetic import from_coeff_vec,resize_gpu,INTT
+from .arithmetic import from_coeff_vec, resize_gpu, INTT
 from .KZG import kzg10
 import torch
 import torch.nn.functional as F
 from torch.pnp import zkp
 import time
-data_set2=["../../data/MERKLE-HEIGHT-3/pp-3.npz","../../data/MERKLE-HEIGHT-3/pk-3.npz","../../data/MERKLE-HEIGHT-3/cs-3.npz","../../data/MERKLE-HEIGHT-3/w_l_scalar-3.npy","../../data/MERKLE-HEIGHT-3/w_r_scalar-3.npy","../../data/MERKLE-HEIGHT-3/w_o_scalar-3.npy","../../data/MERKLE-HEIGHT-3/w_4_scalar-3.npy"]
+import torch.nn as nn
+
+
+data_set2 = [
+    "../../data/MERKLE-HEIGHT-3/pp-3.npz",
+    "../../data/MERKLE-HEIGHT-3/pk-3.npz",
+    "../../data/MERKLE-HEIGHT-3/cs-3.npz",
+    "../../data/MERKLE-HEIGHT-3/w_l_scalar-3.npy",
+    "../../data/MERKLE-HEIGHT-3/w_r_scalar-3.npy",
+    "../../data/MERKLE-HEIGHT-3/w_o_scalar-3.npy",
+    "../../data/MERKLE-HEIGHT-3/w_4_scalar-3.npy",
+]
 # data_set2=["../../data/MERKLE-HEIGHT-9/pp-9.npz","../../data/MERKLE-HEIGHT-9/pk-9.npz","../../data/MERKLE-HEIGHT-9/cs-9.npz","../../data/MERKLE-HEIGHT-9/w_l_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_r_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_o_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_4_scalar-9.npy"]
 
-def split_tx_poly(n,t_x):
-    t_x = resize_gpu(t_x, n<<3)
+
+def split_tx_poly(n, t_x):
+    t_x = resize_gpu(t_x, n << 3)
     return [
         from_coeff_vec(t_x[0:n]),
-        from_coeff_vec(t_x[n:2 * n]),
-        from_coeff_vec(t_x[2 * n:3 * n]),
-        from_coeff_vec(t_x[3 * n:4 * n]),
-        from_coeff_vec(t_x[4 * n:5 * n]),
-        from_coeff_vec(t_x[5 * n:6 * n]),
-        from_coeff_vec(t_x[6 * n:7 * n]),
-        from_coeff_vec(t_x[7 * n:])
+        from_coeff_vec(t_x[n : 2 * n]),
+        from_coeff_vec(t_x[2 * n : 3 * n]),
+        from_coeff_vec(t_x[3 * n : 4 * n]),
+        from_coeff_vec(t_x[4 * n : 5 * n]),
+        from_coeff_vec(t_x[5 * n : 6 * n]),
+        from_coeff_vec(t_x[6 * n : 7 * n]),
+        from_coeff_vec(t_x[7 * n :]),
     ]
 
 
 class gen_proof(torch.nn.Module):
-    def __init__ (self):
+    def __init__(self):
         super(gen_proof, self).__init__()
-       
-    def __call__(self,pp, pk: Prover_Key, cs: StandardComposer, transcript: transcript.Transcript):
-        #get FFT domaim
 
-        # for i in range(100):
-        #     r = fr.Fr.get_root_of_unity(2 ** i)
-        #     print(i, ":", r)
+        self.INTT = nn.Intt(fr.TWO_ADICITY(), fr.TYPE())
+        # self.NTT = nn.Ntt(fr.TWO_ADICITY(), fr.TYPE())
+        # self.NTT_COSET = nn.Ntt_coset(fr.TWO_ADICITY(), fr.TYPE())
+        # self.INTT_COSET = nn.Intt_coset(fr.TWO_ADICITY(), fr.TYPE())
 
+    def __call__(
+        self,
+        pp,
+        pk: Prover_Key,
+        cs: StandardComposer,
+        transcript: transcript.Transcript,
+    ):
 
         domain = Radix2EvaluationDomain.new(cs.circuit_bound())
-        n=domain.size
-        transcript.append_pi(b"pi", torch.tensor(cs.public_inputs,dtype=torch.BLS12_381_Fr_G1_Mont), int(cs.intended_pi_pos))
+        n = domain.size
+        transcript.append_pi(
+            b"pi",
+            torch.tensor(cs.public_inputs, dtype=torch.BLS12_381_Fr_G1_Mont),
+            int(cs.intended_pi_pos),
+        )
 
-        #1. Compute witness Polynomials
-        w_l_scalar=torch.tensor(np.load(data_set2[3],allow_pickle=True),dtype=torch.BLS12_381_Fr_G1_Mont)
-        w_r_scalar=torch.tensor(np.load(data_set2[4],allow_pickle=True),dtype=torch.BLS12_381_Fr_G1_Mont)
-        w_o_scalar=torch.tensor(np.load(data_set2[5],allow_pickle=True),dtype=torch.BLS12_381_Fr_G1_Mont)
-        w_4_scalar=torch.tensor(np.load(data_set2[6],allow_pickle=True),dtype=torch.BLS12_381_Fr_G1_Mont)
-        w_l_scalar = w_l_scalar.to('cuda')
-        w_r_scalar = w_r_scalar.to('cuda')
-        w_o_scalar = w_o_scalar.to('cuda')
-        w_4_scalar = w_4_scalar.to('cuda')
+        # 1. Compute witness Polynomials
+        w_l_scalar = torch.tensor(
+            np.load(data_set2[3], allow_pickle=True), dtype=torch.BLS12_381_Fr_G1_Mont
+        )
+        w_r_scalar = torch.tensor(
+            np.load(data_set2[4], allow_pickle=True), dtype=torch.BLS12_381_Fr_G1_Mont
+        )
+        w_o_scalar = torch.tensor(
+            np.load(data_set2[5], allow_pickle=True), dtype=torch.BLS12_381_Fr_G1_Mont
+        )
+        w_4_scalar = torch.tensor(
+            np.load(data_set2[6], allow_pickle=True), dtype=torch.BLS12_381_Fr_G1_Mont
+        )
+        w_l_scalar = w_l_scalar.to("cuda")
+        w_r_scalar = w_r_scalar.to("cuda")
+        w_o_scalar = w_o_scalar.to("cuda")
+        w_4_scalar = w_4_scalar.to("cuda")
 
-        w_l_scalar_intt=INTT(n,w_l_scalar)
-        w_r_scalar_intt=INTT(n,w_r_scalar)
-        w_o_scalar_intt=INTT(n,w_o_scalar)
-        w_4_scalar_intt=INTT(n,w_4_scalar)
-      
-        w_l_poly = from_coeff_vec(w_l_scalar_intt) 
+        w_l_scalar_intt = self.INTT(w_l_scalar)
+        w_r_scalar_intt = self.INTT(w_r_scalar)
+        w_o_scalar_intt = self.INTT(w_o_scalar)
+        w_4_scalar_intt = self.INTT(w_4_scalar)
+
+        w_l_poly = from_coeff_vec(w_l_scalar_intt)
         w_r_poly = from_coeff_vec(w_r_scalar_intt)
         w_o_poly = from_coeff_vec(w_o_scalar_intt)
         w_4_poly = from_coeff_vec(w_4_scalar_intt)
 
+        w_polys = [
+            kzg10.LabeledPoly.new(label="w_l_poly", hiding_bound=None, poly=w_l_poly),
+            kzg10.LabeledPoly.new(label="w_r_poly", hiding_bound=None, poly=w_r_poly),
+            kzg10.LabeledPoly.new(label="w_o_poly", hiding_bound=None, poly=w_o_poly),
+            kzg10.LabeledPoly.new(label="w_4_poly", hiding_bound=None, poly=w_4_poly),
+        ]
 
-        w_polys = [kzg10.LabeledPoly.new(label="w_l_poly",hiding_bound=None,poly=w_l_poly),kzg10.LabeledPoly.new(label="w_r_poly",hiding_bound=None,poly=w_r_poly),
-                   kzg10.LabeledPoly.new(label="w_o_poly",hiding_bound=None,poly=w_o_poly),kzg10.LabeledPoly.new(label="w_4_poly",hiding_bound=None,poly=w_4_poly)]
-
-        
-        w_commits, w_rands = kzg10.commit_poly_new(pp,w_polys) 
+        w_commits, w_rands = kzg10.commit_poly_new(pp, w_polys)
 
         # w_c_1=transtompz(w_commits[0].commitment.value)
         # w_c_2=transtompz(w_commits[1].commitment.value)
         # w_c_3=transtompz(w_commits[2].commitment.value)
         # w_c_4=transtompz(w_commits[3].commitment.value)
-        transcript.append(b"w_l",w_commits[0].commitment.value)
-        transcript.append(b"w_r",w_commits[1].commitment.value)
-        transcript.append(b"w_o",w_commits[2].commitment.value)
-        transcript.append(b"w_4",w_commits[3].commitment.value)
-        
-        #2. Derive lookup polynomials
+        transcript.append(b"w_l", w_commits[0].commitment.value)
+        transcript.append(b"w_r", w_commits[1].commitment.value)
+        transcript.append(b"w_o", w_commits[2].commitment.value)
+        transcript.append(b"w_4", w_commits[3].commitment.value)
+
+        # 2. Derive lookup polynomials
 
         # Generate table compression factor
         zeta = transcript.challenge_scalar(b"zeta")
-        transcript.append(b"zeta",zeta)
+        transcript.append(b"zeta", zeta)
 
-        pk_lookup=pk["lookup"].tolist()
-        pk_lookup_table1=torch.tensor(pk_lookup["table1"]['coeffs'],dtype=torch.BLS12_381_Fr_G1_Mont).to("cuda")
-        pk_lookup_table2=torch.tensor(pk_lookup["table2"]['coeffs'],dtype=torch.BLS12_381_Fr_G1_Mont).to("cuda")
-        pk_lookup_table3=torch.tensor(pk_lookup["table3"]['coeffs'],dtype=torch.BLS12_381_Fr_G1_Mont).to("cuda")
-        pk_lookup_table4=torch.tensor(pk_lookup["table4"]['coeffs'],dtype=torch.BLS12_381_Fr_G1_Mont).to("cuda")
+        pk_lookup = pk["lookup"].tolist()
+        pk_lookup_table1 = torch.tensor(
+            pk_lookup["table1"]["coeffs"], dtype=torch.BLS12_381_Fr_G1_Mont
+        ).to("cuda")
+        pk_lookup_table2 = torch.tensor(
+            pk_lookup["table2"]["coeffs"], dtype=torch.BLS12_381_Fr_G1_Mont
+        ).to("cuda")
+        pk_lookup_table3 = torch.tensor(
+            pk_lookup["table3"]["coeffs"], dtype=torch.BLS12_381_Fr_G1_Mont
+        ).to("cuda")
+        pk_lookup_table4 = torch.tensor(
+            pk_lookup["table4"]["coeffs"], dtype=torch.BLS12_381_Fr_G1_Mont
+        ).to("cuda")
         # Compress lookup table into vector of single elements
-        t_multiset = torch.stack([
-        pk_lookup_table1,
-        pk_lookup_table2,
-        pk_lookup_table3,
-        pk_lookup_table4], dim=0)
+        t_multiset = torch.stack(
+            [pk_lookup_table1, pk_lookup_table2, pk_lookup_table3, pk_lookup_table4],
+            dim=0,
+        )
 
         # t_multiset = multiset.MultiSet(concatenated_lookup)
 
-        compressed_t_multiset = zkp.compress([pk_lookup_table1,pk_lookup_table2,pk_lookup_table3,pk_lookup_table4], zeta.to("cuda"))     
+        compressed_t_multiset = zkp.compress(
+            [pk_lookup_table1, pk_lookup_table2, pk_lookup_table3, pk_lookup_table4],
+            zeta.to("cuda"),
+        )
         # Compute table poly
 
-        compressed_t_poly =INTT(n,compressed_t_multiset)
+        compressed_t_poly = self.INTT(compressed_t_multiset)
         table_poly = from_coeff_vec(compressed_t_poly)
 
-        
         # Compute query table f
         # When q_lookup[i] is zero the wire value is replaced with a dummy
         # value currently set as the first row of the public table
@@ -123,9 +163,15 @@ class gen_proof(torch.nn.Module):
         # q_lookup_pad = [0 for _ in range(n-len(cs.q_lookup))]
         # padded_q_lookup = list(cs.q_lookup) + q_lookup_pad
 
-        compressed_f_multiset = zkp.compute_query_table(torch.tensor(cs.q_lookup, dtype = fr.TYPE()).to("cuda"), 
-                                                         w_l_scalar, w_r_scalar, w_o_scalar, w_4_scalar, 
-                                                         compressed_t_multiset, zeta.to("cuda"))
+        compressed_f_multiset = zkp.compute_query_table(
+            torch.tensor(cs.q_lookup, dtype=fr.TYPE()).to("cuda"),
+            w_l_scalar,
+            w_r_scalar,
+            w_o_scalar,
+            w_4_scalar,
+            compressed_t_multiset,
+            zeta.to("cuda"),
+        )
 
         # index=0
         # for q_lookup, w_l, w_r, w_o, w_4 in zip(padded_q_lookup, w_l_scalar, w_r_scalar, w_o_scalar, w_4_scalar):
@@ -149,35 +195,40 @@ class gen_proof(torch.nn.Module):
         # f_scalars.elements[3]], dim=0)
         # f_scalars=multiset.MultiSet(concatenated_f_scalars)
 
-
         # Compute query poly
-        compressed_f_poly = INTT(n,compressed_f_multiset)
-        f_poly= from_coeff_vec(compressed_f_poly)
-        f_polys = [kzg10.LabeledPoly.new(label="f_poly",hiding_bound=None,poly=f_poly)]
+        compressed_f_poly = self.INTT(compressed_f_multiset)
+        f_poly = from_coeff_vec(compressed_f_poly)
+        f_polys = [
+            kzg10.LabeledPoly.new(label="f_poly", hiding_bound=None, poly=f_poly)
+        ]
 
         # Commit to query polynomial
-        f_poly_commit, _ = kzg10.commit_poly_new(pp,f_polys)
-        transcript.append(b"f",f_poly_commit[0].commitment.value)
+        f_poly_commit, _ = kzg10.commit_poly_new(pp, f_polys)
+        transcript.append(b"f", f_poly_commit[0].commitment.value)
 
-        # Compute s, as the sorted and concatenated version of f and t 
+        # Compute s, as the sorted and concatenated version of f and t
         # work on cpu
         h_1, h_2 = combine_split(compressed_t_multiset, compressed_f_multiset)
 
         # Compute h polys
-        h_1=h_1.to('cuda')
-        h_2=h_2.to('cuda')
-        h_1_temp = INTT(n,h_1)
-        h_2_temp = INTT(n,h_2)
-        h_1_poly = from_coeff_vec(h_1_temp)  
-        h_2_poly = from_coeff_vec(h_2_temp)  
-        
+        h_1 = h_1.to("cuda")
+        h_2 = h_2.to("cuda")
+        h_1_temp = self.INTT(h_1)
+        h_2_temp = self.INTT(h_2)
+        h_1_poly = from_coeff_vec(h_1_temp)
+        h_2_poly = from_coeff_vec(h_2_temp)
+
         # return 230.582
 
         # Commit to h polys
-        h_1_polys = [kzg10.LabeledPoly.new(label="h_1_poly",hiding_bound=None,poly=h_1_poly)]
-        h_2_polys = [kzg10.LabeledPoly.new(label="h_2_poly",hiding_bound=None,poly=h_2_poly)]
-        h_1_poly_commit,_ = kzg10.commit_poly_new(pp,h_1_polys)
-        h_2_poly_commit,_ = kzg10.commit_poly_new(pp,h_2_polys)
+        h_1_polys = [
+            kzg10.LabeledPoly.new(label="h_1_poly", hiding_bound=None, poly=h_1_poly)
+        ]
+        h_2_polys = [
+            kzg10.LabeledPoly.new(label="h_2_poly", hiding_bound=None, poly=h_2_poly)
+        ]
+        h_1_poly_commit, _ = kzg10.commit_poly_new(pp, h_1_polys)
+        h_2_poly_commit, _ = kzg10.commit_poly_new(pp, h_2_polys)
 
         # Add h polynomials to transcript
         transcript.append(b"h1", h_1_poly_commit[0].commitment.value)
@@ -188,19 +239,18 @@ class gen_proof(torch.nn.Module):
         # Compute permutation challenge `beta`.
         beta = transcript.challenge_scalar(b"beta")
         transcript.append(b"beta", beta)
-    
+
         # Compute permutation challenge `gamma`.
         gamma = transcript.challenge_scalar(b"gamma")
         transcript.append(b"gamma", gamma)
-        
+
         # Compute permutation challenge `delta`.
         delta = transcript.challenge_scalar(b"delta")
         transcript.append(b"delta", delta)
-        
+
         # Compute permutation challenge `epsilon`.
         epsilon = transcript.challenge_scalar(b"epsilon")
         transcript.append(b"epsilon", epsilon)
-    
 
         # Challenges must be different
         assert F.trace_equal(beta, gamma) == False, "challenges must be different"
@@ -209,113 +259,157 @@ class gen_proof(torch.nn.Module):
         assert F.trace_equal(gamma, delta) == False, "challenges must be different"
         assert F.trace_equal(gamma, epsilon) == False, "challenges must be different"
         assert F.trace_equal(delta, epsilon) == False, "challenges must be different"
-        
+
         pk_permutation = pk["permutation"].tolist()
-        pk_permutation['left_sigma']['coeffs'] = torch.tensor(pk_permutation['left_sigma']['coeffs'], dtype = fr.TYPE())
-        pk_permutation['right_sigma']['coeffs'] = torch.tensor(pk_permutation['right_sigma']['coeffs'], dtype = fr.TYPE())
-        pk_permutation['out_sigma']['coeffs'] = torch.tensor(pk_permutation['out_sigma']['coeffs'], dtype = fr.TYPE())
-        pk_permutation['fourth_sigma']['coeffs'] = torch.tensor(pk_permutation['fourth_sigma']['coeffs'], dtype = fr.TYPE())
-        z_poly = mod.compute_permutation_poly(domain,
+        pk_permutation["left_sigma"]["coeffs"] = torch.tensor(
+            pk_permutation["left_sigma"]["coeffs"], dtype=fr.TYPE()
+        )
+        pk_permutation["right_sigma"]["coeffs"] = torch.tensor(
+            pk_permutation["right_sigma"]["coeffs"], dtype=fr.TYPE()
+        )
+        pk_permutation["out_sigma"]["coeffs"] = torch.tensor(
+            pk_permutation["out_sigma"]["coeffs"], dtype=fr.TYPE()
+        )
+        pk_permutation["fourth_sigma"]["coeffs"] = torch.tensor(
+            pk_permutation["fourth_sigma"]["coeffs"], dtype=fr.TYPE()
+        )
+        z_poly = mod.compute_permutation_poly(
+            domain,
             (w_l_scalar, w_r_scalar, w_o_scalar, w_4_scalar),
             beta,
             gamma,
             [
-                pk_permutation['left_sigma']['coeffs'],
-                pk_permutation['right_sigma']['coeffs'],
-                pk_permutation['out_sigma']['coeffs'],
-                pk_permutation['fourth_sigma']['coeffs']
-            ]
-            )
+                pk_permutation["left_sigma"]["coeffs"],
+                pk_permutation["right_sigma"]["coeffs"],
+                pk_permutation["out_sigma"]["coeffs"],
+                pk_permutation["fourth_sigma"]["coeffs"],
+            ],
+        )
         # Commit to permutation polynomial.
 
-        z_polys = [kzg10.LabeledPoly.new(label="z_poly",hiding_bound=None,poly=z_poly)]
-        z_poly_commit,_ = kzg10.commit_poly_new(pp,z_polys)
+        z_polys = [
+            kzg10.LabeledPoly.new(label="z_poly", hiding_bound=None, poly=z_poly)
+        ]
+        z_poly_commit, _ = kzg10.commit_poly_new(pp, z_polys)
 
         # Add permutation polynomial commitment to transcript.
         transcript.append(b"z", z_poly_commit[0].commitment.value)
-        
+
         # return 438.730
 
         # Compute mega permutation polynomial.
         # Compute lookup permutation poly
         z_2_poly = mod.compute_lookup_permutation_poly(
-            n,
-            compressed_f_multiset,
-            compressed_t_multiset,
-            h_1,
-            h_2,
-            delta,
-            epsilon
+            n, compressed_f_multiset, compressed_t_multiset, h_1, h_2, delta, epsilon
         )
         # Commit to lookup permutation polynomial.
-        z_2_polys = [kzg10.LabeledPoly.new(label="z_2_poly",hiding_bound=None,poly=z_2_poly)]
-        z_2_poly_commit,_ = kzg10.commit_poly_new(pp,z_2_polys)
+        z_2_polys = [
+            kzg10.LabeledPoly.new(label="z_2_poly", hiding_bound=None, poly=z_2_poly)
+        ]
+        z_2_poly_commit, _ = kzg10.commit_poly_new(pp, z_2_polys)
 
         # return 477.107
 
         # 3. Compute public inputs polynomial
-        cs_public_inputs = torch.tensor(cs.public_inputs, dtype = fr.TYPE())
-        pi_poly = into_dense_poly(cs_public_inputs,int(cs.intended_pi_pos),n)
-
+        cs_public_inputs = torch.tensor(cs.public_inputs, dtype=fr.TYPE())
+        pi_poly = into_dense_poly(cs_public_inputs, int(cs.intended_pi_pos), n)
 
         # 4. Compute quotient polynomial
         # Compute quotient challenge `alpha`, and gate-specific separation challenges.
         alpha = transcript.challenge_scalar(b"alpha")
         transcript.append(b"alpha", alpha)
-        
+
         range_sep_challenge = transcript.challenge_scalar(b"range separation challenge")
         transcript.append(b"range seperation challenge", range_sep_challenge)
 
         logic_sep_challenge = transcript.challenge_scalar(b"logic separation challenge")
         transcript.append(b"logic seperation challenge", logic_sep_challenge)
 
-        fixed_base_sep_challenge = transcript.challenge_scalar(b"fixed base separation challenge")
+        fixed_base_sep_challenge = transcript.challenge_scalar(
+            b"fixed base separation challenge"
+        )
         transcript.append(b"fixed base separation challenge", fixed_base_sep_challenge)
 
-        var_base_sep_challenge = transcript.challenge_scalar(b"variable base separation challenge")
+        var_base_sep_challenge = transcript.challenge_scalar(
+            b"variable base separation challenge"
+        )
         transcript.append(b"variable base separation challenge", var_base_sep_challenge)
 
-        lookup_sep_challenge = transcript.challenge_scalar(b"lookup separation challenge")
+        lookup_sep_challenge = transcript.challenge_scalar(
+            b"lookup separation challenge"
+        )
         transcript.append(b"lookup separation challenge", lookup_sep_challenge)
 
         # return 486.133
         t_poly = quotient_poly.compute_quotient_poly(
-            n,pk,
-            z_poly, z_2_poly,
-            w_l_poly, w_r_poly, w_o_poly, w_4_poly,
+            n,
+            pk,
+            z_poly,
+            z_2_poly,
+            w_l_poly,
+            w_r_poly,
+            w_o_poly,
+            w_4_poly,
             pi_poly,
-            f_poly, table_poly, h_1_poly, h_2_poly,
-            alpha, beta, gamma, delta, epsilon, zeta,
-            range_sep_challenge, logic_sep_challenge,
+            f_poly,
+            table_poly,
+            h_1_poly,
+            h_2_poly,
+            alpha,
+            beta,
+            gamma,
+            delta,
+            epsilon,
+            zeta,
+            range_sep_challenge,
+            logic_sep_challenge,
             fixed_base_sep_challenge,
             var_base_sep_challenge,
-            lookup_sep_challenge)
-        
+            lookup_sep_challenge,
+        )
+
         # return 778.620
-        
+
         start = time.time()
         t_i_poly = split_tx_poly(n, t_poly)
         elapse = time.time() - start
-        print("split time:",elapse)
+        print("split time:", elapse)
 
+        t_i_polys = [
+            kzg10.LabeledPoly.new(
+                label="t_i_polys[0]", hiding_bound=None, poly=t_i_poly[0]
+            ),
+            kzg10.LabeledPoly.new(
+                label="t_i_polys[1]", hiding_bound=None, poly=t_i_poly[1]
+            ),
+            kzg10.LabeledPoly.new(
+                label="t_i_polys[2]", hiding_bound=None, poly=t_i_poly[2]
+            ),
+            kzg10.LabeledPoly.new(
+                label="t_i_polys[3]", hiding_bound=None, poly=t_i_poly[3]
+            ),
+            kzg10.LabeledPoly.new(
+                label="t_i_polys[4]", hiding_bound=None, poly=t_i_poly[4]
+            ),
+            kzg10.LabeledPoly.new(
+                label="t_i_polys[5]", hiding_bound=None, poly=t_i_poly[5]
+            ),
+            kzg10.LabeledPoly.new(
+                label="t_i_polys[6]", hiding_bound=None, poly=t_i_poly[6]
+            ),
+            kzg10.LabeledPoly.new(
+                label="t_i_polys[7]", hiding_bound=None, poly=t_i_poly[7]
+            ),
+        ]
 
-        t_i_polys = [kzg10.LabeledPoly.new(label="t_i_polys[0]",hiding_bound=None,poly=t_i_poly[0]),
-                    kzg10.LabeledPoly.new(label="t_i_polys[1]",hiding_bound=None,poly=t_i_poly[1]),
-                    kzg10.LabeledPoly.new(label="t_i_polys[2]",hiding_bound=None,poly=t_i_poly[2]),
-                    kzg10.LabeledPoly.new(label="t_i_polys[3]",hiding_bound=None,poly=t_i_poly[3]),
-                    kzg10.LabeledPoly.new(label="t_i_polys[4]",hiding_bound=None,poly=t_i_poly[4]),
-                    kzg10.LabeledPoly.new(label="t_i_polys[5]",hiding_bound=None,poly=t_i_poly[5]),
-                    kzg10.LabeledPoly.new(label="t_i_polys[6]",hiding_bound=None,poly=t_i_poly[6]),
-                    kzg10.LabeledPoly.new(label="t_i_polys[7]",hiding_bound=None,poly=t_i_poly[7])]
-        
         # return 812.774
-        t_commits, _ = kzg10.commit_poly_new(pp,t_i_polys)
-        # return 
-        
+        t_commits, _ = kzg10.commit_poly_new(pp, t_i_polys)
+        # return
+
         # Add quotient polynomial commitments to transcript
         for i in range(0, 8):
             transcript.append(f"t_{i+1}".encode(), t_commits[i].commitment.value)
-        
+
         # return 1.071s
 
         # 4. Compute linearisation polynomial
@@ -323,46 +417,69 @@ class gen_proof(torch.nn.Module):
         z_challenge = transcript.challenge_scalar(b"z")
         transcript.append(b"z", z_challenge)
         lin_poly, evaluations = linearisation_poly.compute_linearisation_poly(
-                domain,
-                pk,
-                alpha, beta, gamma, delta, epsilon, zeta,
-                range_sep_challenge,
-                logic_sep_challenge,
-                fixed_base_sep_challenge,
-                var_base_sep_challenge,
-                lookup_sep_challenge,
-                z_challenge,
-                w_l_poly,w_r_poly,w_o_poly,w_4_poly,
-                t_i_poly[0],
-                t_i_poly[1],
-                t_i_poly[2],
-                t_i_poly[3],
-                t_i_poly[4],
-                t_i_poly[5],
-                t_i_poly[6],
-                t_i_poly[7],
-                z_poly,
-                z_2_poly,
-                f_poly,
-                h_1_poly,
-                h_2_poly,
-                table_poly)
+            domain,
+            pk,
+            alpha,
+            beta,
+            gamma,
+            delta,
+            epsilon,
+            zeta,
+            range_sep_challenge,
+            logic_sep_challenge,
+            fixed_base_sep_challenge,
+            var_base_sep_challenge,
+            lookup_sep_challenge,
+            z_challenge,
+            w_l_poly,
+            w_r_poly,
+            w_o_poly,
+            w_4_poly,
+            t_i_poly[0],
+            t_i_poly[1],
+            t_i_poly[2],
+            t_i_poly[3],
+            t_i_poly[4],
+            t_i_poly[5],
+            t_i_poly[6],
+            t_i_poly[7],
+            z_poly,
+            z_2_poly,
+            f_poly,
+            h_1_poly,
+            h_2_poly,
+            table_poly,
+        )
 
         evaluations.wire_evals.a_eval = evaluations.wire_evals.a_eval.to("cpu")
         evaluations.wire_evals.b_eval = evaluations.wire_evals.b_eval.to("cpu")
         evaluations.wire_evals.c_eval = evaluations.wire_evals.c_eval.to("cpu")
         evaluations.wire_evals.d_eval = evaluations.wire_evals.d_eval.to("cpu")
-        evaluations.perm_evals.left_sigma_eval = evaluations.perm_evals.left_sigma_eval.to("cpu")
-        evaluations.perm_evals.right_sigma_eval = evaluations.perm_evals.right_sigma_eval.to("cpu")
-        evaluations.perm_evals.out_sigma_eval = evaluations.perm_evals.out_sigma_eval.to("cpu")
-        evaluations.perm_evals.permutation_eval = evaluations.perm_evals.permutation_eval.to("cpu")
+        evaluations.perm_evals.left_sigma_eval = (
+            evaluations.perm_evals.left_sigma_eval.to("cpu")
+        )
+        evaluations.perm_evals.right_sigma_eval = (
+            evaluations.perm_evals.right_sigma_eval.to("cpu")
+        )
+        evaluations.perm_evals.out_sigma_eval = (
+            evaluations.perm_evals.out_sigma_eval.to("cpu")
+        )
+        evaluations.perm_evals.permutation_eval = (
+            evaluations.perm_evals.permutation_eval.to("cpu")
+        )
         evaluations.lookup_evals.f_eval = evaluations.lookup_evals.f_eval.to("cpu")
-        evaluations.lookup_evals.q_lookup_eval = evaluations.lookup_evals.q_lookup_eval.to("cpu")
-        evaluations.lookup_evals.z2_next_eval = evaluations.lookup_evals.z2_next_eval.to("cpu")
+        evaluations.lookup_evals.q_lookup_eval = (
+            evaluations.lookup_evals.q_lookup_eval.to("cpu")
+        )
+        evaluations.lookup_evals.z2_next_eval = (
+            evaluations.lookup_evals.z2_next_eval.to("cpu")
+        )
         evaluations.lookup_evals.h1_eval = evaluations.lookup_evals.h1_eval.to("cpu")
-        evaluations.lookup_evals.h1_next_eval = evaluations.lookup_evals.h1_next_eval.to("cpu")
+        evaluations.lookup_evals.h1_next_eval = (
+            evaluations.lookup_evals.h1_next_eval.to("cpu")
+        )
         evaluations.lookup_evals.h2_eval = evaluations.lookup_evals.h2_eval.to("cpu")
-        
+
         # Add evaluations to transcript.
         # First wire evals
         transcript.append(b"a_eval", evaluations.wire_evals.a_eval)
@@ -386,7 +503,7 @@ class gen_proof(torch.nn.Module):
 
         # Fourth, all evals needed for custom gates
         for label, eval in evaluations.custom_evals.vals:
-            static_label = label.encode('utf-8')
+            static_label = label.encode("utf-8")
             # eval = fr.Fr(eval.to("cpu"))
             transcript.append(static_label, eval)
 
@@ -404,14 +521,29 @@ class gen_proof(torch.nn.Module):
         # be necessary. Warrants further investigation.
         # Ditto with the out_sigma poly.
 
-        aw_polys = [kzg10.LabeledPoly.new(label="lin_poly", hiding_bound=None, poly=lin_poly),
-                    kzg10.LabeledPoly.new(label="prover_key.permutation.left_sigma.0.clone()", hiding_bound=None, poly=pk_permutation['left_sigma']['coeffs']),
-                    kzg10.LabeledPoly.new(label="prover_key.permutation.right_sigma.0.clone()", hiding_bound=None, poly=pk_permutation['right_sigma']['coeffs']),
-                    kzg10.LabeledPoly.new(label="prover_key.permutation.out_sigma.0.clone()", hiding_bound=None, poly=pk_permutation['out_sigma']['coeffs']),
-                    kzg10.LabeledPoly.new(label="f_poly", hiding_bound=None, poly=f_poly),
-                    kzg10.LabeledPoly.new(label="h_2_poly", hiding_bound=None, poly=h_2_poly),
-                    kzg10.LabeledPoly.new(label="table_poly", hiding_bound=None, poly=table_poly)]
-        
+        aw_polys = [
+            kzg10.LabeledPoly.new(label="lin_poly", hiding_bound=None, poly=lin_poly),
+            kzg10.LabeledPoly.new(
+                label="prover_key.permutation.left_sigma.0.clone()",
+                hiding_bound=None,
+                poly=pk_permutation["left_sigma"]["coeffs"],
+            ),
+            kzg10.LabeledPoly.new(
+                label="prover_key.permutation.right_sigma.0.clone()",
+                hiding_bound=None,
+                poly=pk_permutation["right_sigma"]["coeffs"],
+            ),
+            kzg10.LabeledPoly.new(
+                label="prover_key.permutation.out_sigma.0.clone()",
+                hiding_bound=None,
+                poly=pk_permutation["out_sigma"]["coeffs"],
+            ),
+            kzg10.LabeledPoly.new(label="f_poly", hiding_bound=None, poly=f_poly),
+            kzg10.LabeledPoly.new(label="h_2_poly", hiding_bound=None, poly=h_2_poly),
+            kzg10.LabeledPoly.new(
+                label="table_poly", hiding_bound=None, poly=table_poly
+            ),
+        ]
 
         aw_commits, aw_rands = kzg10.commit_poly_new(pp, aw_polys)
         aw_opening = kzg10.open(
@@ -421,19 +553,23 @@ class gen_proof(torch.nn.Module):
             z_challenge.to("cuda"),
             aw_challenge.to("cuda"),
             itertools.chain(aw_rands, w_rands),
-            None
+            None,
         )
 
         saw_challenge = transcript.challenge_scalar(b"aggregate_witness")
-        saw_polys = [kzg10.LabeledPoly.new(label="z_poly", hiding_bound=None, poly=z_poly),
-                    kzg10.LabeledPoly.new(label="w_l_poly", hiding_bound=None, poly=w_l_poly),
-                    kzg10.LabeledPoly.new(label="w_r_poly", hiding_bound=None, poly=w_r_poly),
-                    kzg10.LabeledPoly.new(label="w_4_poly", hiding_bound=None, poly=w_4_poly),
-                    kzg10.LabeledPoly.new(label="h_1_poly", hiding_bound=None, poly=h_1_poly),
-                    kzg10.LabeledPoly.new(label="z_2_poly", hiding_bound=None, poly=z_2_poly),
-                    kzg10.LabeledPoly.new(label="table_poly", hiding_bound=None, poly=table_poly)]
-        
-        saw_commits, saw_rands = kzg10.commit_poly_new(pp,saw_polys)
+        saw_polys = [
+            kzg10.LabeledPoly.new(label="z_poly", hiding_bound=None, poly=z_poly),
+            kzg10.LabeledPoly.new(label="w_l_poly", hiding_bound=None, poly=w_l_poly),
+            kzg10.LabeledPoly.new(label="w_r_poly", hiding_bound=None, poly=w_r_poly),
+            kzg10.LabeledPoly.new(label="w_4_poly", hiding_bound=None, poly=w_4_poly),
+            kzg10.LabeledPoly.new(label="h_1_poly", hiding_bound=None, poly=h_1_poly),
+            kzg10.LabeledPoly.new(label="z_2_poly", hiding_bound=None, poly=z_2_poly),
+            kzg10.LabeledPoly.new(
+                label="table_poly", hiding_bound=None, poly=table_poly
+            ),
+        ]
+
+        saw_commits, saw_rands = kzg10.commit_poly_new(pp, saw_polys)
         element = domain.element(1)
         open_point = F.mul_mod(z_challenge.to("cuda"), element)
         saw_opening = kzg10.open(
@@ -443,40 +579,41 @@ class gen_proof(torch.nn.Module):
             open_point.to("cuda"),
             saw_challenge.to("cuda"),
             saw_rands,
-            None
+            None,
         )
 
         Proof = kzg10.Proof(
-                a_comm = w_commits[0].commitment.value,
-                b_comm = w_commits[1].commitment.value,
-                c_comm = w_commits[2].commitment.value,
-                d_comm = w_commits[3].commitment.value,
-                z_comm = saw_commits[0].commitment.value,
-                f_comm = f_poly_commit[0].commitment.value,
-                h_1_comm = h_1_poly_commit[0].commitment.value,
-                h_2_comm = h_2_poly_commit[0].commitment.value,
-                z_2_comm = z_2_poly_commit[0].commitment.value,
-                t_1_comm = t_commits[0].commitment.value,
-                t_2_comm = t_commits[1].commitment.value,
-                t_3_comm = t_commits[2].commitment.value,
-                t_4_comm = t_commits[3].commitment.value,
-                t_5_comm = t_commits[4].commitment.value,
-                t_6_comm = t_commits[5].commitment.value,
-                t_7_comm = t_commits[6].commitment.value,
-                t_8_comm = t_commits[7].commitment.value,
-                aw_opening = aw_opening,
-                saw_opening = saw_opening,
-                evaluations = evaluations)
-        
+            a_comm=w_commits[0].commitment.value,
+            b_comm=w_commits[1].commitment.value,
+            c_comm=w_commits[2].commitment.value,
+            d_comm=w_commits[3].commitment.value,
+            z_comm=saw_commits[0].commitment.value,
+            f_comm=f_poly_commit[0].commitment.value,
+            h_1_comm=h_1_poly_commit[0].commitment.value,
+            h_2_comm=h_2_poly_commit[0].commitment.value,
+            z_2_comm=z_2_poly_commit[0].commitment.value,
+            t_1_comm=t_commits[0].commitment.value,
+            t_2_comm=t_commits[1].commitment.value,
+            t_3_comm=t_commits[2].commitment.value,
+            t_4_comm=t_commits[3].commitment.value,
+            t_5_comm=t_commits[4].commitment.value,
+            t_6_comm=t_commits[5].commitment.value,
+            t_7_comm=t_commits[6].commitment.value,
+            t_8_comm=t_commits[7].commitment.value,
+            aw_opening=aw_opening,
+            saw_opening=saw_opening,
+            evaluations=evaluations,
+        )
+
         def write_to_file(data, filename):
             try:
-                with open(filename, 'a') as file:
-                    file.write(str(data) + '\n')  
+                with open(filename, "a") as file:
+                    file.write(str(data) + "\n")
                 print(f"Data is successfully written to the file {filename}")
             except Exception as e:
                 print(f"An error occurred while writing to the file: {e}")
 
-        with open('proof_data_new.txt', 'w') as f:
+        with open("proof_data_new.txt", "w") as f:
             pass
 
         attributes = vars(Proof)
@@ -485,25 +622,20 @@ class gen_proof(torch.nn.Module):
             try:
                 my_data = {f"{attribute}: {value.x},{value.y}"}
                 print(f"{attribute}: {value.x},{value.y}")
-                write_to_file(my_data, 'proof_data_new.txt')
+                write_to_file(my_data, "proof_data_new.txt")
             except:
                 try:
                     my_data = {f"{attribute}: {value.w.x},{value.w.y}"}
                     print(f"{attribute}: {value.w.x},{value.w.y}")
-                    write_to_file(my_data, 'proof_data_new.txt')
+                    write_to_file(my_data, "proof_data_new.txt")
                 except:
                     try:
                         my_data = {f"{attribute}: {value}"}
                         print(f"{attribute}: {value.w.x.value},{value.w.y.value}")
-                        write_to_file(my_data, 'proof_data_new.txt')
+                        write_to_file(my_data, "proof_data_new.txt")
                     except:
                         pass
-        
+
         return w_commits[0].commitment.value
-    
+
         return Proof
-    
-
-
-
-
