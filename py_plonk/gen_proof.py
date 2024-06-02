@@ -2,7 +2,6 @@ import itertools
 from .domain import Radix2EvaluationDomain
 from .transcript import transcript
 from .composer import StandardComposer
-from .transcript import transcript
 from .bls12_381 import fr
 from .plonk_core.lookup.multiset import combine_split
 from .plonk_core.src.permutation import mod

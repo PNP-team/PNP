@@ -1,73 +1,43 @@
-from dataclasses import dataclass
-import struct
-from ..transcript import strobe
-from ..structure import AffinePointG1, serialize_BTreeMap
-from ..bls12_381 import fr
-from ..transcript import flags
 import torch
-from ..serialize import todo_serialize_with_flags
+from dataclasses import dataclass
+from ..transcript import strobe
+from ..structure import BTreeMap
+from ..bls12_381 import fr
+from ..serialize import serialize, deserialize
+
 
 MERLIN_PROTOCOL_LABEL = b"Merlin v1.0"
 
-def write_u32(buf, n):
-    # little endian
-    packed_data = struct.pack("<I", n)
-    buf[:4] = packed_data
-    return buf
 
-def encode_usize_as_u32(x):
-    if x > 0xFFFFFFFF:
-        raise ValueError("Value too large to fit in u32")
-    buf=[0,0,0,0]
-    return write_u32(buf,x)
-
-@dataclass
 class Transcript:
-    strobe:strobe.Strobe128
 
-    @classmethod
-    def new(cls,label):
-        transcript = cls(strobe.Strobe128.new(MERLIN_PROTOCOL_LABEL))
-        transcript.append_message(b"dom-sep", label)
-        return transcript
+    def __init__(self, label):
+        self.strobe = strobe.Strobe128.new(MERLIN_PROTOCOL_LABEL)
+        self.append_message(b"dom-sep", label)
 
     def append_message(self, label, message):
-        data_len = encode_usize_as_u32(len(message))
+        data_len = len(message).to_bytes(4, byteorder="little")
         self.strobe.meta_ad(label, False)
         self.strobe.meta_ad(data_len, True)
         self.strobe.ad(message, False)
-    
+
     def append_pi(self, label, item, pos):
-        # pi_bytes = [1, 0, 0, 0, 0, 0, 0, 0, 71, 2, 0, 0, 0, 0, 0, 0, 175, 183, 188, 23, 25,
-        #             155, 195, 172, 246, 232, 114, 89, 255, 117, 123, 226, 161, 86, 112, 46,
-        #             124, 69, 74, 38, 91, 197, 152, 114, 132, 231, 67, 72]
-        buf = []
-        buf = serialize_BTreeMap(item, pos, buf)
-        self.append_message(label,buf)
-    
-    # def append_new(self,label,item):
-    #     bytes = []
-    #     bytes = serialize(item,bytes)
-    #     self.append_message(label,bytes)
+        buf = serialize(BTreeMap(item, pos))
+        self.append_message(label, buf)
 
     def append(self, label, item):
-        bytes = []
-        if isinstance(item, torch.Tensor):
-            bytes = todo_serialize_with_flags(item, bytes)
-        else:
-            bytes = item.serialize(bytes)
-        self.append_message(label,bytes)
-    
+        self.append_message(label, serialize(item))
+
     def challenge_bytes(self, label, dest):
-        data_len = encode_usize_as_u32(len(dest))
+        data_len = len(dest).to_bytes(4, byteorder="little")
         self.strobe.meta_ad(label, False)
         self.strobe.meta_ad(data_len, True)
         modified_dest = self.strobe.prf(dest, False)
         return modified_dest
-    
+
     def challenge_scalar(self, label: bytes):
         size = fr.MODULUS_BITS() // 8
         buf = bytes([0] * size)
         modified_buf = self.challenge_bytes(label, buf)
-        c_s = fr.from_random_bytes(modified_buf)
+        c_s = deserialize(modified_buf)
         return c_s

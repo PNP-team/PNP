@@ -5,19 +5,6 @@ import torch
 import torch.nn.functional as F
 from ....arithmetic import from_coeff_vec, calculate_execution_time,INTT,NTT
 
-import torch.nn as nn
-def extend_tensor(input:torch.tensor,size):
-    if input.dim()==2:
-        res = torch.zeros(size, 4,len(input), dtype=torch.BLS12_381_Fr_G1_Mont)
-        for i in range(len(res)):
-            res[i] = input
-        return res.to('cuda')
-    else:
-        res = torch.zeros(size, 4, dtype=torch.BLS12_381_Fr_G1_Mont)
-        for i in range(len(res)):
-            res[i] = input
-        return res.to('cuda')
-
 def numerator_irreducible(root, w, k, beta, gamma):
     mid1 = F.mul_mod(beta,k)
     mid2 = F.mul_mod(mid1,root)

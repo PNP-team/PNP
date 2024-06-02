@@ -5,15 +5,15 @@ import copy
 import torch.nn.functional as F
 from ....bls12_381 import fr
 from ....arithmetic import from_coeff_vec, coset_NTT
-from ....plonk_core.src.proof_system.widget.mod import WitnessValues
-from ....plonk_core.src.proof_system.widget.range import RangeGate, RangeValues
-from ....plonk_core.src.proof_system.widget.logic import LogicGate, LogicValues
-from ....plonk_core.src.proof_system.widget.fixed_base_scalar_mul import (
+from .widget.mod import WitnessValues
+from .widget.range import RangeGate, RangeValues
+from .widget.logic import LogicGate, LogicValues
+from .widget.fixed_base_scalar_mul import (
     FBSMGate,
     FBSMValues,
 )
-from ....plonk_core.src.proof_system.widget.curve_addition import CAGate, CAValues
-from ....plonk_core.src.proof_system.mod import CustomEvaluations
+from .widget.curve_addition import CAGate, CAValues
+from .mod import CustomEvaluations
 from ....arithmetic import (
     from_coeff_vec,
     calculate_execution_time,

@@ -1,13 +1,8 @@
 import torch
-from ..transcript import flags
-from ..serialize import buffer_byte_size
-from ..bytes import read
 import torch.nn.functional as F
-
 
 class Fr:
     pass
-
 
 def TYPE():
     return torch.BLS12_381_Fr_G1_Mont
@@ -93,43 +88,3 @@ def make_tensor(x, n=1):  # x is a integer in base domain
     return F.to_mont(output)
 
 
-def deserialize(reader):
-    output_byte_size = buffer_byte_size(MODULUS_BITS() + flags.EmptyFlags.BIT_SIZE)
-
-    masked_bytes = bytearray([0] * (BYTE_SIZE() + 1))
-    masked_bytes[:output_byte_size] = reader[:output_byte_size]
-
-    flag = flags.EmptyFlags.from_u8_remove_flags(masked_bytes[output_byte_size - 1])
-
-    element = read(masked_bytes)
-    field_element = F.to_mont(element)
-    return field_element, flag
-
-
-def from_random_bytes(bytes: bytes):
-    limbs = (len(bytes) + 1) // 8
-    if flags.EmptyFlags.BIT_SIZE > 8:
-        return None
-
-    result_bytes = bytearray([0] * (limbs * 8 + 1))
-    result_bytes[: len(bytes)] = bytes
-    last_bytes_mask = bytearray(9)
-    last_limb_mask = ((2**64 - 1) >> REPR_SHAVE_BITS()).to_bytes(8, byteorder="little")
-    last_bytes_mask[:8] = last_limb_mask[:]
-    output_byte_size = buffer_byte_size(MODULUS_BITS() + flags.EmptyFlags.BIT_SIZE)
-    flag_location = output_byte_size - 1
-    flag_location_in_last_limb = flag_location - (8 * (limbs - 1))
-
-    last_bytes = result_bytes[8 * (limbs - 1) :]
-
-    flags_mask = 0xFF >> (8 - flags.EmptyFlags.BIT_SIZE)
-    flag = 0
-    for i, (b, m) in enumerate(zip(last_bytes, last_bytes_mask)):
-        if i == flag_location_in_last_limb:
-            flag = b & flags_mask
-        b &= m
-
-    field_element, flag = deserialize(result_bytes[: limbs * 8])
-    # flags_obj = flags.SWFlags.from_u8(flag)
-
-    return field_element
