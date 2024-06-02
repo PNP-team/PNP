@@ -5,7 +5,7 @@ from .composer import StandardComposer
 from .bls12_381 import fr
 from .plonk_core.lookup.multiset import combine_split
 from .plonk_core.src.permutation import mod
-from .plonk_core.src.proof_system.prover_key import Prover_Key
+# from .plonk_core.src.proof_system.prover_key import Prover_Key
 from .plonk_core.src.proof_system.pi import into_dense_poly
 from .plonk_core.src.proof_system import quotient_poly
 from .plonk_core.src.proof_system import linearisation_poly
@@ -57,7 +57,7 @@ class gen_proof(torch.nn.Module):
     def __call__(
         self,
         pp,
-        pk: Prover_Key,
+        pk,
         cs: StandardComposer,
         transcript: transcript.Transcript,
     ):

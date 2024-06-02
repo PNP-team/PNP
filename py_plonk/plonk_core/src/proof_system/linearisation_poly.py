@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import List, Tuple
 from ....domain import Radix2EvaluationDomain
 from ....bls12_381 import fr
-from ....plonk_core.src.proof_system.prover_key import Prover_Key
+# from ....plonk_core.src.proof_system.prover_key import Prover_Key
 from ....plonk_core.src.proof_system.widget.mod import WitnessValues
 from ....plonk_core.src.proof_system.mod import CustomEvaluations
 from ....plonk_core.src.proof_system.widget.range import RangeGate,RangeValues
@@ -99,7 +99,7 @@ def convert_to_tensors(data):
 @calculate_execution_time
 def compute_linearisation_poly(
     domain: Radix2EvaluationDomain,
-    prover_key: Prover_Key,
+    prover_key,
     alpha,
     beta,
     gamma,
@@ -362,7 +362,7 @@ def compute_gate_constraint_satisfiability(
     wire_evals: WireEvaluations,
     q_arith_eval,
     custom_evals: CustomEvaluations,
-    prover_key: Prover_Key,
+    prover_key,
     prover_key_arithmetic,
 ):
     wit_vals = WitnessValues(
