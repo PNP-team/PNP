@@ -128,7 +128,7 @@ class Permutation:
         mid5 = F.mul_mod(mid5, mid4)
         mid5 = F.mul_mod(mid5, z_i_next)
         product = F.mul_mod(mid5, alpha)         
-        res = neg(product)
+        res = F.neg_mod(product)
         return res
 
     # Computes the following:
@@ -212,7 +212,7 @@ class Permutation:
         a = F.mul_mod(a, a_2)
         a = F.mul_mod(a, beta_z_eval)
         a = F.mul_mod(a, alpha)
-        neg_a = neg(a)
+        neg_a = F.neg_mod(a)
 
 
         res = poly_mul_const(fourth_sigma_poly,neg_a)

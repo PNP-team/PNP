@@ -28,39 +28,6 @@ def calculate_execution_time(func):
             return result
         return wrapper
 
-def neg(self):
-    a=torch.tensor([18446744069414584321, 6034159408538082302, 3691218898639771653, 8353516859464449352],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    if F.trace_equal(self,torch.tensor([0,0,0,0],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')):
-        return self
-    else:
-        res= F.sub_mod(a,self)
-        return res
-    
-def neg_extend(self,size):
-    res=torch.zeros(size,4,dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    ### 把是零的位置记下来然后先整体做sub再重新赋值0
-    one=torch.tensor([18446744069414584321, 6034159408538082302, 3691218898639771653, 8353516859464449352],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')
-    extend_one=extend_tensor(one,size)
-    record=[]
-    for i in range(len(self)):
-        if F.trace_equal(self[i],torch.tensor([0,0,0,0],dtype=torch.BLS12_381_Fr_G1_Mont).to('cuda')):
-            record.append(i)
-    res=F.sub_mod(extend_one,self)
-    #
-    for i in record:
-        res[i]=self[i]
-
-    return res 
-
-def neg_fq(self):
-    # a is fq modualr
-    a=torch.tensor([13402431016077863595, 2210141511517208575, 7435674573564081700, 7239337960414712511, 5412103778470702295, 1873798617647539866],dtype=torch.BLS12_381_Fq_G1_Mont)
-    if F.trace_equal(self,torch.tensor([0,0,0,0,0,0],dtype=torch.BLS12_381_Fq_G1_Mont)):
-        return self
-    else:
-        res= F.sub_mod(a,self)
-        return res
-
 def from_list_tensor(input:list, dtype=torch.BLS12_381_Fr_G1_Mont):
     base_input=[]
     for i in range(len(input)):

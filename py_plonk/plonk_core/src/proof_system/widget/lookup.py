@@ -129,7 +129,7 @@ class Lookup:
         c_1_1 = F.add_mod(epsilon_one_plus_delta, h2_i)
         c_1_2 = F.mul_mod(delta, h1_i_next)
         c_1 = F.add_mod(c_1_1, c_1_2)
-        neg_z2_next = neg(z2_i_next)
+        neg_z2_next = F.neg_mod(z2_i_next)
         mid1 = F.mul_mod(neg_z2_next, c_0)
         mid2 = F.mul_mod(mid1, c_1)
         c = F.mul_mod(mid2, lookup_sep_sq)
@@ -196,7 +196,7 @@ class Lookup:
     #     b = poly_mul_const(z2_poly, const2)
 
     #     # h1(X) * (−z2ω_bar) * (ε(1+δ) + h2_bar  + δh1ω_bar) * lookup_sep^2
-    #     neg_z2_next_eval=neg(z2_next_eval)
+    #     neg_z2_next_eval=F.neg_mod(z2_next_eval)
     #     c_0 = F.mul_mod(neg_z2_next_eval, lookup_sep_sq)
     #     epsilon_one_plus_delta_h2_eval = F.add_mod(epsilon_one_plus_delta, h2_eval)
     #     delta_h1_next_eval =  F.add_mod(delta, h1_next_eval)
