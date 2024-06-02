@@ -4,7 +4,7 @@ from ..jacobian import ProjectivePointG1
 from ..bls12_381 import fr,fq
 from typing import List
 from ..arithmetic import skip_leading_zeros_and_convert_to_bigints,convert_to_bigints,\
-                         rand_poly,poly_add_poly_mul_const,MSM_new,pow_single,calculate_execution_time
+                         rand_poly,poly_add_poly_mul_const,MSM_new,calculate_execution_time
 from ..plonk_core.src.proof_system.linearisation_poly import ProofEvaluations
 import random
 import torch 
@@ -41,8 +41,8 @@ class Commitment:
     
     @classmethod
     def commit_new(cls, powers_of_g, powers_of_gamma_g, polynomial, hiding_bound):
-        num_leading_zeros, plain_coeffs = skip_leading_zeros_and_convert_to_bigints(polynomial)
-        commitment = MSM_new(powers_of_g[num_leading_zeros:], plain_coeffs)
+        plain_coeffs = skip_leading_zeros_and_convert_to_bigints(polynomial)
+        commitment = MSM_new(powers_of_g, plain_coeffs)
         randomness = Randomness.empty()
         if hiding_bound:
             randomness = Randomness.rand(hiding_bound)
@@ -180,8 +180,8 @@ def open_with_witness_polynomial(
     hiding_witness_polynomial):
 
 
-    num_leading_zeros, witness_coeffs =skip_leading_zeros_and_convert_to_bigints(witness_polynomial)
-    w = MSM_new(powers_of_g[num_leading_zeros:], witness_coeffs)
+    witness_coeffs =skip_leading_zeros_and_convert_to_bigints(witness_polynomial)
+    w = MSM_new(powers_of_g, witness_coeffs)
     random_v = None
     if hiding_witness_polynomial is not None:
         blinding_p = randomness.blind_poly

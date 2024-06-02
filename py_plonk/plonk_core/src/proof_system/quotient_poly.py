@@ -1,10 +1,6 @@
-from ....domain import Radix2EvaluationDomain
-import gmpy2
 import torch
-import copy
 import torch.nn.functional as F
 from ....bls12_381 import fr
-from ....arithmetic import from_coeff_vec, coset_NTT
 from ....plonk_core.src.proof_system.widget.mod import WitnessValues
 from ....plonk_core.src.proof_system.widget.range import RangeGate, RangeValues
 from ....plonk_core.src.proof_system.widget.logic import LogicGate, LogicValues
@@ -14,33 +10,27 @@ from ....plonk_core.src.proof_system.widget.fixed_base_scalar_mul import (
 )
 from ....plonk_core.src.proof_system.widget.curve_addition import CAGate, CAValues
 from ....plonk_core.src.proof_system.mod import CustomEvaluations
-from ....arithmetic import (
-    from_coeff_vec,
-    calculate_execution_time,
-    coset_NTT,
-    coset_INTT,
-)
+from ....arithmetic import from_coeff_vec,calculate_execution_time
 import torch.nn as nn
 from .widget.arithmetic import compute_quotient_i
 from ..proof_system.permutation import permutation_compute_quotient
 from ..proof_system.widget.lookup import compute_lookup_quotient_term
 import numpy as np
-import time
 
 
 # Computes the first lagrange polynomial with the given `scale` over `domain`.
 def compute_first_lagrange_poly_scaled(n, scale: torch.Tensor):
-    inttclass = nn.Intt(n, fr.TYPE())
-    x_evals = torch.zeros(n, fr.LIMBS(), dtype=fr.TYPE())
+    INTT = nn.Intt(n, fr.TYPE())
+    x_evals = torch.zeros(n, fr.LIMBS(), dtype=fr.TYPE())#TODO: this can be optimized by padding
     x_evals[0] = scale.clone()
 
-    x_coeffs = inttclass.forward(x_evals.to("cuda"))
+    x_coeffs = INTT(x_evals.to("cuda"))
     result_poly = from_coeff_vec(x_coeffs)
     return result_poly
 
 
 def compute_gate_constraint_satisfiability(
-    n,
+    coset_NTT,
     range_challenge,
     logic_challenge,
     fixed_base_challenge,
@@ -53,9 +43,8 @@ def compute_gate_constraint_satisfiability(
     pi_poly,
 ):
 
-    size = 8 * n
     pi_poly = pi_poly.to("cuda")
-    pi_eval_8n = coset_NTT(size, pi_poly)
+    pi_eval_8n = coset_NTT(pi_poly)
 
     gate_contributions = []
 
@@ -63,7 +52,7 @@ def compute_gate_constraint_satisfiability(
         for key, value in data.items():
             if isinstance(value, dict):
                 convert_to_tensors(value)  # Recursively apply conversion
-            elif isinstance(value, np.ndarray):  ##4575657222473777152 ndarray problem
+            elif isinstance(value, np.ndarray):  
                 if np.array_equal(value, np.array(0, dtype=np.uint64)):
                     value = []
                 data[key] = torch.tensor(
@@ -121,12 +110,12 @@ def compute_gate_constraint_satisfiability(
     # }
 
     wit_vals = WitnessValues(
-        a_val=wl_eval_8n[:size],
-        b_val=wr_eval_8n[:size],
-        c_val=wo_eval_8n[:size],
-        d_val=w4_eval_8n[:size],
+        a_val=wl_eval_8n[:coset_NTT.Size],
+        b_val=wr_eval_8n[:coset_NTT.Size],
+        c_val=wo_eval_8n[:coset_NTT.Size],
+        d_val=w4_eval_8n[:coset_NTT.Size],
     )
-
+    
     custom_vals = CustomEvaluations(
         vals=[
             ("a_next_eval", wl_eval_8n[8:]),
@@ -181,7 +170,7 @@ def compute_gate_constraint_satisfiability(
     )
     # timings['CAGate_quotient_term'] += time.time() - start
 
-    mid1 = F.add_mod(arithmetic, pi_eval_8n[:size])
+    mid1 = F.add_mod(arithmetic, pi_eval_8n[:coset_NTT.Size])
     mid2 = F.add_mod(mid1, range_term)
     mid3 = F.add_mod(mid2, logic_term)
     mid4 = F.add_mod(mid3, fixed_base_scalar_mul_term)
@@ -194,6 +183,7 @@ def compute_gate_constraint_satisfiability(
 
 def compute_permutation_checks(
     n,
+    coset_ntt,
     prover_key,
     wl_eval_8n,
     wr_eval_8n,
@@ -211,7 +201,7 @@ def compute_permutation_checks(
     alpha2 = F.mul_mod(alpha, alpha)
 
     l1_poly_alpha = compute_first_lagrange_poly_scaled(n, alpha2.to("cuda"))
-    l1_alpha_sq_evals = coset_NTT(size, l1_poly_alpha.to("cuda"))
+    l1_alpha_sq_evals = coset_ntt(l1_poly_alpha.to("cuda"))
 
     # Initialize result list
     pk_permutation = prover_key["permutation"].tolist()
@@ -284,48 +274,42 @@ def compute_quotient_poly(
     var_base_challenge,
     lookup_challenge,
 ):
-
     coset_size = 8 * n
     one = fr.one()
     l1_poly = compute_first_lagrange_poly_scaled(n, one)
 
-    l1_eval_8n = coset_NTT(coset_size, l1_poly.to("cuda"))
-    z_eval_8n = coset_NTT(coset_size, z_poly.to("cuda"))
+    coset_NTT = nn.Ntt_coset(fr.TWO_ADICITY(), coset_size, fr.TYPE())
+    l1_eval_8n = coset_NTT(l1_poly.to("cuda"))
+    z_eval_8n = coset_NTT(z_poly.to("cuda"))
 
     z_eval_8n = torch.cat((z_eval_8n, z_eval_8n[:8]), dim=0)
 
-    wl_eval_8n = coset_NTT(coset_size, w_l_poly.to("cuda"))
+    wl_eval_8n = coset_NTT(w_l_poly.to("cuda"))
     wl_eval_8n = torch.cat((wl_eval_8n, wl_eval_8n[:8]), dim=0)
 
-    wr_eval_8n = coset_NTT(coset_size, w_r_poly.to("cuda"))
+    wr_eval_8n = coset_NTT(w_r_poly.to("cuda"))
     wr_eval_8n = torch.cat((wr_eval_8n, wr_eval_8n[:8]), dim=0)
 
-    wo_eval_8n = coset_NTT(coset_size, w_o_poly.to("cuda"))
+    wo_eval_8n = coset_NTT(w_o_poly.to("cuda"))
 
-    w4_eval_8n = coset_NTT(coset_size, w_4_poly.to("cuda"))
+    w4_eval_8n = coset_NTT(w_4_poly.to("cuda"))
     w4_eval_8n = torch.cat((w4_eval_8n, w4_eval_8n[:8]), dim=0)
 
-    z2_eval_8n = coset_NTT(coset_size, z2_poly.to("cuda"))
+    z2_eval_8n = coset_NTT(z2_poly.to("cuda"))
     z2_eval_8n = torch.cat((z2_eval_8n, z2_eval_8n[:8]), dim=0)
 
-    f_eval_8n = coset_NTT(coset_size, f_poly.to("cuda"))
+    f_eval_8n = coset_NTT(f_poly.to("cuda"))
 
-    table_eval_8n = coset_NTT(coset_size, table_poly.to("cuda"))
+    table_eval_8n = coset_NTT(table_poly.to("cuda"))
     table_eval_8n = torch.cat((table_eval_8n, table_eval_8n[:8]), dim=0)
 
-    h1_eval_8n = coset_NTT(coset_size, h1_poly.to("cuda"))
+    h1_eval_8n = coset_NTT(h1_poly.to("cuda"))
     h1_eval_8n = torch.cat((h1_eval_8n, h1_eval_8n[:8]), dim=0)
 
-    h2_eval_8n = coset_NTT(coset_size, h2_poly.to("cuda"))
-
-    # range_challenge = range_challenge.to('cuda')
-    # logic_challenge = logic_challenge.to('cuda')
-    # fixed_base_challenge = fixed_base_challenge.to('cuda')
-    # var_base_challenge = var_base_challenge.to('cuda')
-    # lookup_challenge = lookup_challenge.to('cuda')
+    h2_eval_8n = coset_NTT(h2_poly.to("cuda"))
 
     gate_constraints = compute_gate_constraint_satisfiability(
-        n,
+        coset_NTT,
         range_challenge,
         logic_challenge,
         fixed_base_challenge,
@@ -339,6 +323,7 @@ def compute_quotient_poly(
     )
     permutation = compute_permutation_checks(
         n,
+        coset_NTT,
         prover_key,
         wl_eval_8n,
         wr_eval_8n,
@@ -382,7 +367,8 @@ def compute_quotient_poly(
     numerator = F.add_mod(numerator, lookup)
     denominator = F.inv_mod(prover_key_v_h_coset_8n_evals)
     res = F.mul_mod(numerator, denominator)
-    quotient_poly = coset_INTT(coset_size, res)
+    coset_INTT = nn.Intt_coset(fr.TWO_ADICITY(), fr.TYPE())
+    quotient_poly = coset_INTT(res)
     hx = from_coeff_vec(quotient_poly)
 
     return hx

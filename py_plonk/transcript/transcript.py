@@ -1,9 +1,8 @@
 from dataclasses import dataclass
 import struct
 from ..transcript import strobe
-from ..structure import AffinePointG1, serialize_BTreeMap
+from ..structure import serialize_BTreeMap
 from ..bls12_381 import fr
-from ..transcript import flags
 import torch
 from ..serialize import todo_serialize_with_flags
 
@@ -38,17 +37,9 @@ class Transcript:
         self.strobe.ad(message, False)
     
     def append_pi(self, label, item, pos):
-        # pi_bytes = [1, 0, 0, 0, 0, 0, 0, 0, 71, 2, 0, 0, 0, 0, 0, 0, 175, 183, 188, 23, 25,
-        #             155, 195, 172, 246, 232, 114, 89, 255, 117, 123, 226, 161, 86, 112, 46,
-        #             124, 69, 74, 38, 91, 197, 152, 114, 132, 231, 67, 72]
         buf = []
         buf = serialize_BTreeMap(item, pos, buf)
         self.append_message(label,buf)
-    
-    # def append_new(self,label,item):
-    #     bytes = []
-    #     bytes = serialize(item,bytes)
-    #     self.append_message(label,bytes)
 
     def append(self, label, item):
         bytes = []

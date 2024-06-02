@@ -85,9 +85,7 @@ def REPR_SHAVE_BITS():
 
 
 def make_tensor(x, n=1):  # x is a integer in base domain
-    # return F.to_mont(F.scalar_from_int(x, dtype=BASE_TYPE()))
     assert x.bit_length() < 64
-    # return F.scalar_from_int(x, TYPE())
     output = [x] + [0] * (LIMBS() - 1)
     output = torch.tensor(output * n, dtype=BASE_TYPE())
     return F.to_mont(output)
@@ -130,6 +128,5 @@ def from_random_bytes(bytes: bytes):
         b &= m
 
     field_element, flag = deserialize(result_bytes[: limbs * 8])
-    # flags_obj = flags.SWFlags.from_u8(flag)
 
     return field_element

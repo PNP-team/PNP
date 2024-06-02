@@ -1,11 +1,10 @@
 from ....plonk_core.src.permutation import constants
-from ....arithmetic import NTT,INTT,from_coeff_vec
+from ....arithmetic import calculate_execution_time
 from ....bls12_381 import fr
 import torch
-import torch.nn.functional as F
-from ....arithmetic import from_coeff_vec, calculate_execution_time,INTT,NTT
-
 import torch.nn as nn
+import torch.nn.functional as F
+
 def extend_tensor(input:torch.tensor,size):
     if input.dim()==2:
         res = torch.zeros(size, 4,len(input), dtype=torch.BLS12_381_Fr_G1_Mont)
@@ -59,7 +58,6 @@ def lookup_ratio(one ,delta, epsilon, f, t, t_next,
 @calculate_execution_time
 def compute_permutation_poly(domain, wires, beta, gamma, sigma_polys: torch.Tensor):
     n = domain.size
-    zero = fr.zero()
     one = fr.one()
     # Constants defining cosets H, k1H, k2H, etc
     ks = [[],[],[],[]]
@@ -67,11 +65,12 @@ def compute_permutation_poly(domain, wires, beta, gamma, sigma_polys: torch.Tens
     ks[1] = constants.K1()
     ks[2] = constants.K2()
     ks[3] = constants.K3()
+    NTT = nn.Ntt(fr.TWO_ADICITY(), fr.TYPE())
     sigma_mappings = [[],[],[],[]]
-    sigma_mappings[0] = NTT(n, sigma_polys[0].to("cuda"))
-    sigma_mappings[1] = NTT(n, sigma_polys[1].to("cuda"))
-    sigma_mappings[2] = NTT(n, sigma_polys[2].to("cuda"))
-    sigma_mappings[3] = NTT(n, sigma_polys[3].to("cuda"))
+    sigma_mappings[0] = NTT(sigma_polys[0].to("cuda"))
+    sigma_mappings[1] = NTT(sigma_polys[1].to("cuda"))
+    sigma_mappings[2] = NTT(sigma_polys[2].to("cuda"))
+    sigma_mappings[3] = NTT(sigma_polys[3].to("cuda"))
 
 
     # Transpose wires and sigma values to get "rows" in the form [wl_i,
@@ -113,17 +112,11 @@ def compute_permutation_poly(domain, wires, beta, gamma, sigma_polys: torch.Tens
 
     denominator_product_under = F.div_mod(extend_one, denominator_product)
     gate_coefficient = F.mul_mod(numerator_product, denominator_product_under)
-    # z = torch.tensor([], dtype = fr.TYPE()).to("cuda")
 
-    # First element is one
-    # state = one.clone().unsqueeze(0).to("cuda")
-    # Accumulate by successively multiplying the scalars   
     z = F.accumulate_mul_poly(gate_coefficient)
-    # z = torch.cat((state, z), dim = 0)
-
+    INTT = nn.Intt(fr.TWO_ADICITY(), fr.TYPE())
     #Compute z poly
-    z_poly = INTT(n,z)
-    z_poly = from_coeff_vec(z_poly)
+    z_poly = INTT(z)
     return z_poly
 
 @calculate_execution_time
@@ -148,14 +141,9 @@ def compute_lookup_permutation_poly(n, f, t, h_1, h_2, delta, epsilon):  ####输
     extend_epsilon = epsilon.repeat(n,1)
 
     product_arguments = lookup_ratio(extend_one.to("cuda") ,extend_delta.to("cuda"), extend_epsilon.to("cuda"), f.to('cuda'), t.to('cuda'), t_next.to('cuda'), h_1, h_1_next.to('cuda'), h_2)
-
-    # state = one.clone().unsqueeze(0).to("cuda")
-    # p = torch.tensor([], dtype = fr.TYPE()).to('cuda')
-    # p = torch.cat((p,state))
     p = F.accumulate_mul_poly(product_arguments)
-
-    p_poly = INTT(n, p)
-    p_poly = from_coeff_vec(p_poly)
+    INTT = nn.Intt(fr.TWO_ADICITY(), fr.TYPE())
+    p_poly = INTT(p)
     
     return p_poly
 

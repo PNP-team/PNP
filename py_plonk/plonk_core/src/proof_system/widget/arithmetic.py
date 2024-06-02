@@ -19,39 +19,6 @@ class Arith:
     q_c: Tuple[List,List]
     q_arith: Tuple[List,List]
 
-    
-    # def compute_quotient_i(self, index: int, wit_vals: WitnessValues):
-
-    #     mult = F.mul_mod(wit_vals.a_val, wit_vals.b_val)
-    #     mult = F.mul_mod(mult,self.q_m[1][index]) 
-    #     left = F.mul_mod(wit_vals.a_val, self.q_l[1][index])
-    #     right = F.mul_mod(wit_vals.b_val, self.q_r[1][index])
-    #     out = F.mul_mod(wit_vals.c_val, self.q_o[1][index])
-    #     fourth = F.mul_mod(wit_vals.d_val, self.q_4[1][index])
-    #     a_high = pow(wit_vals.a_val,SBOX_ALPHA)
-    #     b_high = pow(wit_vals.b_val,SBOX_ALPHA)
-    #     f_high = pow(wit_vals.d_val,SBOX_ALPHA)
-
-    #     a_high = F.mul_mod(a_high, self.q_hl[1][index])
-    #     b_high = F.mul_mod(b_high, self.q_hr[1][index])
-    #     f_high = F.mul_mod(f_high, self.q_h4[1][index])
-
-    #     mid1 = F.add_mod(mult, left)
-    #     mid2 = F.add_mod(mid1, right)
-    #     mid3 = F.add_mod(mid2, out)
-    #     mid4 = F.add_mod(mid3, fourth)
-    #     mid5 = F.add_mod(mid4, a_high)
-    #     mid6 = F.add_mod(mid5, b_high)
-    #     mid7 = F.add_mod(mid6, f_high)
-    #     mid8 = F.add_mod(mid7, self.q_c[1][index])
-
-    #     arith_val = F.mul_mod(mid8, self.q_arith[1][index])
-
-    #     return arith_val
-    # Computes the arithmetic gate contribution to the linearisation
-    # polynomial at the given evaluation points.
-    
-
     def compute_linearisation(
         self, 
         a_eval: fr.Fr,
@@ -87,7 +54,6 @@ class Arith:
         return result
 # Computes the arithmetic gate contribution to the quotient polynomial at
 # the element of the domain at the given `index`.
-import json
 def compute_quotient_i(self, wit_vals: WitnessValues):
 
     mult = F.mul_mod(wit_vals.a_val, wit_vals.b_val)

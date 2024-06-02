@@ -11,7 +11,7 @@ from .plonk_core.src.proof_system.pi import into_dense_poly
 from .plonk_core.src.proof_system import quotient_poly
 from .plonk_core.src.proof_system import linearisation_poly
 import numpy as np
-from .arithmetic import from_coeff_vec, resize_gpu
+from .arithmetic import from_coeff_vec
 from .KZG import kzg10
 import torch
 import torch.nn.functional as F
@@ -33,7 +33,7 @@ data_set2=["../../data/MERKLE-HEIGHT-9/pp-9.npz","../../data/MERKLE-HEIGHT-9/pk-
 
 
 def split_tx_poly(n, t_x):
-    t_x = resize_gpu(t_x, n << 3)
+    # t_x = F.pad_poly(t_x, n << 3)
     return [
         from_coeff_vec(t_x[0:n]),
         from_coeff_vec(t_x[n : 2 * n]),
@@ -108,10 +108,6 @@ class gen_proof(torch.nn.Module):
 
         w_commits, w_rands = kzg10.commit_poly_new(pp, w_polys)
 
-        # w_c_1=transtompz(w_commits[0].commitment.value)
-        # w_c_2=transtompz(w_commits[1].commitment.value)
-        # w_c_3=transtompz(w_commits[2].commitment.value)
-        # w_c_4=transtompz(w_commits[3].commitment.value)
         transcript.append(b"w_l", w_commits[0].commitment.value)
         transcript.append(b"w_r", w_commits[1].commitment.value)
         transcript.append(b"w_o", w_commits[2].commitment.value)
@@ -136,14 +132,8 @@ class gen_proof(torch.nn.Module):
         pk_lookup_table4 = torch.tensor(
             pk_lookup["table4"]["coeffs"], dtype=torch.BLS12_381_Fr_G1_Mont
         ).to("cuda")
+
         # Compress lookup table into vector of single elements
-        t_multiset = torch.stack(
-            [pk_lookup_table1, pk_lookup_table2, pk_lookup_table3, pk_lookup_table4],
-            dim=0,
-        )
-
-        # t_multiset = multiset.MultiSet(concatenated_lookup)
-
         compressed_t_multiset = zkp.compress(
             [pk_lookup_table1, pk_lookup_table2, pk_lookup_table3, pk_lookup_table4],
             zeta.to("cuda"),
@@ -173,28 +163,6 @@ class gen_proof(torch.nn.Module):
             zeta.to("cuda"),
         )
 
-        # index=0
-        # for q_lookup, w_l, w_r, w_o, w_4 in zip(padded_q_lookup, w_l_scalar, w_r_scalar, w_o_scalar, w_4_scalar):
-        #     if np.array_equal(q_lookup, np.zeros(4, dtype = np.uint64)):
-        #         f_scalars.elements[0][index]=compressed_t_multiset.elements[0]
-        #         for key in range(1,4):
-        #                 f_scalars.elements[key][index]=torch.tensor([0,0,0,0],dtype=torch.BLS12_381_Fr_G1_Mont)
-        #     else:
-        #         f_scalars.elements[0][index]=w_l
-        #         f_scalars.elements[1][index]=w_r
-        #         f_scalars.elements[2][index]=w_o
-        #         f_scalars.elements[3][index]=w_4
-
-        #     index=index+1
-
-        # Compress all wires into a single vector
-        # concatenated_f_scalars=torch.stack([
-        # f_scalars.elements[0],
-        # f_scalars.elements[1],
-        # f_scalars.elements[2],
-        # f_scalars.elements[3]], dim=0)
-        # f_scalars=multiset.MultiSet(concatenated_f_scalars)
-
         # Compute query poly
         compressed_f_poly = self.INTT(compressed_f_multiset)
         f_poly = from_coeff_vec(compressed_f_poly)
@@ -217,8 +185,6 @@ class gen_proof(torch.nn.Module):
         h_2_temp = self.INTT(h_2)
         h_1_poly = from_coeff_vec(h_1_temp)
         h_2_poly = from_coeff_vec(h_2_temp)
-
-        # return 230.582
 
         # Commit to h polys
         h_1_polys = [
@@ -312,7 +278,7 @@ class gen_proof(torch.nn.Module):
 
         # 3. Compute public inputs polynomial
         cs_public_inputs = torch.tensor(cs.public_inputs, dtype=fr.TYPE())
-        pi_poly = into_dense_poly(cs_public_inputs, int(cs.intended_pi_pos), n)
+        pi_poly = into_dense_poly(cs_public_inputs, int(cs.intended_pi_pos), n, self.INTT)
 
         # 4. Compute quotient polynomial
         # Compute quotient challenge `alpha`, and gate-specific separation challenges.
@@ -340,7 +306,6 @@ class gen_proof(torch.nn.Module):
         )
         transcript.append(b"lookup separation challenge", lookup_sep_challenge)
 
-        # return 486.133
         t_poly = quotient_poly.compute_quotient_poly(
             n,
             pk,
@@ -402,15 +367,11 @@ class gen_proof(torch.nn.Module):
             ),
         ]
 
-        # return 812.774
         t_commits, _ = kzg10.commit_poly_new(pp, t_i_polys)
-        # return
 
         # Add quotient polynomial commitments to transcript
         for i in range(0, 8):
             transcript.append(f"t_{i+1}".encode(), t_commits[i].commitment.value)
-
-        # return 1.071s
 
         # 4. Compute linearisation polynomial
         # Compute evaluation challenge `z`.
@@ -504,7 +465,6 @@ class gen_proof(torch.nn.Module):
         # Fourth, all evals needed for custom gates
         for label, eval in evaluations.custom_evals.vals:
             static_label = label.encode("utf-8")
-            # eval = fr.Fr(eval.to("cpu"))
             transcript.append(static_label, eval)
 
         # 5. Compute Openings using KZG10

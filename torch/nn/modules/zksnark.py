@@ -3,7 +3,7 @@ from typing import Any
 import torch
 from torch import Tensor
 from .module import Module
-
+import torch.nn.functional as F 
 
 __all__ = ["Ntt", "Intt", "Ntt_coset", "Intt_coset"]
 
@@ -106,17 +106,20 @@ class Ntt_coset(Module):
 
     """
 
-    __constants__ = ["Params"]
+    __constants__ = ["Params","Size"]
 
     Params: Tensor
+    Size: int
 
-    def __init__(self, domain_size: int, dtype) -> None:
+    def __init__(self, domain_size: int, coset_size: int, dtype) -> None:
         super().__init__()
         self.Params = torch.params_zkp(
             domain_size, is_intt=False, dtype = dtype, device="cuda"
         )
+        self.Size = coset_size
 
     def forward(self, input: Tensor) -> Tensor:
+        input = F.pad_poly(input, self.Size)
         output = torch.ntt_zkp(input, self.Params, is_intt=False, is_coset=True)
         return output
 

@@ -93,15 +93,12 @@ class Radix2EvaluationDomain:
             # Notice that since Z_H(tau) is i-independent,
             # and v_i = g * v_{i-1}, it follows that
             # l_i = g^-1 * l_{i-1}
-            # TODO: consider caching the computation of l_i to save N multiplications
-            from .arithmetic import batch_inversion
+
 
             f_size = fr.make_tensor(size)
             pow_dof = F.exp_mod(domain_offset, size - 1) 
             v_0_inv = F.mul_mod(f_size, pow_dof)
             v_0 = F.div_mod(one, v_0_inv)
-            negative_cur_elem = F.sub_mod(mod, domain_offset)
-            r_0 = F.add_mod(tau, negative_cur_elem)
 
             tau = tau.to("cuda")
             group_gen = group_gen.to("cuda")
@@ -112,7 +109,6 @@ class Radix2EvaluationDomain:
             nominator = F.mul_mod_scalar(coeff_v, z_h_at_tau)
 
             coeff_r = F.gen_sequence(size, group_gen)
-            # coeff_r = F.mul_mod_scalar(coeff_r, r_0.to("cuda"))
             coeff_tau = tau.repeat(size, 1)
             denominator = F.sub_mod(coeff_tau, coeff_r)
             denominator_inv = F.inv_mod(denominator)
