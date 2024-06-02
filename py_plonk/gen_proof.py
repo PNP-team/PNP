@@ -2,11 +2,10 @@ import itertools
 from .domain import Radix2EvaluationDomain
 from .transcript import transcript
 from .composer import StandardComposer
-from .transcript import transcript
 from .bls12_381 import fr
 from .plonk_core.lookup.multiset import combine_split
 from .plonk_core.src.permutation import mod
-from .plonk_core.src.proof_system.prover_key import Prover_Key
+# from .plonk_core.src.proof_system.prover_key import Prover_Key
 from .plonk_core.src.proof_system.pi import into_dense_poly
 from .plonk_core.src.proof_system import quotient_poly
 from .plonk_core.src.proof_system import linearisation_poly
@@ -58,7 +57,7 @@ class gen_proof(torch.nn.Module):
     def __call__(
         self,
         pp,
-        pk: Prover_Key,
+        pk,
         cs: StandardComposer,
         transcript: transcript.Transcript,
     ):
@@ -463,7 +462,7 @@ class gen_proof(torch.nn.Module):
         transcript.append(b"h_2_eval", evaluations.lookup_evals.h2_eval)
 
         # Fourth, all evals needed for custom gates
-        for label, eval in evaluations.custom_evals.vals:
+        for label, eval in evaluations.custom_evals.items():
             static_label = label.encode("utf-8")
             transcript.append(static_label, eval)
 

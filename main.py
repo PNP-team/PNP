@@ -29,7 +29,7 @@ if __name__ == "__main__":
     
     
     transcript_init = b"Merkle tree"
-    preprocessed_transcript = transcript.Transcript.new(transcript_init)
+    preprocessed_transcript = transcript.Transcript(transcript_init)
     # with profile(activities=[ProfilerActivity.CPU]) as prof:
     #     with record_function("gen_proof"):
     # pi = gen_proof(pp,pk,cs,preprocessed_transcript)

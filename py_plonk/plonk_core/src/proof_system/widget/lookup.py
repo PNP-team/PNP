@@ -18,7 +18,7 @@ class Lookup:
     table_4: List[fr.Fr]
 
 
-def compute_quotient_i(
+def _compute_quotient_i(
         w_l_i,
         w_r_i,
         w_o_i,
@@ -186,7 +186,7 @@ def compute_lookup_quotient_term(
     size = 8 * n
   
     # Calculate lookup quotient term for each index
-    quotient = compute_quotient_i(
+    quotient = _compute_quotient_i(
         wl_eval_8n[:size],
         wr_eval_8n[:size],
         wo_eval_8n[:size],

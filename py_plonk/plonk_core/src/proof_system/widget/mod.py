@@ -1,17 +1,19 @@
 from .....bls12_381 import fr
-from dataclasses import dataclass
+
 import torch
 import torch.nn.functional as F
-@dataclass
+
+
 class WitnessValues:
-    a_val: fr.Fr  # Left Value
-    b_val: fr.Fr  # Right Value
-    c_val: fr.Fr  # Output Value
-    d_val: fr.Fr  # Fourth Value
+    def __init__(self, a_val, b_val, c_val, d_val):
+        self.a_val = a_val
+        self.b_val = b_val
+        self.c_val = c_val
+        self.d_val = d_val
 
 
 def delta(f: torch.Tensor):
-    
+
     one = fr.one()
     two = fr.make_tensor(2)
     three = fr.make_tensor(3)
@@ -23,5 +25,4 @@ def delta(f: torch.Tensor):
     mid2 = F.mul_mod(mid1, f_3)
     res = F.mul_mod(f, mid2)
 
-    
     return res

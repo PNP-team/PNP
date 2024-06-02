@@ -1,9 +1,7 @@
 from dataclasses import dataclass
 from typing import List
 from .bls12_381 import fq
-from .transcript import flags
-import torch.nn.functional as F
-from .serialize import todo_serialize_with_flags
+import torch
 
 
 @dataclass
@@ -11,60 +9,28 @@ class G2Coordinate:
     c0: any
     c1: any
 
+
 @dataclass
 class AffinePointG1:
 
-    def __init__(self,x,y):
+    def __init__(self, x, y):
         self.x = x
         self.y = y
 
-    @classmethod
-    def new(cls,x,y):
-        return cls(x,y)
-
-    #Returns the point at infinity, which always has Z = 0.
-    @classmethod
-    def zero(cls):
-        x=fq.zero()
-        y=x.one()
-        return cls(x,y)
-    
     def is_zero(self):
-        one = fq.one()
-        return F.trace_equal(self.x, fq.zero())  and F.trace_equal(one, self.y)
+        return torch.equal(self.x, fq.zero()) and torch.equal(self.y, fq.one())
 
-    
-    def serialize(self,writer):
-        if self.is_zero():
-            flag = flags.SWFlags.infinity()
-            # zero = fq.Fq(fq.zero())
-            writer = todo_serialize_with_flags(fq.zero(), writer,flag) # zero.todo_serialize_with_flags(writer,flag)
-            return writer
-        else:
-            a = F.to_base(self.y)
-            b = F.to_base(F.neg_mod(self.y))
-            a_most_sig = a[-1].tolist()
-            b_most_sig = b[-1].tolist()
-            flag = flags.SWFlags.from_y_sign(a_most_sig > b_most_sig) #a > b
-            writer = todo_serialize_with_flags(self.x, writer, flag)
-            return writer
+
 @dataclass
 class AffinePointG2:
     x: G2Coordinate
     y: G2Coordinate
-#TODO: implement BTreeMap class
-#TODO: implement different `serialize` for different types
-def serialize_u64(item, writer: list):
-    bytes = item.to_bytes(8, byteorder='little')
-    writer.extend(bytes)
-    return writer
 
-def serialize_BTreeMap(item, pos, writer: list):
-    len = 1    # len = item.length
-    writer = serialize_u64(len, writer)
-    writer = serialize_u64(pos, writer)
-    writer = todo_serialize_with_flags(item, writer)
-    return writer
+@dataclass
+class BTreeMap:
+    def __init__(self, item, pos):
+        self.item = item
+        self.pos = pos
 
 @dataclass
 class UniversalParams:
@@ -81,8 +47,3 @@ class OpenProof:
     # This is the evaluation of the random polynomial at the point for which
     # the evaluation proof was produced.
     random_v: any
-
-
-
-
-
