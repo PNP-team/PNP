@@ -1,5 +1,4 @@
 from .....bls12_381 import fr
-from .....plonk_core.src.proof_system.mod import CustomEvaluations
 from .....plonk_core.src.proof_system.widget.mod import WitnessValues,delta
 import torch.nn.functional as F
 
@@ -9,8 +8,8 @@ class RangeValues:
         self.d_next_val = d_next_val
         
     @staticmethod
-    def from_evaluations(custom_vals:CustomEvaluations):
-        d_next_val = custom_vals.get("d_next_eval")
+    def from_evaluations(custom_vals):
+        d_next_val = custom_vals["d_next_eval"]
         return RangeValues(d_next_val)
 
 class RangeGate:

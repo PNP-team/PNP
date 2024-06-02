@@ -5,20 +5,20 @@ import torch
 import torch.nn.functional as F
 from ....arithmetic import from_coeff_vec, calculate_execution_time,INTT,NTT
 
-def numerator_irreducible(root, w, k, beta, gamma):
+def _numerator_irreducible(root, w, k, beta, gamma):
     mid1 = F.mul_mod(beta,k)
     mid2 = F.mul_mod(mid1,root)
     mid3 = F.add_mod(w,mid2)
     numerator = F.add_mod(mid3,gamma)
     return numerator
 
-def denominator_irreducible(w, sigma, beta, gamma):
+def _denominator_irreducible(w, sigma, beta, gamma):
     mid1 = F.mul_mod_scalar(sigma, beta)
     mid2 = F.add_mod(w, mid1)
     denominator = F.add_mod(mid2, gamma)
     return denominator
 
-def lookup_ratio(one ,delta, epsilon, f, t, t_next,
+def _lookup_ratio(one ,delta, epsilon, f, t, t_next,
                 h_1, h_1_next, h_2):
    
     one_plus_delta = F.add_mod(delta,one)
@@ -93,9 +93,9 @@ def compute_permutation_poly(domain, wires, beta, gamma, sigma_polys: torch.Tens
         extend_ks = ks[index].repeat(n,1)
         extend_ks = extend_ks.to("cuda")
         
-        numerator_temps = numerator_irreducible(roots, wires[index], extend_ks, extend_beta, extend_gamma)
+        numerator_temps = _numerator_irreducible(roots, wires[index], extend_ks, extend_beta, extend_gamma)
         numerator_product = F.mul_mod(numerator_temps, numerator_product)
-        denominator_temps = denominator_irreducible(wires[index], sigma_mappings[index], beta, extend_gamma)
+        denominator_temps = _denominator_irreducible(wires[index], sigma_mappings[index], beta, extend_gamma)
         denominator_product = F.mul_mod(denominator_temps, denominator_product)
 
     denominator_product_under = F.div_mod(extend_one, denominator_product)
@@ -134,7 +134,7 @@ def compute_lookup_permutation_poly(n, f, t, h_1, h_2, delta, epsilon):  ####输
     extend_delta = delta.repeat(n,1)
     extend_epsilon = epsilon.repeat(n,1)
 
-    product_arguments = lookup_ratio(extend_one.to("cuda") ,extend_delta.to("cuda"), extend_epsilon.to("cuda"), f.to('cuda'), t.to('cuda'), t_next.to('cuda'), h_1, h_1_next.to('cuda'), h_2)
+    product_arguments = _lookup_ratio(extend_one.to("cuda") ,extend_delta.to("cuda"), extend_epsilon.to("cuda"), f.to('cuda'), t.to('cuda'), t_next.to('cuda'), h_1, h_1_next.to('cuda'), h_2)
 
     # state = one.clone().unsqueeze(0).to("cuda")
     # p = torch.tensor([], dtype = fr.TYPE()).to('cuda')

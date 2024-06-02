@@ -501,7 +501,7 @@ class gen_proof(torch.nn.Module):
         transcript.append(b"h_2_eval", evaluations.lookup_evals.h2_eval)
 
         # Fourth, all evals needed for custom gates
-        for label, eval in evaluations.custom_evals.vals:
+        for label, eval in evaluations.custom_evals.items():
             static_label = label.encode("utf-8")
             # eval = fr.Fr(eval.to("cpu"))
             transcript.append(static_label, eval)

@@ -13,7 +13,6 @@ from .widget.fixed_base_scalar_mul import (
     FBSMValues,
 )
 from .widget.curve_addition import CAGate, CAValues
-from .mod import CustomEvaluations
 from ....arithmetic import (
     from_coeff_vec,
     calculate_execution_time,
@@ -127,20 +126,19 @@ def compute_gate_constraint_satisfiability(
         d_val=w4_eval_8n[:size],
     )
 
-    custom_vals = CustomEvaluations(
-        vals=[
-            ("a_next_eval", wl_eval_8n[8:]),
-            ("b_next_eval", wr_eval_8n[8:]),
-            ("d_next_eval", w4_eval_8n[8:]),
-            ("q_l_eval", prover_key_arithmetic["q_l"]["evals"].clone()),
-            ("q_r_eval", prover_key_arithmetic["q_r"]["evals"].clone()),
-            ("q_c_eval", prover_key_arithmetic["q_c"]["evals"].clone()),
+    custom_vals = {
+        "a_next_eval" : wl_eval_8n[8:],
+        "b_next_eval" : wr_eval_8n[8:],
+        "d_next_eval" : w4_eval_8n[8:],
+        "q_l_eval" : prover_key_arithmetic["q_l"]["evals"].clone(),
+        "q_r_eval" : prover_key_arithmetic["q_r"]["evals"].clone(),
+        "q_c_eval" : prover_key_arithmetic["q_c"]["evals"].clone(),
             # Possibly unnecessary but included nonetheless...
-            ("q_hl_eval", prover_key_arithmetic["q_hl"]["evals"].clone()),
-            ("q_hr_eval", prover_key_arithmetic["q_hr"]["evals"].clone()),
-            ("q_h4_eval", prover_key_arithmetic["q_h4"]["evals"].clone()),
-        ]
-    )
+        "q_hl_eval" : prover_key_arithmetic["q_hl"]["evals"].clone(),
+        "q_hr_eval" : prover_key_arithmetic["q_hr"]["evals"].clone(),
+        "q_h4_eval" : prover_key_arithmetic["q_h4"]["evals"].clone(),
+    }
+    
     # start = time.time()
     arithmetic = compute_quotient_i(prover_key_arithmetic, wit_vals)
     # timings['compute_quotient_i'] += time.time() - start

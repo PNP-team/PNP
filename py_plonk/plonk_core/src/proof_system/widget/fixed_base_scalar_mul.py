@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from .....bls12_381 import fr
-from .....plonk_core.src.proof_system.mod import CustomEvaluations
 from .....plonk_core.src.proof_system.widget.mod import WitnessValues
 from .....bls12_381 import edwards as P
 from .arithmetic import poly_mul_const
@@ -24,13 +23,13 @@ class FBSMValues:
     q_c_val: fr.Fr
 
     @staticmethod
-    def from_evaluations(custom_evals: CustomEvaluations):
-        a_next_val = custom_evals.get("a_next_eval")
-        b_next_val = custom_evals.get("b_next_eval")
-        d_next_val = custom_evals.get("d_next_eval")
-        q_l_val = custom_evals.get("q_l_eval")
-        q_r_val = custom_evals.get("q_r_eval")
-        q_c_val = custom_evals.get("q_c_eval")
+    def from_evaluations(custom_evals):
+        a_next_val = custom_evals["a_next_eval"]
+        b_next_val = custom_evals["b_next_eval"]
+        d_next_val = custom_evals["d_next_eval"]
+        q_l_val = custom_evals["q_l_eval"]
+        q_r_val = custom_evals["q_r_eval"]
+        q_c_val = custom_evals["q_c_eval"]
 
         return FBSMValues(a_next_val, b_next_val, d_next_val, q_l_val, q_r_val, q_c_val)
 
