@@ -1,19 +1,7 @@
 import torch
 import torch.nn.functional as F
 from ....bls12_381 import fr
-<<<<<<< HEAD
-from ....plonk_core.src.proof_system.widget.mod import WitnessValues
-from ....plonk_core.src.proof_system.widget.range import RangeGate, RangeValues
-from ....plonk_core.src.proof_system.widget.logic import LogicGate, LogicValues
-from ....plonk_core.src.proof_system.widget.fixed_base_scalar_mul import (
-    FBSMGate,
-    FBSMValues,
-)
-from ....plonk_core.src.proof_system.widget.curve_addition import CAGate, CAValues
-from ....plonk_core.src.proof_system.mod import CustomEvaluations
-from ....arithmetic import from_coeff_vec,calculate_execution_time
-=======
-from ....arithmetic import from_coeff_vec, coset_NTT
+from ....arithmetic import from_coeff_vec, calculate_execution_time
 from .widget.mod import WitnessValues
 from .widget.range import RangeGate, RangeValues
 from .widget.logic import LogicGate, LogicValues
@@ -22,13 +10,6 @@ from .widget.fixed_base_scalar_mul import (
     FBSMValues,
 )
 from .widget.curve_addition import CAGate, CAValues
-from ....arithmetic import (
-    from_coeff_vec,
-    calculate_execution_time,
-    coset_NTT,
-    coset_INTT,
-)
->>>>>>> origin/zrji_plonk
 import torch.nn as nn
 from .widget.arithmetic import compute_quotient_i
 from ..proof_system.permutation import permutation_compute_quotient
@@ -133,17 +114,6 @@ def compute_gate_constraint_satisfiability(
         c_val=wo_eval_8n[:coset_NTT.Size],
         d_val=w4_eval_8n[:coset_NTT.Size],
     )
-<<<<<<< HEAD
-    
-    custom_vals = CustomEvaluations(
-        vals=[
-            ("a_next_eval", wl_eval_8n[8:]),
-            ("b_next_eval", wr_eval_8n[8:]),
-            ("d_next_eval", w4_eval_8n[8:]),
-            ("q_l_eval", prover_key_arithmetic["q_l"]["evals"].clone()),
-            ("q_r_eval", prover_key_arithmetic["q_r"]["evals"].clone()),
-            ("q_c_eval", prover_key_arithmetic["q_c"]["evals"].clone()),
-=======
 
     custom_vals = {
         "a_next_eval" : wl_eval_8n[8:],
@@ -152,7 +122,6 @@ def compute_gate_constraint_satisfiability(
         "q_l_eval" : prover_key_arithmetic["q_l"]["evals"].clone(),
         "q_r_eval" : prover_key_arithmetic["q_r"]["evals"].clone(),
         "q_c_eval" : prover_key_arithmetic["q_c"]["evals"].clone(),
->>>>>>> origin/zrji_plonk
             # Possibly unnecessary but included nonetheless...
         "q_hl_eval" : prover_key_arithmetic["q_hl"]["evals"].clone(),
         "q_hr_eval" : prover_key_arithmetic["q_hr"]["evals"].clone(),

@@ -1,16 +1,8 @@
-import torch
 from dataclasses import dataclass
 from ..transcript import strobe
-<<<<<<< HEAD
-from ..structure import serialize_BTreeMap
-from ..bls12_381 import fr
-import torch
-from ..serialize import todo_serialize_with_flags
-=======
 from ..structure import BTreeMap
 from ..bls12_381 import fr
 from ..serialize import serialize, deserialize
->>>>>>> origin/zrji_plonk
 
 
 MERLIN_PROTOCOL_LABEL = b"Merlin v1.0"
@@ -29,14 +21,8 @@ class Transcript:
         self.strobe.ad(message, False)
 
     def append_pi(self, label, item, pos):
-<<<<<<< HEAD
-        buf = []
-        buf = serialize_BTreeMap(item, pos, buf)
-        self.append_message(label,buf)
-=======
         buf = serialize(BTreeMap(item, pos))
         self.append_message(label, buf)
->>>>>>> origin/zrji_plonk
 
     def append(self, label, item):
         self.append_message(label, serialize(item))
