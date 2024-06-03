@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from ..transcript import strobe
 from ..structure import BTreeMap
 from ..bls12_381 import fr

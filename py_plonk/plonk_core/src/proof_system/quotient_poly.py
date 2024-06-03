@@ -1,7 +1,7 @@
 import torch
 import torch.nn.functional as F
 from ....bls12_381 import fr
-from ....arithmetic import from_coeff_vec, calculate_execution_time
+from ....arithmetic import calculate_execution_time
 from .widget.mod import WitnessValues
 from .widget.range import RangeGate, RangeValues
 from .widget.logic import LogicGate, LogicValues
@@ -22,8 +22,7 @@ def compute_first_lagrange_poly_scaled(n, scale: torch.Tensor):
     INTT = nn.Intt(n, fr.TYPE())
     x_evals = F.pad_poly(scale, n)
     x_coeffs = INTT(x_evals.to("cuda"))
-    result_poly = from_coeff_vec(x_coeffs)
-    return result_poly
+    return x_coeffs
 
 
 def compute_gate_constraint_satisfiability(
@@ -365,6 +364,4 @@ def compute_quotient_poly(
     res = F.mul_mod(numerator, denominator)
     coset_INTT = nn.Intt_coset(fr.TWO_ADICITY(), fr.TYPE())
     quotient_poly = coset_INTT(res)
-    hx = from_coeff_vec(quotient_poly)
-
-    return hx
+    return quotient_poly

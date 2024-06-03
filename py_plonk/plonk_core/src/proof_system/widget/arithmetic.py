@@ -1,6 +1,4 @@
-from dataclasses import dataclass
 from .....bls12_381 import fr
-import torch
 import torch.nn.functional as F
 from typing import List, Tuple
 from .....plonk_core.src.proof_system.widget.mod import WitnessValues

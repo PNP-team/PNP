@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import List, Tuple
 from ....domain import Radix2EvaluationDomain
 from ....bls12_381 import fr
 

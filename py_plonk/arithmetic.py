@@ -1,4 +1,3 @@
-import copy
 from .bls12_381 import fr,fq
 from .jacobian import ProjectivePointG1
 import random
@@ -35,15 +34,6 @@ def convert_to_bigints(p: torch.Tensor):
 def skip_leading_zeros_and_convert_to_bigints(p: torch.Tensor):
     return convert_to_bigints(p.to('cpu'))
 
-def from_coeff_vec(poly:torch.Tensor):
-    return poly
-    poly1 = poly.to("cpu")
-    zero = fr.zero()
-    counter = 0
-    while counter < poly1.size(0) and torch.equal(poly1[-counter-1], zero):
-        counter += 1
-    return poly[:poly.size(0)-counter]
-
 
 def poly_add_poly(self: torch.Tensor, other: torch.Tensor):    
     if self.size(0) == 0:
@@ -55,12 +45,10 @@ def poly_add_poly(self: torch.Tensor, other: torch.Tensor):
     elif len(self) >= len(other):
         result = self.clone()
         F.add_mod(result[:len(other)],other,True)
-        result = from_coeff_vec(result)
         return result.to("cuda")
     else:
         result = other.clone()
         F.add_mod(result[:len(self)],self,True)
-        result = from_coeff_vec(result)
         return result.to("cuda")
 
 def poly_mul_const(poly:torch.Tensor, elem:torch.Tensor):  
@@ -74,7 +62,7 @@ def poly_mul_const(poly:torch.Tensor, elem:torch.Tensor):
 def rand_poly(d):
     random.seed(42)
     random_coeffs = [fr.make_tensor(random.random) for _ in range(d + 1)]
-    return from_coeff_vec(random_coeffs)
+    return random_coeffs
 
 
 def poly_add_poly_mul_const(self:torch.Tensor, f: torch.Tensor, other: torch.Tensor):
@@ -98,10 +86,8 @@ def poly_add_poly_mul_const(self:torch.Tensor, f: torch.Tensor, other: torch.Ten
         self = F.pad_poly(self, other.size(0))
     temp = F.mul_mod_scalar(other, f)
     F.add_mod(self[:other.size(0)], temp, True)
-
-    res = from_coeff_vec(self)
     
-    return res
+    return self
 
 # The first lagrange polynomial has the expression:
 # L_0(X) = mul_from_1_to_(n-1) [(X - omega^i) / (1 - omega^i)]

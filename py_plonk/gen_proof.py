@@ -10,7 +10,6 @@ from .plonk_core.src.proof_system.pi import into_dense_poly
 from .plonk_core.src.proof_system import quotient_poly
 from .plonk_core.src.proof_system import linearisation_poly
 import numpy as np
-from .arithmetic import from_coeff_vec
 from .KZG import kzg10
 import torch
 import torch.nn.functional as F
@@ -34,14 +33,14 @@ data_set2=["../../data/MERKLE-HEIGHT-9/pp-9.npz","../../data/MERKLE-HEIGHT-9/pk-
 def split_tx_poly(n, t_x):
     # t_x = F.pad_poly(t_x, n << 3)
     return [
-        from_coeff_vec(t_x[0:n]),
-        from_coeff_vec(t_x[n : 2 * n]),
-        from_coeff_vec(t_x[2 * n : 3 * n]),
-        from_coeff_vec(t_x[3 * n : 4 * n]),
-        from_coeff_vec(t_x[4 * n : 5 * n]),
-        from_coeff_vec(t_x[5 * n : 6 * n]),
-        from_coeff_vec(t_x[6 * n : 7 * n]),
-        from_coeff_vec(t_x[7 * n :]),
+        t_x[0:n],
+        t_x[n : 2 * n],
+        t_x[2 * n : 3 * n],
+        t_x[3 * n : 4 * n],
+        t_x[4 * n : 5 * n],
+        t_x[5 * n : 6 * n],
+        t_x[6 * n : 7 * n],
+        t_x[7 * n :],
     ]
 
 
@@ -173,10 +172,8 @@ class gen_proof(torch.nn.Module):
         # Compute h polys
         h_1 = h_1.to("cuda")
         h_2 = h_2.to("cuda")
-        h_1_temp = self.INTT(h_1)
-        h_2_temp = self.INTT(h_2)
-        h_1_poly = from_coeff_vec(h_1_temp)
-        h_2_poly = from_coeff_vec(h_2_temp)
+        h_1_poly = self.INTT(h_1)
+        h_2_poly = self.INTT(h_2)
 
         # Commit to h polys
         h_1_polys = [
