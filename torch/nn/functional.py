@@ -6230,6 +6230,11 @@ def gen_sequence(N: int, x: Tensor) -> Tensor:
     return result
 
 # @trace
+def repeat_to_poly(x: Tensor, N: int) -> Tensor:
+    result = torch.repeat_to_poly(x, N)
+    return result
+
+# @trace
 def evaluate(poly: Tensor, x: Tensor) -> Tensor:
     if poly.size(0) == 0:
         result = torch.zeros(4, dtype = poly.dtype).to("cuda")

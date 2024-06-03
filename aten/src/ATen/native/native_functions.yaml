@@ -15494,6 +15494,11 @@
     CPU: pad_poly_cpu
     CUDA: pad_poly_cuda
 
+- func: repeat_to_poly(Tensor self, int N) -> Tensor
+  device_check: NoCheck   # TensorIterator
+  dispatch:
+    CUDA: repeat_to_poly_cuda
+
 - func: poly_eval(Tensor a, int N) -> Tensor
   device_check: NoCheck
   dispatch:

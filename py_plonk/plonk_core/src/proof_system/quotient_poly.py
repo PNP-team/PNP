@@ -20,9 +20,7 @@ import numpy as np
 # Computes the first lagrange polynomial with the given `scale` over `domain`.
 def compute_first_lagrange_poly_scaled(n, scale: torch.Tensor):
     INTT = nn.Intt(n, fr.TYPE())
-    x_evals = torch.zeros(n, fr.LIMBS(), dtype=fr.TYPE())#TODO: this can be optimized by padding
-    x_evals[0] = scale.clone()
-
+    x_evals = F.pad_poly(scale, n)
     x_coeffs = INTT(x_evals.to("cuda"))
     result_poly = from_coeff_vec(x_coeffs)
     return result_poly
@@ -273,7 +271,7 @@ def compute_quotient_poly(
     lookup_challenge,
 ):
     coset_size = 8 * n
-    one = fr.one()
+    one = fr.one().to("cuda")
     l1_poly = compute_first_lagrange_poly_scaled(n, one)
 
     coset_NTT = nn.Ntt_coset(fr.TWO_ADICITY(), coset_size, fr.TYPE())

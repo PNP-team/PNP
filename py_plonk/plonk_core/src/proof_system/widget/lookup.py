@@ -40,10 +40,8 @@ def _compute_quotient_i(
         size
     ):
         # q_lookup(X) * (a(X) + zeta * b(X) + (zeta^2 * c(X)) + (zeta^3 * d(X) - f(X))) * α_1
-
         one = fr.one()
-        extend_mod = fr.MODULUS().repeat(size,1)
-
+        
         #single scalar OP on CPU
         lookup_sep_sq = F.mul_mod(lookup_sep, lookup_sep)  # Calculate the square of lookup_sep
         lookup_sep_cu = F.mul_mod(lookup_sep_sq, lookup_sep)  # Calculate the cube of lookup_sep
@@ -59,7 +57,7 @@ def _compute_quotient_i(
         one_plus_delta = one_plus_delta.to("cuda")
         epsilon_one_plus_delta = epsilon_one_plus_delta.to("cuda")
         one = one.to("cuda")
-        extend_mod = extend_mod.to("cuda")
+        extend_mod = F.repeat_to_poly(fr.MODULUS().to("cuda"), size)
 
         # Calculate q_lookup_i * (compressed_tuple - f_i)
         q_lookup_i = proverkey_q_lookup
@@ -123,12 +121,9 @@ def compute_linearisation_lookup(
     lookup_sep,
     pk_q_lookup,
 ):
-    one = fr.one()
-    one = one.to("cuda")
-    mod = fr.MODULUS().to("cuda")
     lookup_sep_sq = F.mul_mod(lookup_sep, lookup_sep)
     lookup_sep_cu = F.mul_mod(lookup_sep_sq, lookup_sep)
-    one_plus_delta = F.add_mod(delta, one)
+    one_plus_delta = F.add_mod(delta, fr.one().to("cuda"))
     epsilon_one_plus_delta = F.mul_mod(epsilon, one_plus_delta)
 
     compressed_tuple = lc([a_eval, b_eval, c_eval, d_eval], zeta)
@@ -151,7 +146,7 @@ def compute_linearisation_lookup(
 
     # h1(X) * (−z2ω_bar) * (ε(1+δ) + h2_bar  + δh1ω_bar) * lookup_sep^2
 
-    neg_z2_next_eval = F.sub_mod(mod, z2_next_eval)
+    neg_z2_next_eval = F.sub_mod(fr.MODULUS().to("cuda"), z2_next_eval)
     c_0 = F.mul_mod(neg_z2_next_eval, lookup_sep_sq)
     epsilon_one_plus_delta_h2_eval = F.add_mod(epsilon_one_plus_delta, h2_eval)
     delta_h1_next_eval =  F.add_mod(delta, h1_next_eval)

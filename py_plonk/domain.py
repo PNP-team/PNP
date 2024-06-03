@@ -70,7 +70,6 @@ class Radix2EvaluationDomain:
         t_size = F.exp_mod(tau, size)
         zero = fr.zero()
         one = fr.one()
-        mod = fr.MODULUS()
         domain_offset = one.clone()
         z_h_at_tau = F.sub_mod(t_size, domain_offset)
 

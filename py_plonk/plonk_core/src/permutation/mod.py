@@ -46,13 +46,14 @@ def _lookup_ratio(one ,delta, epsilon, f, t, t_next,
 @calculate_execution_time
 def compute_permutation_poly(domain, wires, beta, gamma, sigma_polys: torch.Tensor):
     n = domain.size
-    one = fr.one()
+    one = fr.one().to("cuda")
     # Constants defining cosets H, k1H, k2H, etc
     ks = [[],[],[],[]]
-    ks[0] = fr.one()
-    ks[1] = constants.K1()
-    ks[2] = constants.K2()
-    ks[3] = constants.K3()
+    ks[0] = fr.one().to("cuda")
+    ks[1] = constants.K1().to("cuda")
+    ks[2] = constants.K2().to("cuda")
+    ks[3] = constants.K3().to("cuda")
+
     NTT = nn.Ntt(fr.TWO_ADICITY(), fr.TYPE())
     sigma_mappings = [[],[],[],[]]
     sigma_mappings[0] = NTT(sigma_polys[0].to("cuda"))
@@ -67,20 +68,17 @@ def compute_permutation_poly(domain, wires, beta, gamma, sigma_polys: torch.Tens
     # Compute all roots, same as calculating twiddles, but doubled in size
     roots = F.gen_sequence(n, domain.group_gen.to("cuda"))
 
-    numerator_product = one.clone()
-    denominator_product = one.clone()
-    numerator_product = numerator_product.repeat(n,1)
-    denominator_product = denominator_product.repeat(n,1)
+    numerator_product = F.repeat_to_poly(one, n)
+    denominator_product = F.repeat_to_poly(one, n)
     numerator_product = numerator_product.to("cuda")
     denominator_product = denominator_product.to("cuda")
 
-    extend_beta = beta.repeat(n,1)
-    extend_gamma = gamma.repeat(n,1)
-    extend_one = one.repeat(n,1)
     beta = beta.to("cuda")
-    extend_beta = extend_beta.to("cuda")
-    extend_gamma = extend_gamma.to("cuda")
-    extend_one = extend_one.to("cuda")
+    gamma = gamma.to("cuda")
+
+    extend_beta = F.repeat_to_poly(beta, n)
+    extend_gamma = F.repeat_to_poly(gamma, n)
+    extend_one = F.repeat_to_poly(one, n)
 
     for index in range(len(ks)):
         # Initialize numerator and denominator products
@@ -90,8 +88,7 @@ def compute_permutation_poly(domain, wires, beta, gamma, sigma_polys: torch.Tens
         # information   needed for a single product coefficient
         # for a single gate Multiply up the numerator and
         # denominator irreducibles for each gate and pair the results 
-        extend_ks = ks[index].repeat(n,1)
-        extend_ks = extend_ks.to("cuda")
+        extend_ks = F.repeat_to_poly(ks[index], n)
         
         numerator_temps = _numerator_irreducible(roots, wires[index], extend_ks, extend_beta, extend_gamma)
         numerator_product = F.mul_mod(numerator_temps, numerator_product)
@@ -108,8 +105,7 @@ def compute_permutation_poly(domain, wires, beta, gamma, sigma_polys: torch.Tens
     return z_poly
 
 @calculate_execution_time
-# Define a Python function that mirrors the Rust function
-def compute_lookup_permutation_poly(n, f, t, h_1, h_2, delta, epsilon):  ####输出为Tensor
+def compute_lookup_permutation_poly(n, f, t, h_1, h_2, delta, epsilon):  
     assert f.size(0) == n
     assert t.size(0) == n
     assert h_1.size(0) == n
@@ -123,12 +119,12 @@ def compute_lookup_permutation_poly(n, f, t, h_1, h_2, delta, epsilon):  ####输
     h_1_next[:n-1] = h_1[1:].clone()
     h_1_next[-1] = h_1[0].clone()
 
-    one = fr.one()
-    extend_one = one.repeat(n,1)
-    extend_delta = delta.repeat(n,1)
-    extend_epsilon = epsilon.repeat(n,1)
+    one = fr.one().to("cuda")
+    extend_one = F.repeat_to_poly(one, n)
+    extend_delta = F.repeat_to_poly(delta, n)
+    extend_epsilon = F.repeat_to_poly(epsilon, n)
 
-    product_arguments = _lookup_ratio(extend_one.to("cuda") ,extend_delta.to("cuda"), extend_epsilon.to("cuda"), f.to('cuda'), t.to('cuda'), t_next.to('cuda'), h_1, h_1_next.to('cuda'), h_2)
+    product_arguments = _lookup_ratio(extend_one ,extend_delta, extend_epsilon, f, t, t_next.to('cuda'), h_1, h_1_next.to('cuda'), h_2)
 
     p = F.accumulate_mul_poly(product_arguments)
     INTT = nn.Intt(fr.TWO_ADICITY(), fr.TYPE())

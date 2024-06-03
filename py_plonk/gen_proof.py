@@ -88,15 +88,10 @@ class gen_proof(torch.nn.Module):
         w_o_scalar = w_o_scalar.to("cuda")
         w_4_scalar = w_4_scalar.to("cuda")
 
-        w_l_scalar_intt = self.INTT(w_l_scalar)
-        w_r_scalar_intt = self.INTT(w_r_scalar)
-        w_o_scalar_intt = self.INTT(w_o_scalar)
-        w_4_scalar_intt = self.INTT(w_4_scalar)
-
-        w_l_poly = from_coeff_vec(w_l_scalar_intt)
-        w_r_poly = from_coeff_vec(w_r_scalar_intt)
-        w_o_poly = from_coeff_vec(w_o_scalar_intt)
-        w_4_poly = from_coeff_vec(w_4_scalar_intt)
+        w_l_poly = self.INTT(w_l_scalar)
+        w_r_poly = self.INTT(w_r_scalar)
+        w_o_poly = self.INTT(w_o_scalar)
+        w_4_poly = self.INTT(w_4_scalar)
 
         w_polys = [
             kzg10.LabeledPoly.new(label="w_l_poly", hiding_bound=None, poly=w_l_poly),
@@ -139,8 +134,7 @@ class gen_proof(torch.nn.Module):
         )
         # Compute table poly
 
-        compressed_t_poly = self.INTT(compressed_t_multiset)
-        table_poly = from_coeff_vec(compressed_t_poly)
+        table_poly = self.INTT(compressed_t_multiset)
 
         # Compute query table f
         # When q_lookup[i] is zero the wire value is replaced with a dummy
@@ -163,8 +157,7 @@ class gen_proof(torch.nn.Module):
         )
 
         # Compute query poly
-        compressed_f_poly = self.INTT(compressed_f_multiset)
-        f_poly = from_coeff_vec(compressed_f_poly)
+        f_poly = self.INTT(compressed_f_multiset)
         f_polys = [
             kzg10.LabeledPoly.new(label="f_poly", hiding_bound=None, poly=f_poly)
         ]
@@ -265,7 +258,7 @@ class gen_proof(torch.nn.Module):
         # Compute mega permutation polynomial.
         # Compute lookup permutation poly
         z_2_poly = mod.compute_lookup_permutation_poly(
-            n, compressed_f_multiset, compressed_t_multiset, h_1, h_2, delta, epsilon
+            n, compressed_f_multiset, compressed_t_multiset, h_1, h_2, delta.to("cuda"), epsilon.to("cuda")
         )
         # Commit to lookup permutation polynomial.
         z_2_polys = [

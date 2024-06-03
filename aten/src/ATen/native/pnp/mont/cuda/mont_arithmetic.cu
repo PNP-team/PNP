@@ -331,6 +331,14 @@ __global__ void exclusive_scan_shift_zero_kernel(const T* in, T* out, int64_t N)
     }
 }
 
+template <typename T>
+__global__ void repeat_kernel(const T* in, T* out, int64_t N){
+    int64_t tid = blockIdx.x * BLOCK_SIZE + threadIdx.x;
+    if(tid < N){
+      out[tid] = *in;
+    }
+}
+
 BIN_KERNEL(add, +);
 BIN_KERNEL(sub, -);
 BIN_KERNEL(mul, *);
@@ -549,6 +557,21 @@ static void accumulate_mul_poly_cuda_template(Tensor& product_poly, Tensor& accu
   });
 }
 
+static void repeat_to_poly_cuda_template(const Tensor& input, Tensor& output, int64_t N) {
+  AT_DISPATCH_MONT_TYPES(input.scalar_type(), "repeat_cuda", [&] {
+    auto in_ptr = reinterpret_cast<scalar_t::compute_type*>(
+        input.mutable_data_ptr<scalar_t>());
+    auto out_ptr = reinterpret_cast<scalar_t::compute_type*>(
+        output.mutable_data_ptr<scalar_t>());
+    TORCH_INTERNAL_ASSERT(N > 0 && N <= std::numeric_limits<int32_t>::max());
+    int64_t grid = (N + block_work_size() - 1) / block_work_size();
+    auto stream = at::cuda::getCurrentCUDAStream();
+    repeat_kernel<<<grid, block_work_size(), 0, stream>>>(
+        in_ptr, out_ptr, N);
+    C10_CUDA_KERNEL_LAUNCH_CHECK();
+  });
+}
+
 BIN_OP_TEMPLATE(add);
 BIN_OP_TEMPLATE(sub);
 BIN_OP_TEMPLATE(mul);
@@ -645,6 +668,14 @@ Tensor pad_poly_cuda(const Tensor& input, int64_t N) {
       input.data_ptr(),
       input.numel() * sizeof(uint64_t),
       cudaMemcpyDeviceToDevice);
+  return output;
+}
+
+Tensor repeat_to_poly_cuda(const Tensor& input, int64_t N) {
+  Tensor output = at::empty(
+      {N, num_uint64(input.scalar_type())},
+      input.options());
+  repeat_to_poly_cuda_template(input, output, N);
   return output;
 }
 

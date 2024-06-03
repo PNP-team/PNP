@@ -111,8 +111,8 @@ def compute_quotient_copy_range_check_i(
     mid5 = F.mul_mod(mid5, z_i_next)
     product = F.mul_mod_scalar(mid5, alpha)    
 
-    extend_mod = fr.MODULUS().repeat(size, 1)     
-    res = F.sub_mod(extend_mod.to("cuda"), product)
+    extend_mod = F.repeat_to_poly(fr.MODULUS().to("cuda"), size)
+    res = F.sub_mod(extend_mod, product)
     return res
 
 # Computes the following:
@@ -131,13 +131,15 @@ def compute_linearisation_permutation(
     sigmaTuple, 
     z_eval, z_poly, domain,
     pk_fourth_sigma_coeff):
-    mod = fr.MODULUS().to("cuda")
+    
     a = compute_lineariser_identity_range_check(
         wireTuple[0],wireTuple[1],wireTuple[2],wireTuple[3],
         z_challenge,
         challengTuple[0],challengTuple[1],challengTuple[2],
         z_poly
     )
+
+    mod = fr.MODULUS().to("cuda")
     b = compute_lineariser_copy_range_check(
         mod,
         wireTuple[0], wireTuple[1], wireTuple[2],
@@ -146,6 +148,7 @@ def compute_linearisation_permutation(
         challengTuple[0],challengTuple[1],challengTuple[2],
         pk_fourth_sigma_coeff
     )
+    
     alpha2 = F.mul_mod(challengTuple[0], challengTuple[0])
     alpha2 = alpha2.to('cuda')
     c = compute_lineariser_check_is_one(
