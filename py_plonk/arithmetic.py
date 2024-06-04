@@ -116,10 +116,10 @@ def MSM(bases,scalar):
         commitment = ProjectivePointG1(fq.one(), fq.one(), fq.zero())
         return commitment
     else:
-        base = bases.clone()
-        base = base[:min_size].view(-1, 6) # dim2 to 1
-        base = base.to('cuda')
-        scalar = scalar.to('cuda')
-        commitment = F.multi_scalar_mult(base, scalar)
+        # base = bases.clone()
+        # base = base[:min_size].view(-1, 6) # dim2 to 1
+        # base = base.to('cuda')
+        # scalar = scalar.to('cuda')
+        commitment = F.multi_scalar_mult(bases.to("cuda"), scalar.to("cuda"))
         commitment = ProjectivePointG1(commitment[0],commitment[1],commitment[2])
         return commitment

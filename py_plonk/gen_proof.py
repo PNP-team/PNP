@@ -2,7 +2,7 @@ import itertools
 from .domain import Radix2EvaluationDomain
 from .transcript import transcript
 from .composer import StandardComposer
-from .bls12_381 import fr
+from .bls12_381 import fr,fq
 from .plonk_core.lookup.multiset import combine_split
 from .plonk_core.src.permutation import mod
 from .plonk_core.src.proof_system.pi import into_dense_poly
@@ -97,8 +97,12 @@ class gen_proof(torch.nn.Module):
             kzg10.LabeledPoly.new(label="w_o_poly", hiding_bound=None, poly=w_o_poly),
             kzg10.LabeledPoly.new(label="w_4_poly", hiding_bound=None, poly=w_4_poly),
         ]
+        #####pre-load commit points#####
+        powers_of_g = torch.tensor(pp["powers_of_g"], dtype = fq.TYPE())[:n]
+        powers_of_gamma_g = torch.tensor(pp["powers_of_gamma_g"], dtype = fq.TYPE())[:n]
+        ck = [powers_of_g.to("cuda"), powers_of_gamma_g.to("cuda")]
 
-        w_commits, w_rands = kzg10.commit_poly_new(pp, w_polys)
+        w_commits, w_rands = kzg10.commit_poly_new(ck, w_polys)
 
         transcript.append(b"w_l", w_commits[0].commitment)
         transcript.append(b"w_r", w_commits[1].commitment)
@@ -161,7 +165,7 @@ class gen_proof(torch.nn.Module):
         ]
 
         # Commit to query polynomial
-        f_poly_commit, _ = kzg10.commit_poly_new(pp, f_polys)
+        f_poly_commit, _ = kzg10.commit_poly_new(ck, f_polys)
         transcript.append(b"f", f_poly_commit[0].commitment)
 
         # Compute s, as the sorted and concatenated version of f and t
@@ -181,8 +185,8 @@ class gen_proof(torch.nn.Module):
         h_2_polys = [
             kzg10.LabeledPoly.new(label="h_2_poly", hiding_bound=None, poly=h_2_poly)
         ]
-        h_1_poly_commit, _ = kzg10.commit_poly_new(pp, h_1_polys)
-        h_2_poly_commit, _ = kzg10.commit_poly_new(pp, h_2_polys)
+        h_1_poly_commit, _ = kzg10.commit_poly_new(ck, h_1_polys)
+        h_2_poly_commit, _ = kzg10.commit_poly_new(ck, h_2_polys)
 
         # Add h polynomials to transcript
         transcript.append(b"h1", h_1_poly_commit[0].commitment)
@@ -244,7 +248,7 @@ class gen_proof(torch.nn.Module):
         z_polys = [
             kzg10.LabeledPoly.new(label="z_poly", hiding_bound=None, poly=z_poly)
         ]
-        z_poly_commit, _ = kzg10.commit_poly_new(pp, z_polys)
+        z_poly_commit, _ = kzg10.commit_poly_new(ck, z_polys)
 
         # Add permutation polynomial commitment to transcript.
         transcript.append(b"z", z_poly_commit[0].commitment)
@@ -260,7 +264,7 @@ class gen_proof(torch.nn.Module):
         z_2_polys = [
             kzg10.LabeledPoly.new(label="z_2_poly", hiding_bound=None, poly=z_2_poly)
         ]
-        z_2_poly_commit, _ = kzg10.commit_poly_new(pp, z_2_polys)
+        z_2_poly_commit, _ = kzg10.commit_poly_new(ck, z_2_polys)
 
         # return 477.107
 
@@ -355,7 +359,7 @@ class gen_proof(torch.nn.Module):
             ),
         ]
 
-        t_commits, _ = kzg10.commit_poly_new(pp, t_i_polys)
+        t_commits, _ = kzg10.commit_poly_new(ck, t_i_polys)
 
         # Add quotient polynomial commitments to transcript
         for i in range(0, 8):
@@ -493,9 +497,9 @@ class gen_proof(torch.nn.Module):
             ),
         ]
 
-        aw_commits, aw_rands = kzg10.commit_poly_new(pp, aw_polys)
+        aw_commits, aw_rands = kzg10.commit_poly_new(ck, aw_polys)
         aw_opening = kzg10.open(
-            pp,
+            ck,
             itertools.chain(aw_polys, w_polys),
             itertools.chain(aw_commits, w_commits),
             z_challenge.to("cuda"),
@@ -517,11 +521,11 @@ class gen_proof(torch.nn.Module):
             ),
         ]
 
-        saw_commits, saw_rands = kzg10.commit_poly_new(pp, saw_polys)
+        saw_commits, saw_rands = kzg10.commit_poly_new(ck, saw_polys)
         element = domain.element(1)
         open_point = F.mul_mod(z_challenge.to("cuda"), element)
         saw_opening = kzg10.open(
-            pp,
+            ck,
             saw_polys,
             saw_commits,
             open_point.to("cuda"),

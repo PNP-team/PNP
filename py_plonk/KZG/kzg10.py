@@ -40,7 +40,7 @@ def commit(powers_of_g, powers_of_gamma_g, polynomial, hiding_bound):
         randomness = randomness_rand(hiding_bound)
     random_ints = convert_to_bigints(randomness)
 
-    random_commitment:ProjectivePointG1 = MSM(powers_of_gamma_g[:],random_ints)
+    random_commitment:ProjectivePointG1 = MSM(powers_of_gamma_g, random_ints)
     random_commitment_affine = to_affine(random_commitment)
     commitment = add_assign_mixed(commitment,random_commitment_affine)
     commitment_affine = to_affine(commitment)
@@ -75,9 +75,7 @@ def open(
         opening_challenge_counter += 1
         i=i+1
 
-    powers_of_g = torch.tensor(ck["powers_of_g"], dtype = fq.TYPE())
-    powers_of_gamma_g = torch.tensor(ck["powers_of_gamma_g"], dtype = fq.TYPE())
-    proof = open_proof(powers_of_g, powers_of_gamma_g, combined_polynomial.to("cuda"), point, combined_rand)
+    proof = open_proof(ck[0], ck[1], combined_polynomial.to("cuda"), point, combined_rand)
     return proof
 
 
@@ -109,9 +107,7 @@ def commit_poly_new(ck:UniversalParams, polys):
         polynomial = labeled_poly.poly
         hiding_bound = labeled_poly.hiding_bound
         label = labeled_poly.label
-        powers_of_g = torch.tensor(ck["powers_of_g"], dtype = fq.TYPE())
-        powers_of_gamma_g = torch.tensor(ck["powers_of_gamma_g"], dtype = fq.TYPE())
-        comm,rand = commit(powers_of_g,powers_of_gamma_g,polynomial,hiding_bound) 
+        comm,rand = commit(ck[0], ck[1], polynomial, hiding_bound) 
         labeled_comm.append(LabeledCommitment.new(label,comm))
         randomness.append(rand)
         
@@ -163,7 +159,7 @@ def open_with_witness_polynomial(
     return OpenProof(to_affine(w), random_v)
 
 # On input a polynomial `p` and a point `point`, outputs a proof for the same.
-def open_proof(powers_of_g,powers_of_gamma_g, p: list, point, rand):
+def open_proof(powers_of_g, powers_of_gamma_g, p: list, point, rand):
     witness_poly, hiding_witness_poly = compute_witness_polynomial(p, point, rand)
     proof = open_with_witness_polynomial(
             powers_of_g,
