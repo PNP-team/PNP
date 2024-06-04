@@ -5,7 +5,6 @@ from .composer import StandardComposer
 from .bls12_381 import fr
 from .plonk_core.lookup.multiset import combine_split
 from .plonk_core.src.permutation import mod
-# from .plonk_core.src.proof_system.prover_key import Prover_Key
 from .plonk_core.src.proof_system.pi import into_dense_poly
 from .plonk_core.src.proof_system import quotient_poly
 from .plonk_core.src.proof_system import linearisation_poly
@@ -101,10 +100,10 @@ class gen_proof(torch.nn.Module):
 
         w_commits, w_rands = kzg10.commit_poly_new(pp, w_polys)
 
-        transcript.append(b"w_l", w_commits[0].commitment.value)
-        transcript.append(b"w_r", w_commits[1].commitment.value)
-        transcript.append(b"w_o", w_commits[2].commitment.value)
-        transcript.append(b"w_4", w_commits[3].commitment.value)
+        transcript.append(b"w_l", w_commits[0].commitment)
+        transcript.append(b"w_r", w_commits[1].commitment)
+        transcript.append(b"w_o", w_commits[2].commitment)
+        transcript.append(b"w_4", w_commits[3].commitment)
 
         # 2. Derive lookup polynomials
 
@@ -163,7 +162,7 @@ class gen_proof(torch.nn.Module):
 
         # Commit to query polynomial
         f_poly_commit, _ = kzg10.commit_poly_new(pp, f_polys)
-        transcript.append(b"f", f_poly_commit[0].commitment.value)
+        transcript.append(b"f", f_poly_commit[0].commitment)
 
         # Compute s, as the sorted and concatenated version of f and t
         # work on cpu
@@ -186,8 +185,8 @@ class gen_proof(torch.nn.Module):
         h_2_poly_commit, _ = kzg10.commit_poly_new(pp, h_2_polys)
 
         # Add h polynomials to transcript
-        transcript.append(b"h1", h_1_poly_commit[0].commitment.value)
-        transcript.append(b"h2", h_2_poly_commit[0].commitment.value)
+        transcript.append(b"h1", h_1_poly_commit[0].commitment)
+        transcript.append(b"h2", h_2_poly_commit[0].commitment)
 
         # 3. Compute permutation polynomial
 
@@ -248,7 +247,7 @@ class gen_proof(torch.nn.Module):
         z_poly_commit, _ = kzg10.commit_poly_new(pp, z_polys)
 
         # Add permutation polynomial commitment to transcript.
-        transcript.append(b"z", z_poly_commit[0].commitment.value)
+        transcript.append(b"z", z_poly_commit[0].commitment)
 
         # return 438.730
 
@@ -360,7 +359,7 @@ class gen_proof(torch.nn.Module):
 
         # Add quotient polynomial commitments to transcript
         for i in range(0, 8):
-            transcript.append(f"t_{i+1}".encode(), t_commits[i].commitment.value)
+            transcript.append(f"t_{i+1}".encode(), t_commits[i].commitment)
 
         # 4. Compute linearisation polynomial
         # Compute evaluation challenge `z`.
@@ -532,23 +531,23 @@ class gen_proof(torch.nn.Module):
         )
 
         Proof = kzg10.Proof(
-            a_comm=w_commits[0].commitment.value,
-            b_comm=w_commits[1].commitment.value,
-            c_comm=w_commits[2].commitment.value,
-            d_comm=w_commits[3].commitment.value,
-            z_comm=saw_commits[0].commitment.value,
-            f_comm=f_poly_commit[0].commitment.value,
-            h_1_comm=h_1_poly_commit[0].commitment.value,
-            h_2_comm=h_2_poly_commit[0].commitment.value,
-            z_2_comm=z_2_poly_commit[0].commitment.value,
-            t_1_comm=t_commits[0].commitment.value,
-            t_2_comm=t_commits[1].commitment.value,
-            t_3_comm=t_commits[2].commitment.value,
-            t_4_comm=t_commits[3].commitment.value,
-            t_5_comm=t_commits[4].commitment.value,
-            t_6_comm=t_commits[5].commitment.value,
-            t_7_comm=t_commits[6].commitment.value,
-            t_8_comm=t_commits[7].commitment.value,
+            a_comm=w_commits[0].commitment,
+            b_comm=w_commits[1].commitment,
+            c_comm=w_commits[2].commitment,
+            d_comm=w_commits[3].commitment,
+            z_comm=saw_commits[0].commitment,
+            f_comm=f_poly_commit[0].commitment,
+            h_1_comm=h_1_poly_commit[0].commitment,
+            h_2_comm=h_2_poly_commit[0].commitment,
+            z_2_comm=z_2_poly_commit[0].commitment,
+            t_1_comm=t_commits[0].commitment,
+            t_2_comm=t_commits[1].commitment,
+            t_3_comm=t_commits[2].commitment,
+            t_4_comm=t_commits[3].commitment,
+            t_5_comm=t_commits[4].commitment,
+            t_6_comm=t_commits[5].commitment,
+            t_7_comm=t_commits[6].commitment,
+            t_8_comm=t_commits[7].commitment,
             aw_opening=aw_opening,
             saw_opening=saw_opening,
             evaluations=evaluations,
@@ -585,6 +584,6 @@ class gen_proof(torch.nn.Module):
                     except:
                         pass
 
-        return w_commits[0].commitment.value
+        return w_commits[0].commitment
 
         return Proof

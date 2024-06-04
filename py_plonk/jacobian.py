@@ -136,32 +136,32 @@ def to_affine(input: ProjectivePointG1):
          
             return AffinePointG1(x,y)
         
-def add_assign(self, other: 'ProjectivePointG1'):
+def add_assign(self: 'ProjectivePointG1', other: 'ProjectivePointG1'):
     if is_zero_ProjectivePointG1(self):
-        x, y, z = other[0], other[1], other[2]
-        return [x,y,z]
+        x, y, z = other.x, other.y, other.z
+        return ProjectivePointG1(x,y,z)
 
     if is_zero_ProjectivePointG1(other):
-        return [self[0],self[1],self[2]]
+        return ProjectivePointG1(self.x,self.y,self.z)
 
     # Z1Z1 = Z1^2
-    z1z1 = F.mul_mod(self[2], self[2])
+    z1z1 = F.mul_mod(self.z, self.z)
 
     # Z2Z2 = Z2^2
-    z2z2 = F.mul_mod(other[2], other[2])
+    z2z2 = F.mul_mod(other.z, other.z)
 
     # U1 = X1*Z2Z2
-    u1 = F.mul_mod(self[0], z2z2)
+    u1 = F.mul_mod(self.x, z2z2)
 
     # U2 = X2*Z1Z1
-    u2 = F.mul_mod(other[0], z1z1)
+    u2 = F.mul_mod(other.x, z1z1)
 
     # S1 = Y1*Z2*Z2Z2
-    s1 = F.mul_mod(self[1], other.z)
+    s1 = F.mul_mod(self.y, other.z)
     s1 = F.mul_mod(s1, z2z2)
     
     # S2 = Y2*Z1*Z1Z1
-    s2 = F.mul_mod(other[1], self[2])
+    s2 = F.mul_mod(other.y, self.z)
     s2 = F.mul_mod(s2, z1z1)
 
     if  F.trace_equal(u1 ,u2)and F.trace_equal(s1 ,s2):
@@ -190,9 +190,9 @@ def add_assign(self, other: 'ProjectivePointG1'):
         y = F.sub_mod(F.mul_mod(r, F.sub_mod(v, x)), F.add_mod(F.mul_mod(s1, j), F.mul_mod(s1, j)))
 
         # Z3 = ((Z1+Z2)^2 - Z1Z1 - Z2Z2)*H
-        z = F.mul_mod(F.sub_mod(F.sub_mod(F.mul_mod(F.add_mod(self[2], other[2]), F.add_mod(self[2], other[2])), z1z1), z2z2), h)
-        # return ProjectivePointG1(x, y, z)
-        return [x,y,z]
+        z = F.mul_mod(F.sub_mod(F.sub_mod(F.mul_mod(F.add_mod(self.z, other.z), F.add_mod(self.z, other.z)), z1z1), z2z2), h)
+        
+        return ProjectivePointG1(x,y,z)
 
 def double_ProjectivePointG1(self: ProjectivePointG1):
         if self.is_zero():

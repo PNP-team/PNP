@@ -32,7 +32,7 @@ def convert_to_bigints(p: torch.Tensor):
         return res
 
 def skip_leading_zeros_and_convert_to_bigints(p: torch.Tensor):
-    return convert_to_bigints(p.to('cpu'))
+    return convert_to_bigints(p)
 
 
 def poly_add_poly(self: torch.Tensor, other: torch.Tensor):    
@@ -110,9 +110,8 @@ def compute_first_lagrange_evaluation(size, z_h_eval, z_challenge):
     return res  
 
 
-def MSM_new(bases,scalar): #bases POINT scalar SCALAR
+def MSM(bases,scalar): 
     min_size = min(bases.size(0)//2, scalar.size(0))
-    
     if min_size == 0:  #empty msm return zero_point
         commitment = ProjectivePointG1(fq.one(), fq.one(), fq.zero())
         return commitment
