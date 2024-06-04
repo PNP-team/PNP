@@ -3,8 +3,8 @@ import torch.nn.functional as F
 from ....bls12_381 import fr
 from ....arithmetic import calculate_execution_time
 from .widget.mod import WitnessValues
-from .widget.range import RangeGate, RangeValues
-from .widget.logic import LogicGate, LogicValues
+from .widget import logic as logic_constraint
+from .widget import range as range_constraint
 from .widget.fixed_base_scalar_mul import (
     FBSMGate,
     FBSMValues,
@@ -97,14 +97,6 @@ def compute_gate_constraint_satisfiability(
         prover_key_variable_group_add_selector["evals"].to("cuda")
     )
 
-    # timings = {
-    # 'compute_quotient_i': 0,
-    # 'RangeGate_quotient_term': 0,
-    # 'LogicGate_quotient_term': 0,
-    # 'FBSMGate_quotient_term': 0,
-    # 'CAGate_quotient_term': 0
-    # }
-
     wit_vals = WitnessValues(
         a_val=wl_eval_8n[:coset_NTT.Size],
         b_val=wr_eval_8n[:coset_NTT.Size],
@@ -130,20 +122,19 @@ def compute_gate_constraint_satisfiability(
     # timings['compute_quotient_i'] += time.time() - start
 
     # start = time.time()
-    range_term = RangeGate.quotient_term(
+    range_term = range_constraint.quotient_term(
         prover_key_range_selector["evals"],
         range_challenge,
         wit_vals,
-        RangeValues.from_evaluations(custom_vals),
+        custom_vals,
     )
-    # timings['RangeGate_quotient_term'] += time.time() - start
 
     # start = time.time()
-    logic_term = LogicGate.quotient_term(
+    logic_term = logic_constraint.quotient_term(
         prover_key_logic_selector["evals"],
         logic_challenge,
         wit_vals,
-        LogicValues.from_evaluations(custom_vals),
+        custom_vals
     )
     # timings['LogicGate_quotient_term'] += time.time() - start
 

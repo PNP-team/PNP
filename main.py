@@ -30,10 +30,12 @@ if __name__ == "__main__":
     
     transcript_init = b"Merkle tree"
     preprocessed_transcript = transcript.Transcript(transcript_init)
-    # with profile(activities=[ProfilerActivity.CPU]) as prof:
-    #     with record_function("gen_proof"):
-    # pi = gen_proof(pp,pk,cs,preprocessed_transcript)
+
     model = gen_proof()
+
+    # with profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA]) as prof:
+    #     y = model(pp,pk,cs,preprocessed_transcript)
+    # print(prof.key_averages().table(sort_by="cpu_time_total", row_limit=20))
 
     y = model(pp,pk,cs,preprocessed_transcript)
 

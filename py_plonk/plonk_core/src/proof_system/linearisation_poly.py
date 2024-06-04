@@ -2,15 +2,14 @@ from dataclasses import dataclass
 from ....domain import Radix2EvaluationDomain
 from ....bls12_381 import fr
 
-# from ....plonk_core.src.proof_system.prover_key import Prover_Key
-from ....plonk_core.src.proof_system.widget.mod import WitnessValues
-from ....plonk_core.src.proof_system.widget.range import RangeGate, RangeValues
-from ....plonk_core.src.proof_system.widget.logic import LogicGate, LogicValues
-from ....plonk_core.src.proof_system.widget.fixed_base_scalar_mul import (
+from .widget.mod import WitnessValues
+from .widget import logic as logic_constraint
+from .widget import range as range_constraint
+from .widget.fixed_base_scalar_mul import (
     FBSMGate,
     FBSMValues,
 )
-from ....plonk_core.src.proof_system.widget.curve_addition import CAGate, CAValues
+from .widget.curve_addition import CAGate, CAValues
 from ....arithmetic import (
     poly_mul_const,
     poly_add_poly,
@@ -417,11 +416,11 @@ def compute_gate_constraint_satisfiability(
         pk_range_selector["coeffs"], dtype=fr.TYPE()
     ).to("cuda")
     range_separation_challenge = range_separation_challenge.to("cuda")
-    range = RangeGate.linearisation_term(
+    range = range_constraint.linearisation_term(
         pk_range_selector["coeffs"],
         range_separation_challenge,
         wit_vals,
-        RangeValues.from_evaluations(custom_evals),
+        custom_evals,
     )
 
     pk_logic_selector = prover_key["logic_selector"].tolist()
@@ -429,11 +428,11 @@ def compute_gate_constraint_satisfiability(
         pk_logic_selector["coeffs"], dtype=fr.TYPE()
     ).to("cuda")
     logic_separation_challenge = logic_separation_challenge.to("cuda")
-    logic = LogicGate.linearisation_term(
+    logic = logic_constraint.linearisation_term(
         pk_logic_selector["coeffs"],
         logic_separation_challenge,
         wit_vals,
-        LogicValues.from_evaluations(custom_evals),
+        custom_evals,
     )
 
     pk_fixed_group_add_selector = prover_key["fixed_group_add_selector"].tolist()
