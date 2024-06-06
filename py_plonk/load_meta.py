@@ -187,9 +187,248 @@ def parse_cs(cs_data):
         public_inputs=to_fr_tensor(cs_data["public_inputs"]),
         q_lookup=to_fr_tensor(cs_data["q_lookup"]),
         intended_pi_pos=cs_data["intended_pi_pos"],
-        lookup_table=cs_data["lookup_table"],
+        lookup_table_size=len(cs_data["lookup_table"]),
     )
     return cs
+
+
+def save_meta(file_dir, pp, pk, cs):
+    cs_dict = {
+        "n": cs.n,
+        "public_inputs": np.array(cs.public_inputs.tolist(), dtype=np.uint64),
+        "q_lookup": np.array(cs.q_lookup.tolist(), dtype=np.uint64),
+        "intended_pi_pos": cs.intended_pi_pos,
+        "lookup_table_size": cs.lookup_table_size,
+    }
+
+    pp_dict = {
+        "powers_of_g": np.array(pp.powers_of_g.tolist(), dtype=np.uint64),
+        "powers_of_gamma_g": np.array(pp.powers_of_gamma_g.tolist(), dtype=np.uint64),
+    }
+
+    pk_dict = {
+        "lookup_q_lookup_coeffs": np.array(
+            pk.lookups_coeffs.q_lookup.tolist(), dtype=np.uint64
+        ),
+        "lookup_q_lookup_evals": np.array(
+            pk.lookups_evals.q_lookup.tolist(), dtype=np.uint64
+        ),
+        "lookup_table1_coeffs": np.array(
+            pk.lookups_coeffs.lookup_tables[0].tolist(), dtype=np.uint64
+        ),
+        "lookup_table2_coeffs": np.array(
+            pk.lookups_coeffs.lookup_tables[1].tolist(), dtype=np.uint64
+        ),
+        "lookup_table3_coeffs": np.array(
+            pk.lookups_coeffs.lookup_tables[2].tolist(), dtype=np.uint64
+        ),
+        "lookup_table4_coeffs": np.array(
+            pk.lookups_coeffs.lookup_tables[3].tolist(), dtype=np.uint64
+        ),
+        "permutation_left_sigma_coeffs": np.array(
+            pk.permutations_coeffs.left_sigma.tolist(), dtype=np.uint64
+        ),
+        "permutation_left_sigma_evals": np.array(
+            pk.permutations_evals.left_sigma.tolist(), dtype=np.uint64
+        ),
+        "permutation_right_sigma_coeffs": np.array(
+            pk.permutations_coeffs.right_sigma.tolist(), dtype=np.uint64
+        ),
+        "permutation_right_sigma_evals": np.array(
+            pk.permutations_evals.right_sigma.tolist(), dtype=np.uint64
+        ),
+        "permutation_out_sigma_coeffs": np.array(
+            pk.permutations_coeffs.out_sigma.tolist(), dtype=np.uint64
+        ),
+        "permutation_out_sigma_evals": np.array(
+            pk.permutations_evals.out_sigma.tolist(), dtype=np.uint64
+        ),
+        "permutation_fourth_sigma_coeffs": np.array(
+            pk.permutations_coeffs.fourth_sigma.tolist(), dtype=np.uint64
+        ),
+        "permutation_fourth_sigma_evals": np.array(
+            pk.permutations_evals.fourth_sigma.tolist(), dtype=np.uint64
+        ),
+        "arithmetic_q_arith_coeffs": np.array(
+            pk.arithmetics_coeffs.q_arith.tolist(), dtype=np.uint64
+        ),
+        "arithmetic_q_arith_evals": np.array(
+            pk.arithmetics_evals.q_arith.tolist(), dtype=np.uint64
+        ),
+        "arithmetic_q_c_coeffs": np.array(
+            pk.arithmetics_coeffs.q_c.tolist(), dtype=np.uint64
+        ),
+        "arithmetic_q_c_evals": np.array(
+            pk.arithmetics_evals.q_c.tolist(), dtype=np.uint64
+        ),
+        "arithmetic_q_l_coeffs": np.array(
+            pk.arithmetics_coeffs.q_l.tolist(), dtype=np.uint64
+        ),
+        "arithmetic_q_l_evals": np.array(
+            pk.arithmetics_evals.q_l.tolist(), dtype=np.uint64
+        ),
+        "arithmetic_q_r_coeffs": np.array(
+            pk.arithmetics_coeffs.q_r.tolist(), dtype=np.uint64
+        ),
+        "arithmetic_q_r_evals": np.array(
+            pk.arithmetics_evals.q_r.tolist(), dtype=np.uint64
+        ),
+        "arithmetic_q_hl_coeffs": np.array(
+            pk.arithmetics_coeffs.q_hl.tolist(), dtype=np.uint64
+        ),
+        "arithmetic_q_hl_evals": np.array(
+            pk.arithmetics_evals.q_hl.tolist(), dtype=np.uint64
+        ),
+        "arithmetic_q_hr_coeffs": np.array(
+            pk.arithmetics_coeffs.q_hr.tolist(), dtype=np.uint64
+        ),
+        "arithmetic_q_hr_evals": np.array(
+            pk.arithmetics_evals.q_hr.tolist(), dtype=np.uint64
+        ),
+        "arithmetic_q_h4_coeffs": np.array(
+            pk.arithmetics_coeffs.q_h4.tolist(), dtype=np.uint64
+        ),
+        "arithmetic_q_h4_evals": np.array(
+            pk.arithmetics_evals.q_h4.tolist(), dtype=np.uint64
+        ),
+        "arithmetic_q_o_coeffs": np.array(
+            pk.arithmetics_coeffs.q_o.tolist(), dtype=np.uint64
+        ),
+        "arithmetic_q_o_evals": np.array(
+            pk.arithmetics_evals.q_o.tolist(), dtype=np.uint64
+        ),
+        "arithmetic_q_4_coeffs": np.array(
+            pk.arithmetics_coeffs.q_4.tolist(), dtype=np.uint64
+        ),
+        "arithmetic_q_4_evals": np.array(
+            pk.arithmetics_evals.q_4.tolist(), dtype=np.uint64
+        ),
+        "arithmetic_q_m_coeffs": np.array(
+            pk.arithmetics_coeffs.q_m.tolist(), dtype=np.uint64
+        ),
+        "arithmetic_q_m_evals": np.array(
+            pk.arithmetics_evals.q_m.tolist(), dtype=np.uint64
+        ),
+        "selector_range_coeffs": np.array(
+            pk.selectors_coeffs.range.tolist(), dtype=np.uint64
+        ),
+        "selector_range_evals": np.array(
+            pk.selectors_evals.range.tolist(), dtype=np.uint64
+        ),
+        "selector_logic_coeffs": np.array(
+            pk.selectors_coeffs.logic.tolist(), dtype=np.uint64
+        ),
+        "selector_logic_evals": np.array(
+            pk.selectors_evals.logic.tolist(), dtype=np.uint64
+        ),
+        "selector_fixed_group_add_coeffs": np.array(
+            pk.selectors_coeffs.fixed_group_add.tolist(), dtype=np.uint64
+        ),
+        "selector_fixed_group_add_evals": np.array(
+            pk.selectors_evals.fixed_group_add.tolist(), dtype=np.uint64
+        ),
+        "selector_variable_group_add_coeffs": np.array(
+            pk.selectors_coeffs.variable_group_add.tolist(), dtype=np.uint64
+        ),
+        "selector_variable_group_add_evals": np.array(
+            pk.selectors_evals.variable_group_add.tolist(), dtype=np.uint64
+        ),
+        "linear_evaluations_evals": np.array(
+            pk.linear_evaluations_evals.tolist(), dtype=np.uint64
+        ),
+        "v_h_coset_8n_evals": np.array(pk.v_h_coset_8n_evals.tolist(), dtype=np.uint64),
+    }
+
+    np.savez(file_dir+"/cs.npz", **cs_dict)
+    np.savez(file_dir+"/pp.npz", **pp_dict)
+    np.savez(file_dir+"/pk.npz", **pk_dict)
+
+
+def load_from_npz(file_dir):
+    cs_data = np.load(file_dir + "/cs.npz", allow_pickle=True)
+    pp_data = np.load(file_dir + "/pp.npz", allow_pickle=True)
+    pk_data = np.load(file_dir + "/pk.npz", allow_pickle=True)
+
+    cs = StandardComposer(
+        n=cs_data["n"],
+        public_inputs=to_fr_tensor(cs_data["public_inputs"]),
+        q_lookup=to_fr_tensor(cs_data["q_lookup"]),
+        intended_pi_pos=cs_data["intended_pi_pos"],
+        lookup_table_size=cs_data["lookup_table_size"],
+    )
+
+    pp = UniversalParams(
+        torch.tensor(pp_data["powers_of_g"], dtype=fq.TYPE(), device="cuda"),
+        torch.tensor(pp_data["powers_of_gamma_g"], dtype=fq.TYPE(), device="cuda"),
+    )
+
+    pk = PublicKey(
+        LookupTable(
+            pk_data["lookup_q_lookup_coeffs"],
+            [
+                pk_data["lookup_table1_coeffs"],
+                pk_data["lookup_table2_coeffs"],
+                pk_data["lookup_table3_coeffs"],
+                pk_data["lookup_table4_coeffs"],
+            ],
+        ),
+        Permutation(
+            pk_data["permutation_left_sigma_coeffs"],
+            pk_data["permutation_right_sigma_coeffs"],
+            pk_data["permutation_out_sigma_coeffs"],
+            pk_data["permutation_fourth_sigma_coeffs"],
+        ),
+        Arithmetic(
+            q_arith=pk_data["arithmetic_q_arith_coeffs"],
+            q_c=pk_data["arithmetic_q_c_coeffs"],
+            q_l=pk_data["arithmetic_q_l_coeffs"],
+            q_r=pk_data["arithmetic_q_r_coeffs"],
+            q_hl=pk_data["arithmetic_q_hl_coeffs"],
+            q_hr=pk_data["arithmetic_q_hr_coeffs"],
+            q_h4=pk_data["arithmetic_q_h4_coeffs"],
+            q_o=pk_data["arithmetic_q_o_coeffs"],
+            q_4=pk_data["arithmetic_q_4_coeffs"],
+            q_m=pk_data["arithmetic_q_m_coeffs"],
+        ),
+        Selector(
+            pk_data["selector_range_coeffs"],
+            pk_data["selector_logic_coeffs"],
+            pk_data["selector_fixed_group_add_coeffs"],
+            pk_data["selector_variable_group_add_coeffs"],
+        ),
+        LookupTable(
+            pk_data["lookup_q_lookup_evals"],
+            [],
+        ),
+        Permutation(
+            pk_data["permutation_left_sigma_evals"],
+            pk_data["permutation_right_sigma_evals"],
+            pk_data["permutation_out_sigma_evals"],
+            pk_data["permutation_fourth_sigma_evals"],
+        ),
+        Arithmetic(
+            q_arith=pk_data["arithmetic_q_arith_evals"],
+            q_c=pk_data["arithmetic_q_c_evals"],
+            q_l=pk_data["arithmetic_q_l_evals"],
+            q_r=pk_data["arithmetic_q_r_evals"],
+            q_hl=pk_data["arithmetic_q_hl_evals"],
+            q_hr=pk_data["arithmetic_q_hr_evals"],
+            q_h4=pk_data["arithmetic_q_h4_evals"],
+            q_o=pk_data["arithmetic_q_o_evals"],
+            q_4=pk_data["arithmetic_q_4_evals"],
+            q_m=pk_data["arithmetic_q_m_evals"],
+        ),
+        Selector(
+            pk_data["selector_range_evals"],
+            pk_data["selector_logic_evals"],
+            pk_data["selector_fixed_group_add_evals"],
+            pk_data["selector_variable_group_add_evals"],
+        ),
+        pk_data["linear_evaluations_evals"],
+        pk_data["v_h_coset_8n_evals"],
+    )
+
+    return pp, pk, cs
 
 
 def load_meta(dir_name):

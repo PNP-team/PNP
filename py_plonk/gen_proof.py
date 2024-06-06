@@ -15,7 +15,7 @@ import torch.nn.functional as F
 from torch.pnp import zkp
 import time
 import torch.nn as nn
-from .load_meta import load_meta
+from .load_meta import load_meta, save_meta, load_from_npz
 
 
 # data_set2 = [
@@ -81,7 +81,11 @@ class gen_proof(torch.nn.Module):
         super(gen_proof, self).__init__()
 
         self.INTT = nn.Intt(fr.TWO_ADICITY(), fr.TYPE())
-        self.pp, self.pk, self.cs = load_meta("../../data/MERKLE-HEIGHT-9/")
+
+        # self.pp, self.pk, self.cs = load_meta("../../data/MERKLE-HEIGHT-9/")
+        # save_meta("../../data/MERKLE-HEIGHT-9/", self.pp, self.pk, self.cs)
+        
+        self.pp, self.pk, self.cs = load_from_npz("../../data/MERKLE-HEIGHT-9/")
 
         # self.NTT = nn.Ntt(fr.TWO_ADICITY(), fr.TYPE())
         # self.NTT_COSET = nn.Ntt_coset(fr.TWO_ADICITY(), fr.TYPE())
