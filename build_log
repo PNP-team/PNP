@@ -1,0 +1,16 @@
+[1/10] Building CXX object caffe2/CMakeFiles/torch_cpu.dir/__/aten/src/ATen/native/biginteger/MontgomeryConvert.cpp.o
+/home/zrji/pyZKP/aten/src/ATen/native/biginteger/MontgomeryConvert.cpp:133:1: warning: multi-line comment [-Wcomment]
+  133 | // #define CURVE_PRIVATE_CASE_TYPE_USING_HINT(enum_type, HINT, ...)           \
+      | ^
+/home/zrji/pyZKP/aten/src/ATen/native/biginteger/MontgomeryConvert.cpp: In instantiation of ‘void at::native::{anonymous}::to_mont(const c10::EllipticCurve*, int64_t, c10::EllipticCurve*) [with T = BN254_Fr_G1; int64_t = long int]’:
+/home/zrji/pyZKP/aten/src/ATen/native/biginteger/MontgomeryConvert.cpp:169:3:   required from here
+/home/zrji/pyZKP/aten/src/ATen/native/biginteger/MontgomeryConvert.cpp:116:21: warning: comparison of integer expressions of different signedness: ‘int’ and ‘long unsigned int’ [-Wsign-compare]
+  116 |   for(auto i = 0; i < num_; i++) {
+      |                   ~~^~~~~~
+/home/zrji/pyZKP/aten/src/ATen/native/biginteger/MontgomeryConvert.cpp: In instantiation of ‘void at::native::{anonymous}::to_mont(const c10::EllipticCurve*, int64_t, c10::EllipticCurve*) [with T = BLS12_377_Fq_G2; int64_t = long int]’:
+/home/zrji/pyZKP/aten/src/ATen/native/biginteger/MontgomeryConvert.cpp:169:3:   required from here
+/home/zrji/pyZKP/aten/src/ATen/native/biginteger/MontgomeryConvert.cpp:116:21: warning: comparison of integer expressions of different signedness: ‘int’ and ‘long unsigned int’ [-Wsign-compare]
+ninja: build stopped: interrupted by user.
+Building wheel torch-2.2.0a0+git870f0a8
+-- Building version 2.2.0a0+git870f0a8
+cmake --build . --target install --config Debug

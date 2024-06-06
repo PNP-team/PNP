@@ -92,10 +92,10 @@ class gen_proof(torch.nn.Module):
         w_4_poly = self.INTT(w_4_scalar)
 
         w_polys = [
-            kzg10.LabeledPoly.new(label="w_l_poly", hiding_bound=None, poly=w_l_poly),
-            kzg10.LabeledPoly.new(label="w_r_poly", hiding_bound=None, poly=w_r_poly),
-            kzg10.LabeledPoly.new(label="w_o_poly", hiding_bound=None, poly=w_o_poly),
-            kzg10.LabeledPoly.new(label="w_4_poly", hiding_bound=None, poly=w_4_poly),
+            (w_l_poly, None),
+            (w_r_poly, None),
+            (w_o_poly, None),
+            (w_4_poly, None),
         ]
         #####pre-load commit points#####
         powers_of_g = torch.tensor(pp["powers_of_g"], dtype = fq.TYPE())[:n]
@@ -104,10 +104,10 @@ class gen_proof(torch.nn.Module):
 
         w_commits, w_rands = kzg10.commit_poly_new(ck, w_polys)
 
-        transcript.append(b"w_l", w_commits[0].commitment)
-        transcript.append(b"w_r", w_commits[1].commitment)
-        transcript.append(b"w_o", w_commits[2].commitment)
-        transcript.append(b"w_4", w_commits[3].commitment)
+        transcript.append(b"w_l", w_commits[0])
+        transcript.append(b"w_r", w_commits[1])
+        transcript.append(b"w_o", w_commits[2])
+        transcript.append(b"w_4", w_commits[3])
 
         # 2. Derive lookup polynomials
 
@@ -160,13 +160,11 @@ class gen_proof(torch.nn.Module):
 
         # Compute query poly
         f_poly = self.INTT(compressed_f_multiset)
-        f_polys = [
-            kzg10.LabeledPoly.new(label="f_poly", hiding_bound=None, poly=f_poly)
-        ]
+        f_polys = [(f_poly, None)]
 
         # Commit to query polynomial
         f_poly_commit, _ = kzg10.commit_poly_new(ck, f_polys)
-        transcript.append(b"f", f_poly_commit[0].commitment)
+        transcript.append(b"f", f_poly_commit[0])
 
         # Compute s, as the sorted and concatenated version of f and t
         # work on cpu
@@ -179,18 +177,14 @@ class gen_proof(torch.nn.Module):
         h_2_poly = self.INTT(h_2)
 
         # Commit to h polys
-        h_1_polys = [
-            kzg10.LabeledPoly.new(label="h_1_poly", hiding_bound=None, poly=h_1_poly)
-        ]
-        h_2_polys = [
-            kzg10.LabeledPoly.new(label="h_2_poly", hiding_bound=None, poly=h_2_poly)
-        ]
+        h_1_polys = [(h_1_poly, None)]
+        h_2_polys = [(h_2_poly, None)]
         h_1_poly_commit, _ = kzg10.commit_poly_new(ck, h_1_polys)
         h_2_poly_commit, _ = kzg10.commit_poly_new(ck, h_2_polys)
 
         # Add h polynomials to transcript
-        transcript.append(b"h1", h_1_poly_commit[0].commitment)
-        transcript.append(b"h2", h_2_poly_commit[0].commitment)
+        transcript.append(b"h1", h_1_poly_commit[0])
+        transcript.append(b"h2", h_2_poly_commit[0])
 
         # 3. Compute permutation polynomial
 
@@ -244,14 +238,11 @@ class gen_proof(torch.nn.Module):
             ],
         )
         # Commit to permutation polynomial.
-
-        z_polys = [
-            kzg10.LabeledPoly.new(label="z_poly", hiding_bound=None, poly=z_poly)
-        ]
+        z_polys = [(z_poly, None)]
         z_poly_commit, _ = kzg10.commit_poly_new(ck, z_polys)
 
         # Add permutation polynomial commitment to transcript.
-        transcript.append(b"z", z_poly_commit[0].commitment)
+        transcript.append(b"z", z_poly_commit[0])
 
         # return 438.730
 
@@ -261,9 +252,7 @@ class gen_proof(torch.nn.Module):
             n, compressed_f_multiset, compressed_t_multiset, h_1, h_2, delta.to("cuda"), epsilon.to("cuda")
         )
         # Commit to lookup permutation polynomial.
-        z_2_polys = [
-            kzg10.LabeledPoly.new(label="z_2_poly", hiding_bound=None, poly=z_2_poly)
-        ]
+        z_2_polys = [(z_2_poly, None)]
         z_2_poly_commit, _ = kzg10.commit_poly_new(ck, z_2_polys)
 
         # return 477.107
@@ -332,38 +321,12 @@ class gen_proof(torch.nn.Module):
         elapse = time.time() - start
         print("split time:", elapse)
 
-        t_i_polys = [
-            kzg10.LabeledPoly.new(
-                label="t_i_polys[0]", hiding_bound=None, poly=t_i_poly[0]
-            ),
-            kzg10.LabeledPoly.new(
-                label="t_i_polys[1]", hiding_bound=None, poly=t_i_poly[1]
-            ),
-            kzg10.LabeledPoly.new(
-                label="t_i_polys[2]", hiding_bound=None, poly=t_i_poly[2]
-            ),
-            kzg10.LabeledPoly.new(
-                label="t_i_polys[3]", hiding_bound=None, poly=t_i_poly[3]
-            ),
-            kzg10.LabeledPoly.new(
-                label="t_i_polys[4]", hiding_bound=None, poly=t_i_poly[4]
-            ),
-            kzg10.LabeledPoly.new(
-                label="t_i_polys[5]", hiding_bound=None, poly=t_i_poly[5]
-            ),
-            kzg10.LabeledPoly.new(
-                label="t_i_polys[6]", hiding_bound=None, poly=t_i_poly[6]
-            ),
-            kzg10.LabeledPoly.new(
-                label="t_i_polys[7]", hiding_bound=None, poly=t_i_poly[7]
-            ),
-        ]
-
+        t_i_polys = [(poly, None) for poly in t_i_poly]
         t_commits, _ = kzg10.commit_poly_new(ck, t_i_polys)
 
         # Add quotient polynomial commitments to transcript
         for i in range(0, 8):
-            transcript.append(f"t_{i+1}".encode(), t_commits[i].commitment)
+            transcript.append(f"t_{i+1}".encode(), t_commits[i])
 
         # 4. Compute linearisation polynomial
         # Compute evaluation challenge `z`.
@@ -474,34 +437,19 @@ class gen_proof(torch.nn.Module):
         # Ditto with the out_sigma poly.
 
         aw_polys = [
-            kzg10.LabeledPoly.new(label="lin_poly", hiding_bound=None, poly=lin_poly),
-            kzg10.LabeledPoly.new(
-                label="prover_key.permutation.left_sigma.0.clone()",
-                hiding_bound=None,
-                poly=pk_permutation["left_sigma"]["coeffs"],
-            ),
-            kzg10.LabeledPoly.new(
-                label="prover_key.permutation.right_sigma.0.clone()",
-                hiding_bound=None,
-                poly=pk_permutation["right_sigma"]["coeffs"],
-            ),
-            kzg10.LabeledPoly.new(
-                label="prover_key.permutation.out_sigma.0.clone()",
-                hiding_bound=None,
-                poly=pk_permutation["out_sigma"]["coeffs"],
-            ),
-            kzg10.LabeledPoly.new(label="f_poly", hiding_bound=None, poly=f_poly),
-            kzg10.LabeledPoly.new(label="h_2_poly", hiding_bound=None, poly=h_2_poly),
-            kzg10.LabeledPoly.new(
-                label="table_poly", hiding_bound=None, poly=table_poly
-            ),
+            (lin_poly, None),
+            (pk_permutation["left_sigma"]["coeffs"], None),
+            (pk_permutation["right_sigma"]["coeffs"], None),
+            (pk_permutation["out_sigma"]["coeffs"], None),
+            (f_poly, None),
+            (h_2_poly, None),
+            (table_poly, None)
         ]
 
         aw_commits, aw_rands = kzg10.commit_poly_new(ck, aw_polys)
         aw_opening = kzg10.open(
             ck,
             itertools.chain(aw_polys, w_polys),
-            itertools.chain(aw_commits, w_commits),
             z_challenge.to("cuda"),
             aw_challenge.to("cuda"),
             itertools.chain(aw_rands, w_rands),
@@ -510,15 +458,13 @@ class gen_proof(torch.nn.Module):
 
         saw_challenge = transcript.challenge_scalar(b"aggregate_witness")
         saw_polys = [
-            kzg10.LabeledPoly.new(label="z_poly", hiding_bound=None, poly=z_poly),
-            kzg10.LabeledPoly.new(label="w_l_poly", hiding_bound=None, poly=w_l_poly),
-            kzg10.LabeledPoly.new(label="w_r_poly", hiding_bound=None, poly=w_r_poly),
-            kzg10.LabeledPoly.new(label="w_4_poly", hiding_bound=None, poly=w_4_poly),
-            kzg10.LabeledPoly.new(label="h_1_poly", hiding_bound=None, poly=h_1_poly),
-            kzg10.LabeledPoly.new(label="z_2_poly", hiding_bound=None, poly=z_2_poly),
-            kzg10.LabeledPoly.new(
-                label="table_poly", hiding_bound=None, poly=table_poly
-            ),
+            (z_poly, None),
+            (w_l_poly, None),
+            (w_r_poly, None),
+            (w_4_poly, None),
+            (h_1_poly, None),
+            (z_2_poly, None),
+            (table_poly, None),
         ]
 
         saw_commits, saw_rands = kzg10.commit_poly_new(ck, saw_polys)
@@ -527,7 +473,6 @@ class gen_proof(torch.nn.Module):
         saw_opening = kzg10.open(
             ck,
             saw_polys,
-            saw_commits,
             open_point.to("cuda"),
             saw_challenge.to("cuda"),
             saw_rands,
@@ -535,23 +480,23 @@ class gen_proof(torch.nn.Module):
         )
 
         Proof = kzg10.Proof(
-            a_comm=w_commits[0].commitment,
-            b_comm=w_commits[1].commitment,
-            c_comm=w_commits[2].commitment,
-            d_comm=w_commits[3].commitment,
-            z_comm=saw_commits[0].commitment,
-            f_comm=f_poly_commit[0].commitment,
-            h_1_comm=h_1_poly_commit[0].commitment,
-            h_2_comm=h_2_poly_commit[0].commitment,
-            z_2_comm=z_2_poly_commit[0].commitment,
-            t_1_comm=t_commits[0].commitment,
-            t_2_comm=t_commits[1].commitment,
-            t_3_comm=t_commits[2].commitment,
-            t_4_comm=t_commits[3].commitment,
-            t_5_comm=t_commits[4].commitment,
-            t_6_comm=t_commits[5].commitment,
-            t_7_comm=t_commits[6].commitment,
-            t_8_comm=t_commits[7].commitment,
+            a_comm=w_commits[0],
+            b_comm=w_commits[1],
+            c_comm=w_commits[2],
+            d_comm=w_commits[3],
+            z_comm=saw_commits[0],
+            f_comm=f_poly_commit[0],
+            h_1_comm=h_1_poly_commit[0],
+            h_2_comm=h_2_poly_commit[0],
+            z_2_comm=z_2_poly_commit[0],
+            t_1_comm=t_commits[0],
+            t_2_comm=t_commits[1],
+            t_3_comm=t_commits[2],
+            t_4_comm=t_commits[3],
+            t_5_comm=t_commits[4],
+            t_6_comm=t_commits[5],
+            t_7_comm=t_commits[6],
+            t_8_comm=t_commits[7],
             aw_opening=aw_opening,
             saw_opening=saw_opening,
             evaluations=evaluations,
@@ -588,6 +533,6 @@ class gen_proof(torch.nn.Module):
                     except:
                         pass
 
-        return w_commits[0].commitment
+        return w_commits[0]
 
         return Proof

@@ -51,8 +51,7 @@ def commit(powers_of_g, powers_of_gamma_g, polynomial, hiding_bound):
 @calculate_execution_time
 def open(
     ck: UniversalParams,
-    labeled_polynomials: 'LabeledPoly',
-    _commitments: 'LabeledCommitment',
+    labeled_polynomials,
     point,
     opening_challenge,
     rands,
@@ -68,8 +67,8 @@ def open(
     opening_challenge_counter += 1
    
     i=0
-    for polynomial, rand in zip(labeled_polynomials, rands):
-        combined_polynomial = poly_add_poly_mul_const(combined_polynomial, curr_challenge.to("cuda"), polynomial.poly)  #polynomial.poly is tensor
+    for (polynomial, _), rand in zip(labeled_polynomials, rands):
+        combined_polynomial = poly_add_poly_mul_const(combined_polynomial, curr_challenge.to("cuda"), polynomial)  #polynomial.poly is tensor
         rand_add_assign(combined_rand, curr_challenge, rand)
         curr_challenge = opening_challenges(opening_challenge, opening_challenge_counter)
         opening_challenge_counter += 1
@@ -79,36 +78,30 @@ def open(
     return proof
 
 
-class LabeledCommitment:
-    def __init__(self,label,commitment):
-        self.label = label
-        self.commitment =commitment
+# class LabeledCommitment:
+#     def __init__(self,label,commitment):
+#         # self.label = label
+#         self.commitment =commitment
 
-    @classmethod
-    def new(cls,label,commitment):
-        return cls(label = label,commitment = commitment)
+#     @classmethod
+#     def new(cls,label,commitment):
+#         return cls(label = label,commitment = commitment)
 
-class LabeledPoly:
-    def __init__(self, label, hiding_bound, poly):
-        self.label = label
-        self.hiding_bound = hiding_bound
-        self.poly = poly
+# class LabeledPoly:
+#     def __init__(self, label, hiding_bound, poly):
+#         self.hiding_bound = hiding_bound
+#         self.poly = poly
 
-    @classmethod
-    def new(cls, label, hiding_bound, poly):
-        return cls(label=label, hiding_bound=hiding_bound, poly=poly)
+
 
 def commit_poly_new(ck:UniversalParams, polys):
     random.seed(42)
     randomness = []
     labeled_comm = []
   
-    for labeled_poly in polys:
-        polynomial = labeled_poly.poly
-        hiding_bound = labeled_poly.hiding_bound
-        label = labeled_poly.label
+    for (polynomial, hiding_bound) in polys:
         comm,rand = commit(ck[0], ck[1], polynomial, hiding_bound) 
-        labeled_comm.append(LabeledCommitment.new(label,comm))
+        labeled_comm.append(comm)
         randomness.append(rand)
         
     return labeled_comm,randomness
@@ -232,9 +225,3 @@ class Proof:
     # Subset of all of the evaluations added to the proof.
     evaluations: ProofEvaluations
 
-    def __hash__(self) -> int:
-        return 0
-
-    def size(self) -> int:
-        return [1024]
-    
