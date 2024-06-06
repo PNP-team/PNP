@@ -99,18 +99,6 @@ class ProofEvaluations:
     custom_evals: dict
 
 
-def convert_to_tensors(data):
-    for key, value in data.items():
-        if isinstance(value, dict):
-            convert_to_tensors(value)  # Recursively apply conversion
-        elif isinstance(value, np.ndarray):
-            if np.array_equal(value, np.array(0, dtype=np.uint64)):
-                value = []
-            data[key] = torch.tensor(
-                value, dtype=torch.BLS12_381_Fr_G1_Mont
-            )  # Convert numpy array to tensor
-
-
 def compute_linearisation_poly(
     domain: Radix2EvaluationDomain,
     pk,
@@ -126,24 +114,24 @@ def compute_linearisation_poly(
     var_base_separation_challenge,
     lookup_separation_challenge,
     z_challenge,
-    w_l_poly: torch.Tensor,
-    w_r_poly: torch.Tensor,
-    w_o_poly: torch.Tensor,
-    w_4_poly: torch.Tensor,
-    t_1_poly: torch.Tensor,
-    t_2_poly: torch.Tensor,
-    t_3_poly: torch.Tensor,
-    t_4_poly: torch.Tensor,
-    t_5_poly: torch.Tensor,
-    t_6_poly: torch.Tensor,
-    t_7_poly: torch.Tensor,
-    t_8_poly: torch.Tensor,
-    z_poly: torch.Tensor,
-    z2_poly: torch.Tensor,
-    f_poly: torch.Tensor,
-    h1_poly: torch.Tensor,
-    h2_poly: torch.Tensor,
-    table_poly: torch.Tensor,
+    w_l_poly,
+    w_r_poly,
+    w_o_poly,
+    w_4_poly,
+    t_1_poly,
+    t_2_poly,
+    t_3_poly,
+    t_4_poly,
+    t_5_poly,
+    t_6_poly,
+    t_7_poly,
+    t_8_poly,
+    z_poly,
+    z2_poly,
+    f_poly,
+    h1_poly,
+    h2_poly,
+    table_poly
 ):
     n = domain.size
     omega = domain.group_gen
@@ -162,18 +150,6 @@ def compute_linearisation_poly(
         domain.size, vanishing_poly_eval, z_challenge
     )
 
-    w_l_poly = w_l_poly.to("cuda")
-    w_r_poly = w_r_poly.to("cuda")
-    w_o_poly = w_o_poly.to("cuda")
-    w_4_poly = w_4_poly.to("cuda")
-    t_1_poly = t_1_poly.to("cuda")
-    t_2_poly = t_2_poly.to("cuda")
-    t_3_poly = t_3_poly.to("cuda")
-    t_4_poly = t_4_poly.to("cuda")
-    t_5_poly = t_5_poly.to("cuda")
-    t_6_poly = t_6_poly.to("cuda")
-    t_7_poly = t_7_poly.to("cuda")
-    t_8_poly = t_8_poly.to("cuda")
     z_poly = z_poly.to("cuda")
     z2_poly = z2_poly.to("cuda")
     f_poly = f_poly.to("cuda")

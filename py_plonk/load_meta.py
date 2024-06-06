@@ -184,7 +184,7 @@ def parse_pk(pk_data):
 def parse_cs(cs_data):
     cs = StandardComposer(
         n=cs_data["n"],
-        public_inputs=cs_data["public_inputs"],
+        public_inputs=to_fr_tensor(cs_data["public_inputs"]),
         q_lookup=to_fr_tensor(cs_data["q_lookup"]),
         intended_pi_pos=cs_data["intended_pi_pos"],
         lookup_table=cs_data["lookup_table"],
@@ -192,7 +192,7 @@ def parse_cs(cs_data):
     return cs
 
 
-def load(dir_name):
+def load_meta(dir_name):
     cs_data = np.load(dir_name + "cs-9.npz", allow_pickle=True)
     pp_data = np.load(dir_name + "pp-9.npz", allow_pickle=True)
     pk_data = np.load(dir_name + "pk-9.npz", allow_pickle=True)

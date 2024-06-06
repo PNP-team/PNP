@@ -15,6 +15,7 @@ import torch.nn.functional as F
 from torch.pnp import zkp
 import time
 import torch.nn as nn
+from .load_meta import load_meta
 
 
 # data_set2 = [
@@ -50,21 +51,29 @@ def split_tx_poly(n, t_x):
         t_x[7 * n :],
     ]
 
+
 def load_witnesses(witness_dir):
     w_l_scalar = torch.tensor(
-        np.load(witness_dir+"/w_l_scalar"+"-9.npy", allow_pickle=True), dtype=fr.TYPE(), device="cuda"
+        np.load(witness_dir + "/w_l_scalar" + "-9.npy", allow_pickle=True),
+        dtype=fr.TYPE(),
+        device="cuda",
     )
     w_r_scalar = torch.tensor(
-        np.load(witness_dir+"/w_r_scalar"+"-9.npy", allow_pickle=True), dtype=fr.TYPE(), device="cuda"
+        np.load(witness_dir + "/w_r_scalar" + "-9.npy", allow_pickle=True),
+        dtype=fr.TYPE(),
+        device="cuda",
     )
     w_o_scalar = torch.tensor(
-        np.load(witness_dir+"/w_o_scalar"+"-9.npy", allow_pickle=True), dtype=fr.TYPE(), device="cuda"
+        np.load(witness_dir + "/w_o_scalar" + "-9.npy", allow_pickle=True),
+        dtype=fr.TYPE(),
+        device="cuda",
     )
     w_4_scalar = torch.tensor(
-        np.load(witness_dir+"/w_4_scalar"+"-9.npy", allow_pickle=True), dtype=fr.TYPE(), device="cuda"
+        np.load(witness_dir + "/w_4_scalar" + "-9.npy", allow_pickle=True),
+        dtype=fr.TYPE(),
+        device="cuda",
     )
     return w_l_scalar, w_r_scalar, w_o_scalar, w_4_scalar
-
 
 
 class gen_proof(torch.nn.Module):
@@ -72,28 +81,29 @@ class gen_proof(torch.nn.Module):
         super(gen_proof, self).__init__()
 
         self.INTT = nn.Intt(fr.TWO_ADICITY(), fr.TYPE())
+        self.pp, self.pk, self.cs = load_meta("../../data/MERKLE-HEIGHT-9/")
+
         # self.NTT = nn.Ntt(fr.TWO_ADICITY(), fr.TYPE())
         # self.NTT_COSET = nn.Ntt_coset(fr.TWO_ADICITY(), fr.TYPE())
         # self.INTT_COSET = nn.Intt_coset(fr.TWO_ADICITY(), fr.TYPE())
 
     def __call__(
         self,
-        pp,
-        pk,
-        cs: StandardComposer,
         transcript: transcript.Transcript,
     ):
 
-        domain = Radix2EvaluationDomain.new(cs.circuit_bound())
+        domain = Radix2EvaluationDomain.new(self.cs.circuit_bound())
         n = domain.size
         transcript.append_pi(
             b"pi",
-            torch.tensor(cs.public_inputs, dtype=torch.BLS12_381_Fr_G1_Mont),
-            int(cs.intended_pi_pos),
+            self.cs.public_inputs,
+            int(self.cs.intended_pi_pos),
         )
 
         # 1. Compute witness Polynomials
-        w_l_scalar, w_r_scalar, w_o_scalar, w_4_scalar = load_witnesses("../../data/MERKLE-HEIGHT-9")
+        w_l_scalar, w_r_scalar, w_o_scalar, w_4_scalar = load_witnesses(
+            "../../data/MERKLE-HEIGHT-9"
+        )
 
         w_l_poly = self.INTT(w_l_scalar)
         w_r_poly = self.INTT(w_r_scalar)
@@ -107,10 +117,7 @@ class gen_proof(torch.nn.Module):
             (w_4_poly, None),
         ]
 
-        #####pre-load commit points#####
-        ck = pp
-
-        w_commits, w_rands = kzg10.commit_poly_new(ck, w_polys)
+        w_commits, w_rands = kzg10.commit_poly_new(self.pp, w_polys)
 
         transcript.append(b"w_l", w_commits[0])
         transcript.append(b"w_r", w_commits[1])
@@ -125,7 +132,7 @@ class gen_proof(torch.nn.Module):
 
         # Compress lookup table into vector of single elements
         compressed_t_multiset = zkp.compress(
-            pk.lookups_coeffs.lookup_tables,
+            self.pk.lookups_coeffs.lookup_tables,
             zeta.to("cuda"),
         )
         # Compute table poly
@@ -143,7 +150,7 @@ class gen_proof(torch.nn.Module):
         # padded_q_lookup = list(cs.q_lookup) + q_lookup_pad
 
         compressed_f_multiset = zkp.compute_query_table(
-            cs.q_lookup,
+            self.cs.q_lookup,
             w_l_scalar,
             w_r_scalar,
             w_o_scalar,
@@ -157,7 +164,7 @@ class gen_proof(torch.nn.Module):
         f_polys = [(f_poly, None)]
 
         # Commit to query polynomial
-        f_poly_commit, _ = kzg10.commit_poly_new(ck, f_polys)
+        f_poly_commit, _ = kzg10.commit_poly_new(self.pp, f_polys)
         transcript.append(b"f", f_poly_commit[0])
 
         # Compute s, as the sorted and concatenated version of f and t
@@ -171,8 +178,8 @@ class gen_proof(torch.nn.Module):
         # Commit to h polys
         h_1_polys = [(h_1_poly, None)]
         h_2_polys = [(h_2_poly, None)]
-        h_1_poly_commit, _ = kzg10.commit_poly_new(ck, h_1_polys)
-        h_2_poly_commit, _ = kzg10.commit_poly_new(ck, h_2_polys)
+        h_1_poly_commit, _ = kzg10.commit_poly_new(self.pp, h_1_polys)
+        h_2_poly_commit, _ = kzg10.commit_poly_new(self.pp, h_2_polys)
 
         # Add h polynomials to transcript
         transcript.append(b"h1", h_1_poly_commit[0])
@@ -209,16 +216,11 @@ class gen_proof(torch.nn.Module):
             (w_l_scalar, w_r_scalar, w_o_scalar, w_4_scalar),
             beta,
             gamma,
-            [
-                pk.permutations_coeffs.left_sigma,
-                pk.permutations_coeffs.right_sigma,
-                pk.permutations_coeffs.out_sigma,
-                pk.permutations_coeffs.fourth_sigma
-            ],
+            self.pk.permutations_coeffs,
         )
         # Commit to permutation polynomial.
         z_polys = [(z_poly, None)]
-        z_poly_commit, _ = kzg10.commit_poly_new(ck, z_polys)
+        z_poly_commit, _ = kzg10.commit_poly_new(self.pp, z_polys)
 
         # Add permutation polynomial commitment to transcript.
         transcript.append(b"z", z_poly_commit[0])
@@ -238,14 +240,13 @@ class gen_proof(torch.nn.Module):
         )
         # Commit to lookup permutation polynomial.
         z_2_polys = [(z_2_poly, None)]
-        z_2_poly_commit, _ = kzg10.commit_poly_new(ck, z_2_polys)
+        z_2_poly_commit, _ = kzg10.commit_poly_new(self.pp, z_2_polys)
 
         # return 477.107
 
         # 3. Compute public inputs polynomial
-        cs_public_inputs = torch.tensor(cs.public_inputs, dtype=fr.TYPE())
         pi_poly = into_dense_poly(
-            cs_public_inputs, int(cs.intended_pi_pos), n, self.INTT
+            self.cs.public_inputs, int(self.cs.intended_pi_pos), n, self.INTT
         )
 
         # 4. Compute quotient polynomial
@@ -276,7 +277,7 @@ class gen_proof(torch.nn.Module):
 
         t_poly = quotient_poly.compute_quotient_poly(
             n,
-            pk,
+            self.pk,
             z_poly,
             z_2_poly,
             w_l_poly,
@@ -303,7 +304,7 @@ class gen_proof(torch.nn.Module):
 
         t_i_poly = split_tx_poly(n, t_poly)
         t_i_polys = [(poly, None) for poly in t_i_poly]
-        t_commits, _ = kzg10.commit_poly_new(ck, t_i_polys)
+        t_commits, _ = kzg10.commit_poly_new(self.pp, t_i_polys)
 
         # Add quotient polynomial commitments to transcript
         for i in range(0, 8):
@@ -315,7 +316,7 @@ class gen_proof(torch.nn.Module):
         transcript.append(b"z", z_challenge)
         lin_poly, evaluations = linearisation_poly.compute_linearisation_poly(
             domain,
-            pk,
+            self.pk,
             alpha,
             beta,
             gamma,
@@ -390,17 +391,17 @@ class gen_proof(torch.nn.Module):
 
         aw_polys = [
             (lin_poly, None),
-            (pk.permutations_coeffs.left_sigma, None),
-            (pk.permutations_coeffs.right_sigma, None),
-            (pk.permutations_coeffs.out_sigma, None),
+            (self.pk.permutations_coeffs.left_sigma, None),
+            (self.pk.permutations_coeffs.right_sigma, None),
+            (self.pk.permutations_coeffs.out_sigma, None),
             (f_poly, None),
             (h_2_poly, None),
             (table_poly, None),
         ]
 
-        aw_commits, aw_rands = kzg10.commit_poly_new(ck, aw_polys)
+        aw_commits, aw_rands = kzg10.commit_poly_new(self.pp, aw_polys)
         aw_opening = kzg10.open_proof(
-            ck,
+            self.pp,
             itertools.chain(aw_polys, w_polys),
             z_challenge.to("cuda"),
             aw_challenge.to("cuda"),
@@ -419,11 +420,11 @@ class gen_proof(torch.nn.Module):
             (table_poly, None),
         ]
 
-        saw_commits, saw_rands = kzg10.commit_poly_new(ck, saw_polys)
+        saw_commits, saw_rands = kzg10.commit_poly_new(self.pp, saw_polys)
         element = domain.element(1)
         open_point = F.mul_mod(z_challenge.to("cuda"), element)
         saw_opening = kzg10.open_proof(
-            ck,
+            self.pp,
             saw_polys,
             open_point.to("cuda"),
             saw_challenge.to("cuda"),

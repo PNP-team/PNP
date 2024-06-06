@@ -53,12 +53,12 @@ def compute_permutation_poly(domain, wires, beta, gamma, sigma_polys: torch.Tens
     ks[3] = constants.K3().to("cuda")
 
     NTT = nn.Ntt(fr.TWO_ADICITY(), fr.TYPE())
-    sigma_mappings = [[],[],[],[]]
-    sigma_mappings[0] = NTT(sigma_polys[0].to("cuda"))
-    sigma_mappings[1] = NTT(sigma_polys[1].to("cuda"))
-    sigma_mappings[2] = NTT(sigma_polys[2].to("cuda"))
-    sigma_mappings[3] = NTT(sigma_polys[3].to("cuda"))
-
+    
+    sigma_mappings = []
+    sigma_mappings.append(NTT(sigma_polys.left_sigma))
+    sigma_mappings.append(NTT(sigma_polys.right_sigma))
+    sigma_mappings.append(NTT(sigma_polys.out_sigma))
+    sigma_mappings.append(NTT(sigma_polys.fourth_sigma))
 
     # Transpose wires and sigma values to get "rows" in the form [wl_i,
     # wr_i, wo_i, ... ] where each row contains the wire and sigma

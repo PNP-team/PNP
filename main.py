@@ -5,7 +5,6 @@ from py_plonk.transcript import transcript
 import numpy as np
 from torch.profiler import profile, record_function, ProfilerActivity
 
-from py_plonk.load import load
 
 
 # data_set2=["../../data/MERKLE-HEIGHT-3/pp-3.npz","../../data/MERKLE-HEIGHT-3/pk-3.npz","../../data/MERKLE-HEIGHT-3/cs-3.npz","../../data/MERKLE-HEIGHT-3/w_l_scalar-3.npy","../../data/MERKLE-HEIGHT-3/w_r_scalar-3.npy","../../data/MERKLE-HEIGHT-3/w_o_scalar-3.npy","../../data/MERKLE-HEIGHT-3/w_4_scalar-3.npy"]
@@ -23,22 +22,19 @@ data_set2 = [
 if __name__ == "__main__":
 
     start_time = time.time()
-    pp, pk, cs = load("../../data/MERKLE-HEIGHT-9/")
+    model = gen_proof()
     end_time = time.time()
     print("Load Time: {}".format(end_time - start_time))
 
     start_time = time.time()
-
     transcript_init = b"Merkle tree"
     preprocessed_transcript = transcript.Transcript(transcript_init)
 
-    model = gen_proof()
+    with profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA]) as prof:
+        y = model(preprocessed_transcript)
+    print(prof.key_averages().table(sort_by="cpu_time_total", row_limit=20))
 
-    # with profile(activities=[ProfilerActivity.CPU, ProfilerActivity.CUDA]) as prof:
-    #     y = model(pp,pk,cs,preprocessed_transcript)
-    # print(prof.key_averages().table(sort_by="cpu_time_total", row_limit=20))
-
-    y = model(pp, pk, cs, preprocessed_transcript)
+    # y = model(preprocessed_transcript)
 
     end_time = time.time()
     print("Generate proof successfully\n")
