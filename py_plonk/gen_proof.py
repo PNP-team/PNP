@@ -78,21 +78,17 @@ class gen_proof(torch.nn.Module):
 
         # 1. Compute witness Polynomials
         w_l_scalar = torch.tensor(
-            np.load(data_set2[3], allow_pickle=True), dtype=torch.BLS12_381_Fr_G1_Mont
+            np.load(data_set2[3], allow_pickle=True), dtype=fr.TYPE(), device="cuda"
         )
         w_r_scalar = torch.tensor(
-            np.load(data_set2[4], allow_pickle=True), dtype=torch.BLS12_381_Fr_G1_Mont
+            np.load(data_set2[4], allow_pickle=True), dtype=fr.TYPE(), device="cuda"
         )
         w_o_scalar = torch.tensor(
-            np.load(data_set2[5], allow_pickle=True), dtype=torch.BLS12_381_Fr_G1_Mont
+            np.load(data_set2[5], allow_pickle=True), dtype=fr.TYPE(), device="cuda"
         )
         w_4_scalar = torch.tensor(
-            np.load(data_set2[6], allow_pickle=True), dtype=torch.BLS12_381_Fr_G1_Mont
+            np.load(data_set2[6], allow_pickle=True), dtype=fr.TYPE(), device="cuda"
         )
-        w_l_scalar = w_l_scalar.to("cuda")
-        w_r_scalar = w_r_scalar.to("cuda")
-        w_o_scalar = w_o_scalar.to("cuda")
-        w_4_scalar = w_4_scalar.to("cuda")
 
         w_l_poly = self.INTT(w_l_scalar)
         w_r_poly = self.INTT(w_r_scalar)
@@ -478,8 +474,8 @@ class gen_proof(torch.nn.Module):
             t_6_comm=t_commits[5],
             t_7_comm=t_commits[6],
             t_8_comm=t_commits[7],
-            aw_opening=aw_opening.w,
-            saw_opening=saw_opening.w,
+            aw_opening=aw_opening,
+            saw_opening=saw_opening,
             evaluations=evaluations,
         )
 

@@ -237,6 +237,11 @@ class Proof:
             for attribute, value in self.__dict__.items():
                 if attribute == "evaluations":
                     pass
+                elif attribute == "aw_opening" or attribute == "saw_opening":
+                    print(
+                        "{}: ({},{})".format(attribute, value.w.x.tolist(), value.w.y.tolist()),
+                        file=f,
+                    )
                 else:
                     print(
                         "{}: ({},{})".format(attribute, value.x.tolist(), value.y.tolist()),
