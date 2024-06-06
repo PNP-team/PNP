@@ -114,7 +114,7 @@ def convert_to_tensors(data):
 @calculate_execution_time
 def compute_linearisation_poly(
     domain: Radix2EvaluationDomain,
-    prover_key,
+    pk,
     alpha,
     beta,
     gamma,
@@ -191,73 +191,33 @@ def compute_linearisation_poly(
 
     wire_evals = WireEvaluations(a_eval, b_eval, c_eval, d_eval)
 
-    # Permutation evaluations
-    pk_permutation = prover_key["permutation"].tolist()
-    pk_left_sigma_coeff = torch.tensor(
-        pk_permutation["left_sigma"]["coeffs"], dtype=fr.TYPE()
-    ).to("cuda")
-    pk_right_sigma_coeff = torch.tensor(
-        pk_permutation["right_sigma"]["coeffs"], dtype=fr.TYPE()
-    ).to("cuda")
-    pk_out_sigma_coeff = torch.tensor(
-        pk_permutation["out_sigma"]["coeffs"], dtype=fr.TYPE()
-    ).to("cuda")
-    pk_fourth_sigma_coeff = torch.tensor(
-        pk_permutation["fourth_sigma"]["coeffs"], dtype=fr.TYPE()
-    ).to("cuda")
-    left_sigma_eval = F.evaluate(pk_left_sigma_coeff, z_challenge)
-    right_sigma_eval = F.evaluate(pk_right_sigma_coeff, z_challenge)
-    out_sigma_eval = F.evaluate(pk_out_sigma_coeff, z_challenge)
+    left_sigma_eval = F.evaluate(pk.permutations_coeffs.left_sigma, z_challenge)
+    right_sigma_eval = F.evaluate(pk.permutations_coeffs.right_sigma, z_challenge)
+    out_sigma_eval = F.evaluate(pk.permutations_coeffs.out_sigma, z_challenge)
     permutation_eval = F.evaluate(z_poly, shifted_z_challenge)
 
     perm_evals = PermutationEvaluations(
         left_sigma_eval, right_sigma_eval, out_sigma_eval, permutation_eval
     )
 
-    prover_key_arithmetic = prover_key["arithmetic"].tolist()
-    convert_to_tensors(prover_key_arithmetic)
-    for key in [
-        "q_l",
-        "q_r",
-        "q_c",
-        "q_m",
-        "q_o",
-        "q_4",
-        "q_hl",
-        "q_hr",
-        "q_h4",
-        "q_arith",
-    ]:
-        if prover_key_arithmetic[key]["coeffs"].is_cuda:
-            pass
-        else:
-            prover_key_arithmetic[key]["coeffs"] = prover_key_arithmetic[key][
-                "coeffs"
-            ].to("cuda")
-
-    prover_key_lookup = prover_key["lookup"].tolist()
-    convert_to_tensors(prover_key_lookup)
-    prover_key_lookup["q_lookup"]["coeffs"] = prover_key_lookup["q_lookup"][
-        "coeffs"
-    ].to("cuda")
     # Arith selector evaluation
-    q_arith_eval = F.evaluate(prover_key_arithmetic["q_arith"]["coeffs"], z_challenge)
+    q_arith_eval = F.evaluate(pk.arithmetics_coeffs.q_arith, z_challenge)
 
     # Lookup selector evaluation
-    q_lookup_eval = F.evaluate(prover_key_lookup["q_lookup"]["coeffs"], z_challenge)
+    q_lookup_eval = F.evaluate(pk.lookups_coeffs.q_lookup, z_challenge)
 
     # Custom gate evaluations
-    q_c_eval = F.evaluate(prover_key_arithmetic["q_c"]["coeffs"], z_challenge)
-    q_l_eval = F.evaluate(prover_key_arithmetic["q_l"]["coeffs"], z_challenge)
-    q_r_eval = F.evaluate(prover_key_arithmetic["q_r"]["coeffs"], z_challenge)
+    q_c_eval = F.evaluate(pk.arithmetics_coeffs.q_c, z_challenge)
+    q_l_eval = F.evaluate(pk.arithmetics_coeffs.q_l, z_challenge)
+    q_r_eval = F.evaluate(pk.arithmetics_coeffs.q_r, z_challenge)
     a_next_eval = F.evaluate(w_l_poly, shifted_z_challenge)
     b_next_eval = F.evaluate(w_r_poly, shifted_z_challenge)
     d_next_eval = F.evaluate(w_4_poly, shifted_z_challenge)
 
     # High degree selector evaluations
-    q_hl_eval = F.evaluate(prover_key_arithmetic["q_hl"]["coeffs"], z_challenge)
-    q_hr_eval = F.evaluate(prover_key_arithmetic["q_hr"]["coeffs"], z_challenge)
-    q_h4_eval = F.evaluate(prover_key_arithmetic["q_h4"]["coeffs"], z_challenge)
+    q_hl_eval = F.evaluate(pk.arithmetics_coeffs.q_hl, z_challenge)
+    q_hr_eval = F.evaluate(pk.arithmetics_coeffs.q_hr, z_challenge)
+    q_h4_eval = F.evaluate(pk.arithmetics_coeffs.q_h4, z_challenge)
 
     custom_evals = {
         "q_arith_eval": q_arith_eval,
@@ -299,8 +259,8 @@ def compute_linearisation_poly(
         wire_evals,
         q_arith_eval,
         custom_evals,
-        prover_key,
-        prover_key_arithmetic,
+        pk,
+        pk.arithmetics_coeffs
     )
 
     lookup = compute_linearisation_lookup(
@@ -321,7 +281,7 @@ def compute_linearisation_poly(
         z2_poly,
         h1_poly,
         lookup_separation_challenge.to("cuda"),
-        prover_key_lookup["q_lookup"]["coeffs"].to("cuda"),
+        pk.lookups_coeffs.q_lookup,
     )
 
     permutation = compute_linearisation_permutation(
@@ -332,7 +292,7 @@ def compute_linearisation_poly(
         permutation_eval,
         z_poly,
         domain_permutation,
-        pk_fourth_sigma_coeff,
+        pk.permutations_coeffs.fourth_sigma,
     )
 
     z_challenge_to_n = z_challenge_to_n.to("cuda")
@@ -392,7 +352,7 @@ def compute_gate_constraint_satisfiability(
     wire_evals: WireEvaluations,
     q_arith_eval,
     custom_evals,
-    prover_key,
+    pk,
     prover_key_arithmetic,
 ):
     wit_vals = WitnessValues(
@@ -411,49 +371,33 @@ def compute_gate_constraint_satisfiability(
         prover_key_arithmetic,
     )
 
-    pk_range_selector = prover_key["range_selector"].tolist()
-    pk_range_selector["coeffs"] = torch.tensor(
-        pk_range_selector["coeffs"], dtype=fr.TYPE()
-    ).to("cuda")
     range_separation_challenge = range_separation_challenge.to("cuda")
     range = range_constraint.linearisation_term(
-        pk_range_selector["coeffs"],
+        pk.selectors_coeffs.range,
         range_separation_challenge,
         wit_vals,
         custom_evals,
     )
 
-    pk_logic_selector = prover_key["logic_selector"].tolist()
-    pk_logic_selector["coeffs"] = torch.tensor(
-        pk_logic_selector["coeffs"], dtype=fr.TYPE()
-    ).to("cuda")
     logic_separation_challenge = logic_separation_challenge.to("cuda")
     logic = logic_constraint.linearisation_term(
-        pk_logic_selector["coeffs"],
+        pk.selectors_coeffs.logic,
         logic_separation_challenge,
         wit_vals,
         custom_evals,
     )
 
-    pk_fixed_group_add_selector = prover_key["fixed_group_add_selector"].tolist()
-    pk_fixed_group_add_selector["coeffs"] = torch.tensor(
-        pk_fixed_group_add_selector["coeffs"], dtype=fr.TYPE()
-    ).to("cuda")
     fixed_base_separation_challenge = fixed_base_separation_challenge.to("cuda")
     fixed_base_scalar_mul = FBSMGate.linearisation_term(
-        pk_fixed_group_add_selector["coeffs"],
+        pk.selectors_coeffs.fixed_group_add,
         fixed_base_separation_challenge,
         wit_vals,
         FBSMValues.from_evaluations(custom_evals),
     )
 
     var_base_separation_challenge = var_base_separation_challenge.to("cuda")
-    pk_variable_group_add_selector = prover_key["variable_group_add_selector"].tolist()
-    pk_variable_group_add_selector["coeffs"] = torch.tensor(
-        pk_variable_group_add_selector["coeffs"], dtype=fr.TYPE()
-    ).to("cuda")
     curve_addition = CAGate.linearisation_term(
-        pk_variable_group_add_selector["coeffs"],
+        pk.selectors_coeffs.variable_group_add,
         var_base_separation_challenge,
         wit_vals,
         CAValues.from_evaluations(custom_evals),

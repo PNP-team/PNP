@@ -79,7 +79,6 @@ class gen_proof(torch.nn.Module):
     def __call__(
         self,
         pp,
-        pk,
         pk_new,
         cs: StandardComposer,
         transcript: transcript.Transcript,
@@ -109,8 +108,6 @@ class gen_proof(torch.nn.Module):
         ]
 
         #####pre-load commit points#####
-        # powers_of_g = torch.tensor(pp["powers_of_g"], dtype=fq.TYPE())[:n]
-        # powers_of_gamma_g = torch.tensor(pp["powers_of_gamma_g"], dtype=fq.TYPE())[:n]
         ck = pp
 
         w_commits, w_rands = kzg10.commit_poly_new(ck, w_polys)
@@ -128,7 +125,7 @@ class gen_proof(torch.nn.Module):
 
         # Compress lookup table into vector of single elements
         compressed_t_multiset = zkp.compress(
-            pk_new.lookup_tables,
+            pk_new.lookups_coeffs.lookup_tables,
             zeta.to("cuda"),
         )
         # Compute table poly
@@ -215,10 +212,10 @@ class gen_proof(torch.nn.Module):
             beta,
             gamma,
             [
-                pk_new.permutation_left_sigma,
-                pk_new.permutation_right_sigma,
-                pk_new.permutation_out_sigma,
-                pk_new.permutation_fourth_sigma
+                pk_new.permutations_coeffs.left_sigma,
+                pk_new.permutations_coeffs.right_sigma,
+                pk_new.permutations_coeffs.out_sigma,
+                pk_new.permutations_coeffs.fourth_sigma
             ],
         )
         # Commit to permutation polynomial.
@@ -281,7 +278,7 @@ class gen_proof(torch.nn.Module):
 
         t_poly = quotient_poly.compute_quotient_poly(
             n,
-            pk,
+            pk_new,
             z_poly,
             z_2_poly,
             w_l_poly,
@@ -395,9 +392,9 @@ class gen_proof(torch.nn.Module):
 
         aw_polys = [
             (lin_poly, None),
-            (pk_new.permutation_left_sigma, None),
-            (pk_new.permutation_right_sigma, None),
-            (pk_new.permutation_out_sigma, None),
+            (pk_new.permutations_coeffs.left_sigma, None),
+            (pk_new.permutations_coeffs.right_sigma, None),
+            (pk_new.permutations_coeffs.out_sigma, None),
             (f_poly, None),
             (h_2_poly, None),
             (table_poly, None),

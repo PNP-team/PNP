@@ -31,7 +31,8 @@ def compute_gate_constraint_satisfiability(
     logic_challenge,
     fixed_base_challenge,
     var_base_challenge,
-    prover_key,
+    arithmetics_evals,
+    selectors_evals,
     wl_eval_8n,
     wr_eval_8n,
     wo_eval_8n,
@@ -44,59 +45,6 @@ def compute_gate_constraint_satisfiability(
 
     gate_contributions = []
 
-    def convert_to_tensors(data):
-        for key, value in data.items():
-            if isinstance(value, dict):
-                convert_to_tensors(value)  # Recursively apply conversion
-            elif isinstance(value, np.ndarray):  
-                if np.array_equal(value, np.array(0, dtype=np.uint64)):
-                    value = []
-                data[key] = torch.tensor(
-                    value, dtype=fr.TYPE()
-                )  # Convert numpy array to tensor
-
-    prover_key_arithmetic = prover_key["arithmetic"].tolist()
-    convert_to_tensors(prover_key_arithmetic)
-    for key in [
-        "q_l",
-        "q_r",
-        "q_c",
-        "q_m",
-        "q_o",
-        "q_4",
-        "q_hl",
-        "q_hr",
-        "q_h4",
-        "q_arith",
-    ]:
-        prover_key_arithmetic[key]["evals"] = prover_key_arithmetic[key]["evals"].to(
-            "cuda"
-        )
-
-    prover_key_range_selector = prover_key["range_selector"].tolist()
-    convert_to_tensors(prover_key_range_selector)
-    prover_key_range_selector["evals"] = prover_key_range_selector["evals"].to("cuda")
-
-    prover_key_logic_selector = prover_key["logic_selector"].tolist()
-    convert_to_tensors(prover_key_logic_selector)
-    prover_key_logic_selector["evals"] = prover_key_logic_selector["evals"].to("cuda")
-
-    prover_key_fixed_group_add_selector = prover_key[
-        "fixed_group_add_selector"
-    ].tolist()
-    convert_to_tensors(prover_key_fixed_group_add_selector)
-    prover_key_fixed_group_add_selector["evals"] = prover_key_fixed_group_add_selector[
-        "evals"
-    ].to("cuda")
-
-    prover_key_variable_group_add_selector = prover_key[
-        "variable_group_add_selector"
-    ].tolist()
-    convert_to_tensors(prover_key_variable_group_add_selector)
-    prover_key_variable_group_add_selector["evals"] = (
-        prover_key_variable_group_add_selector["evals"].to("cuda")
-    )
-
     wit_vals = WitnessValues(
         a_val=wl_eval_8n[:coset_NTT.Size],
         b_val=wr_eval_8n[:coset_NTT.Size],
@@ -108,22 +56,22 @@ def compute_gate_constraint_satisfiability(
         "a_next_eval" : wl_eval_8n[8:],
         "b_next_eval" : wr_eval_8n[8:],
         "d_next_eval" : w4_eval_8n[8:],
-        "q_l_eval" : prover_key_arithmetic["q_l"]["evals"].clone(),
-        "q_r_eval" : prover_key_arithmetic["q_r"]["evals"].clone(),
-        "q_c_eval" : prover_key_arithmetic["q_c"]["evals"].clone(),
+        "q_l_eval" : arithmetics_evals.q_l,
+        "q_r_eval" : arithmetics_evals.q_r,
+        "q_c_eval" : arithmetics_evals.q_c,
             # Possibly unnecessary but included nonetheless...
-        "q_hl_eval" : prover_key_arithmetic["q_hl"]["evals"].clone(),
-        "q_hr_eval" : prover_key_arithmetic["q_hr"]["evals"].clone(),
-        "q_h4_eval" : prover_key_arithmetic["q_h4"]["evals"].clone(),
+        "q_hl_eval" : arithmetics_evals.q_hl,
+        "q_hr_eval" : arithmetics_evals.q_hr,
+        "q_h4_eval" : arithmetics_evals.q_h4,
     }
     
     # start = time.time()
-    arithmetic = compute_quotient_i(prover_key_arithmetic, wit_vals)
+    arithmetic = compute_quotient_i(arithmetics_evals, wit_vals)
     # timings['compute_quotient_i'] += time.time() - start
 
     # start = time.time()
     range_term = range_constraint.quotient_term(
-        prover_key_range_selector["evals"],
+        selectors_evals.range,
         range_challenge,
         wit_vals,
         custom_vals,
@@ -131,7 +79,7 @@ def compute_gate_constraint_satisfiability(
 
     # start = time.time()
     logic_term = logic_constraint.quotient_term(
-        prover_key_logic_selector["evals"],
+        selectors_evals.logic,
         logic_challenge,
         wit_vals,
         custom_vals
@@ -140,7 +88,7 @@ def compute_gate_constraint_satisfiability(
 
     # start = time.time()
     fixed_base_scalar_mul_term = FBSMGate.quotient_term(
-        prover_key_fixed_group_add_selector["evals"],
+        selectors_evals.fixed_group_add,
         fixed_base_challenge,
         wit_vals,
         FBSMValues.from_evaluations(custom_vals),
@@ -149,7 +97,7 @@ def compute_gate_constraint_satisfiability(
 
     # start = time.time()
     curve_addition_term = CAGate.quotient_term(
-        prover_key_variable_group_add_selector["evals"],
+        selectors_evals.variable_group_add,
         var_base_challenge,
         wit_vals,
         CAValues.from_evaluations(custom_vals),
@@ -170,7 +118,8 @@ def compute_gate_constraint_satisfiability(
 def compute_permutation_checks(
     n,
     coset_ntt,
-    prover_key,
+    linear_evaluations_evals,
+    permutations_evals,
     wl_eval_8n,
     wr_eval_8n,
     wo_eval_8n,
@@ -190,34 +139,16 @@ def compute_permutation_checks(
     l1_alpha_sq_evals = coset_ntt(l1_poly_alpha.to("cuda"))
 
     # Initialize result list
-    pk_permutation = prover_key["permutation"].tolist()
-    pk_linear_evaluations = prover_key["linear_evaluations"].tolist()
-
-    pk_linear_evaluations_evals = torch.tensor(
-        pk_linear_evaluations["evals"], dtype=fr.TYPE()
-    ).to("cuda")
-    pk_left_sigma_evals = torch.tensor(
-        pk_permutation["left_sigma"]["evals"], dtype=fr.TYPE()
-    ).to("cuda")
-    pk_right_sigma_evals = torch.tensor(
-        pk_permutation["right_sigma"]["evals"], dtype=fr.TYPE()
-    ).to("cuda")
-    pk_out_sigma_evals = torch.tensor(
-        pk_permutation["out_sigma"]["evals"], dtype=fr.TYPE()
-    ).to("cuda")
-    pk_fourth_sigma_evals = torch.tensor(
-        pk_permutation["fourth_sigma"]["evals"], dtype=fr.TYPE()
-    ).to("cuda")
 
     # Calculate permutation contribution for each index
 
     quotient = permutation_compute_quotient(
         size,
-        pk_linear_evaluations_evals,
-        pk_left_sigma_evals,
-        pk_right_sigma_evals,
-        pk_out_sigma_evals,
-        pk_fourth_sigma_evals,
+        linear_evaluations_evals,
+        permutations_evals.left_sigma,
+        permutations_evals.right_sigma,
+        permutations_evals.out_sigma,
+        permutations_evals.fourth_sigma,
         wl_eval_8n[:size],
         wr_eval_8n[:size],
         wo_eval_8n[:size],
@@ -236,7 +167,7 @@ def compute_permutation_checks(
 @calculate_execution_time
 def compute_quotient_poly(
     n,
-    prover_key,
+    pk_new,
     z_poly,
     z2_poly,
     w_l_poly,
@@ -300,7 +231,8 @@ def compute_quotient_poly(
         logic_challenge,
         fixed_base_challenge,
         var_base_challenge,
-        prover_key,
+        pk_new.arithmetics_evals,
+        pk_new.selectors_evals,
         wl_eval_8n,
         wr_eval_8n,
         wo_eval_8n,
@@ -310,7 +242,8 @@ def compute_quotient_poly(
     permutation = compute_permutation_checks(
         n,
         coset_NTT,
-        prover_key,
+        pk_new.linear_evaluations_evals,
+        pk_new.permutations_evals,
         wl_eval_8n,
         wr_eval_8n,
         wo_eval_8n,
@@ -320,10 +253,6 @@ def compute_quotient_poly(
         beta,
         gamma,
     )
-    pk_lookup = prover_key["lookup"].tolist()
-    pk_lookup_qlookup_evals = torch.tensor(
-        pk_lookup["q_lookup"]["evals"], dtype=fr.TYPE()
-    ).to("cuda")
 
     lookup = compute_lookup_quotient_term(
         n,
@@ -341,17 +270,12 @@ def compute_quotient_poly(
         epsilon,
         zeta,
         lookup_challenge,
-        pk_lookup_qlookup_evals,
+        pk_new.lookups_evals.q_lookup,
     )
-
-    prover_key_v_h_coset_8n = prover_key["v_h_coset_8n"].tolist()
-    prover_key_v_h_coset_8n_evals = torch.tensor(
-        prover_key_v_h_coset_8n["evals"], dtype=fr.TYPE()
-    ).to("cuda")
 
     numerator = F.add_mod(gate_constraints, permutation)
     numerator = F.add_mod(numerator, lookup)
-    denominator = F.inv_mod(prover_key_v_h_coset_8n_evals)
+    denominator = F.inv_mod(pk_new.v_h_coset_8n_evals)
     res = F.mul_mod(numerator, denominator)
     coset_INTT = nn.Intt_coset(fr.TWO_ADICITY(), fr.TYPE())
     quotient_poly = coset_INTT(res)
