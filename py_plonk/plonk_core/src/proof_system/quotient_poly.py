@@ -1,7 +1,6 @@
 import torch
 import torch.nn.functional as F
 from ....bls12_381 import fr
-from ....arithmetic import calculate_execution_time
 from .widget.mod import WitnessValues
 from .widget import logic as logic_constraint
 from .widget import range as range_constraint
@@ -164,7 +163,6 @@ def compute_permutation_checks(
     return quotient
 
 
-@calculate_execution_time
 def compute_quotient_poly(
     n,
     pk_new,

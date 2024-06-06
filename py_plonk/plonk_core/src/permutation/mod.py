@@ -1,5 +1,4 @@
 from ....plonk_core.src.permutation import constants
-from ....arithmetic import calculate_execution_time
 from ....bls12_381 import fr
 import torch
 import torch.nn as nn
@@ -43,7 +42,6 @@ def _lookup_ratio(one ,delta, epsilon, f, t, t_next,
 
     return result
 
-@calculate_execution_time
 def compute_permutation_poly(domain, wires, beta, gamma, sigma_polys: torch.Tensor):
     n = domain.size
     one = fr.one().to("cuda")
@@ -104,7 +102,6 @@ def compute_permutation_poly(domain, wires, beta, gamma, sigma_polys: torch.Tens
     z_poly = INTT(z)
     return z_poly
 
-@calculate_execution_time
 def compute_lookup_permutation_poly(n, f, t, h_1, h_2, delta, epsilon):  
     assert f.size(0) == n
     assert t.size(0) == n

@@ -111,7 +111,6 @@ def convert_to_tensors(data):
             )  # Convert numpy array to tensor
 
 
-@calculate_execution_time
 def compute_linearisation_poly(
     domain: Radix2EvaluationDomain,
     pk,

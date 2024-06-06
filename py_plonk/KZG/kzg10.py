@@ -58,7 +58,6 @@ def commit(powers_of_g, powers_of_gamma_g, polynomial, hiding_bound):
 
 # On input a list of labeled polynomials and a query point, `open` outputs a proof of evaluation
 # of the polynomials at the query point.
-@calculate_execution_time
 def open_proof(
     ck: UniversalParams, labeled_polynomials, point, opening_challenge, rands, _rng=None
 ):

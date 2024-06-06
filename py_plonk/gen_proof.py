@@ -79,7 +79,7 @@ class gen_proof(torch.nn.Module):
     def __call__(
         self,
         pp,
-        pk_new,
+        pk,
         cs: StandardComposer,
         transcript: transcript.Transcript,
     ):
@@ -125,7 +125,7 @@ class gen_proof(torch.nn.Module):
 
         # Compress lookup table into vector of single elements
         compressed_t_multiset = zkp.compress(
-            pk_new.lookups_coeffs.lookup_tables,
+            pk.lookups_coeffs.lookup_tables,
             zeta.to("cuda"),
         )
         # Compute table poly
@@ -143,7 +143,7 @@ class gen_proof(torch.nn.Module):
         # padded_q_lookup = list(cs.q_lookup) + q_lookup_pad
 
         compressed_f_multiset = zkp.compute_query_table(
-            torch.tensor(cs.q_lookup, dtype=fr.TYPE()).to("cuda"),
+            cs.q_lookup,
             w_l_scalar,
             w_r_scalar,
             w_o_scalar,
@@ -165,8 +165,6 @@ class gen_proof(torch.nn.Module):
         h_1, h_2 = combine_split(compressed_t_multiset, compressed_f_multiset)
 
         # Compute h polys
-        h_1 = h_1.to("cuda")
-        h_2 = h_2.to("cuda")
         h_1_poly = self.INTT(h_1)
         h_2_poly = self.INTT(h_2)
 
@@ -212,10 +210,10 @@ class gen_proof(torch.nn.Module):
             beta,
             gamma,
             [
-                pk_new.permutations_coeffs.left_sigma,
-                pk_new.permutations_coeffs.right_sigma,
-                pk_new.permutations_coeffs.out_sigma,
-                pk_new.permutations_coeffs.fourth_sigma
+                pk.permutations_coeffs.left_sigma,
+                pk.permutations_coeffs.right_sigma,
+                pk.permutations_coeffs.out_sigma,
+                pk.permutations_coeffs.fourth_sigma
             ],
         )
         # Commit to permutation polynomial.
@@ -278,7 +276,7 @@ class gen_proof(torch.nn.Module):
 
         t_poly = quotient_poly.compute_quotient_poly(
             n,
-            pk_new,
+            pk,
             z_poly,
             z_2_poly,
             w_l_poly,
@@ -317,7 +315,7 @@ class gen_proof(torch.nn.Module):
         transcript.append(b"z", z_challenge)
         lin_poly, evaluations = linearisation_poly.compute_linearisation_poly(
             domain,
-            pk_new,
+            pk,
             alpha,
             beta,
             gamma,
@@ -392,9 +390,9 @@ class gen_proof(torch.nn.Module):
 
         aw_polys = [
             (lin_poly, None),
-            (pk_new.permutations_coeffs.left_sigma, None),
-            (pk_new.permutations_coeffs.right_sigma, None),
-            (pk_new.permutations_coeffs.out_sigma, None),
+            (pk.permutations_coeffs.left_sigma, None),
+            (pk.permutations_coeffs.right_sigma, None),
+            (pk.permutations_coeffs.out_sigma, None),
             (f_poly, None),
             (h_2_poly, None),
             (table_poly, None),
