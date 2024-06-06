@@ -25,7 +25,7 @@ class Transcript:
 
     def append(self, label, item):
         self.append_message(label, serialize(item))
-
+    
     def challenge_bytes(self, label, dest):
         data_len = len(dest).to_bytes(4, byteorder="little")
         self.strobe.meta_ad(label, False)
@@ -33,7 +33,7 @@ class Transcript:
         modified_dest = self.strobe.prf(dest, False)
         return modified_dest
 
-    def challenge_scalar(self, label: bytes):
+    def challenge_scalar(self, label):
         size = fr.MODULUS_BITS() // 8
         buf = bytes([0] * size)
         modified_buf = self.challenge_bytes(label, buf)

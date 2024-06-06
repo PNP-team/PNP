@@ -2,7 +2,7 @@ import itertools
 from .domain import Radix2EvaluationDomain
 from .transcript import transcript
 from .composer import StandardComposer
-from .bls12_381 import fr,fq
+from .bls12_381 import fr, fq
 from .plonk_core.lookup.multiset import combine_split
 from .plonk_core.src.permutation import mod
 from .plonk_core.src.proof_system.pi import into_dense_poly
@@ -26,7 +26,15 @@ import torch.nn as nn
 #     "../../data/MERKLE-HEIGHT-3/w_o_scalar-3.npy",
 #     "../../data/MERKLE-HEIGHT-3/w_4_scalar-3.npy",
 # ]
-data_set2=["../../data/MERKLE-HEIGHT-9/pp-9.npz","../../data/MERKLE-HEIGHT-9/pk-9.npz","../../data/MERKLE-HEIGHT-9/cs-9.npz","../../data/MERKLE-HEIGHT-9/w_l_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_r_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_o_scalar-9.npy","../../data/MERKLE-HEIGHT-9/w_4_scalar-9.npy"]
+data_set2 = [
+    "../../data/MERKLE-HEIGHT-9/pp-9.npz",
+    "../../data/MERKLE-HEIGHT-9/pk-9.npz",
+    "../../data/MERKLE-HEIGHT-9/cs-9.npz",
+    "../../data/MERKLE-HEIGHT-9/w_l_scalar-9.npy",
+    "../../data/MERKLE-HEIGHT-9/w_r_scalar-9.npy",
+    "../../data/MERKLE-HEIGHT-9/w_o_scalar-9.npy",
+    "../../data/MERKLE-HEIGHT-9/w_4_scalar-9.npy",
+]
 
 
 def split_tx_poly(n, t_x):
@@ -98,8 +106,8 @@ class gen_proof(torch.nn.Module):
             (w_4_poly, None),
         ]
         #####pre-load commit points#####
-        powers_of_g = torch.tensor(pp["powers_of_g"], dtype = fq.TYPE())[:n]
-        powers_of_gamma_g = torch.tensor(pp["powers_of_gamma_g"], dtype = fq.TYPE())[:n]
+        powers_of_g = torch.tensor(pp["powers_of_g"], dtype=fq.TYPE())[:n]
+        powers_of_gamma_g = torch.tensor(pp["powers_of_gamma_g"], dtype=fq.TYPE())[:n]
         ck = [powers_of_g.to("cuda"), powers_of_gamma_g.to("cuda")]
 
         w_commits, w_rands = kzg10.commit_poly_new(ck, w_polys)
@@ -249,7 +257,13 @@ class gen_proof(torch.nn.Module):
         # Compute mega permutation polynomial.
         # Compute lookup permutation poly
         z_2_poly = mod.compute_lookup_permutation_poly(
-            n, compressed_f_multiset, compressed_t_multiset, h_1, h_2, delta.to("cuda"), epsilon.to("cuda")
+            n,
+            compressed_f_multiset,
+            compressed_t_multiset,
+            h_1,
+            h_2,
+            delta.to("cuda"),
+            epsilon.to("cuda"),
         )
         # Commit to lookup permutation polynomial.
         z_2_polys = [(z_2_poly, None)]
@@ -259,7 +273,9 @@ class gen_proof(torch.nn.Module):
 
         # 3. Compute public inputs polynomial
         cs_public_inputs = torch.tensor(cs.public_inputs, dtype=fr.TYPE())
-        pi_poly = into_dense_poly(cs_public_inputs, int(cs.intended_pi_pos), n, self.INTT)
+        pi_poly = into_dense_poly(
+            cs_public_inputs, int(cs.intended_pi_pos), n, self.INTT
+        )
 
         # 4. Compute quotient polynomial
         # Compute quotient challenge `alpha`, and gate-specific separation challenges.
@@ -314,13 +330,7 @@ class gen_proof(torch.nn.Module):
             lookup_sep_challenge,
         )
 
-        # return 778.620
-
-        start = time.time()
         t_i_poly = split_tx_poly(n, t_poly)
-        elapse = time.time() - start
-        print("split time:", elapse)
-
         t_i_polys = [(poly, None) for poly in t_i_poly]
         t_commits, _ = kzg10.commit_poly_new(ck, t_i_polys)
 
@@ -366,35 +376,6 @@ class gen_proof(torch.nn.Module):
             h_2_poly,
             table_poly,
         )
-
-        evaluations.wire_evals.a_eval = evaluations.wire_evals.a_eval.to("cpu")
-        evaluations.wire_evals.b_eval = evaluations.wire_evals.b_eval.to("cpu")
-        evaluations.wire_evals.c_eval = evaluations.wire_evals.c_eval.to("cpu")
-        evaluations.wire_evals.d_eval = evaluations.wire_evals.d_eval.to("cpu")
-        evaluations.perm_evals.left_sigma_eval = (
-            evaluations.perm_evals.left_sigma_eval.to("cpu")
-        )
-        evaluations.perm_evals.right_sigma_eval = (
-            evaluations.perm_evals.right_sigma_eval.to("cpu")
-        )
-        evaluations.perm_evals.out_sigma_eval = (
-            evaluations.perm_evals.out_sigma_eval.to("cpu")
-        )
-        evaluations.perm_evals.permutation_eval = (
-            evaluations.perm_evals.permutation_eval.to("cpu")
-        )
-        evaluations.lookup_evals.f_eval = evaluations.lookup_evals.f_eval.to("cpu")
-        evaluations.lookup_evals.q_lookup_eval = (
-            evaluations.lookup_evals.q_lookup_eval.to("cpu")
-        )
-        evaluations.lookup_evals.z2_next_eval = (
-            evaluations.lookup_evals.z2_next_eval.to("cpu")
-        )
-        evaluations.lookup_evals.h1_eval = evaluations.lookup_evals.h1_eval.to("cpu")
-        evaluations.lookup_evals.h1_next_eval = (
-            evaluations.lookup_evals.h1_next_eval.to("cpu")
-        )
-        evaluations.lookup_evals.h2_eval = evaluations.lookup_evals.h2_eval.to("cpu")
 
         # Add evaluations to transcript.
         # First wire evals
@@ -443,11 +424,11 @@ class gen_proof(torch.nn.Module):
             (pk_permutation["out_sigma"]["coeffs"], None),
             (f_poly, None),
             (h_2_poly, None),
-            (table_poly, None)
+            (table_poly, None),
         ]
 
         aw_commits, aw_rands = kzg10.commit_poly_new(ck, aw_polys)
-        aw_opening = kzg10.open(
+        aw_opening = kzg10.open_proof(
             ck,
             itertools.chain(aw_polys, w_polys),
             z_challenge.to("cuda"),
@@ -470,7 +451,7 @@ class gen_proof(torch.nn.Module):
         saw_commits, saw_rands = kzg10.commit_poly_new(ck, saw_polys)
         element = domain.element(1)
         open_point = F.mul_mod(z_challenge.to("cuda"), element)
-        saw_opening = kzg10.open(
+        saw_opening = kzg10.open_proof(
             ck,
             saw_polys,
             open_point.to("cuda"),
@@ -479,7 +460,7 @@ class gen_proof(torch.nn.Module):
             None,
         )
 
-        Proof = kzg10.Proof(
+        proof = kzg10.Proof(
             a_comm=w_commits[0],
             b_comm=w_commits[1],
             c_comm=w_commits[2],
@@ -497,42 +478,11 @@ class gen_proof(torch.nn.Module):
             t_6_comm=t_commits[5],
             t_7_comm=t_commits[6],
             t_8_comm=t_commits[7],
-            aw_opening=aw_opening,
-            saw_opening=saw_opening,
+            aw_opening=aw_opening.w,
+            saw_opening=saw_opening.w,
             evaluations=evaluations,
         )
 
-        def write_to_file(data, filename):
-            try:
-                with open(filename, "a") as file:
-                    file.write(str(data) + "\n")
-                print(f"Data is successfully written to the file {filename}")
-            except Exception as e:
-                print(f"An error occurred while writing to the file: {e}")
+        proof.write_proof("proof_data.txt")
 
-        with open("proof_data_new.txt", "w") as f:
-            pass
-
-        attributes = vars(Proof)
-        for attribute, value in attributes.items():
-            # print("====", value)
-            try:
-                my_data = {f"{attribute}: {value.x},{value.y}"}
-                print(f"{attribute}: {value.x},{value.y}")
-                write_to_file(my_data, "proof_data_new.txt")
-            except:
-                try:
-                    my_data = {f"{attribute}: {value.w.x},{value.w.y}"}
-                    print(f"{attribute}: {value.w.x},{value.w.y}")
-                    write_to_file(my_data, "proof_data_new.txt")
-                except:
-                    try:
-                        my_data = {f"{attribute}: {value}"}
-                        print(f"{attribute}: {value.w.x.value},{value.w.y.value}")
-                        write_to_file(my_data, "proof_data_new.txt")
-                    except:
-                        pass
-
-        return w_commits[0]
-
-        return Proof
+        return proof
