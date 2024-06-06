@@ -84,7 +84,7 @@ def open_proof(
         i = i + 1
 
     proof = open_proof_internal(
-        ck[0], ck[1], combined_polynomial.to("cuda"), point, combined_rand
+        ck.powers_of_g, ck.powers_of_gamma_g, combined_polynomial.to("cuda"), point, combined_rand
     )
     return proof
 
@@ -110,7 +110,7 @@ def commit_poly_new(ck: UniversalParams, polys):
     labeled_comm = []
 
     for polynomial, hiding_bound in polys:
-        comm, rand = commit(ck[0], ck[1], polynomial, hiding_bound)
+        comm, rand = commit(ck.powers_of_g, ck.powers_of_gamma_g, polynomial, hiding_bound)
         labeled_comm.append(comm)
         randomness.append(rand)
 

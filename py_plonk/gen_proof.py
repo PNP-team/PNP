@@ -50,6 +50,22 @@ def split_tx_poly(n, t_x):
         t_x[7 * n :],
     ]
 
+def load_witnesses(witness_dir):
+    w_l_scalar = torch.tensor(
+        np.load(witness_dir+"/w_l_scalar"+"-9.npy", allow_pickle=True), dtype=fr.TYPE(), device="cuda"
+    )
+    w_r_scalar = torch.tensor(
+        np.load(witness_dir+"/w_r_scalar"+"-9.npy", allow_pickle=True), dtype=fr.TYPE(), device="cuda"
+    )
+    w_o_scalar = torch.tensor(
+        np.load(witness_dir+"/w_o_scalar"+"-9.npy", allow_pickle=True), dtype=fr.TYPE(), device="cuda"
+    )
+    w_4_scalar = torch.tensor(
+        np.load(witness_dir+"/w_4_scalar"+"-9.npy", allow_pickle=True), dtype=fr.TYPE(), device="cuda"
+    )
+    return w_l_scalar, w_r_scalar, w_o_scalar, w_4_scalar
+
+
 
 class gen_proof(torch.nn.Module):
     def __init__(self):
@@ -64,6 +80,7 @@ class gen_proof(torch.nn.Module):
         self,
         pp,
         pk,
+        pk_new,
         cs: StandardComposer,
         transcript: transcript.Transcript,
     ):
@@ -77,18 +94,7 @@ class gen_proof(torch.nn.Module):
         )
 
         # 1. Compute witness Polynomials
-        w_l_scalar = torch.tensor(
-            np.load(data_set2[3], allow_pickle=True), dtype=fr.TYPE(), device="cuda"
-        )
-        w_r_scalar = torch.tensor(
-            np.load(data_set2[4], allow_pickle=True), dtype=fr.TYPE(), device="cuda"
-        )
-        w_o_scalar = torch.tensor(
-            np.load(data_set2[5], allow_pickle=True), dtype=fr.TYPE(), device="cuda"
-        )
-        w_4_scalar = torch.tensor(
-            np.load(data_set2[6], allow_pickle=True), dtype=fr.TYPE(), device="cuda"
-        )
+        w_l_scalar, w_r_scalar, w_o_scalar, w_4_scalar = load_witnesses("../../data/MERKLE-HEIGHT-9")
 
         w_l_poly = self.INTT(w_l_scalar)
         w_r_poly = self.INTT(w_r_scalar)
@@ -101,10 +107,11 @@ class gen_proof(torch.nn.Module):
             (w_o_poly, None),
             (w_4_poly, None),
         ]
+
         #####pre-load commit points#####
-        powers_of_g = torch.tensor(pp["powers_of_g"], dtype=fq.TYPE())[:n]
-        powers_of_gamma_g = torch.tensor(pp["powers_of_gamma_g"], dtype=fq.TYPE())[:n]
-        ck = [powers_of_g.to("cuda"), powers_of_gamma_g.to("cuda")]
+        # powers_of_g = torch.tensor(pp["powers_of_g"], dtype=fq.TYPE())[:n]
+        # powers_of_gamma_g = torch.tensor(pp["powers_of_gamma_g"], dtype=fq.TYPE())[:n]
+        ck = pp
 
         w_commits, w_rands = kzg10.commit_poly_new(ck, w_polys)
 
@@ -119,23 +126,9 @@ class gen_proof(torch.nn.Module):
         zeta = transcript.challenge_scalar(b"zeta")
         transcript.append(b"zeta", zeta)
 
-        pk_lookup = pk["lookup"].tolist()
-        pk_lookup_table1 = torch.tensor(
-            pk_lookup["table1"]["coeffs"], dtype=torch.BLS12_381_Fr_G1_Mont
-        ).to("cuda")
-        pk_lookup_table2 = torch.tensor(
-            pk_lookup["table2"]["coeffs"], dtype=torch.BLS12_381_Fr_G1_Mont
-        ).to("cuda")
-        pk_lookup_table3 = torch.tensor(
-            pk_lookup["table3"]["coeffs"], dtype=torch.BLS12_381_Fr_G1_Mont
-        ).to("cuda")
-        pk_lookup_table4 = torch.tensor(
-            pk_lookup["table4"]["coeffs"], dtype=torch.BLS12_381_Fr_G1_Mont
-        ).to("cuda")
-
         # Compress lookup table into vector of single elements
         compressed_t_multiset = zkp.compress(
-            [pk_lookup_table1, pk_lookup_table2, pk_lookup_table3, pk_lookup_table4],
+            pk_new.lookup_tables,
             zeta.to("cuda"),
         )
         # Compute table poly
@@ -216,29 +209,16 @@ class gen_proof(torch.nn.Module):
         assert F.trace_equal(gamma, epsilon) == False, "challenges must be different"
         assert F.trace_equal(delta, epsilon) == False, "challenges must be different"
 
-        pk_permutation = pk["permutation"].tolist()
-        pk_permutation["left_sigma"]["coeffs"] = torch.tensor(
-            pk_permutation["left_sigma"]["coeffs"], dtype=fr.TYPE()
-        )
-        pk_permutation["right_sigma"]["coeffs"] = torch.tensor(
-            pk_permutation["right_sigma"]["coeffs"], dtype=fr.TYPE()
-        )
-        pk_permutation["out_sigma"]["coeffs"] = torch.tensor(
-            pk_permutation["out_sigma"]["coeffs"], dtype=fr.TYPE()
-        )
-        pk_permutation["fourth_sigma"]["coeffs"] = torch.tensor(
-            pk_permutation["fourth_sigma"]["coeffs"], dtype=fr.TYPE()
-        )
         z_poly = mod.compute_permutation_poly(
             domain,
             (w_l_scalar, w_r_scalar, w_o_scalar, w_4_scalar),
             beta,
             gamma,
             [
-                pk_permutation["left_sigma"]["coeffs"],
-                pk_permutation["right_sigma"]["coeffs"],
-                pk_permutation["out_sigma"]["coeffs"],
-                pk_permutation["fourth_sigma"]["coeffs"],
+                pk_new.permutation_left_sigma,
+                pk_new.permutation_right_sigma,
+                pk_new.permutation_out_sigma,
+                pk_new.permutation_fourth_sigma
             ],
         )
         # Commit to permutation polynomial.
@@ -340,7 +320,7 @@ class gen_proof(torch.nn.Module):
         transcript.append(b"z", z_challenge)
         lin_poly, evaluations = linearisation_poly.compute_linearisation_poly(
             domain,
-            pk,
+            pk_new,
             alpha,
             beta,
             gamma,
@@ -415,9 +395,9 @@ class gen_proof(torch.nn.Module):
 
         aw_polys = [
             (lin_poly, None),
-            (pk_permutation["left_sigma"]["coeffs"], None),
-            (pk_permutation["right_sigma"]["coeffs"], None),
-            (pk_permutation["out_sigma"]["coeffs"], None),
+            (pk_new.permutation_left_sigma, None),
+            (pk_new.permutation_right_sigma, None),
+            (pk_new.permutation_out_sigma, None),
             (f_poly, None),
             (h_2_poly, None),
             (table_poly, None),

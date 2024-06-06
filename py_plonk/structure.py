@@ -32,12 +32,10 @@ class BTreeMap:
         self.item = item
         self.pos = pos
 
-@dataclass
 class UniversalParams:
-    powers_of_g: List[AffinePointG1]
-    powers_of_gamma_g: List[AffinePointG1]
-    h: any
-    beta_h: any
+    def __init__(self, powers_of_g, powers_of_gamma_g):
+        self.powers_of_g = powers_of_g
+        self.powers_of_gamma_g = powers_of_gamma_g
 
 
 @dataclass
