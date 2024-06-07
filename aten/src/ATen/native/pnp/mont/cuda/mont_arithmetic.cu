@@ -54,6 +54,9 @@
 
 #define BIN_OP_TEMPLATE(name)                                                  \
   static void name##_template(Tensor& c, const Tensor& a, const Tensor& b) {   \
+    if (a.numel() == 0) {                                                      \
+      return;                                                                  \
+    }                                                                          \
     TORCH_CHECK(                                                               \
         a.numel() == b.numel() && a.numel() == c.numel(),                      \
         "The number of elements must be the same!");                           \
@@ -73,6 +76,9 @@
     });                                                                        \
   }                                                                            \
   static void name##_template_(Tensor& self, const Tensor& other) {            \
+    if (self.numel() == 0) {                                                   \
+      return;                                                                  \
+    }                                                                          \
     TORCH_CHECK(                                                               \
         self.numel() == other.numel(),                                         \
         "The number of elements must be the same!");                           \
@@ -93,6 +99,9 @@
 #define SCALAR_OP_TEMPLATE(name)                                           \
   static void name##_scalar_template(                                      \
       Tensor& c, const Tensor& a, const Tensor& b) {                       \
+    if (a.numel() == 0) {                                                  \
+      return;                                                              \
+    }                                                                      \
     TORCH_CHECK(                                                           \
         b.numel() == num_uint64(b.scalar_type()),                          \
         "The second tensor must be a scalar!");                            \
@@ -116,6 +125,9 @@
         });                                                                \
   }                                                                        \
   static void name##_scalar_template_(Tensor& self, const Tensor& other) { \
+    if (self.numel() == 0) {                                               \
+      return;                                                              \
+    }                                                                      \
     TORCH_CHECK(                                                           \
         other.numel() == num_uint64(other.scalar_type()),                  \
         "The second tensor must be a scalar!");                            \
@@ -283,60 +295,72 @@ __global__ void poly_reduce_kernel_second(
 }
 
 template <typename T>
-__global__ void exclusive_scan_add_kernel(const T* in, T* c, T* out, int64_t N, int64_t step){
-    int64_t tid = blockIdx.x * BLOCK_SIZE + threadIdx.x;
-    if(tid < step){
-      out[N-1-tid] = in[N-1-tid];
+__global__ void exclusive_scan_add_kernel(
+    const T* in,
+    T* c,
+    T* out,
+    int64_t N,
+    int64_t step) {
+  int64_t tid = blockIdx.x * BLOCK_SIZE + threadIdx.x;
+  if (tid < step) {
+    out[N - 1 - tid] = in[N - 1 - tid];
+  }
+  if (tid < N - step) {
+    if (step & 0xfffffffe) {
+      out[N - 1 - tid - step] = in[N - 1 - tid - step] + in[N - 1 - tid] * c[0];
+    } else {
+      out[N - 1 - tid - step] = in[N - 1 - tid - step] - in[N - 1 - tid] * c[0];
     }
-    if(tid < N-step){    
-        if(step & 0xfffffffe){
-          out[N-1-tid - step] = in[N-1-tid - step] + in[N-1-tid] * c[0];
-        }
-        else{
-          out[N-1-tid - step] = in[N-1-tid - step] - in[N-1-tid] * c[0];
-        }
-    }
+  }
 }
 
 template <typename T>
-__global__ void exclusive_scan_mul_kernel(const T* in, T* out, int64_t N, int64_t step){
-    int64_t tid = blockIdx.x * BLOCK_SIZE + threadIdx.x;
-    if(tid < step){
-      out[tid] = in[tid];
-    }
-    if(tid < N-step){    
-      out[tid + step] = in[tid + step] * in[tid];
-    }
+__global__ void exclusive_scan_mul_kernel(
+    const T* in,
+    T* out,
+    int64_t N,
+    int64_t step) {
+  int64_t tid = blockIdx.x * BLOCK_SIZE + threadIdx.x;
+  if (tid < step) {
+    out[tid] = in[tid];
+  }
+  if (tid < N - step) {
+    out[tid + step] = in[tid + step] * in[tid];
+  }
 }
 
 template <typename T>
-__global__ void exclusive_scan_shift_one_kernel(const T* in, T* out, int64_t N){
-    int64_t tid = blockIdx.x * BLOCK_SIZE + threadIdx.x;
-    if(tid == 0){
-      out[0] = T::one();
-    }
-    else if(tid<N){
-      out[tid] = in[tid-1];
-    }
+__global__ void exclusive_scan_shift_one_kernel(
+    const T* in,
+    T* out,
+    int64_t N) {
+  int64_t tid = blockIdx.x * BLOCK_SIZE + threadIdx.x;
+  if (tid == 0) {
+    out[0] = T::one();
+  } else if (tid < N) {
+    out[tid] = in[tid - 1];
+  }
 }
 
 template <typename T>
-__global__ void exclusive_scan_shift_zero_kernel(const T* in, T* out, int64_t N){
-    int64_t tid = blockIdx.x * BLOCK_SIZE + threadIdx.x;
-    if(tid < N - 1){
-      out[tid] = in[tid + 1];
-    }
-    else if(tid == N-1){
-      out[tid].zero();
-    }
+__global__ void exclusive_scan_shift_zero_kernel(
+    const T* in,
+    T* out,
+    int64_t N) {
+  int64_t tid = blockIdx.x * BLOCK_SIZE + threadIdx.x;
+  if (tid < N - 1) {
+    out[tid] = in[tid + 1];
+  } else if (tid == N - 1) {
+    out[tid].zero();
+  }
 }
 
 template <typename T>
-__global__ void repeat_kernel(const T* in, T* out, int64_t N){
-    int64_t tid = blockIdx.x * BLOCK_SIZE + threadIdx.x;
-    if(tid < N){
-      out[tid] = *in;
-    }
+__global__ void repeat_kernel(const T* in, T* out, int64_t N) {
+  int64_t tid = blockIdx.x * BLOCK_SIZE + threadIdx.x;
+  if (tid < N) {
+    out[tid] = *in;
+  }
 }
 
 BIN_KERNEL(add, +);
@@ -491,7 +515,10 @@ static void poly_reduce_cuda_template(
   });
 }
 
-static void poly_div_cuda_template(Tensor& divid_poly, Tensor& c, Tensor& exclusive_sum){
+static void poly_div_cuda_template(
+    Tensor& divid_poly,
+    Tensor& c,
+    Tensor& exclusive_sum) {
   AT_DISPATCH_MONT_TYPES(divid_poly.scalar_type(), "poly_div_cuda", [&] {
     auto divid_ptr = reinterpret_cast<scalar_t::compute_type*>(
         divid_poly.mutable_data_ptr<scalar_t>());
@@ -507,57 +534,69 @@ static void poly_div_cuda_template(Tensor& divid_poly, Tensor& c, Tensor& exclus
     auto in_ptr = divid_ptr;
     auto out_ptr = sum_ptr;
     int step = 1;
-    for(int step = 1; step<N; step*=2){
-      exclusive_scan_add_kernel<<<grid, block_work_size(), 0, stream>>>(in_ptr, c_ptr, out_ptr, N, step);
+    for (int step = 1; step < N; step *= 2) {
+      exclusive_scan_add_kernel<<<grid, block_work_size(), 0, stream>>>(
+          in_ptr, c_ptr, out_ptr, N, step);
       mont_mul_mod_kernel_<<<1, 1, 0, stream>>>(1, c_ptr, c_ptr);
       auto temp = out_ptr;
       out_ptr = in_ptr;
       in_ptr = temp;
     }
-    if(in_ptr != sum_ptr) {
+    if (in_ptr != sum_ptr) {
       cudaMemcpy(
-      sum_ptr,
-      in_ptr,
-      divid_poly.numel() * sizeof(uint64_t),
-      cudaMemcpyDeviceToDevice);
+          sum_ptr,
+          in_ptr,
+          divid_poly.numel() * sizeof(uint64_t),
+          cudaMemcpyDeviceToDevice);
     }
-    exclusive_scan_shift_zero_kernel<<<grid, block_work_size(), 0, stream>>>(sum_ptr, divid_ptr, N);
+    exclusive_scan_shift_zero_kernel<<<grid, block_work_size(), 0, stream>>>(
+        sum_ptr, divid_ptr, N);
     C10_CUDA_KERNEL_LAUNCH_CHECK();
   });
 }
 
-static void accumulate_mul_poly_cuda_template(Tensor& product_poly, Tensor& accumulate_mul_poly){
-  AT_DISPATCH_MONT_TYPES(product_poly.scalar_type(), "accumulate_mul_poly_cuda", [&] {
-    auto product_ptr = reinterpret_cast<scalar_t::compute_type*>(
-        product_poly.mutable_data_ptr<scalar_t>());
-    auto accumulate_ptr = reinterpret_cast<scalar_t::compute_type*>(
-        accumulate_mul_poly.mutable_data_ptr<scalar_t>());
-    int64_t N = product_poly.numel() / num_uint64(product_poly.scalar_type());
-    TORCH_INTERNAL_ASSERT(N > 0 && N <= std::numeric_limits<int32_t>::max());
-    int64_t grid = (N + block_work_size() - 1) / block_work_size();
-    auto stream = at::cuda::getCurrentCUDAStream();
-    auto in_ptr = product_ptr;
-    auto out_ptr = accumulate_ptr;
-    int step = 1;
-    for(int step = 1; step < N; step*=2){
-      exclusive_scan_mul_kernel<<<grid, block_work_size(), 0, stream>>>(in_ptr, out_ptr, N, step);
-      auto temp = out_ptr;
-      out_ptr = in_ptr;
-      in_ptr = temp;
-    }
-    if(in_ptr != accumulate_ptr) {
-      cudaMemcpy(
-      accumulate_ptr,
-      in_ptr,
-      product_poly.numel() * sizeof(uint64_t),
-      cudaMemcpyDeviceToDevice);
-    }
-    exclusive_scan_shift_one_kernel<<<grid, block_work_size(), 0, stream>>>(accumulate_ptr, product_ptr, N);
-    C10_CUDA_KERNEL_LAUNCH_CHECK();
-  });
+static void accumulate_mul_poly_cuda_template(
+    Tensor& product_poly,
+    Tensor& accumulate_mul_poly) {
+  AT_DISPATCH_MONT_TYPES(
+      product_poly.scalar_type(), "accumulate_mul_poly_cuda", [&] {
+        auto product_ptr = reinterpret_cast<scalar_t::compute_type*>(
+            product_poly.mutable_data_ptr<scalar_t>());
+        auto accumulate_ptr = reinterpret_cast<scalar_t::compute_type*>(
+            accumulate_mul_poly.mutable_data_ptr<scalar_t>());
+        int64_t N =
+            product_poly.numel() / num_uint64(product_poly.scalar_type());
+        TORCH_INTERNAL_ASSERT(
+            N > 0 && N <= std::numeric_limits<int32_t>::max());
+        int64_t grid = (N + block_work_size() - 1) / block_work_size();
+        auto stream = at::cuda::getCurrentCUDAStream();
+        auto in_ptr = product_ptr;
+        auto out_ptr = accumulate_ptr;
+        int step = 1;
+        for (int step = 1; step < N; step *= 2) {
+          exclusive_scan_mul_kernel<<<grid, block_work_size(), 0, stream>>>(
+              in_ptr, out_ptr, N, step);
+          auto temp = out_ptr;
+          out_ptr = in_ptr;
+          in_ptr = temp;
+        }
+        if (in_ptr != accumulate_ptr) {
+          cudaMemcpy(
+              accumulate_ptr,
+              in_ptr,
+              product_poly.numel() * sizeof(uint64_t),
+              cudaMemcpyDeviceToDevice);
+        }
+        exclusive_scan_shift_one_kernel<<<grid, block_work_size(), 0, stream>>>(
+            accumulate_ptr, product_ptr, N);
+        C10_CUDA_KERNEL_LAUNCH_CHECK();
+      });
 }
 
-static void repeat_to_poly_cuda_template(const Tensor& input, Tensor& output, int64_t N) {
+static void repeat_to_poly_cuda_template(
+    const Tensor& input,
+    Tensor& output,
+    int64_t N) {
   AT_DISPATCH_MONT_TYPES(input.scalar_type(), "repeat_cuda", [&] {
     auto in_ptr = reinterpret_cast<scalar_t::compute_type*>(
         input.mutable_data_ptr<scalar_t>());
@@ -566,8 +605,7 @@ static void repeat_to_poly_cuda_template(const Tensor& input, Tensor& output, in
     TORCH_INTERNAL_ASSERT(N > 0 && N <= std::numeric_limits<int32_t>::max());
     int64_t grid = (N + block_work_size() - 1) / block_work_size();
     auto stream = at::cuda::getCurrentCUDAStream();
-    repeat_kernel<<<grid, block_work_size(), 0, stream>>>(
-        in_ptr, out_ptr, N);
+    repeat_kernel<<<grid, block_work_size(), 0, stream>>>(in_ptr, out_ptr, N);
     C10_CUDA_KERNEL_LAUNCH_CHECK();
   });
 }
@@ -659,9 +697,8 @@ Tensor& exp_mod_out_cuda(const Tensor& input, int64_t exp, Tensor& output) {
 }
 
 Tensor pad_poly_cuda(const Tensor& input, int64_t N) {
-  Tensor output = at::empty(
-      {N, num_uint64(input.scalar_type())},
-      input.options());
+  Tensor output =
+      at::empty({N, num_uint64(input.scalar_type())}, input.options());
   cudaMemset(output.data_ptr(), 0, output.numel() * sizeof(uint64_t));
   cudaMemcpy(
       output.data_ptr(),
@@ -672,9 +709,8 @@ Tensor pad_poly_cuda(const Tensor& input, int64_t N) {
 }
 
 Tensor repeat_to_poly_cuda(const Tensor& input, int64_t N) {
-  Tensor output = at::empty(
-      {N, num_uint64(input.scalar_type())},
-      input.options());
+  Tensor output =
+      at::empty({N, num_uint64(input.scalar_type())}, input.options());
   repeat_to_poly_cuda_template(input, output, N);
   return output;
 }
@@ -715,7 +751,8 @@ SCALAR_OP(div);
 Tensor poly_div_cuda(const Tensor& divid_poly, const Tensor& c) {
   auto in = divid_poly.clone();
   auto out = at::empty(
-      {divid_poly.numel()/num_uint64(divid_poly.scalar_type()), num_uint64(divid_poly.scalar_type())},
+      {divid_poly.numel() / num_uint64(divid_poly.scalar_type()),
+       num_uint64(divid_poly.scalar_type())},
       divid_poly.options());
   auto tiring = c.clone();
   poly_div_cuda_template(in, tiring, out);
@@ -725,7 +762,8 @@ Tensor poly_div_cuda(const Tensor& divid_poly, const Tensor& c) {
 Tensor accumulate_mul_poly_cuda(const Tensor& product_poly) {
   auto in = product_poly.clone();
   auto out = at::empty(
-      {product_poly.numel()/num_uint64(product_poly.scalar_type()), num_uint64(product_poly.scalar_type())},
+      {product_poly.numel() / num_uint64(product_poly.scalar_type()),
+       num_uint64(product_poly.scalar_type())},
       product_poly.options());
   accumulate_mul_poly_cuda_template(in, out);
   return in;

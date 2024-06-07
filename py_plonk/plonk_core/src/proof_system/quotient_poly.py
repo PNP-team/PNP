@@ -19,7 +19,7 @@ import numpy as np
 # Computes the first lagrange polynomial with the given `scale` over `domain`.
 def compute_first_lagrange_poly_scaled(n, scale: torch.Tensor):
     INTT = nn.Intt(n, fr.TYPE())
-    x_evals = F.pad_poly(scale, n)
+    x_evals = F.resize_poly(scale, n)
     x_coeffs = INTT(x_evals.to("cuda"))
     return x_coeffs
 
@@ -194,34 +194,33 @@ def compute_quotient_poly(
     l1_poly = compute_first_lagrange_poly_scaled(n, one)
 
     coset_NTT = nn.Ntt_coset(fr.TWO_ADICITY(), coset_size, fr.TYPE())
-    l1_eval_8n = coset_NTT(l1_poly.to("cuda"))
-    z_eval_8n = coset_NTT(z_poly.to("cuda"))
-
+    l1_eval_8n = coset_NTT(l1_poly)
+    z_eval_8n = coset_NTT(z_poly)
     z_eval_8n = torch.cat((z_eval_8n, z_eval_8n[:8]), dim=0)
 
-    wl_eval_8n = coset_NTT(w_l_poly.to("cuda"))
+    wl_eval_8n = coset_NTT(w_l_poly)
     wl_eval_8n = torch.cat((wl_eval_8n, wl_eval_8n[:8]), dim=0)
 
-    wr_eval_8n = coset_NTT(w_r_poly.to("cuda"))
+    wr_eval_8n = coset_NTT(w_r_poly)
     wr_eval_8n = torch.cat((wr_eval_8n, wr_eval_8n[:8]), dim=0)
 
-    wo_eval_8n = coset_NTT(w_o_poly.to("cuda"))
+    wo_eval_8n = coset_NTT(w_o_poly)
 
-    w4_eval_8n = coset_NTT(w_4_poly.to("cuda"))
+    w4_eval_8n = coset_NTT(w_4_poly)
     w4_eval_8n = torch.cat((w4_eval_8n, w4_eval_8n[:8]), dim=0)
 
-    z2_eval_8n = coset_NTT(z2_poly.to("cuda"))
+    z2_eval_8n = coset_NTT(z2_poly)
     z2_eval_8n = torch.cat((z2_eval_8n, z2_eval_8n[:8]), dim=0)
 
-    f_eval_8n = coset_NTT(f_poly.to("cuda"))
+    f_eval_8n = coset_NTT(f_poly)
 
-    table_eval_8n = coset_NTT(table_poly.to("cuda"))
+    table_eval_8n = coset_NTT(table_poly)
     table_eval_8n = torch.cat((table_eval_8n, table_eval_8n[:8]), dim=0)
 
-    h1_eval_8n = coset_NTT(h1_poly.to("cuda"))
+    h1_eval_8n = coset_NTT(h1_poly)
     h1_eval_8n = torch.cat((h1_eval_8n, h1_eval_8n[:8]), dim=0)
 
-    h2_eval_8n = coset_NTT(h2_poly.to("cuda"))
+    h2_eval_8n = coset_NTT(h2_poly)
 
     gate_constraints = compute_gate_constraint_satisfiability(
         coset_NTT,

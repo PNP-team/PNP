@@ -2,7 +2,6 @@ from dataclasses import dataclass
 from .....bls12_381 import fr
 from .....plonk_core.src.proof_system.widget.mod import WitnessValues
 from .....bls12_381 import edwards as P
-from .arithmetic import poly_mul_const
 import torch.nn.functional as F
 import torch
 
@@ -204,7 +203,7 @@ class FBSMGate:
     @staticmethod
     def linearisation_term(selector_poly, separation_challenge, wit_vals, custom_vals):
         temp = FBSMGate.constraints(separation_challenge, wit_vals, custom_vals)
-        res = poly_mul_const(selector_poly, temp)
+        res = F.mul_mod_scalar(selector_poly, temp)
         return res
 
 

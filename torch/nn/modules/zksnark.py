@@ -119,7 +119,7 @@ class Ntt_coset(Module):
         self.Size = coset_size
 
     def forward(self, input: Tensor) -> Tensor:
-        input = F.pad_poly(input, self.Size)
+        input = F.resize_poly(input, self.Size)
         output = torch.ntt_zkp(input, self.Params, is_intt=False, is_coset=True)
         return output
 
@@ -159,3 +159,19 @@ class Intt_coset(Module):
     def forward(self, input: Tensor) -> Tensor:
         output = torch.ntt_zkp(input, self.Params, is_intt=True, is_coset=True)
         return output
+
+class MSM(Module):
+    pass 
+    # __constants__ = ["dtype"]
+
+    # dtype: Any
+
+    # def __init__(self, bases: Tensor, scalar: Tensor, dtype) -> None:
+    #     super().__init__()
+    #     self.dtype = dtype
+
+    # def forward(self, bases: Tensor, scalar: Tensor) -> Tensor:
+    #     output = torch.multi_scalar_mult(bases.to("cuda"), scalar.to("cuda"))
+    #     return output
+    
+

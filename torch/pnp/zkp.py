@@ -16,7 +16,7 @@ def compute_query_table(q_lookup: torch.Tensor,
                         w_l_scalar: torch.Tensor, w_r_scalar: torch.Tensor, w_o_scalar: torch.Tensor,
                         w_4_scalar: torch.Tensor, t_poly: torch.Tensor, challenge: torch.Tensor) -> torch.Tensor:
     n = w_l_scalar.size(0)
-    padded_q_lookup = F.pad_poly(q_lookup, n)
+    padded_q_lookup = F.resize_poly(q_lookup, n)
     concatenated_f_scalars = torch.compute_query_table(padded_q_lookup, w_l_scalar, w_r_scalar, w_o_scalar, w_4_scalar, t_poly[0])
 
     f_0 = concatenated_f_scalars[0:n]

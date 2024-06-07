@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from ....bls12_381 import fr
 from typing import List, Tuple
 from ....domain import Radix2EvaluationDomain
-from ....arithmetic import poly_mul_const,poly_add_poly
+from ....arithmetic import poly_add_poly
 from ....plonk_core.src.permutation.constants import K1,K2,K3
 import torch.nn.functional as F
 @dataclass
@@ -196,7 +196,7 @@ def compute_lineariser_copy_range_check(
     a = F.mul_mod(a, alpha)
     neg_a = F.sub_mod(mod, a)
 
-    res = poly_mul_const(fourth_sigma_poly,neg_a)
+    res = F.mul_mod_scalar(fourth_sigma_poly,neg_a)
     return res
 
 # Computes the following:
@@ -235,7 +235,7 @@ def compute_lineariser_identity_range_check(
     a = F.mul_mod(a, a_2)
     a = F.mul_mod(a, a_3)
     a = F.mul_mod(a, alpha)
-    res = poly_mul_const(z_poly, a)
+    res = F.mul_mod_scalar(z_poly, a)
     return res
 
 # Computes the following:
@@ -249,7 +249,7 @@ def compute_lineariser_check_is_one(
     lagrange_coefficients = domain.evaluate_all_lagrange_coefficients(z_challenge)
     l_1_z = lagrange_coefficients[0]
     const = F.mul_mod(l_1_z, alpha_sq)
-    res = poly_mul_const(z_coeffs, const)
+    res = F.mul_mod_scalar(z_coeffs, const)
     return res
 
 

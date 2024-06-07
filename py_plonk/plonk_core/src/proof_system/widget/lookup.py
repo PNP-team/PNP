@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import List, Tuple
 import torch.nn.functional as F
 from .....plonk_core.src.utils import lc
-from .....arithmetic import poly_add_poly,poly_mul_const
+from .....arithmetic import poly_add_poly
 @dataclass
 class Lookup:
     # Lookup selector
@@ -129,7 +129,7 @@ def compute_linearisation_lookup(
     compressed_tuple = lc([a_eval, b_eval, c_eval, d_eval], zeta)
     compressed_tuple_sub_f_eval = F.sub_mod(compressed_tuple, f_eval)
     const1 = F.mul_mod(compressed_tuple_sub_f_eval, lookup_sep)
-    a = poly_mul_const(pk_q_lookup, const1)
+    a = F.mul_mod_scalar(pk_q_lookup, const1)
 
     # z2(X) * (1 + δ) * (ε + f_bar) * (ε(1+δ) + t_bar + δ*tω_bar) *
     # lookup_sep^2
@@ -142,7 +142,7 @@ def compute_linearisation_lookup(
     one_plus_delta_b_0_b_1 = F.mul_mod(one_plus_delta_b_0, b_1)
     one_plus_delta_b_0_b_1_lookup = F.mul_mod(one_plus_delta_b_0_b_1, lookup_sep_sq)
     const2 = F.add_mod(one_plus_delta_b_0_b_1_lookup, b_2)
-    b = poly_mul_const(z2_poly, const2)
+    b = F.mul_mod_scalar(z2_poly, const2)
 
     # h1(X) * (−z2ω_bar) * (ε(1+δ) + h2_bar  + δh1ω_bar) * lookup_sep^2
 
@@ -152,7 +152,7 @@ def compute_linearisation_lookup(
     delta_h1_next_eval =  F.add_mod(delta, h1_next_eval)
     c_1 = F.add_mod(epsilon_one_plus_delta_h2_eval, delta_h1_next_eval)
     c0_c1 = F.mul_mod(c_0, c_1)
-    c = poly_mul_const(h1_poly, c0_c1)
+    c = F.mul_mod_scalar(h1_poly, c0_c1)
 
     ab = poly_add_poly(a, b)
     abc = poly_add_poly(ab, c)

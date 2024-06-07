@@ -1,7 +1,6 @@
 from ...plonk_core.src import utils
 from collections import defaultdict
 from ...bls12_381 import fr
-from ...arithmetic import tensor_to_int
 import torch
 
 

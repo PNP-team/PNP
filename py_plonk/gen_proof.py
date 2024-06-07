@@ -39,7 +39,7 @@ data_set2 = [
 
 
 def split_tx_poly(n, t_x):
-    # t_x = F.pad_poly(t_x, n << 3)
+    # t_x = F.resize_poly(t_x, n << 3)
     return [
         t_x[0:n],
         t_x[n : 2 * n],

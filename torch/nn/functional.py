@@ -6250,10 +6250,13 @@ def poly_div_poly(divid: Tensor, c: Tensor) -> Tensor:
     return result
 
 # @trace
-def pad_poly(x: Tensor, N: int) -> Tensor:
-    prev = x.shape[0] if x.dim() > 1 else 1
-    assert prev < N, "input size must < N"
-    return torch.pad_poly(x, N)
+def resize_poly(x: Tensor, N: int) -> Tensor:
+    prev = x.numel() / x.shape[-1] if x.numel() > 0 else 0
+    if prev < N:
+        return torch.pad_poly(x, N)
+    else:
+        return x[:N]
+    
 
 # @trace
 def accumulate_mul_poly(product: Tensor) -> Tensor:

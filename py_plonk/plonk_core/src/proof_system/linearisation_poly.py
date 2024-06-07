@@ -11,10 +11,7 @@ from .widget.fixed_base_scalar_mul import (
 )
 from .widget.curve_addition import CAGate, CAValues
 from ....arithmetic import (
-    poly_mul_const,
     poly_add_poly,
-    compute_first_lagrange_evaluation,
-    calculate_execution_time,
 )
 import torch
 import torch.nn.functional as F
@@ -99,6 +96,27 @@ class ProofEvaluations:
     custom_evals: dict
 
 
+# The first lagrange polynomial has the expression:
+# L_0(X) = mul_from_1_to_(n-1) [(X - omega^i) / (1 - omega^i)]
+#
+# with `omega` being the generator of the domain (the `n`th root of unity).
+#
+# We use two equalities:
+#   1. `mul_from_2_to_(n-1) [1 / (1 - omega^i)] = 1 / n`
+#   2. `mul_from_2_to_(n-1) [(X - omega^i)] = (X^n - 1) / (X - 1)`
+# to obtain the expression:
+# L_0(X) = (X^n - 1) / n * (X - 1)
+def _compute_first_lagrange_evaluation(size, z_h_eval, z_challenge):
+    # single scalar OP on CPU
+    one = fr.one()
+    n_fr = fr.make_tensor(size)
+    z_challenge_sub_one = F.sub_mod(z_challenge, one)
+    denom = F.mul_mod(n_fr, z_challenge_sub_one)
+    denom_in = F.div_mod(one, denom)
+    res = F.mul_mod(z_h_eval, denom_in)
+    return res  
+
+
 def compute_linearisation_poly(
     domain: Radix2EvaluationDomain,
     pk,
@@ -146,7 +164,7 @@ def compute_linearisation_poly(
     # Compute the last term in the linearisation polynomial (negative_quotient_term):
     # - Z_h(z_challenge) * [t_1(X) + z_challenge^n * t_2(X) + z_challenge^2n *
     # t_3(X) + z_challenge^3n * t_4(X)]
-    l1_eval = compute_first_lagrange_evaluation(
+    l1_eval = _compute_first_lagrange_evaluation(
         domain.size, vanishing_poly_eval, z_challenge
     )
 
@@ -272,40 +290,40 @@ def compute_linearisation_poly(
 
     z_challenge_to_n = z_challenge_to_n.to("cuda")
     # Calculate t_8_poly * z_challenge_to_n
-    term_1 = poly_mul_const(t_8_poly, z_challenge_to_n)
+    term_1 = F.mul_mod_scalar(t_8_poly, z_challenge_to_n)
 
     # Calculate (term_1 + t_7_poly) * z_challenge_to_n
 
     term_2_1 = poly_add_poly(term_1, t_7_poly)
-    term_2 = poly_mul_const(term_2_1, z_challenge_to_n)
+    term_2 = F.mul_mod_scalar(term_2_1, z_challenge_to_n)
 
     # Calculate (term_2 + t_6_poly) * z_challenge_to_n
     term_3_1 = poly_add_poly(term_2, t_6_poly)
-    term_3 = poly_mul_const(term_3_1, z_challenge_to_n)
+    term_3 = F.mul_mod_scalar(term_3_1, z_challenge_to_n)
 
     # Calculate (term_3 + t_5_poly) * z_challenge_to_n
     term_4_1 = poly_add_poly(term_3, t_5_poly)
-    term_4 = poly_mul_const(term_4_1, z_challenge_to_n)
+    term_4 = F.mul_mod_scalar(term_4_1, z_challenge_to_n)
 
     # Calculate (term_4 + t_4_poly) * z_challenge_to_n
     term_5_1 = poly_add_poly(term_4, t_4_poly)
-    term_5 = poly_mul_const(term_5_1, z_challenge_to_n)
+    term_5 = F.mul_mod_scalar(term_5_1, z_challenge_to_n)
 
     # Calculate (term_5 + t_3_poly) * z_challenge_to_n
     term_6_1 = poly_add_poly(term_5, t_3_poly)
-    term_6 = poly_mul_const(term_6_1, z_challenge_to_n)
+    term_6 = F.mul_mod_scalar(term_6_1, z_challenge_to_n)
 
     # Calculate (term_6 + t_2_poly) * z_challenge_to_n
     term_7_1 = poly_add_poly(term_6, t_2_poly)
-    term_7 = poly_mul_const(term_7_1, z_challenge_to_n)
+    term_7 = F.mul_mod_scalar(term_7_1, z_challenge_to_n)
 
     # Calculate (term_7 + t_1_poly) * vanishing_poly_eval
     term_8_1 = poly_add_poly(term_7, t_1_poly)
     vanishing_poly_eval = vanishing_poly_eval.to("cuda")
-    quotient_term = poly_mul_const(term_8_1, vanishing_poly_eval)
+    quotient_term = F.mul_mod_scalar(term_8_1, vanishing_poly_eval)
 
     neg_one = neg_one.to("cuda")
-    negative_quotient_term = poly_mul_const(quotient_term, neg_one)
+    negative_quotient_term = F.mul_mod_scalar(quotient_term, neg_one)
     linearisation_polynomial_term_1 = poly_add_poly(gate_constraints, permutation)
     linearisation_polynomial_term_2 = poly_add_poly(lookup, negative_quotient_term)
     linearisation_polynomial = poly_add_poly(
@@ -336,6 +354,11 @@ def compute_gate_constraint_satisfiability(
         c_val=wire_evals.c_eval,
         d_val=wire_evals.d_eval,
     )
+
+    print("a_eval", wire_evals.a_eval)
+    print("b_eval", wire_evals.b_eval)
+    print("c_eval", wire_evals.c_eval)
+    print("d_eval", wire_evals.d_eval)
 
     arithmetic = compute_linearisation_arithmetic(
         wire_evals.a_eval,
@@ -378,8 +401,20 @@ def compute_gate_constraint_satisfiability(
         CAValues.from_evaluations(custom_evals),
     )
 
+    print('arithmetic', arithmetic)
+    print('range', range)
+    print('logic', logic)
+    print('fixed_base_scalar_mul', fixed_base_scalar_mul)
+    print('curve_addition', curve_addition)
+
     mid1 = poly_add_poly(arithmetic, range)
     mid2 = poly_add_poly(mid1, logic)
     mid3 = poly_add_poly(mid2, fixed_base_scalar_mul)
     res = poly_add_poly(mid3, curve_addition)
+
+    print('mid1', mid1)
+    print('mid2', mid2)
+    print('mid3', mid3)
+
+
     return res

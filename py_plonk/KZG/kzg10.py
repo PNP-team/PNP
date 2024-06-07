@@ -6,12 +6,7 @@ import torch
 import torch.nn.functional as F
 
 from ..arithmetic import (
-    calculate_execution_time,
-    convert_to_bigints,
     MSM,
-    poly_add_poly_mul_const,
-    rand_poly,
-    skip_leading_zeros_and_convert_to_bigints,
 )
 from ..bls12_381 import fq, fr
 from ..jacobian import add_assign, add_assign_mixed, ProjectivePointG1, to_affine
@@ -27,27 +22,24 @@ def empty_randomness():
 def calculate_hiding_polynomial_degree(hiding_bound):
     return hiding_bound + 1
 
-
 def push(self, a):
     self.blind_poly.append(a)
 
 
 def randomness_rand(hiding_bound):
+    random.seed(42)
     hiding_poly_degree = calculate_hiding_polynomial_degree(hiding_bound)
-    return rand_poly(hiding_poly_degree)
-
-
-def rand_add_assign(self, f, other):
-    self = poly_add_poly_mul_const(self, f, other)
+    random_coeffs = [fr.make_tensor(random.random) for _ in range(hiding_poly_degree + 1)]
+    return random_coeffs
 
 
 def commit(powers_of_g, powers_of_gamma_g, polynomial, hiding_bound):
-    plain_coeffs = skip_leading_zeros_and_convert_to_bigints(polynomial)
+    plain_coeffs = F.to_base(polynomial)
     commitment = MSM(powers_of_g, plain_coeffs)
     randomness = empty_randomness()
     if hiding_bound:
         randomness = randomness_rand(hiding_bound)
-    random_ints = convert_to_bigints(randomness)
+    random_ints = F.to_base(randomness)
 
     random_commitment: ProjectivePointG1 = MSM(powers_of_gamma_g, random_ints)
     random_commitment_affine = to_affine(random_commitment)
@@ -63,45 +55,26 @@ def open_proof(
 ):
 
     combined_polynomial = torch.tensor([], dtype=fr.TYPE())
-    combined_rand = empty_randomness()
 
-    opening_challenge_counter = 0
-
-    curr_challenge = opening_challenges(opening_challenge, opening_challenge_counter)
-    opening_challenge_counter += 1
-
-    i = 0
-    for (polynomial, _), rand in zip(labeled_polynomials, rands):
-        combined_polynomial = poly_add_poly_mul_const(
-            combined_polynomial, curr_challenge.to("cuda"), polynomial
-        )  # polynomial.poly is tensor
-        rand_add_assign(combined_rand, curr_challenge, rand)
-        curr_challenge = opening_challenges(
-            opening_challenge, opening_challenge_counter
-        )
-        opening_challenge_counter += 1
-        i = i + 1
+    for counter, ((polynomial, _), rand) in enumerate(zip(labeled_polynomials, rands)):
+        # combined_polynomial += curr_challenge * polynomial
+        curr_challenge = opening_challenges(opening_challenge, counter)
+        if polynomial.size(0) != 0:
+            temp = F.mul_mod_scalar(polynomial, curr_challenge)
+            if combined_polynomial.size(0) != 0:
+                combined_polynomial = F.resize_poly(combined_polynomial, polynomial.size(0))
+                combined_polynomial = F.add_mod(combined_polynomial, temp)
+            else:
+                combined_polynomial = temp
 
     proof = open_proof_internal(
-        ck.powers_of_g, ck.powers_of_gamma_g, combined_polynomial.to("cuda"), point, combined_rand
+        ck.powers_of_g,
+        ck.powers_of_gamma_g,
+        combined_polynomial,
+        point,
+        empty_randomness(),
     )
     return proof
-
-
-# class LabeledCommitment:
-#     def __init__(self,label,commitment):
-#         self.label = label
-#         self.commitment =commitment
-
-#     @classmethod
-#     def new(cls,label,commitment):
-#         return cls(label = label,commitment = commitment)
-
-# class LabeledPoly:
-#     def __init__(self, label, hiding_bound, poly):
-#         self.hiding_bound = hiding_bound
-#         self.poly = poly
-
 
 def commit_poly_new(ck: UniversalParams, polys):
     random.seed(42)
@@ -109,7 +82,9 @@ def commit_poly_new(ck: UniversalParams, polys):
     labeled_comm = []
 
     for polynomial, hiding_bound in polys:
-        comm, rand = commit(ck.powers_of_g, ck.powers_of_gamma_g, polynomial, hiding_bound)
+        comm, rand = commit(
+            ck.powers_of_g, ck.powers_of_gamma_g, polynomial, hiding_bound
+        )
         labeled_comm.append(comm)
         randomness.append(rand)
 
@@ -147,13 +122,13 @@ def open_with_witness_polynomial(
     hiding_witness_polynomial,
 ):
 
-    witness_coeffs = skip_leading_zeros_and_convert_to_bigints(witness_polynomial)
+    witness_coeffs = F.to_base(witness_polynomial)
     w = MSM(powers_of_g, witness_coeffs)
     random_v = None
     if hiding_witness_polynomial is not None:
         blinding_p = randomness
         blinding_evaluation = F.evaluate(blinding_p, point.to("cuda"))
-        random_witness_coeffs = convert_to_bigints(hiding_witness_polynomial)
+        random_witness_coeffs = F.to_base(hiding_witness_polynomial)
         random_commit = MSM(powers_of_gamma_g, random_witness_coeffs)
         w = add_assign(w, random_commit)
         random_v = blinding_evaluation
@@ -238,11 +213,15 @@ class Proof:
                     pass
                 elif attribute == "aw_opening" or attribute == "saw_opening":
                     print(
-                        "{}: ({},{})".format(attribute, value.w.x.tolist(), value.w.y.tolist()),
+                        "{}: ({},{})".format(
+                            attribute, value.w.x.tolist(), value.w.y.tolist()
+                        ),
                         file=f,
                     )
                 else:
                     print(
-                        "{}: ({},{})".format(attribute, value.x.tolist(), value.y.tolist()),
+                        "{}: ({},{})".format(
+                            attribute, value.x.tolist(), value.y.tolist()
+                        ),
                         file=f,
                     )

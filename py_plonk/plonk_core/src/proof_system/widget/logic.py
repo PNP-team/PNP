@@ -1,6 +1,5 @@
 from .....bls12_381 import fr
 from .mod import WitnessValues, delta
-from .arithmetic import poly_mul_const
 import torch.nn.functional as F
 import torch
 
@@ -143,5 +142,5 @@ def quotient_term(
 
 def linearisation_term(selector_poly, separation_challenge, wit_vals, custom_vals):
     temp = _constraints(separation_challenge, wit_vals, custom_vals)
-    res = poly_mul_const(selector_poly, temp)
+    res = F.mul_mod_scalar(selector_poly, temp)
     return res
