@@ -1,3 +1,4 @@
+# mypy: allow-untyped-defs
 # Copyright (c) Facebook, Inc. and its affiliates.
 #
 # This source code is licensed under the BSD license found in the
@@ -433,7 +434,7 @@ def enable_wrap(
             instances inside the context
     """
     kwargs = {
-        **{"wrapper_cls": wrapper_cls},
+        "wrapper_cls": wrapper_cls,
         **wrapper_kwargs,
     }
     with _ConfigAutoWrap(**kwargs):

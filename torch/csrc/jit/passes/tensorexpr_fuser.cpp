@@ -780,7 +780,7 @@ class TensorExprFuser {
     }
   }
 
-  c10::optional<Node*> tryMerge(Node* fusion_group, Node* to_merge) {
+  std::optional<Node*> tryMerge(Node* fusion_group, Node* to_merge) {
     if (!canMerge(fusion_group, to_merge)) {
       return c10::nullopt;
     }
@@ -857,11 +857,6 @@ class TensorExprFuser {
     if (device->is_cpu()) {
       return canFuseOnCPU();
     } else if (device->is_cuda()) {
-#ifndef C10_MOBILE
-      if (fuser::cuda::isEnabled()) {
-        return false;
-      }
-#endif
       return canFuseOnGPU();
     } else if (device->is_xpu()) {
       return false;

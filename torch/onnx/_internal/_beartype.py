@@ -1,3 +1,4 @@
+# mypy: allow-untyped-defs
 """An internal wrapper for the beartype library.
 
 The module returns a no-op decorator when the beartype library is not installed.
@@ -22,6 +23,12 @@ try:
         "ignore",
         category=_roar.BeartypeDecorHintPep585DeprecationWarning,
     )
+
+    if _beartype_lib.__version__ == "0.16.0":
+        # beartype 0.16.0 has a bug that causes it to crash when used with
+        # PyTorch. See https://github.com/beartype/beartype/issues/282
+        warnings.warn("beartype 0.16.0 is not supported. Please upgrade to 0.16.1+.")
+        _beartype_lib = None  # type: ignore[assignment]
 except ImportError:
     _beartype_lib = None  # type: ignore[assignment]
 except Exception as e:
@@ -114,12 +121,12 @@ else:
     _TORCH_ONNX_EXPERIMENTAL_RUNTIME_TYPE_CHECK = os.getenv(
         "TORCH_ONNX_EXPERIMENTAL_RUNTIME_TYPE_CHECK"
     )
-    if _TORCH_ONNX_EXPERIMENTAL_RUNTIME_TYPE_CHECK == "WARNINGS":
-        _runtime_type_check_state = RuntimeTypeCheckState.WARNINGS
+    if _TORCH_ONNX_EXPERIMENTAL_RUNTIME_TYPE_CHECK == "ERRORS":
+        _runtime_type_check_state = RuntimeTypeCheckState.ERRORS
     elif _TORCH_ONNX_EXPERIMENTAL_RUNTIME_TYPE_CHECK == "DISABLED":
         _runtime_type_check_state = RuntimeTypeCheckState.DISABLED
     else:
-        _runtime_type_check_state = RuntimeTypeCheckState.ERRORS
+        _runtime_type_check_state = RuntimeTypeCheckState.WARNINGS
     beartype = _create_beartype_decorator(_runtime_type_check_state)
     # Make sure that the beartype decorator is enabled whichever path we took.
     assert beartype is not None

@@ -1,4 +1,5 @@
 # Owner(s): ["module: dynamo"]
+import functools
 import os
 import unittest.mock as mock
 from unittest.mock import patch
@@ -39,7 +40,7 @@ class DecoratorTests(torch._dynamo.test_case.TestCase):
         import torch.library
         from torch.library import Library
 
-        foo = Library("foo", "DEF")
+        foo = Library("foo", "DEF")  # noqa: TOR901
         foo.define("custom(Tensor self) -> Tensor")
 
         # Dynamic shape data dependent operator. For static shape compilation, Dynamo
@@ -65,6 +66,122 @@ class DecoratorTests(torch._dynamo.test_case.TestCase):
         res = opt_fn(x)
         self.assertEqual(cnts.frame_count, 2)
         self.assertEqual(ref, res)
+
+    def test_disable_ignores_outer_wraps(self):
+        def orig_inner():
+            pass
+
+        def inner():
+            pass
+
+        inner._torchdynamo_orig_callable = orig_inner
+
+        @functools.wraps(inner)
+        def wrapper():
+            raise AssertionError("wrapper called")
+
+        # This behavior is not ideal, but supporting it would add overhead
+        # to callsites of eval_frame.innermost_fn. A warning would also be very noisy.
+        w = torch._dynamo.disable(fn=wrapper, recursive=True)
+
+    def test_disable_nn_modules_forward_hook(self):
+        class SimpleLinear(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.layer0 = torch.nn.Linear(4, 4)
+
+            def forward(self, inp):
+                return self.layer0(torch.sigmoid(inp))
+
+        class SimpleModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.layer0 = SimpleLinear()
+                self.layer1 = torch.nn.Linear(4, 4)
+
+            def forward(self, inp):
+                z = self.layer0(torch.sin(inp))
+                return self.layer1(z)
+
+        def hook(module, args):
+            inp = args[0].sigmoid()
+            return (inp,)
+
+        model = SimpleModel()
+        model.layer0.register_forward_pre_hook(hook)
+
+        # Disable my monkeypatching
+        model.layer0 = torch._dynamo.disable(model.layer0)
+
+        cnts = torch._dynamo.testing.CompileCounterWithBackend("eager")
+        opt_model = torch.compile(model, backend=cnts)
+        opt_model(torch.randn(4))
+
+        # check for no graph break
+        self.assertEqual(cnts.frame_count, 2)
+
+        gm0 = cnts.graphs[0]
+        # Check that the first graph has sin node, and no sigmoid
+        self.assertTrue(any(node.target is torch.sin for node in gm0.graph.nodes))
+        self.assertTrue(
+            all(node.target is not torch.sigmoid for node in gm0.graph.nodes)
+        )
+
+        gm1 = cnts.graphs[1]
+        # Check that the first graph does not have sigmoid. sigmoid is used in
+        # both hook and disabled module.
+        self.assertTrue(
+            all(node.target is not torch.sigmoid for node in gm1.graph.nodes)
+        )
+
+    def test_disable_nn_module_with_class_decorator(self):
+        cnts = torch._dynamo.testing.CompileCounterWithBackend("eager")
+
+        @torch._dynamo.disable
+        class SimpleLinear(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.layer0 = torch.nn.Linear(4, 4)
+
+            def forward(self, inp):
+                return self.layer0(torch.sigmoid(inp))
+
+        @torch.compile(backend=cnts)
+        class SimpleModel(torch.nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.layer0 = SimpleLinear()
+                self.layer1 = torch.nn.Linear(4, 4)
+
+            def forward(self, inp):
+                z = self.layer0(torch.sin(inp))
+                return self.layer1(z)
+
+        def hook(module, args):
+            inp = args[0].sigmoid()
+            return (inp,)
+
+        model = SimpleModel()
+        model.layer0.register_forward_pre_hook(hook)
+
+        model(torch.randn(4))
+
+        # check for no graph break
+        self.assertEqual(cnts.frame_count, 2)
+
+        gm0 = cnts.graphs[0]
+        # Check that the first graph has sin node, and no sigmoid
+        self.assertTrue(any(node.target is torch.sin for node in gm0.graph.nodes))
+        self.assertTrue(
+            all(node.target is not torch.sigmoid for node in gm0.graph.nodes)
+        )
+
+        gm1 = cnts.graphs[1]
+        # Check that the first graph does not have sigmoid. sigmoid is used in
+        # both hook and disabled module.
+        self.assertTrue(
+            all(node.target is not torch.sigmoid for node in gm1.graph.nodes)
+        )
 
     def test_allow_in_graph(self):
         cnts = torch._dynamo.testing.CompileCounter()
@@ -187,13 +304,12 @@ class DecoratorTests(torch._dynamo.test_case.TestCase):
         self.assertEqual(cnt.frame_count, 0)
 
     def test_torch_guards_stack_frame_register_inlining_disable(self):
-        y = torch.nn.Parameter(torch.tensor([0.25, 0.25]))
         x = torch.tensor([0.5, 0.5])
 
         class encoder(torch.nn.Module):
             def __init__(self, y):
                 super().__init__()
-                self.register_parameter("param", y)
+                self.a = y
 
             @torch._dynamo.disable
             def helper(self, x, y):
@@ -201,9 +317,9 @@ class DecoratorTests(torch._dynamo.test_case.TestCase):
 
             def forward(self, a, *args):
                 x = a + a
-                return self.helper(x, self.param)
+                return self.helper(x, self.a)
 
-        e = encoder(y)
+        e = encoder(2.0)
 
         seen_frames = []
         import contextlib
@@ -233,7 +349,7 @@ class DecoratorTests(torch._dynamo.test_case.TestCase):
 
             @torch._dynamo.disable
             def helper_disabled(self, x, y):
-                return x * y
+                return x.sin() * y.cos()
 
             def helper(self, x, y):
                 return x * y
@@ -244,27 +360,12 @@ class DecoratorTests(torch._dynamo.test_case.TestCase):
 
         e = encoder(y)
 
-        seen_frames = []
-        import contextlib
+        cnt = torch._dynamo.testing.CompileCounter()
+        torch.compile(e, backend=cnt)(x)
 
-        @contextlib.contextmanager
-        def global_context_capture_fn(frame_summary):
-            if frame_summary is not None:
-                seen_frames.append(frame_summary)
-            yield
-
-        with mock.patch(
-            "torch._guards.TracingContext.current_frame",
-            side_effect=global_context_capture_fn,
-        ):
-            torch._dynamo.optimize("eager")(e)(x)
-
-        self.assertEqual(len(seen_frames), 1)
-        self.assertEqual(seen_frames[0].name, "forward")
-        self.assertEqual(
-            seen_frames[0].line,
-            "return self.helper(x, self.param) + self.helper_disabled(x, self.param)",
-        )
+        # first frame is before disable, second frame is after disable
+        self.assertEqual(cnt.frame_count, 2)
+        self.assertEqual(cnt.op_count, 3)
 
     def _test_mark_static_address(self, guarded):
         compiles_with_buffers = 0
@@ -302,6 +403,66 @@ class DecoratorTests(torch._dynamo.test_case.TestCase):
 
     def test_mark_static_address_unguarded(self):
         self._test_mark_static_address(guarded=False)
+
+    def test_class_methods(self):
+        class A:
+            @classmethod
+            def my_class_method(cls, arg1):
+                return cls, arg1
+
+            @staticmethod
+            def my_static_method(arg1):
+                return None, arg1
+
+            def my_regular_method(self, arg1):
+                return self, arg1
+
+        class B(A):
+            def my_class_method(self, arg1):
+                return super().my_class_method(arg1)
+
+            def my_static_method(self, arg1):
+                return super().my_static_method(arg1)
+
+        class C(A):
+            @classmethod
+            def my_class_method(cls, arg1):
+                return super().my_class_method(arg1)
+
+        cnt = torch._dynamo.testing.CompileCounter()
+
+        @torch.compile(backend=cnt)
+        def fn(a, b, c):
+            # We want a function that does not graph break but
+            # does generate custom bytecode
+            v1 = a.my_class_method(1)
+            v2 = A.my_class_method(2)
+            v3 = a.my_static_method(3)
+            v4 = A.my_static_method(4)
+            v5 = a.my_regular_method(5)
+            v6 = b.my_class_method(6)
+            v7 = b.my_static_method(7)
+            v8 = c.my_class_method(8)
+            v9 = C.my_class_method(9)
+            torch.rand(2)
+            return v1, v2, v3, v4, v5, v6, v7, v8, v9
+
+        a, b, c = A(), B(), C()
+        v1, v2, v3, v4, v5, v6, v7, v8, v9 = fn(a, b, c)
+
+        self.assertEqual(v1, (A, 1))
+        self.assertEqual(v2, (A, 2))
+        self.assertEqual(v3, (None, 3))
+        self.assertEqual(v4, (None, 4))
+        self.assertEqual(v5, (a, 5))
+        # TODO fix me: we do not resolve classmethods properly
+        # from a regular method
+        # self.assertEqual(v6, (B, 6))
+        self.assertEqual(v7, (None, 7))
+        self.assertEqual(v8, (C, 8))
+        self.assertEqual(v9, (C, 9))
+
+        self.assertEqual(cnt.frame_count, 1)
 
 
 if __name__ == "__main__":

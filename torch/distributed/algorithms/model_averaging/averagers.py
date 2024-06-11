@@ -1,3 +1,4 @@
+# mypy: allow-untyped-defs
 import warnings
 from abc import ABC, abstractmethod
 from typing import Union, Iterable, Dict
@@ -104,8 +105,9 @@ class PeriodicModelAverager(ModelAverager):
 
     def average_parameters(self, params: Union[Iterable[torch.nn.Parameter], Iterable[Dict[str, torch.nn.Parameter]]]):
         """
-        Averages parameters or parameter groups of an optimizer if ``step`` is no less than ``warmup_steps``
-        and it can be divided by ``period``, where ``step`` is increased by 1
+        Averages parameters or parameter groups of an optimizer if ``step`` is no less than ``warmup_steps``.
+
+        Can be divided by ``period``, where ``step`` is increased by 1
         at each iteration in the training loop.
         Args:
             params: The parameters of a model or parameter groups of an optimizer.

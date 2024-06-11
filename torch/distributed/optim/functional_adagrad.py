@@ -1,3 +1,4 @@
+# mypy: allow-untyped-defs
 from typing import Dict, List, Optional
 
 import torch
@@ -30,6 +31,7 @@ class _FunctionalAdagrad:
         eps: float = 1e-10,
         coalesce_grad: bool = True,
         foreach: bool = False,
+        fused: bool = False,
         maximize: bool = False,
         _allow_empty_param_list: bool = False,
     ):
@@ -44,6 +46,7 @@ class _FunctionalAdagrad:
         }
         self.coalesce_grad = coalesce_grad
         self.foreach = foreach
+        self.fused = fused
         self.maximize = maximize
         self.state = torch.jit.annotate(Dict[torch.Tensor, Dict[str, torch.Tensor]], {})
 
@@ -76,11 +79,11 @@ class _FunctionalAdagrad:
                 + f"Gradients length: {len(gradients)}"
             )
 
-        has_sparse_grad = False
+        has_sparse_grad, has_complex = False, False
         for param, gradient in zip(self.param_group["params"], gradients):
             if gradient is not None:
-                if gradient.is_sparse:
-                    has_sparse_grad = True
+                has_sparse_grad |= gradient.is_sparse
+                has_complex |= torch.is_complex(param)
                 params_with_grad.append(param)
                 grads.append(gradient)
                 state = self.state[param]
@@ -100,4 +103,8 @@ class _FunctionalAdagrad:
                 has_sparse_grad=has_sparse_grad,
                 foreach=self.foreach,
                 maximize=self.maximize,
+                has_complex=has_complex,
+                fused=self.fused,
+                grad_scale=None,
+                found_inf=None,
             )

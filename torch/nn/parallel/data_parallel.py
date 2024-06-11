@@ -1,3 +1,4 @@
+# mypy: allow-untyped-defs
 import operator
 import torch
 import warnings
@@ -211,7 +212,7 @@ def data_parallel(
     dim: int = 0,
     module_kwargs: Optional[Any] = None,
 ) -> torch.Tensor:
-    r"""Evaluates module(input) in parallel across the GPUs given in device_ids.
+    r"""Evaluate module(input) in parallel across the GPUs given in device_ids.
 
     This is the functional version of the DataParallel module.
 

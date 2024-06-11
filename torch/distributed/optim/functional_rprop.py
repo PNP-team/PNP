@@ -1,3 +1,4 @@
+# mypy: allow-untyped-defs
 from typing import Dict, List, Optional, Tuple
 
 import torch
@@ -51,6 +52,7 @@ class _FunctionalRprop:
         grads = []
         prevs = []
         step_sizes = []
+        state_steps = []
         lr = self.defaults["lr"]
         etaminus, etaplus = self.etas
         step_size_min, step_size_max = self.step_sizes
@@ -62,8 +64,10 @@ class _FunctionalRprop:
                 + f"Gradients length: {len(gradients)}"
             )
 
+        has_complex = False
         for param, gradient in zip(params, gradients):
             if gradient is not None:
+                has_complex |= torch.is_complex(param)
                 params_with_grad.append(param)
                 grads.append(gradient)
                 # Lazy state initialization
@@ -79,8 +83,7 @@ class _FunctionalRprop:
                 state = self.state[param]
                 prevs.append(state["prev"])
                 step_sizes.append(state["step_size"])
-
-                state["step"] += 1
+                state_steps.append(state["step"])
 
         with torch.no_grad():
             F.rprop(
@@ -88,10 +91,12 @@ class _FunctionalRprop:
                 grads,
                 prevs,
                 step_sizes,
+                state_steps,
                 step_size_min=step_size_min,
                 step_size_max=step_size_max,
                 etaminus=etaminus,
                 etaplus=etaplus,
                 foreach=self.foreach,
                 maximize=self.maximize,
+                has_complex=has_complex,
             )

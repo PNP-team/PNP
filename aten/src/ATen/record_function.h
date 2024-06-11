@@ -7,7 +7,6 @@
 #include <c10/util/SmallVector.h>
 
 #include <array>
-#include <atomic>
 #include <functional>
 #include <memory>
 #include <variant>
@@ -17,6 +16,9 @@ class TORCH_API OperatorHandle;
 }
 
 namespace at {
+
+// Function name to record NCCL metadata
+extern TORCH_API const std::string kParamCommsCallName;
 
 // Kind of record function scope;
 enum class C10_API_ENUM RecordScope : uint8_t {
@@ -94,7 +96,7 @@ struct ObserverContext {
   virtual ~ObserverContext() = default;
 
  protected:
-  ObserverContext() {}
+  ObserverContext() = default;
 };
 
 typedef c10::SmallVector<uint64_t, kSoftLimitCallbacks> CallbackHandles;
@@ -241,7 +243,7 @@ constexpr CallbackHandle INVALID_CALLBACK_HANDLE{0};
 // thread-local function callbacks. Moreover, it prevents saving to
 // ThreadLocalState because std::atomic is non-copyable.
 struct RecordFunctionCallbacksEntry {
-  RecordFunctionCallbacksEntry(RecordFunctionCallback&& cb, CallbackHandle h)
+  RecordFunctionCallbacksEntry(RecordFunctionCallback cb, CallbackHandle h)
       : callback_(cb), handle_(h) {}
 
   RecordFunctionCallback callback_;
@@ -308,6 +310,19 @@ struct TORCH_API RecordFunction {
         current_sequence_nr);
   }
 
+  template <typename F>
+  void before(
+      F fn,
+      const std::vector<IValue>* args,
+      const std::unordered_map<std::string, IValue>* kwargs,
+      int64_t current_sequence_nr = -1) {
+    if (!isActive()) {
+      return;
+    }
+    kwinputs_ = *kwargs;
+    before(std::move(fn), args, current_sequence_nr);
+  }
+
   // Destructor calls end callbacks
   virtual ~RecordFunction();
 
@@ -326,6 +341,15 @@ struct TORCH_API RecordFunction {
         inputs_valid_, "Called inputs() outside RecordFunction start callback");
 #endif
     return inputs_;
+  }
+
+  std::unordered_map<std::string, IValue> kwinputs() const {
+#ifndef NDEBUG
+    TORCH_INTERNAL_ASSERT_DEBUG_ONLY(
+        inputs_valid_,
+        "Called kwinputs() outside RecordFunction start callback");
+#endif
+    return kwinputs_;
   }
 
   const std::vector<c10::IValue>& outputs() const {
@@ -392,8 +416,14 @@ struct TORCH_API RecordFunction {
   // profiling.
   void _setAsync();
 
-  // Returns whether this RecordFunction corresponds to an async event orn ot.
+  // Returns whether this RecordFunction corresponds to an async event or not.
   bool isAsync() const;
+
+  // Returns whether this RecordFunction corresponds to NCCL metadata collection
+  // or not.
+  bool isNcclMeta() const {
+    return is_nccl_meta_;
+  }
 
   // Internal-only, used to denote out variant used for Static Runtime execution
   void _setStaticRuntimeOutVariant();
@@ -403,10 +433,10 @@ struct TORCH_API RecordFunction {
     return handle_;
   }
 
-  c10::optional<OperatorName> operator_name() const;
+  std::optional<OperatorName> operator_name() const;
 
   // This method returns a copy of the FunctionSchema and can be expensive.
-  c10::optional<FunctionSchema> operator_schema() const;
+  std::optional<FunctionSchema> operator_schema() const;
 
   void setHandle(RecordFunctionHandle handle) {
     handle_ = handle;
@@ -460,6 +490,7 @@ struct TORCH_API RecordFunction {
 
   int64_t sequence_nr_ = -1;
   c10::ArrayRef<const IValue> inputs_;
+  std::unordered_map<std::string, IValue> kwinputs_;
   std::vector<c10::IValue> outputs_;
 
   // For backward functions - thread id of the forward function
@@ -483,11 +514,14 @@ struct TORCH_API RecordFunction {
   // Whether this RecordFunction is used for an out variant run with
   // Static Runtime
   bool is_static_runtime_out_variant_{false};
+
+  // Whether this RecordFunction is used for NCCL metadata collection
+  bool is_nccl_meta_{false};
 };
 
 TORCH_API StepCallbacks getStepCallbacks(RecordScope scope);
 
-TORCH_API c10::optional<StepCallbacks> getStepCallbacksUnlessEmpty(
+TORCH_API std::optional<StepCallbacks> getStepCallbacksUnlessEmpty(
     RecordScope scope);
 
 namespace detail {

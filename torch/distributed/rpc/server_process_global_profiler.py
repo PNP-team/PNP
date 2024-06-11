@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+# mypy: allow-untyped-defs
 
 import itertools
 
@@ -163,7 +164,7 @@ class _server_process_global_profile(profile):
             process_global_function_events.append(thread_local_function_events)
 
         flattened_function_events = list(
-            itertools.chain(*process_global_function_events)
+            itertools.chain.from_iterable(process_global_function_events)
         )
         self.function_events = torch.autograd.profiler_util.EventList(
             flattened_function_events,

@@ -1,3 +1,4 @@
+# mypy: allow-untyped-defs
 """This file exports ONNX ops for opset 14.
 
 Note [ONNX operators that are added/updated in opset 14]
@@ -191,6 +192,7 @@ def scaled_dot_product_attention(
     elif _type_utils.JitScalarType.from_value(attn_mask) in (
         _type_utils.JitScalarType.FLOAT,
         _type_utils.JitScalarType.HALF,
+        _type_utils.JitScalarType.BFLOAT16,
     ):
         mul_qk_add = g.op("Add", mul_qk, attn_mask)
     else:
@@ -238,6 +240,12 @@ def _attention_scale(
     )
     const_one = g.op("Constant", value_t=torch.tensor([1.0], dtype=torch.float))
     scale = g.op("Div", const_one, g.op("Sqrt", embedding_size))
+    # Add a Cast to convert the scale back to original type
+    scale = g.op(
+        "Cast",
+        scale,
+        to_i=_type_utils.JitScalarType.from_value(query).onnx_type(),
+    )
     return scale
 
 

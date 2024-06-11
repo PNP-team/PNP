@@ -1,6 +1,7 @@
+# mypy: allow-untyped-defs
 import functools
 from contextlib import contextmanager
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Callable, Dict, List, NamedTuple, Optional, Set, Tuple
 
 import torch
@@ -27,7 +28,7 @@ class TracingConfig:
             in :meth:`~torch.fx.Tracer.trace`.
     """
 
-    tracer: torch.fx.Tracer = torch.fx.Tracer()
+    tracer: torch.fx.Tracer = field(default_factory=torch.fx.Tracer)
     concrete_args: Optional[Dict[str, Any]] = None
 
 

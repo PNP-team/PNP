@@ -1,3 +1,4 @@
+# mypy: allow-untyped-defs
 import torch
 import torch.nn as nn
 import torch.ao.nn.intrinsic as nni
@@ -85,7 +86,7 @@ def _fuse_linear_bn_leaky_relu(is_qat, linear, bn, leaky_relu):
         >>> lr = nn.LeakyReLU(0.01)
         >>> m2 = _fuse_linear_bn_leaky_relu(m1, b1, lr)
     """
-    assert(linear.training == bn.training and bn.training == leaky_relu.training),\
+    assert linear.training == bn.training and bn.training == leaky_relu.training, \
         "Linear, BN and LeakyReLU all must be in the same mode (train or eval)."
 
     if is_qat:

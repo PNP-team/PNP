@@ -21,7 +21,8 @@
 #ifdef USE_CUDA
 #include "torch/csrc/cuda/Event.h"
 #endif
-#include "torch/csrc/utils/cuda_lazy_init.h"
+#include "torch/csrc/utils/device_lazy_init.h"
+#include <torch/csrc/utils/numpy_stub.h>
 #include "torch/csrc/utils/object_ptr.h"
 #include "torch/csrc/utils/pycfunction_helpers.h"
 #include "torch/csrc/utils/python_arg_parser.h"
@@ -100,8 +101,7 @@ static PyObject * THPVariable_size(PyObject* self, PyObject* args, PyObject* kwa
 {
   HANDLE_TH_ERRORS
   static PythonArgParser parser({
-    "size(int64_t dim)",
-    "size()",
+    "size(int64_t? dim=None)",
     "size(Dimname dim)",
   });
   auto& self_ = THPVariable_Unpack(self);
@@ -112,6 +112,9 @@ static PyObject * THPVariable_size(PyObject* self, PyObject* args, PyObject* kwa
     return handle_torch_function(r, self, args, kwargs, THPVariableClass, "torch.Tensor");
   }
   if (r.idx == 0) {
+    if (!r.toInt64Optional(0).has_value()) {
+      return THPSize_NewFromSymSizes(self_);
+    }
     if (jit::tracer::isTracing()) {
       // will error out if a tensor has symints
       return wrap(jit::tracer::getSizeOf(self_, r.toInt64(0)));
@@ -119,9 +122,6 @@ static PyObject * THPVariable_size(PyObject* self, PyObject* args, PyObject* kwa
       return torch::toPyObject(self_.sym_size(r.toInt64(0)));
     }
   } else if (r.idx == 1) {
-    return THPSize_NewFromSymSizes(self_);
-  }
-  else if (r.idx == 2) {
     if (jit::tracer::isTracing()) {
       TORCH_INTERNAL_ASSERT(false, "NYI: Named tensors w/ JIT");
     }
@@ -135,8 +135,7 @@ static PyObject * THPVariable_stride(PyObject* self, PyObject* args, PyObject* k
 {
   HANDLE_TH_ERRORS
   static PythonArgParser parser({
-    "stride(int64_t dim)",
-    "stride()",
+    "stride(int64_t? dim=None)",
     "stride(Dimname dim)",
   });
   auto& self_ = THPVariable_Unpack(self);
@@ -148,8 +147,9 @@ static PyObject * THPVariable_stride(PyObject* self, PyObject* args, PyObject* k
   }
 
   if (r.idx == 0) {
-    return torch::toPyObject(self_.sym_stride(r.toInt64(0)));
-  } else if (r.idx == 1) {
+    if (r.toInt64Optional(0).has_value()) {
+      return torch::toPyObject(self_.sym_stride(r.toInt64(0)));
+    }
     // yes, this is called strides in ATen.
     at::SymIntArrayRef strides = self_.sym_strides();
     // we can't do the normal wrapping here because IntArrayRef maps to both
@@ -163,8 +163,7 @@ static PyObject * THPVariable_stride(PyObject* self, PyObject* args, PyObject* k
       PyTuple_SET_ITEM(tuple.get(), i, s);
     }
     return tuple.release();
-  }
-  else if (r.idx == 2) {
+  } else if (r.idx == 1) {
     return wrap(self_.stride(r.dimname(0)));
   }
   Py_RETURN_NONE;
@@ -319,9 +318,7 @@ template<typename T>
 static T dispatch_to(const Tensor & self) {
   pybind11::gil_scoped_release no_gil;
   OptionalDeviceGuard device_guard(device_of(self));
-  if (self.sym_numel() != 1) {
-    throw ValueError("only one element tensors can be converted to Python scalars");
-  }
+  TORCH_CHECK_VALUE(self.sym_numel() == 1, "only one element tensors can be converted to Python scalars");
   return self.template item<T>();
 }
 
@@ -400,7 +397,7 @@ static PyObject * THPVariable_invert(PyObject* self, PyObject* args) {
   END_HANDLE_TH_ERRORS
 }
 
-static Tensor dispatch_to(const Tensor & self, Device device, bool non_blocking, bool copy, c10::optional<c10::MemoryFormat> optional_memory_format) {
+static Tensor dispatch_to(const Tensor & self, Device device, bool non_blocking, bool copy, std::optional<c10::MemoryFormat> optional_memory_format) {
   pybind11::gil_scoped_release no_gil;
   // NOTE: this is where we record aten::to in the graph during tracing. However, the behavior of aten::to
   // is different with respect to TensorOptions fields that are not present: aten::to inherits fields that
@@ -410,18 +407,18 @@ static Tensor dispatch_to(const Tensor & self, Device device, bool non_blocking,
   return self.to(self.options().device(device).memory_format(optional_memory_format), non_blocking, copy);
 }
 
-static Tensor dispatch_to(const Tensor & self, bool non_blocking, bool copy, c10::optional<c10::MemoryFormat> optional_memory_format) {
+static Tensor dispatch_to(const Tensor & self, bool non_blocking, bool copy, std::optional<c10::MemoryFormat> optional_memory_format) {
   pybind11::gil_scoped_release no_gil;
   return self.to(self.options().memory_format(optional_memory_format), non_blocking, copy);
 }
 
-static Tensor dispatch_to(const Tensor & self, ScalarType dtype, bool non_blocking, bool copy, c10::optional<c10::MemoryFormat> optional_memory_format) {
+static Tensor dispatch_to(const Tensor & self, ScalarType dtype, bool non_blocking, bool copy, std::optional<c10::MemoryFormat> optional_memory_format) {
   pybind11::gil_scoped_release no_gil;
   // TODO: Make this call the TensorOptions version, maybe?
   return self.to(dtype, non_blocking, copy, optional_memory_format);
 }
 
-static Tensor dispatch_to(const Tensor & self, Device device, ScalarType dtype, bool non_blocking, bool copy, c10::optional<c10::MemoryFormat> optional_memory_format) {
+static Tensor dispatch_to(const Tensor & self, Device device, ScalarType dtype, bool non_blocking, bool copy, std::optional<c10::MemoryFormat> optional_memory_format) {
   pybind11::gil_scoped_release no_gil;
   // TODO: Make this call the TensorOptions version, maybe?
   return self.to(device, dtype, non_blocking, copy, optional_memory_format);
@@ -499,7 +496,7 @@ static PyObject * THPVariable_cuda(PyObject* self, PyObject* args, PyObject* kwa
   auto device = r.isNone(0) ? at::Device(at::DeviceType::CUDA) : r.device(0);
   auto opt_memory_format = r.memoryformatOptional(2);
   TORCH_CHECK(device.is_cuda(), "Invalid device, must be cuda device");
-  torch::utils::cuda_lazy_init();
+  torch::utils::device_lazy_init(at::kCUDA);
   return THPVariable_Wrap(dispatch_to(self_, device, r.toBool(1), false, opt_memory_format));
   END_HANDLE_TH_ERRORS
 }
@@ -522,6 +519,7 @@ static PyObject * THPVariable_xpu(PyObject* self, PyObject* args, PyObject* kwar
   auto device = r.isNone(0) ? at::Device(at::DeviceType::XPU) : r.device(0);
   auto opt_memory_format = r.memoryformatOptional(2);
   TORCH_CHECK(device.is_xpu(), "Invalid device, must be xpu device");
+  torch::utils::device_lazy_init(at::kXPU);
   return THPVariable_Wrap(dispatch_to(self_, device, r.toBool(1), false, opt_memory_format));
   END_HANDLE_TH_ERRORS
 }
@@ -548,7 +546,7 @@ static PyObject * THPVariable_ipu(PyObject* self, PyObject* args, PyObject* kwar
   END_HANDLE_TH_ERRORS
 }
 
-static PyObject * THPVariable_to_type(PyObject* self, ScalarType scalarType, c10::optional<c10::MemoryFormat> optional_memory_format) {
+static PyObject * THPVariable_to_type(PyObject* self, ScalarType scalarType, std::optional<c10::MemoryFormat> optional_memory_format) {
   HANDLE_TH_ERRORS
   auto& self_ = THPVariable_Unpack(self);
   return THPVariable_Wrap(dispatch_to(self_, scalarType, false, false, optional_memory_format));
@@ -977,8 +975,9 @@ static PyObject * THPVariable_to(PyObject* self, PyObject* args, PyObject* kwarg
   auto copy = std::get<3>(parsed);
   auto opt_memory_format = std::get<4>(parsed);
   auto& self_ = THPVariable_Unpack(self);
-  if (device && device->is_cuda()) {
-    torch::utils::cuda_lazy_init();
+  torch::utils::maybe_initialize_device(device);
+  if (device && device->is_privateuseone()) {
+    at::globalContext().lazyInitPrivateUse1();
   }
   if (!device && !scalarType && !copy && !opt_memory_format.has_value()) {
     Py_INCREF(self);
@@ -1058,8 +1057,9 @@ static PyObject * THPVariable_type(PyObject* self, PyObject* args, PyObject* kwa
   if (device_type != device.type()) {
     device = at::Device(device_type);
   }
-  if (device.is_cuda()) {
-    torch::utils::cuda_lazy_init();
+  torch::utils::maybe_initialize_device(device);
+  if (device.is_privateuseone()) {
+    at::globalContext().lazyInitPrivateUse1();
   }
   return THPVariable_Wrap(dispatch_to(self_, device, scalar_type, /*non_blocking=*/ r.toBool(1), /*copy=*/ false, opt_memory_format));
   END_HANDLE_TH_ERRORS
@@ -1077,6 +1077,41 @@ static PyObject * THPVariable_bool_scalar(PyObject* self, PyObject* args) {
   }
   jit::tracer::warn("Converting a tensor to a Python boolean", jit::tracer::WARN_PYTHON_DATAFLOW);
   return THPVariable_is_nonzero(self, args);
+}
+
+static PyObject * THPVariable___eq__(PyObject* self_, PyObject* args, PyObject* kwargs)
+{
+  HANDLE_TH_ERRORS
+#ifdef USE_NUMPY
+  if (torch::utils::is_numpy_available()) {
+    static PythonArgParser parser({
+      "__eq__(PyObject* other)",
+    }, /*traceable=*/true);
+
+    ParsedArgs<1> parsed_args;
+    auto _r = parser.parse(self_, args, kwargs, parsed_args);
+    if(_r.has_torch_function()) {
+      return handle_torch_function(_r, self_, args, kwargs, THPVariableClass, "torch.Tensor");
+    }
+    switch (_r.idx) {
+      case 0: {
+        auto other = _r.pyobject(0);
+        if (PyArray_Check(other)) {
+          auto other_tensor = torch::utils::tensor_from_numpy(other);
+          auto dispatch_eq = [](const at::Tensor & self, const at::Tensor & other) -> at::Tensor {
+            pybind11::gil_scoped_release no_gil;
+            return self.eq(other);
+          };
+          const Tensor& self = THPVariable_Unpack(self_);
+          return wrap(dispatch_eq(self, other_tensor));
+        }
+      }
+    }
+  }
+#endif
+  return THPVariable_eq(self_, args, kwargs);
+  Py_RETURN_NONE;
+  END_HANDLE_TH_ERRORS
 }
 
 // Wrapper converts a raised TypeError into returning NotImplemented
@@ -1210,7 +1245,7 @@ PyMethodDef variable_methods[] = {
   {"__ifloordiv__", castPyCFunctionWithKeywords(TypeError_to_NotImplemented_<THPVariable_floor_divide_>), METH_VARARGS | METH_KEYWORDS, NULL},
   {"__mod__", castPyCFunctionWithKeywords(TypeError_to_NotImplemented_<THPVariable_remainder>), METH_VARARGS | METH_KEYWORDS, NULL},
   {"__imod__", castPyCFunctionWithKeywords(TypeError_to_NotImplemented_<THPVariable_remainder_>), METH_VARARGS | METH_KEYWORDS, NULL},
-  {"__eq__", castPyCFunctionWithKeywords(TypeError_to_NotImplemented_<THPVariable_eq>), METH_VARARGS | METH_KEYWORDS, NULL},
+  {"__eq__", castPyCFunctionWithKeywords(TypeError_to_NotImplemented_<THPVariable___eq__>), METH_VARARGS | METH_KEYWORDS, NULL},
   {"__ne__", castPyCFunctionWithKeywords(TypeError_to_NotImplemented_<THPVariable_ne>), METH_VARARGS | METH_KEYWORDS, NULL},
   {"__lt__", castPyCFunctionWithKeywords(TypeError_to_NotImplemented_<THPVariable_lt>), METH_VARARGS | METH_KEYWORDS, NULL},
   {"__le__", castPyCFunctionWithKeywords(TypeError_to_NotImplemented_<THPVariable_le>), METH_VARARGS | METH_KEYWORDS, NULL},

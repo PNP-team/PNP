@@ -1,3 +1,4 @@
+# mypy: allow-untyped-defs
 from typing import Dict, List, Optional
 
 import torch
@@ -28,6 +29,7 @@ class _FunctionalSGD:
         nesterov: bool = False,
         maximize: bool = False,
         foreach: bool = False,
+        fused: bool = False,
         _allow_empty_param_list: bool = False,
     ):
         self.defaults = {
@@ -39,6 +41,7 @@ class _FunctionalSGD:
         self.nesterov = nesterov
         self.maximize = maximize
         self.foreach = foreach
+        self.fused = fused
         self.state = torch.jit.annotate(Dict[torch.Tensor, Dict[str, torch.Tensor]], {})
 
         if len(params) == 0 and not _allow_empty_param_list:
@@ -88,6 +91,9 @@ class _FunctionalSGD:
                 maximize=self.maximize,
                 has_sparse_grad=has_sparse_grad,
                 foreach=self.foreach,
+                fused=self.fused,
+                grad_scale=None,
+                found_inf=None,
             )
         # update momentum_buffer in state
         state = self.state[param]
@@ -142,6 +148,9 @@ class _FunctionalSGD:
                 maximize=self.maximize,
                 has_sparse_grad=has_sparse_grad,
                 foreach=self.foreach,
+                fused=self.fused,
+                grad_scale=None,
+                found_inf=None,
             )
 
         # update momentum_buffers in state

@@ -18,6 +18,7 @@ Tensors
     set_default_dtype
     get_default_dtype
     set_default_device
+    get_default_device
     set_default_tensor_type
     numel
     set_printoptions
@@ -55,6 +56,7 @@ Creation Ops
     asarray
     as_tensor
     as_strided
+    from_file
     from_numpy
     from_dlpack
     frombuffer
@@ -272,9 +274,9 @@ Examples::
 
     no_grad
     enable_grad
-    set_grad_enabled
+    autograd.grad_mode.set_grad_enabled
     is_grad_enabled
-    inference_mode
+    autograd.grad_mode.inference_mode
     is_inference_mode_enabled
 
 Math operations
@@ -682,6 +684,7 @@ Utilities
     set_float32_matmul_precision
     get_float32_matmul_precision
     set_warn_always
+    get_device_module
     is_warn_always_enabled
     vmap
     _assert
@@ -706,6 +709,7 @@ Symbolic Numbers
     sym_max
     sym_min
     sym_not
+    sym_ite
 
 Export Path
 -------------
@@ -739,7 +743,7 @@ Optimizations
 
     compile
 
-`torch.compile documentation <https://pytorch.org/docs/main/compile/index.html>`__
+`torch.compile documentation <https://pytorch.org/docs/main/torch.compiler.html>`__
 
 Operator Tags
 ------------------------------------

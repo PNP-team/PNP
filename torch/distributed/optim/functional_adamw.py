@@ -1,3 +1,4 @@
+# mypy: allow-untyped-defs
 from typing import Dict, List, Optional, Tuple
 
 import torch
@@ -69,6 +70,7 @@ class _FunctionalAdamW:
         exp_avg_sqs = []
         max_exp_avg_sqs = []
         state_steps: List[Tensor] = []
+        has_complex = torch.is_complex(param)
         if grad is not None:
             params_with_grad.append(param)
             grads.append(grad)
@@ -119,6 +121,7 @@ class _FunctionalAdamW:
                 fused=self.fused,
                 grad_scale=None,
                 found_inf=None,
+                has_complex=has_complex,
             )
 
     def step(self, gradients: List[Optional[Tensor]]):
@@ -137,8 +140,10 @@ class _FunctionalAdamW:
                 + f"Gradients length: {len(gradients)}"
             )
 
+        has_complex = False
         for param, gradient in zip(self.param_group["params"], gradients):
             if gradient is not None:
+                has_complex |= torch.is_complex(param)
                 params_with_grad.append(param)
                 grads.append(gradient)
                 # Lazy state initialization
@@ -189,4 +194,5 @@ class _FunctionalAdamW:
                 fused=self.fused,
                 grad_scale=None,
                 found_inf=None,
+                has_complex=has_complex,
             )

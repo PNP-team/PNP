@@ -1,3 +1,4 @@
+# mypy: allow-untyped-defs
 r""""Contains definitions of the methods used by the _BaseDataLoaderIter workers.
 
 These **needs** to be in global scope since Py2 doesn't support serializing
@@ -58,7 +59,7 @@ else:
                 self.manager_dead = os.getppid() != self.manager_pid
             return not self.manager_dead
 
-_worker_info = None
+_worker_info: Optional["WorkerInfo"] = None
 
 
 class WorkerInfo:
@@ -305,7 +306,7 @@ def _worker_loop(dataset_kind, dataset, index_queue, data_queue, done_event,
                 init_exception = None
             else:
                 try:
-                    data = fetcher.fetch(index)
+                    data = fetcher.fetch(index)  # type: ignore[possibly-undefined]
                 except Exception as e:
                     if isinstance(e, StopIteration) and dataset_kind == _DatasetKind.Iterable:
                         data = _IterableDatasetStopIteration(worker_id)

@@ -1,3 +1,4 @@
+# mypy: allow-untyped-defs
 import time
 from collections import defaultdict
 from functools import partial
@@ -51,7 +52,7 @@ def visualize(graph, name_prefix='', pb_graph=None, executors_it=None):
 
 
 def visualize_graph_executor(state, name_prefix, pb_graph, inline_graph):
-    """Appends the state of a given GraphExecutor to the graph protobuf.
+    """Append the state of a given GraphExecutor to the graph protobuf.
 
     Args:
         state (GraphExecutor or GraphExecutorState): GraphExecutor to display.

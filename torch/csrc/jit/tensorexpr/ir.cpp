@@ -1,6 +1,5 @@
 #include <torch/csrc/jit/tensorexpr/ir.h>
-
-#include <torch/csrc/jit/tensorexpr/tensor.h>
+#include <torch/csrc/jit/tensorexpr/stmt.h>
 
 #include <c10/util/irange.h>
 
@@ -176,7 +175,7 @@ int Intrinsics::OpArgCount(IntrinsicsOp op_type) {
     case kRemainder:
       return 2;
     default:
-      throw std::runtime_error("invalid op_type: " + c10::to_string(op_type));
+      throw std::runtime_error("invalid op_type: " + std::to_string(op_type));
   }
 }
 

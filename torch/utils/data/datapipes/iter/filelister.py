@@ -1,3 +1,4 @@
+# mypy: allow-untyped-defs
 from typing import Iterator, List, Sequence, Union
 
 
@@ -14,6 +15,7 @@ __all__ = ["FileListerIterDataPipe", ]
 class FileListerIterDataPipe(IterDataPipe[str]):
     r"""
     Given path(s) to the root directory, yields file pathname(s) (path + filename) of files within the root directory.
+
     Multiple root directories can be provided (functional name: ``list_files``).
 
     Args:

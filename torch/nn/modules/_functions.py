@@ -1,3 +1,4 @@
+# mypy: allow-untyped-defs
 import torch
 import torch.distributed as dist
 
@@ -212,7 +213,7 @@ class CrossMapLRN2d(Function):
         torch.pow(input, 2, out=input_square)
 
         pre_pad = int((ctx.size - 1) / 2 + 1)
-        pre_pad_crop = channels if pre_pad > channels else pre_pad
+        pre_pad_crop = min(pre_pad, channels)
 
         scale_first = ctx.scale.select(1, 0)
         scale_first.zero_()

@@ -1,21 +1,38 @@
 #include <torch/csrc/Dtype.h>
 #include <torch/csrc/DynamicTypes.h>
 #include <torch/csrc/Exceptions.h>
-#include <torch/csrc/autograd/generated/VariableType.h>
 #include <torch/csrc/python_headers.h>
 #include <torch/csrc/utils/object_ptr.h>
 #include <torch/csrc/utils/tensor_dtypes.h>
-#include <torch/csrc/utils/tensor_types.h>
 
-namespace torch {
-namespace utils {
+namespace torch::utils {
 
 std::pair<std::string, std::string> getDtypeNames(at::ScalarType scalarType) {
   switch (scalarType) {
+    case at::ScalarType::UInt1:
+      return std::make_pair("uint1", "bit");
+    case at::ScalarType::UInt2:
+      return std::make_pair("uint2", "");
+    case at::ScalarType::UInt3:
+      return std::make_pair("uint3", "");
+    case at::ScalarType::UInt4:
+      return std::make_pair("uint4", "");
+    case at::ScalarType::UInt5:
+      return std::make_pair("uint5", "");
+    case at::ScalarType::UInt6:
+      return std::make_pair("uint6", "");
+    case at::ScalarType::UInt7:
+      return std::make_pair("uint7", "");
     case at::ScalarType::Byte:
       // no "byte" because byte is signed in numpy and we overload
       // byte to mean bool often
       return std::make_pair("uint8", "");
+    case at::ScalarType::UInt16:
+      return std::make_pair("uint16", "");
+    case at::ScalarType::UInt32:
+      return std::make_pair("uint32", "");
+    case at::ScalarType::UInt64:
+      return std::make_pair("uint64", "");
     case at::ScalarType::Char:
       // no "char" because it is not consistently signed or unsigned; we want
       // to move to int8
@@ -68,6 +85,7 @@ std::pair<std::string, std::string> getDtypeNames(at::ScalarType scalarType) {
       return std::make_pair("float8_e5m2", "");
     case at::ScalarType::Float8_e4m3fn:
       return std::make_pair("float8_e4m3fn", "");
+<<<<<<< HEAD
     case at::ScalarType::Field64:
       return std::make_pair("field64", "");
     case at::ScalarType::BigInteger:
@@ -174,6 +192,12 @@ std::pair<std::string, std::string> getDtypeNames(at::ScalarType scalarType) {
       return std::make_pair("VESTA_Fq_G1_Mont", "");
     case at::ScalarType::VESTA_Fq_G2_Mont:
       return std::make_pair("VESTA_Fq_G2_Mont", "");
+=======
+    case at::ScalarType::Float8_e5m2fnuz:
+      return std::make_pair("float8_e5m2fnuz", "");
+    case at::ScalarType::Float8_e4m3fnuz:
+      return std::make_pair("float8_e4m3fnuz", "");
+>>>>>>> pytorch/main
     default:
       throw std::runtime_error("Unimplemented scalar type");
   }
@@ -209,5 +233,4 @@ void initializeDtypes() {
   }
 }
 
-} // namespace utils
-} // namespace torch
+} // namespace torch::utils

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# mypy: allow-untyped-defs
 
 # Copyright (c) Facebook, Inc. and its affiliates.
 # All rights reserved.
@@ -17,9 +18,7 @@ EventMetadataValue = Union[str, int, float, bool, None]
 
 
 class EventSource(str, Enum):
-    """
-    Known identifiers of the event producers.
-    """
+    """Known identifiers of the event producers."""
 
     AGENT = "AGENT"
     WORKER = "WORKER"
@@ -28,8 +27,9 @@ class EventSource(str, Enum):
 @dataclass
 class Event:
     """
-    The class represents the generic event that occurs during the torchelastic
-    job execution. The event can be any kind of meaningful action.
+    The class represents the generic event that occurs during the torchelastic job execution.
+
+    The event can be any kind of meaningful action.
 
     Args:
         name: event name.
@@ -52,7 +52,7 @@ class Event:
             return data
         if isinstance(data, str):
             data_dict = json.loads(data)
-        data_dict["source"] = EventSource[data_dict["source"]]
+        data_dict["source"] = EventSource[data_dict["source"]]  # type: ignore[possibly-undefined]
         return Event(**data_dict)
 
     def serialize(self) -> str:
@@ -60,9 +60,7 @@ class Event:
 
 
 class NodeState(str, Enum):
-    """
-    The states that a node can be in rendezvous.
-    """
+    """The states that a node can be in rendezvous."""
 
     INIT = "INIT"
     RUNNING = "RUNNING"
@@ -108,7 +106,7 @@ class RdzvEvent:
             return data
         if isinstance(data, str):
             data_dict = json.loads(data)
-        data_dict["node_state"] = NodeState[data_dict["node_state"]]
+        data_dict["node_state"] = NodeState[data_dict["node_state"]]  # type: ignore[possibly-undefined]
         return RdzvEvent(**data_dict)
 
     def serialize(self) -> str:

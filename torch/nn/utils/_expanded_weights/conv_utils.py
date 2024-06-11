@@ -1,3 +1,4 @@
+# mypy: allow-untyped-defs
 import torch
 import torch.nn.functional as F
 
@@ -187,7 +188,8 @@ def unfold3d(
     dilation,
 ):
     r"""
-    Extracts sliding local blocks from an batched input tensor.
+    Extract sliding local blocks from an batched input tensor.
+
     :class:`torch.nn.Unfold` only supports 4D inputs (batched image-like tensors).
     This method implements the same action for 5D inputs
     Args:
@@ -206,7 +208,6 @@ def unfold3d(
         >>> unfold3d(tensor, kernel_size=2, padding=0, stride=1).shape
         torch.Size([3, 32, 120])
     """
-
     if len(tensor.shape) != 5:
         raise ValueError(
             f"Input tensor must be of the shape [B, C, D, H, W]. Got{tensor.shape}"

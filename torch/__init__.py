@@ -1,3 +1,4 @@
+# mypy: allow-untyped-defs
 
 r"""
 The torch package contains data structures for multi-dimensional
@@ -16,6 +17,10 @@ import platform
 import textwrap
 import ctypes
 import inspect
+import threading
+import pdb
+import importlib
+import importlib.util
 
 # multipy/deploy is setting this import before importing torch, this is the most
 # reliable way we have to detect if we're running within deploy.
@@ -39,7 +44,7 @@ import builtins
 
 __all__ = [
     'typename', 'is_tensor', 'is_storage',
-    'set_default_tensor_type', 'set_default_device',
+    'set_default_tensor_type', 'set_default_device', 'get_default_device',
     'set_rng_state', 'get_rng_state', 'manual_seed', 'initial_seed', 'seed',
     'save', 'load', 'set_printoptions', 'chunk', 'split', 'stack', 'matmul',
     'no_grad', 'enable_grad', 'rand', 'randn', 'inference_mode',
@@ -55,8 +60,9 @@ __all__ = [
     'set_float32_matmul_precision', 'get_float32_matmul_precision',
     'set_warn_always', 'is_warn_always_enabled', 'SymInt', 'SymFloat',
     'SymBool', 'sym_not', 'unravel_index',
-    'sym_int', 'sym_float', 'sym_max', 'sym_min', 'compile', 'vmap',
-    'export', 'autocast', 'cond',
+    'sym_int', 'sym_float', 'sym_max', 'sym_min', 'sym_ite', 'compile', 'vmap',
+    'export', 'autocast', 'cond', 'GradScaler',
+    'get_device_module',
 ]
 
 ################################################################################
@@ -64,9 +70,11 @@ __all__ = [
 ################################################################################
 
 if sys.platform == 'win32':
+    import sysconfig
     pfiles_path = os.getenv('ProgramFiles', 'C:\\Program Files')
     py_dll_path = os.path.join(sys.exec_prefix, 'Library', 'bin')
     th_dll_path = os.path.join(os.path.dirname(__file__), 'lib')
+    usebase_path = os.path.join(sysconfig.get_config_var("userbase"), 'Library', 'bin')
 
     # When users create a virtualenv that inherits the base environment,
     # we will need to add the corresponding library directory into
@@ -77,7 +85,7 @@ if sys.platform == 'win32':
     else:
         base_py_dll_path = ''
 
-    dll_paths = list(filter(os.path.exists, [th_dll_path, py_dll_path, base_py_dll_path]))
+    dll_paths = list(filter(os.path.exists, [th_dll_path, py_dll_path, base_py_dll_path, usebase_path]))
 
     if all(not os.path.exists(os.path.join(p, 'nvToolsExt64_1.dll')) for p in dll_paths):
         nvtoolsext_dll_path = os.path.join(
@@ -161,18 +169,61 @@ def _preload_cuda_deps(lib_folder, lib_name):
         raise ValueError(f"{lib_name} not found in the system path {sys.path}")
     ctypes.CDLL(lib_path)
 
-
 # See Note [Global dependencies]
 def _load_global_deps() -> None:
+
+    LIBTORCH_PKG_NAME = "libtorchsplit"
+
+    def find_package_path(package_name):
+        spec = importlib.util.find_spec(package_name)
+        if spec:
+            # The package might be a namespace package, so get_data may fail
+            try:
+                loader = spec.loader
+                if loader is not None:
+                    file_path = loader.get_filename()  # type: ignore[attr-defined]
+                    return os.path.dirname(file_path)
+            except AttributeError:
+                pass
+        return None
+
+    def load_shared_libraries(library_path):
+        lib_dir = os.path.join(library_path, 'lib')
+        if not os.path.exists(lib_dir):
+            return
+
+        # Determine the file extension based on the platform
+        if platform.system() == 'Darwin':
+            lib_ext = '.dylib'
+        else:
+            lib_ext = '.so'
+
+        # Find all shared library files with the appropriate extension
+        library_files = [f for f in os.listdir(lib_dir) if f.endswith(lib_ext)]
+        if not library_files:
+            return
+
+        for lib_file in library_files:
+            lib_path = os.path.join(lib_dir, lib_file)
+            try:
+                ctypes.CDLL(lib_path, mode=ctypes.RTLD_GLOBAL)
+            except OSError as err:
+                print(f"Failed to load {lib_path}: {err}")
+
     if _running_with_deploy() or platform.system() == 'Windows':
         return
 
     lib_name = 'libtorch_global_deps' + ('.dylib' if platform.system() == 'Darwin' else '.so')
     here = os.path.abspath(__file__)
-    lib_path = os.path.join(os.path.dirname(here), 'lib', lib_name)
+    global_deps_lib_path = os.path.join(os.path.dirname(here), 'lib', lib_name)
 
+    split_build_lib_name = LIBTORCH_PKG_NAME
+    library_path = find_package_path(split_build_lib_name)
+
+    if library_path:
+        global_deps_lib_path = os.path.join(library_path, 'lib', lib_name)
     try:
-        ctypes.CDLL(lib_path, mode=ctypes.RTLD_GLOBAL)
+        ctypes.CDLL(global_deps_lib_path, mode=ctypes.RTLD_GLOBAL)
     except OSError as err:
         # Can only happen for wheel with cuda libs as PYPI deps
         # As PyTorch is not purelib, but nvidia-*-cu12 is
@@ -189,13 +240,16 @@ def _load_global_deps() -> None:
             'nccl': 'libnccl.so.*[0-9]',
             'nvtx': 'libnvToolsExt.so.*[0-9]',
         }
-        is_cuda_lib_err = [lib for lib in cuda_libs.values() if(lib.split('.')[0] in err.args[0])]
+        is_cuda_lib_err = [lib for lib in cuda_libs.values() if lib.split('.')[0] in err.args[0]]
         if not is_cuda_lib_err:
             raise err
         for lib_folder, lib_name in cuda_libs.items():
             _preload_cuda_deps(lib_folder, lib_name)
-        ctypes.CDLL(lib_path, mode=ctypes.RTLD_GLOBAL)
+        ctypes.CDLL(global_deps_lib_path, mode=ctypes.RTLD_GLOBAL)
 
+    if library_path:
+        # loading libtorch_global_deps first due its special logic
+        load_shared_libraries(library_path)
 
 if (USE_RTLD_GLOBAL_WITH_LIBTORCH or os.getenv('TORCH_USE_RTLD_GLOBAL')) and \
         (_running_with_deploy() or platform.system() != 'Windows'):
@@ -238,7 +292,7 @@ else:
 # Appease the type checker; ordinarily this binding is inserted by the
 # torch._C module initialization code in C
 if TYPE_CHECKING:
-    import torch._C as _C
+    from . import _C as _C  # noqa: TCH004
 
 class SymInt:
     """
@@ -261,7 +315,76 @@ class SymInt:
     def __index__(self):
         return self.node.int_()
 
-    # Magic methods installed by torch.fx.experimental.symbolic_shapes
+    # Magic methods installed by torch.fx.experimental.sym_node
+
+    def __round__(self, ndigits=None):
+        return self
+
+    def __truediv__(self, other):
+        if isinstance(other, (builtins.float, SymFloat)):
+            return sym_float(self).__float_truediv__(other)
+        if not isinstance(other, (builtins.int, SymInt)):
+            return NotImplemented
+        return self.__int_truediv__(other)
+
+    def __rtruediv__(self, other):
+        if isinstance(other, (builtins.float, SymFloat)):
+            return sym_float(self).__rfloat_truediv__(other)
+        if not isinstance(other, (builtins.int, SymInt)):
+            return NotImplemented
+        return self.__rint_truediv__(other)
+
+    def __floordiv__(self, other):
+        if isinstance(other, (builtins.float, SymFloat)):
+            return torch.sym_float(math.floor(sym_float(self) / other))
+        if not isinstance(other, (builtins.int, SymInt)):
+            return NotImplemented
+        return self.__int_floordiv__(other)
+
+    def __rfloordiv__(self, other):
+        if isinstance(other, (builtins.float, SymFloat)):
+            return torch.sym_float(math.floor(other / sym_float(self)))
+        if not isinstance(other, (builtins.int, SymInt)):
+            return NotImplemented
+        return self.__rint_floordiv__(other)
+
+    # nb: complex is impossible to handle correctly lol, with
+    # negative base and integral float need to diverge semantics and
+    # just always return complex.  Neener neener pretend this problem
+    # doesn't exist
+    def __pow__(self, other):
+        if isinstance(other, (builtins.float, SymFloat)):
+            return sym_float(self).__pow__(other)
+        if not isinstance(other, (builtins.int, SymInt)):
+            return NotImplemented
+        # Guards!  This guard is necessary because we need to know it to
+        # determine the output type of this operation
+        if other >= 0:
+            return self.__pow_by_natural__(other)
+        else:
+            # Mercifully, when the exponent is negative, Python just promotes
+            # to doubles and does a float pow:
+            #
+            #   if (Py_SIZE(b) < 0 && c == NULL) {
+            #       /* if exponent is negative and there's no modulus:
+            #              return a float.  This works because we know
+            #              that this calls float_pow() which converts its
+            #              arguments to double. */
+            #       Py_DECREF(a);
+            #       Py_DECREF(b);
+            #       return PyFloat_Type.tp_as_number->nb_power(v, w, x);
+            #   }
+            return sym_float(self).__pow__(sym_float(other))
+
+    def __rpow__(self, other):
+        if isinstance(other, (builtins.float, SymFloat)):
+            return sym_float(self).__rpow__(other)
+        if not isinstance(other, (builtins.int, SymInt)):
+            return NotImplemented
+        if self >= 0:  # self is exponent
+            return self.__rpow_by_natural__(other)
+        else:
+            return sym_float(self).__rpow__(sym_float(other))
 
     def __eq__(self, other: object) -> builtins.bool:
         raise AssertionError("type stub not overridden")
@@ -278,6 +401,30 @@ class SymInt:
     def __ge__(self, other) -> builtins.bool:
         raise AssertionError("type stub not overridden")
 
+    def __add__(self, other) -> "SymInt":
+        raise AssertionError("type stub not overridden")
+
+    def __mul__(self, other) -> "SymInt":
+        raise AssertionError("type stub not overridden")
+
+    def __pow_by_natural__(self, other) -> "SymInt":
+        raise AssertionError("type stub not overridden")
+
+    def __rpow_by_natural__(self, other) -> "SymInt":
+        raise AssertionError("type stub not overridden")
+
+    def __int_truediv__(self, other) -> "SymFloat":
+        raise AssertionError("type stub not overridden")
+
+    def __rint_truediv__(self, other) -> "SymFloat":
+        raise AssertionError("type stub not overridden")
+
+    def __int_floordiv__(self, other) -> "SymFloat":
+        raise AssertionError("type stub not overridden")
+
+    def __rint_floordiv__(self, other) -> "SymFloat":
+        raise AssertionError("type stub not overridden")
+
     def __sym_max__(self, other):
         raise AssertionError("type stub not overridden")
 
@@ -287,16 +434,18 @@ class SymInt:
     def __sym_float__(self):
         raise AssertionError("type stub not overridden")
 
+    def __neg__(self):
+        raise AssertionError("type stub not overridden")
+
     def __repr__(self):
         return str(self.node)
 
     def __hash__(self) -> builtins.int:
-        ret = self.node.singleton_int()
-        if ret is not None:
-            return hash(ret)
+        if self.node.is_nested_int():
+            return hash(self.node.nested_int())
         else:
             # We could support constant SymInts as well, but not doing it for now
-            raise TypeError("unhashable type: non-singleton SymInt")
+            raise TypeError("unhashable type: non-nested SymInt")
 
 class SymFloat:
     """
@@ -310,10 +459,44 @@ class SymFloat:
         # class has a field named node that stores SymNode
         self.node = node
 
+    def __truediv__(self, other):
+        if not isinstance(other, (builtins.int, builtins.float, SymInt, SymFloat)):
+            return NotImplemented
+        return self.__float_truediv__(sym_float(other))
+
+    def __rtruediv__(self, other):
+        if not isinstance(other, (builtins.int, builtins.float, SymInt, SymFloat)):
+            return NotImplemented
+        return self.__rfloat_truediv__(sym_float(other))
+
+    def __floordiv__(self, other):
+        if not isinstance(other, (builtins.int, builtins.float, SymInt, SymFloat)):
+            return NotImplemented
+        return torch.sym_float(math.floor(self / sym_float(other)))
+
+    def __rfloordiv__(self, other):
+        if not isinstance(other, (builtins.int, builtins.float, SymInt, SymFloat)):
+            return NotImplemented
+        return torch.sym_float(math.floor(sym_float(other) / self))
+
     def __bool__(self):
         return self.node.bool_()
 
-    # Magic methods installed by torch.fx.experimental.symbolic_shapes
+    # Symbolic power does NOT work with negative base, this is to avoid
+    # potential complex outputs
+    def __pow__(self, other):
+        if not isinstance(other, (builtins.int, builtins.float, SymInt, SymFloat)):
+            return NotImplemented
+        torch._check(self >= 0)
+        return self.__float_pow__(other)
+
+    def __rpow__(self, other):
+        if not isinstance(other, (builtins.int, builtins.float, SymInt, SymFloat)):
+            return NotImplemented
+        torch._check(other >= 0)
+        return self.__rfloat_pow__(other)
+
+    # Magic methods installed by torch.fx.experimental.sym_node
 
     def __eq__(self, other: object) -> builtins.bool:
         raise AssertionError("type stub not overridden")
@@ -330,6 +513,21 @@ class SymFloat:
     def __ge__(self, other) -> builtins.bool:
         raise AssertionError("type stub not overridden")
 
+    def __float_pow__(self, other) -> "SymFloat":
+        raise AssertionError("type stub not overridden")
+
+    def __rfloat_pow__(self, other) -> "SymFloat":
+        raise AssertionError("type stub not overridden")
+
+    def __float_truediv__(self, other) -> "SymFloat":
+        raise AssertionError("type stub not overridden")
+
+    def __rfloat_truediv__(self, other) -> "SymFloat":
+        raise AssertionError("type stub not overridden")
+
+    def __trunc__(self):
+        raise AssertionError("type stub not overridden")
+
     def __sym_max__(self, other):
         raise AssertionError("type stub not overridden")
 
@@ -337,6 +535,10 @@ class SymFloat:
         raise AssertionError("type stub not overridden")
 
     def __sym_int__(self):
+        raise AssertionError("type stub not overridden")
+
+    def is_integer(self):
+        """Return True if the float is an integer."""
         raise AssertionError("type stub not overridden")
 
     def __repr__(self):
@@ -363,7 +565,7 @@ class SymBool:
     def __int__(self):
         return builtins.int(self.node.bool_())
 
-    # Magic methods installed by torch.fx.experimental.symbolic_shapes
+    # Magic methods installed by torch.fx.experimental.sym_node
     def __and__(self, other) -> "SymBool":
         raise AssertionError("type stub not overridden")
 
@@ -390,6 +592,9 @@ class SymBool:
     def __sym_not__(self) -> "SymBool":
         raise AssertionError("type stub not overridden")
 
+    def __sym_ite__(self, then_val, else_val):
+        raise AssertionError("type stub not overridden")
+
     def __eq__(self, other) -> builtins.bool:
         raise AssertionError("type stub not overridden")
 
@@ -408,8 +613,15 @@ def sym_not(a):
     Args:
         a (SymBool or bool): Object to negate
     """
+    import sympy
+    from .overrides import has_torch_function_unary, handle_torch_function
+
+    if has_torch_function_unary(a):
+        return handle_torch_function(sym_not, (a,), a)
     if hasattr(a, '__sym_not__'):
         return a.__sym_not__()
+    if isinstance(a, sympy.Basic):
+        return ~a  # type: ignore[operator]
     return not a
 
 def sym_float(a):
@@ -418,6 +630,10 @@ def sym_float(a):
     Args:
         a (SymInt, SymFloat, or object): Object to cast
     """
+    from .overrides import has_torch_function_unary, handle_torch_function
+
+    if has_torch_function_unary(a):
+        return handle_torch_function(sym_float, (a,), a)
     if isinstance(a, SymFloat):
         return a
     elif hasattr(a, '__sym_float__'):
@@ -431,30 +647,94 @@ def sym_int(a):
     Args:
         a (SymInt, SymFloat, or object): Object to cast
     """
+    from .overrides import has_torch_function_unary, handle_torch_function
+
+    if has_torch_function_unary(a):
+        return handle_torch_function(sym_int, (a,), a)
     if isinstance(a, SymInt):
         return a
     elif isinstance(a, SymFloat):
-        return math.floor(a) if a >= 0 else math.ceil(a)  # type: ignore[arg-type, call-overload]
+        return math.trunc(a)
     return py_int(a)  # type: ignore[operator]
 
 def sym_max(a, b):
-    """ SymInt-aware utility for max()."""
+    """
+    SymInt-aware utility for max which avoids branching on a < b.
+    Unlike builtins.max(), this only works for int/float, and it always
+    promotes to float if any argument is float (unlike builtins.max, which
+    will faithfully preserve the type of the input argument).
+    """
+    from .overrides import has_torch_function, handle_torch_function
+
+    if has_torch_function((a, b)):
+        return handle_torch_function(sym_max, (a, b), a, b)
     if isinstance(a, (SymInt, SymFloat)):
         return a.__sym_max__(b)
     elif isinstance(b, (SymInt, SymFloat)):
-        # NB: If you actually care about preserving output type exactly
-        # if you do something like max(0, 0.0), it is NOT sound to treat
-        # min/max as commutative
+        # Due to promotion semantics, this is operator is commutative:
+        # max(1, 1.0) === max(1.0, 1) === 1.0
         return b.__sym_max__(a)
-    return builtins.max(a, b)  # type: ignore[operator]
+    # TODO: Probably can make bool work too, just lazy
+    assert isinstance(a, (builtins.int, builtins.float)), type(a)
+    assert isinstance(b, (builtins.int, builtins.float)), type(b)
+    if isinstance(a, builtins.float) or isinstance(b, builtins.float):
+        return builtins.float(builtins.max(a, b))
+    else:
+        return builtins.max(a, b)
 
 def sym_min(a, b):
-    """ SymInt-aware utility for max()."""
+    """ SymInt-aware utility for min()."""
+    from .overrides import has_torch_function, handle_torch_function
+
+    if has_torch_function((a, b)):
+        return handle_torch_function(sym_min, (a, b), a, b)
     if isinstance(a, (SymInt, SymFloat)):
         return a.__sym_min__(b)
     elif isinstance(b, (SymInt, SymFloat)):
         return b.__sym_min__(a)
-    return builtins.min(a, b)  # type: ignore[operator]
+    assert isinstance(a, (builtins.int, builtins.float)), type(a)
+    assert isinstance(b, (builtins.int, builtins.float)), type(b)
+    if isinstance(a, builtins.float) or isinstance(b, builtins.float):
+        return builtins.float(builtins.min(a, b))
+    else:
+        return builtins.min(a, b)
+
+# Drop in replacement for math.sqrt, math.sin, math.cos etc
+def _get_sym_math_fn(name):
+    def fn(a):
+        from .overrides import has_torch_function_unary, handle_torch_function
+
+        if has_torch_function_unary(a):
+            return handle_torch_function(fn, (a,), a)
+        if hasattr(a, f"__sym_{name}__"):
+            return getattr(a, f"__sym_{name}__")()
+        return getattr(math, name)(a)
+
+    return fn
+
+__fn, __name, __sym_name = None, '', ''
+for __name in ("sqrt", "cos", "cosh", "sin", "sinh", "tan", "tanh", "asin", "acos", "atan"):
+    __sym_name = f"_sym_{__name}"
+    __fn = _get_sym_math_fn(__name)
+    __fn.__qualname__ = __fn.__name__ = __sym_name
+    globals()[__sym_name] = __fn
+
+del __fn, __name, __sym_name, _get_sym_math_fn
+
+# Adding temporary shortcut
+sym_sqrt = globals()["_sym_sqrt"]
+__all__.append("sym_sqrt")
+
+
+def sym_ite(b, t, f):
+    from .overrides import has_torch_function, handle_torch_function
+
+    if has_torch_function((b, t, f)):
+        return handle_torch_function(sym_ite, (b, t, f), b, t, f)
+    assert isinstance(b, (SymBool, builtins.bool)) and type(t) == type(f)
+    if isinstance(b, SymBool):
+        return b.__sym_ite__(t, f)
+    return t if b else f
 
 # Check to see if we can load C extensions, and if not provide some guidance
 # on what the problem might be.
@@ -480,30 +760,35 @@ except ImportError:
             ''').strip()) from None
     raise  # If __file__ is not None the cause is unknown, so just re-raise.
 
-for name in dir(_C):
-    if name[0] != '_' and not name.endswith('Base'):
-        __all__.append(name)
-        obj = getattr(_C, name)
-        if (isinstance(obj, Callable) or inspect.isclass(obj)):  # type: ignore[arg-type]
-            if (obj.__module__ != 'torch'):
+__name, __obj = '', None
+for __name in dir(_C):
+    if __name[0] != '_' and not __name.endswith('Base'):
+        __all__.append(__name)
+        __obj = getattr(_C, __name)
+        if callable(__obj) or inspect.isclass(__obj):
+            if __obj.__module__ != __name__:
                 # TODO: fix their module from C++ side
-                if name not in ['DisableTorchFunctionSubclass', 'DisableTorchFunction', 'Generator']:
-                    obj.__module__ = 'torch'
-    elif name == 'TensorBase':
+                if __name not in ['DisableTorchFunctionSubclass', 'DisableTorchFunction', 'Generator']:
+                    __obj.__module__ = __name__
+    elif __name == 'TensorBase':
         # issue 109438 / pr 109940. Prevent TensorBase from being copied into torch.
-        delattr(sys.modules[__name__], name)
+        delattr(sys.modules[__name__], __name)
+
+del __name, __obj
 
 if not TYPE_CHECKING:
     # issue 38137 and python issue 43367. Submodules of a C extension are
     # non-standard, and attributes of those submodules cannot be pickled since
     # pickle expect to be able to import them as "from _C.sub import attr"
     # which fails with "_C is not a package
-    for attr in dir(_C):
-        candidate = getattr(_C, attr)
-        if type(candidate) is type(_C):
+    __name, __candidate = '', None
+    for __name in dir(_C):
+        __candidate = getattr(_C, __name)
+        if type(__candidate) is type(_C):
             # submodule
-            if f'torch._C.{attr}' not in sys.modules:
-                sys.modules[f'torch._C.{attr}'] = candidate
+            sys.modules.setdefault(f"{__name__}._C.{__name}", __candidate)
+
+    del __name, __candidate
 
 
 ################################################################################
@@ -560,7 +845,23 @@ def is_storage(obj):
     return type(obj) in _storage_classes
 
 
-_GLOBAL_DEVICE_CONTEXT = None
+_GLOBAL_DEVICE_CONTEXT = threading.local()
+
+
+def get_default_device() -> "torch.device":
+    r"""Gets the default ``torch.Tensor`` to be allocated on ``device``"""
+    global _GLOBAL_DEVICE_CONTEXT
+    if hasattr(_GLOBAL_DEVICE_CONTEXT, "device_context"):
+        device = _GLOBAL_DEVICE_CONTEXT.device_context.device
+        if device.index is not None:
+            return device
+        else:
+            # TODO: Call like get_device_index() method corresponding to
+            # each device type
+            return torch.tensor([]).device
+    else:
+        return torch.device("cpu")
+
 
 def set_default_device(device):
     """Sets the default ``torch.Tensor`` to be allocated on ``device``.  This
@@ -583,35 +884,54 @@ def set_default_device(device):
         is causing problems for you, please comment on
         https://github.com/pytorch/pytorch/issues/92701
 
+    .. note::
+
+        This doesn't affect functions that create tensors that share the same memory as the input, like:
+        :func:`torch.from_numpy` and :func:`torch.frombuffer`
+
     Args:
         device (device or string): the device to set as default
 
     Example::
 
         >>> # xdoctest: +SKIP("requires cuda, changes global state")
-        >>> torch.tensor([1.2, 3]).device
+        >>> torch.get_default_device()
         device(type='cpu')
         >>> torch.set_default_device('cuda')  # current device is 0
-        >>> torch.tensor([1.2, 3]).device
+        >>> torch.get_default_device()
         device(type='cuda', index=0)
+        >>> torch.set_default_device('cuda')
+        >>> torch.cuda.set_device('cuda:1')  # current device is 1
+        >>> torch.get_default_device()
+        device(type='cuda', index=1)
         >>> torch.set_default_device('cuda:1')
-        >>> torch.tensor([1.2, 3]).device
+        >>> torch.get_default_device()
         device(type='cuda', index=1)
 
     """
     global _GLOBAL_DEVICE_CONTEXT
-    if _GLOBAL_DEVICE_CONTEXT is not None:
-        _GLOBAL_DEVICE_CONTEXT.__exit__(None, None, None)
+    if hasattr(_GLOBAL_DEVICE_CONTEXT, "device_context"):
+        device_context = _GLOBAL_DEVICE_CONTEXT.device_context
+        if device_context is not None:
+            device_context.__exit__(None, None, None)
+
     if device is None:
-        _GLOBAL_DEVICE_CONTEXT = None
-        return
-    from torch.utils._device import DeviceContext
-    _GLOBAL_DEVICE_CONTEXT = DeviceContext(device)
-    _GLOBAL_DEVICE_CONTEXT.__enter__()
+        device_context = None
+    else:
+        from torch.utils._device import DeviceContext
+        device_context = DeviceContext(device)
+        device_context.__enter__()
+    _GLOBAL_DEVICE_CONTEXT.device_context = device_context
 
 
 def set_default_tensor_type(t):
-    r"""Sets the default ``torch.Tensor`` type to floating point tensor type
+    r"""
+    .. warning::
+
+        This function is deprecated as of PyTorch 2.1, please use :func:`torch.set_default_dtype()` and
+        :func:`torch.set_default_device()` as alternatives.
+
+    Sets the default ``torch.Tensor`` type to floating point tensor type
     ``t``. This type will also be used as default floating point type for
     type inference in :func:`torch.tensor`.
 
@@ -638,17 +958,17 @@ def set_default_tensor_type(t):
 def set_default_dtype(d):
     r"""
 
-    Sets the default floating point dtype to :attr:`d`. Supports torch.float32
-    and torch.float64 as inputs. Other dtypes may be accepted without complaint
-    but are not supported and are unlikely to work as expected.
+    Sets the default floating point dtype to :attr:`d`. Supports floating point dtype
+    as inputs. Other dtypes will cause torch to raise an exception.
 
     When PyTorch is initialized its default floating point dtype is torch.float32,
     and the intent of set_default_dtype(torch.float64) is to facilitate NumPy-like
     type inference. The default floating point dtype is used to:
 
-    1. Implicitly determine the default complex dtype. When the default floating point
-       type is float32 the default complex dtype is complex64, and when the default
-       floating point type is float64 the default complex type is complex128.
+    1. Implicitly determine the default complex dtype. When the default floating type is float16,
+       the default complex dtype is complex32. For float32, the default complex dtype is complex64.
+       For float64, it is complex128. For bfloat16, an exception will be raised because
+       there is no corresponding complex type for bfloat16.
     2. Infer the dtype for tensors constructed using Python floats or complex Python
        numbers. See examples below.
     3. Determine the result of type promotion between bool and integer tensors and
@@ -670,13 +990,20 @@ def set_default_dtype(d):
         torch.complex64
 
         >>> torch.set_default_dtype(torch.float64)
-
         >>> # Python floats are now interpreted as float64
         >>> torch.tensor([1.2, 3]).dtype    # a new floating point tensor
         torch.float64
         >>> # Complex Python numbers are now interpreted as complex128
         >>> torch.tensor([1.2, 3j]).dtype   # a new complex tensor
         torch.complex128
+
+        >>> torch.set_default_dtype(torch.float16)
+        >>> # Python floats are now interpreted as float16
+        >>> torch.tensor([1.2, 3]).dtype    # a new floating point tensor
+        torch.float16
+        >>> # Complex Python numbers are now interpreted as complex128
+        >>> torch.tensor([1.2, 3j]).dtype   # a new complex tensor
+        torch.complex32
 
     """
     _C._set_default_dtype(d)
@@ -704,6 +1031,7 @@ def use_deterministic_algorithms(mode: builtins.bool, *, warn_only: builtins.boo
         * :class:`torch.nn.ConvTranspose1d` when called on CUDA tensor
         * :class:`torch.nn.ConvTranspose2d` when called on CUDA tensor
         * :class:`torch.nn.ConvTranspose3d` when called on CUDA tensor
+        * :class:`torch.nn.ReplicationPad2d` when attempting to differentiate a CUDA tensor
         * :func:`torch.bmm` when called on sparse-dense CUDA tensors
         * :func:`torch.Tensor.__getitem__` when attempting to differentiate a CPU tensor
           and the index is a list of tensors
@@ -720,14 +1048,6 @@ def use_deterministic_algorithms(mode: builtins.bool, *, warn_only: builtins.boo
         * :func:`torch.Tensor.index_copy` when called on a CPU or CUDA tensor
         * :func:`torch.Tensor.scatter` when `src` type is Tensor and called on CUDA tensor
         * :func:`torch.Tensor.scatter_reduce` when ``reduce='sum'`` or ``reduce='mean'`` and called on CUDA tensor
-        * :func:`torch.Tensor.resize_`, when called with a tensor that is not
-          quantized, sets new elements to a known value.  Floating point or
-          complex values are set to NaN. Integer values are set to the maximum
-          value.
-        * :func:`torch.empty`, :func:`torch.empty_like`, :func:`torch.empty_strided`,
-          and :func:`torch.empty_permuted` will fill the output tensor with a known
-          value. Floating point or complex dtype tensors are filled with NaN. Integer
-          dtype tensors are filled with the maximum value.
 
     The following normally-nondeterministic operations will throw a
     :class:`RuntimeError` when ``mode=True``:
@@ -754,7 +1074,6 @@ def use_deterministic_algorithms(mode: builtins.bool, *, warn_only: builtins.boo
         * :class:`torch.nn.ReflectionPad2d` when attempting to differentiate a CUDA tensor
         * :class:`torch.nn.ReflectionPad3d` when attempting to differentiate a CUDA tensor
         * :class:`torch.nn.ReplicationPad1d` when attempting to differentiate a CUDA tensor
-        * :class:`torch.nn.ReplicationPad2d` when attempting to differentiate a CUDA tensor
         * :class:`torch.nn.ReplicationPad3d` when attempting to differentiate a CUDA tensor
         * :class:`torch.nn.NLLLoss` when called on a CUDA tensor
         * :class:`torch.nn.CTCLoss` when attempting to differentiate a CUDA tensor
@@ -772,10 +1091,15 @@ def use_deterministic_algorithms(mode: builtins.bool, *, warn_only: builtins.boo
         * :func:`torch.Tensor.scatter_reduce` when ``reduce='prod'`` and called on CUDA tensor
         * :func:`torch.Tensor.resize_` when called with a quantized tensor
 
+    In addition, several operations fill uninitialized memory when this setting
+    is turned on and when
+    :attr:`torch.utils.deterministic.fill_uninitialized_memory` is turned on.
+    See the documentation for that attribute for more information.
+
     A handful of CUDA operations are nondeterministic if the CUDA version is
     10.2 or greater, unless the environment variable ``CUBLAS_WORKSPACE_CONFIG=:4096:8``
     or ``CUBLAS_WORKSPACE_CONFIG=:16:8`` is set. See the CUDA documentation for more
-    details: `<https://docs.nvidia.com/cuda/cublas/index.html#cublasApi_reproducibility>`_
+    details: `<https://docs.nvidia.com/cuda/cublas/index.html#results-reproducibility>`_
     If one of these environment variable configurations is not set, a :class:`RuntimeError`
     will be raised from these operations when called with CUDA tensors:
 
@@ -905,24 +1229,24 @@ def set_float32_matmul_precision(precision: str) -> None:
     Supports three settings:
 
         * "highest", float32 matrix multiplications use the float32 datatype (24 mantissa
-          bits) for internal computations.
+          bits with 23 bits explicitly stored) for internal computations.
         * "high", float32 matrix multiplications either use the TensorFloat32 datatype (10
-          mantissa bits) or treat each float32 number as the sum of two bfloat16 numbers
-          (approximately 16 mantissa bits), if the appropriate fast matrix multiplication
+          mantissa bits explicitly stored) or treat each float32 number as the sum of two bfloat16 numbers
+          (approximately 16 mantissa bits with 14 bits explicitly stored), if the appropriate fast matrix multiplication
           algorithms are available.  Otherwise float32 matrix multiplications are computed
           as if the precision is "highest".  See below for more information on the bfloat16
           approach.
         * "medium", float32 matrix multiplications use the bfloat16 datatype (8 mantissa
-          bits) for internal computations, if a fast matrix multiplication algorithm
+          bits with 7 bits explicitly stored) for internal computations, if a fast matrix multiplication algorithm
           using that datatype internally is available. Otherwise float32
           matrix multiplications are computed as if the precision is "high".
 
     When using "high" precision, float32 multiplications may use a bfloat16-based algorithm
     that is more complicated than simply truncating to some smaller number mantissa bits
-    (e.g. 10 for TensorFloat32, 8 for bfloat16).  Refer to [Henry2019]_ for a complete
+    (e.g. 10 for TensorFloat32, 7 for bfloat16 explicitly stored).  Refer to [Henry2019]_ for a complete
     description of this algorithm.  To briefly explain here, the first step is to realize
     that we can perfectly encode a single float32 number as the sum of three bfloat16
-    numbers (because float32 has 24 mantissa bits while bfloat16 has 8, and both have the
+    numbers (because float32 has 23 mantissa bits while bfloat16 has 7 explicitly stored, and both have the
     same number of exponent bits).  This means that the product of two float32 numbers can
     be exactly given by the sum of nine products of bfloat16 numbers.  We can then trade
     accuracy for speed by dropping some of these products.  The "high" precision algorithm
@@ -990,7 +1314,8 @@ def _check_with(error_type, cond: Union[builtins.bool, SymBool], message: Callab
     if not isinstance(cond, (builtins.bool, torch.SymBool)):
         raise TypeError(f'cond must be a bool, but got {type(cond)}')
 
-    if torch.fx.experimental.symbolic_shapes.expect_true(cond):
+    from torch.fx.experimental.symbolic_shapes import expect_true
+    if expect_true(cond):
         return
 
     # error_type must be a subclass of Exception and not subclass of Warning
@@ -1039,7 +1364,8 @@ def _check_is_size(i, message=None):
     """
     # This is responsible for the expect_true
     _check(i >= 0, message)
-    torch.fx.experimental.symbolic_shapes._advise_is_size(i)
+    from torch.fx.experimental.symbolic_shapes import _advise_is_size
+    _advise_is_size(i)
 
 def _check_index(cond, message=None):  # noqa: F811
     r"""Throws error containing an optional message if the specified condition
@@ -1144,8 +1470,9 @@ def _check_tensor_all(cond, message=None):  # noqa: F811
 
 # For Python Array API (https://data-apis.org/array-api/latest/API_specification/constants.html) and
 # NumPy consistency (https://numpy.org/devdocs/reference/constants.html)
-from math import e , nan , inf , pi
-__all__.extend(['e', 'pi', 'nan', 'inf'])
+from math import e, nan , inf , pi
+newaxis: None = None
+__all__.extend(['e', 'pi', 'nan', 'inf', 'newaxis'])
 
 ################################################################################
 # Define Storage and Tensor classes
@@ -1160,7 +1487,7 @@ from .storage import _StorageBase, TypedStorage, _LegacyStorage, UntypedStorage,
 class ByteStorage(_LegacyStorage):
     @classproperty
     def dtype(self):
-        _warn_typed_storage_removal()
+        _warn_typed_storage_removal(stacklevel=3)
         return self._dtype
 
     @classproperty
@@ -1170,7 +1497,7 @@ class ByteStorage(_LegacyStorage):
 class DoubleStorage(_LegacyStorage):
     @classproperty
     def dtype(self):
-        _warn_typed_storage_removal()
+        _warn_typed_storage_removal(stacklevel=3)
         return self._dtype
 
     @classproperty
@@ -1180,7 +1507,7 @@ class DoubleStorage(_LegacyStorage):
 class FloatStorage(_LegacyStorage):
     @classproperty
     def dtype(self):
-        _warn_typed_storage_removal()
+        _warn_typed_storage_removal(stacklevel=3)
         return self._dtype
 
     @classproperty
@@ -1190,7 +1517,7 @@ class FloatStorage(_LegacyStorage):
 class HalfStorage(_LegacyStorage):
     @classproperty
     def dtype(self):
-        _warn_typed_storage_removal()
+        _warn_typed_storage_removal(stacklevel=3)
         return self._dtype
 
     @classproperty
@@ -1200,7 +1527,7 @@ class HalfStorage(_LegacyStorage):
 class LongStorage(_LegacyStorage):
     @classproperty
     def dtype(self):
-        _warn_typed_storage_removal()
+        _warn_typed_storage_removal(stacklevel=3)
         return self._dtype
 
     @classproperty
@@ -1210,7 +1537,7 @@ class LongStorage(_LegacyStorage):
 class IntStorage(_LegacyStorage):
     @classproperty
     def dtype(self):
-        _warn_typed_storage_removal()
+        _warn_typed_storage_removal(stacklevel=3)
         return self._dtype
 
     @classproperty
@@ -1220,7 +1547,7 @@ class IntStorage(_LegacyStorage):
 class ShortStorage(_LegacyStorage):
     @classproperty
     def dtype(self):
-        _warn_typed_storage_removal()
+        _warn_typed_storage_removal(stacklevel=3)
         return self._dtype
 
     @classproperty
@@ -1230,7 +1557,7 @@ class ShortStorage(_LegacyStorage):
 class CharStorage(_LegacyStorage):
     @classproperty
     def dtype(self):
-        _warn_typed_storage_removal()
+        _warn_typed_storage_removal(stacklevel=3)
         return self._dtype
 
     @classproperty
@@ -1240,7 +1567,7 @@ class CharStorage(_LegacyStorage):
 class BoolStorage(_LegacyStorage):
     @classproperty
     def dtype(self):
-        _warn_typed_storage_removal()
+        _warn_typed_storage_removal(stacklevel=3)
         return self._dtype
 
     @classproperty
@@ -1250,7 +1577,7 @@ class BoolStorage(_LegacyStorage):
 class BFloat16Storage(_LegacyStorage):
     @classproperty
     def dtype(self):
-        _warn_typed_storage_removal()
+        _warn_typed_storage_removal(stacklevel=3)
         return self._dtype
 
     @classproperty
@@ -1260,7 +1587,7 @@ class BFloat16Storage(_LegacyStorage):
 class ComplexDoubleStorage(_LegacyStorage):
     @classproperty
     def dtype(self):
-        _warn_typed_storage_removal()
+        _warn_typed_storage_removal(stacklevel=3)
         return self._dtype
 
     @classproperty
@@ -1270,7 +1597,7 @@ class ComplexDoubleStorage(_LegacyStorage):
 class ComplexFloatStorage(_LegacyStorage):
     @classproperty
     def dtype(self):
-        _warn_typed_storage_removal()
+        _warn_typed_storage_removal(stacklevel=3)
         return self._dtype
 
     @classproperty
@@ -1280,7 +1607,7 @@ class ComplexFloatStorage(_LegacyStorage):
 class QUInt8Storage(_LegacyStorage):
     @classproperty
     def dtype(self):
-        _warn_typed_storage_removal()
+        _warn_typed_storage_removal(stacklevel=3)
         return self._dtype
 
     @classproperty
@@ -1290,7 +1617,7 @@ class QUInt8Storage(_LegacyStorage):
 class QInt8Storage(_LegacyStorage):
     @classproperty
     def dtype(self):
-        _warn_typed_storage_removal()
+        _warn_typed_storage_removal(stacklevel=3)
         return self._dtype
 
     @classproperty
@@ -1300,7 +1627,7 @@ class QInt8Storage(_LegacyStorage):
 class QInt32Storage(_LegacyStorage):
     @classproperty
     def dtype(self):
-        _warn_typed_storage_removal()
+        _warn_typed_storage_removal(stacklevel=3)
         return self._dtype
 
     @classproperty
@@ -1310,7 +1637,7 @@ class QInt32Storage(_LegacyStorage):
 class QUInt4x2Storage(_LegacyStorage):
     @classproperty
     def dtype(self):
-        _warn_typed_storage_removal()
+        _warn_typed_storage_removal(stacklevel=3)
         return self._dtype
 
     @classproperty
@@ -1320,7 +1647,7 @@ class QUInt4x2Storage(_LegacyStorage):
 class QUInt2x4Storage(_LegacyStorage):
     @classproperty
     def dtype(self):
-        _warn_typed_storage_removal()
+        _warn_typed_storage_removal(stacklevel=3)
         return self._dtype
 
     @classproperty
@@ -1335,7 +1662,7 @@ _storage_classes = {
     TypedStorage
 }
 
-# The _tensor_classes set is initialized by the call to _C._initialize_tensor_type_bindings()
+# The _tensor_classes set is initialized by the call to initialize_python_bindings.
 _tensor_classes: Set[Type] = set()
 
 # If you edit these imports, please update torch/__init__.py.in as well
@@ -1347,7 +1674,7 @@ from ._tensor_str import set_printoptions
 # Initialize extension
 ################################################################################
 
-def manager_path():
+def _manager_path():
     if _running_with_deploy() or platform.system() == 'Windows':
         return b""
     path = get_file_path('torch', 'bin', 'torch_shm_manager')
@@ -1356,7 +1683,7 @@ def manager_path():
         raise RuntimeError("Unable to find torch_shm_manager at " + path)
     return path.encode('utf-8')
 
-from torch.amp import autocast
+from torch.amp import autocast, GradScaler
 
 # Initializing the extension shadows the built-in python float / int classes;
 # store them for later use by SymInt / SymFloat.
@@ -1364,8 +1691,8 @@ py_float = float
 py_int = int
 
 # Shared memory manager needs to know the exact location of manager executable
-_C._initExtension(manager_path())
-del manager_path
+_C._initExtension(_manager_path())
+del _manager_path
 
 # Appease the type checker: it can't deal with direct setting of globals().
 # Note that we will see "too many" functions when reexporting this way; there
@@ -1378,7 +1705,7 @@ if TYPE_CHECKING:
     from torch._C._VariableFunctions import *  # type: ignore[assignment, misc] # noqa: F403
     # Fixup segment_reduce visibility
     _segment_reduce = segment_reduce
-    del segment_reduce
+    del segment_reduce  # noqa: F821
 
 # Ops not to be exposed in `torch` namespace,
 # mostly helper ops.
@@ -1386,21 +1713,32 @@ PRIVATE_OPS = (
     'unique_dim',
 )
 
-for name in dir(_C._VariableFunctions):
-    if name.startswith('__') or name in PRIVATE_OPS:
+__name, __obj = '', None
+for __name in dir(_C._VariableFunctions):
+    if __name.startswith('__') or __name in PRIVATE_OPS:
         continue
-    obj = getattr(_C._VariableFunctions, name)
-    obj.__module__ = 'torch'
+    __obj = getattr(_C._VariableFunctions, __name)
+    __obj.__module__ = __name__
     # Hide some APIs that should not be public
-    if name == "segment_reduce":
+    if __name == "segment_reduce":
         # TODO: Once the undocumented FC window is passed, remove the line bellow
-        globals()[name] = obj
-        name = "_" + name
-    globals()[name] = obj
-    if not name.startswith("_"):
-        __all__.append(name)
+        globals()[__name] = __obj
+        __name = "_" + __name
+    globals()[__name] = __obj
+    if not __name.startswith("_"):
+        __all__.append(__name)
 
+del __name, __obj
 
+################################################################################
+# Add torch.dtype instances to the public API
+################################################################################
+
+import torch
+
+__all__.extend(
+    name for name in dir(torch) if isinstance(getattr(torch, name), torch.dtype)
+)
 
 ################################################################################
 # Import TorchDynamo's lazy APIs to avoid circular dependenices
@@ -1448,6 +1786,8 @@ def _assert(condition, message):
 from torch import cuda as cuda
 from torch import cpu as cpu
 from torch import mps as mps
+from torch import xpu as xpu
+from torch import mtia as mtia
 from torch import autograd as autograd
 from torch.autograd import (
     no_grad as no_grad,
@@ -1492,8 +1832,8 @@ import torch.nn.intrinsic
 _C._init_names(list(torch._storage_classes))
 
 # attach docstrings to torch and tensor functions
-from . import _torch_docs, _tensor_docs, _storage_docs
-del _torch_docs, _tensor_docs, _storage_docs
+from . import _torch_docs, _tensor_docs, _storage_docs, _size_docs
+del _torch_docs, _tensor_docs, _storage_docs, _size_docs
 
 
 def compiled_with_cxx11_abi() -> builtins.bool:
@@ -1558,9 +1898,16 @@ class _TorchCompileInductorWrapper:
         self.apply_mode(mode)
         self.apply_options(options)
 
-        # FIXME: CUPTI Lazy Re-init and CUDA Graph crashes with CUDA 11.
+        # Stash the compiler_fn to be used for backend match guard.
+        from torch._inductor.compile_fx import compile_fx
+        self.compiler_fn = compile_fx
         if self.config.get("triton.cudagraphs", False):
             os.environ["DISABLE_CUPTI_LAZY_REINIT"] = "1"
+            # FIXME: CUDA Graph does not work well with CUPTI teardown.
+            #   1) crashes on 1st lazy CUPTI re-init after teardown (CUDA 11)
+            #   2) crashes on 2nd non-lazy CUPTI re-init after teardown (CUDA 12)
+            # Workaround: turn off CUPTI teardown when using CUDA Graphs.
+            os.environ["TEARDOWN_CUPTI"] = "0"
 
     def __eq__(self, other):
         return (isinstance(other, _TorchCompileInductorWrapper) and
@@ -1583,7 +1930,7 @@ class _TorchCompileInductorWrapper:
             return
 
         from torch._inductor import config
-        current_config: Dict[str, Any] = config.to_dict()  # type: ignore[attr-defined]
+        current_config: Dict[str, Any] = config.shallow_copy_dict()
 
         for key, val in options.items():
             attr_name = key.replace("-", "_")
@@ -1643,6 +1990,10 @@ class _TorchCompileWrapper:
     def __call__(self, model_, inputs_):
         return self.compiler_fn(model_, inputs_, **self.kwargs)
 
+    def reset(self):
+        if hasattr(self.compiler_fn, "reset"):
+            self.compiler_fn.reset()
+
 
 def compile(model: Optional[Callable] = None, *,
             fullgraph: builtins.bool = False,
@@ -1653,6 +2004,8 @@ def compile(model: Optional[Callable] = None, *,
             disable: builtins.bool = False) -> Callable:
     """
     Optimizes given model/function using TorchDynamo and specified backend.
+    If you are compiling an :class:`torch.nn.Module`, you can also use :meth:`torch.nn.Module.compile`
+    to compile the module inplace without changing its structure.
 
     Concretely, for every frame executed within the compiled region, we will attempt
     to compile it and cache the compiled result on the code object for future
@@ -1660,14 +2013,17 @@ def compile(model: Optional[Callable] = None, *,
     results are not applicable for subsequent calls (this is called a "guard
     failure), you can use TORCH_LOGS=guards to debug these situations.
     Multiple compiled results can be associated with a frame up to
-    ``torch._dynamo.config.cache_size_limit``, which defaults to 64; at which
+    ``torch._dynamo.config.cache_size_limit``, which defaults to 8; at which
     point we will fall back to eager.  Note that compile caches are per
     *code object*, not frame; if you dynamically create multiple copies of a
     function, they will all share the same code cache.
 
     Args:
        model (Callable): Module/function to optimize
-       fullgraph (bool): Whether it is ok to break model into several subgraphs
+       fullgraph (bool): If False (default), torch.compile attempts to discover compileable regions
+        in the function that it will optimize. If True, then we require that the entire function be
+        capturable into a single graph. If this is not possible (that is, if there are graph breaks),
+        then this will raise an error.
        dynamic (bool or None): Use dynamic shape tracing.  When this is True, we will up-front attempt
         to generate a kernel that is as dynamic as possible to avoid recompilations when
         sizes change.  This may not always work as some operations/optimizations will
@@ -1683,7 +2039,8 @@ def compile(model: Optional[Callable] = None, *,
 
         - Experimental or debug in-tree backends can be seen with `torch._dynamo.list_backends(None)`
 
-        - To register an out-of-tree custom backend: https://pytorch.org/docs/main/compile/custom-backends.html
+        - To register an out-of-tree custom backend:
+       https://pytorch.org/docs/main/torch.compiler_custom_backends.html#registering-custom-backends
        mode (str): Can be either "default", "reduce-overhead", "max-autotune" or "max-autotune-no-cudagraphs"
 
         - "default" is the default mode, which is a good balance between performance and overhead
@@ -1730,9 +2087,8 @@ def compile(model: Optional[Callable] = None, *,
 
     """
     _C._log_api_usage_once("torch.compile")
-    # Temporary until we get proper support for python 3.12
-    if sys.version_info >= (3, 12):
-        raise RuntimeError("Dynamo is not supported on Python 3.12+")
+    if sys.version_info >= (3, 13):
+        raise RuntimeError("Dynamo is not supported on Python 3.13+")
 
     # Decorator mode
     if model is None:
@@ -1794,22 +2150,11 @@ if 'TORCH_CUDA_SANITIZER' in os.environ:
     csan.enable_cuda_sanitizer()
 
 # Populate magic methods on SymInt and SymFloat
-import torch.fx.experimental.symbolic_shapes
+import torch.fx.experimental.sym_node
 
 from torch import func as func
 from torch.func import vmap
 
-
-# The function _sparse_coo_tensor_unsafe is removed from PyTorch
-# Python API (v. 1.13), here we temporarily provide its replacement
-# with a deprecation warning.
-# TODO: remove the function for PyTorch v 1.15.
-def _sparse_coo_tensor_unsafe(*args, **kwargs):
-    import warnings
-    warnings.warn('torch._sparse_coo_tensor_unsafe is deprecated, '
-                  'use torch.sparse_coo_tensor(..., check_invariants=False) instead.')
-    kwargs['check_invariants'] = False
-    return torch.sparse_coo_tensor(*args, **kwargs)
 
 # Register MPS specific decomps
 torch.backends.mps._init()
@@ -1871,13 +2216,26 @@ else:
 
         raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
 
-
-def _constrain_as_value(symbol, min: Optional[builtins.int] = None, max: Optional[builtins.int] = None):
+def get_device_module(device: Optional[Union[torch.device, str]] = None):
     """
-    Add min/max constraint on the intermediate symbol at tracing time. If called in eager mode,
-    it will still check if the input value is within the specified range.
+    Returns the module associated with a given device(e.g., torch.device('cuda'), "mtia:0", "xpu", ...).
+    If no device is given, return the module for the current accelerator or CPU if none is present.
     """
-    torch.sym_constrain_range(symbol, min=min, max=max)
+    if isinstance(device, torch.device):
+        device_module_name = device.type
+    elif isinstance(device, str):
+        device_module_name = torch.device(device).type
+    elif device is None:
+        # Using default accelerator type. If no accelerator is available, it automatically returns CPU device.
+        device_module_name = torch._C._get_accelerator().type
+    else:
+        raise RuntimeError(f"Invalid value of device '{device}', expect torch.device, str, or None")
+    device_module = getattr(torch, device_module_name, None)
+    if device_module is None:
+        raise RuntimeError(
+            f"Device '{device_module_name}' does not have a corresponding module registered as 'torch.{device_module_name}'."
+        )
+    return device_module
 
 
 def _constrain_as_size(symbol, min: Optional[builtins.int] = None, max: Optional[builtins.int] = None):
@@ -1887,39 +2245,16 @@ def _constrain_as_size(symbol, min: Optional[builtins.int] = None, max: Optional
     which then need to be used as tensor constructors. Providing these assertions to PyTorch can help resolve
       GuardOnDataDependentSymNode errors upon export, since we cannot guard on unbacked SymInts.
 
-    This function has unusual semantics which distinguish it from constrain_as_value.
-    Specifically, at compile-time, we will unsoundly assume that the resulting int is always >= 2.
-    As a result, max value you pass in should always be greater than 2.
-    This makes it easier to use the unbacked int in size contexts, as we will often attempt to guard on a size being zero/one
-    (e.g., when computing the contiguity of a tensor, or testing if broadcasting can occur),
-    which will not work on unbacked SymInts. Assuming that the int is >= 2 allows us to
-    report False to these tests. Although this is technically unsound,
-    in practice we observe that if your program works for all sizes >= 2,
-    it probably works for zero and one too. The reason specifically assume size is >= 2 is because
-    lot of PyTorch code is specialized for 0 and 1 which could result in not general graphs.
-    At runtime, we only assert that the user provided min/max values are respected.
+    This function has unusual semantics in some circumstances in framework
+    code, we will treat this int as >= 2 (when we do a size-oblivious guard).
+    This makes it easier to use the unbacked int in size contexts,
+    as we will often attempt to guard on a size being zero/one
+    (e.g., when computing the contiguity of a tensor, or testing if
+    broadcasting can occur), which will not work on unbacked SymInts.
+    However, if we conservatively assume that the size is not zero/one, we will
+    end up with a graph that will still work even if the size is zero/one.
 
-    To demonstrate in a scenario, suppose you do
-    ```
-    # Case 1
-    # This will assume symbol is between [2, inf) at compile time, but [0, inf) at runtime
-    constrain_as_size(symbol, min=0)
-
-    # Case 2
-    # This will assume symbol is between [2, N] at compile time, but [0, N] at runtime
-    constrain_as_size(symbol, min=0, max=N)
-
-    # Case 3
-    # This is not valid case as max is <= 2
-    constrain_as_size(symbol, min=0, max=1)
-
-    # Case 4
-    # This will assume symbol is between [2, inf) at compile time, AND [2, inf) at runtime
-    constrain_as_size(symbol, min=2)
-
-    # Case 5
-    # This will assume symbol is between [2, inf) at compile time, but [1, inf) at runtime
-    constrain_as_size(symbol, min=1)
+    For more details, see https://docs.google.com/document/d/1HSuTTVvYH1pTew89Rtpeu84Ht3nQEFTYhAX3Ypa_xJs/edit
     ```
     """
     torch.sym_constrain_range_for_size(symbol, min=min, max=max)

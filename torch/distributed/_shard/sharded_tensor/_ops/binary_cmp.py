@@ -1,3 +1,4 @@
+# mypy: allow-untyped-defs
 import torch
 import torch.distributed as dist
 import torch.distributed.distributed_c10d as distributed_c10d
@@ -26,7 +27,7 @@ def binary_cmp(cmp_fun, types, args, kwargs=None, process_group=None):
     result = True
     st1 = args[0]
     st2 = args[1]
-    if not(isinstance(st1, ShardedTensor) and isinstance(st2, ShardedTensor)):
+    if not (isinstance(st1, ShardedTensor) and isinstance(st2, ShardedTensor)):
         raise TypeError(f'Both arguments to torch.{cmp_fun.__name__} need to be of type ShardedTensor')
 
     # Verify same PG
