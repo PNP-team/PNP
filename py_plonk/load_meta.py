@@ -1,6 +1,5 @@
 import torch
 import numpy as np
-from .structure import UniversalParams
 from .bls12_381 import fr, fq
 
 
@@ -10,6 +9,10 @@ def to_fr_tensor(data):
     else:
         return torch.tensor(data, dtype=fr.TYPE(), device="cuda")
 
+class UniversalParams:
+    def __init__(self, powers_of_g, powers_of_gamma_g):
+        self.powers_of_g = powers_of_g
+        self.powers_of_gamma_g = powers_of_gamma_g
 
 class StandardComposer:
 

@@ -10,7 +10,7 @@ from ..arithmetic import (
 )
 from ..bls12_381 import fq, fr
 from ..jacobian import add_assign, to_affine
-from ..structure import OpenProof, UniversalParams
+from ..structure import OpenProof
 
 
 #########func for randomness#########
@@ -49,7 +49,7 @@ def commit(powers_of_g, powers_of_gamma_g, polynomial, hiding_bound):
 # On input a list of labeled polynomials and a query point, `open` outputs a proof of evaluation
 # of the polynomials at the query point.
 def open_proof(
-    ck: UniversalParams, labeled_polynomials, point, opening_challenge, rands, _rng=None
+    ck, labeled_polynomials, point, opening_challenge, rands, _rng=None
 ):
 
     combined_polynomial = torch.tensor([], dtype=fr.TYPE())
@@ -74,7 +74,7 @@ def open_proof(
     )
     return proof
 
-def commit_poly_new(ck: UniversalParams, polys):
+def commit_poly_new(ck, polys):
     random.seed(42)
     randomness = []
     labeled_comm = []
@@ -129,10 +129,9 @@ def open_with_witness_polynomial(
         random_witness_coeffs = F.to_base(hiding_witness_polynomial)
         random_commit = MSM(powers_of_gamma_g, random_witness_coeffs)
         w = add_assign(w, random_commit)
-        w_affine = to_affine(w)
         random_v = blinding_evaluation
 
-    return OpenProof(w_affine, random_v)
+    return OpenProof(to_affine(w), random_v)
 
 
 # On input a polynomial `p` and a point `point`, outputs a proof for the same.

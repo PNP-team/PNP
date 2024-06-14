@@ -12,7 +12,6 @@ from .KZG import kzg10
 import torch
 import torch.nn.functional as F
 from torch.pnp import zkp
-import time
 import torch.nn as nn
 from .load_meta import load_meta, save_meta, load_from_npz
 
@@ -95,7 +94,7 @@ class gen_proof(torch.nn.Module):
         transcript: transcript.Transcript,
     ):
 
-        domain = Radix2EvaluationDomain.new(self.cs.circuit_bound)
+        domain = Radix2EvaluationDomain(self.cs.circuit_bound)
         n = domain.size
         transcript.append_pi(
             b"pi",
@@ -245,8 +244,6 @@ class gen_proof(torch.nn.Module):
         z_2_polys = [(z_2_poly, None)]
         z_2_poly_commit, _ = kzg10.commit_poly_new(self.pp, z_2_polys)
 
-        # return 477.107
-
         # 3. Compute public inputs polynomial
         pi_poly = into_dense_poly(
             self.cs.public_inputs, int(self.cs.intended_pi_pos), n, self.INTT
@@ -354,10 +351,14 @@ class gen_proof(torch.nn.Module):
 
         # Add evaluations to transcript.
         # First wire evals
-        transcript.append(b"a_eval", evaluations.wire_evals.a_eval)
-        transcript.append(b"b_eval", evaluations.wire_evals.b_eval)
-        transcript.append(b"c_eval", evaluations.wire_evals.c_eval)
-        transcript.append(b"d_eval", evaluations.wire_evals.d_eval)
+        # transcript.append(b"a_eval", evaluations.wire_evals.a_eval)
+        # transcript.append(b"b_eval", evaluations.wire_evals.b_eval)
+        # transcript.append(b"c_eval", evaluations.wire_evals.c_eval)
+        # transcript.append(b"d_eval", evaluations.wire_evals.d_eval)
+        for label, eval in evaluations.wire_evals.items():
+            static_label = label.encode("utf-8")
+            transcript.append(static_label, eval)
+        
 
         # Second permutation evals
         transcript.append(b"left_sig_eval", evaluations.perm_evals.left_sigma_eval)

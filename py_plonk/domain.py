@@ -4,51 +4,38 @@ import torch.nn.functional as F
 
 
 class Radix2EvaluationDomain:
-    size: int
-    log_size_of_group: int
-    size_as_field_element: torch.Tensor
-    size_inv: torch.Tensor
-    group_gen: torch.Tensor
-    group_gen_inv: torch.Tensor
-    generator_inv: torch.Tensor
-
-    @classmethod
-    def new(cls, num_coeffs: int):
+    def __init__(self, num_coeffs): 
 
         def get_root_of_unity(n):
             assert n > 0 and (n & (n - 1)) == 0, "n must be a power of 2"
-            log_size_of_group = n.bit_length() - 1
-            assert log_size_of_group <= fr.TWO_ADICITY(), "logn must <= TWO_ADICITY"
+            self.log_size_of_group = n.bit_length() - 1
+            assert self.log_size_of_group <= fr.TWO_ADICITY(), "logn must <= TWO_ADICITY"
 
             base = fr.TWO_ADIC_ROOT_OF_UNITY()
-            exponent = 1 << (fr.TWO_ADICITY() - log_size_of_group)
+            exponent = 1 << (fr.TWO_ADICITY() - self.log_size_of_group)
             return F.exp_mod(base, exponent)
 
-
         # Compute the size of our evaluation domain
-        size = num_coeffs if num_coeffs & (num_coeffs - 1) == 0 else 2 ** num_coeffs.bit_length()
-        log_size_of_group = size.bit_length()-1
+        self.size = num_coeffs if num_coeffs & (num_coeffs - 1) == 0 else 2 ** num_coeffs.bit_length()
+        self.log_size_of_group = self.size.bit_length()-1
         
         # Check if log_size_of_group exceeds TWO_ADICITY
-        if log_size_of_group > fr.TWO_ADICITY():
+        if self.log_size_of_group > fr.TWO_ADICITY():
             return None
 
         # Compute the generator for the multiplicative subgroup.
         # It should be the 2^(log_size_of_group) root of unity.
-        group_gen = get_root_of_unity(size)
+        self.group_gen = get_root_of_unity(self.size)
         
         # Check that it is indeed the 2^(log_size_of_group) root of unity.
-        group_gen_pow = F.exp_mod(group_gen,size)
-        assert F.trace_equal(group_gen_pow, fr.one())
+        self.group_gen_pow = F.exp_mod(self.group_gen,self.size)
+        assert F.trace_equal(self.group_gen_pow, fr.one())
 
-        size_as_field_element=fr.make_tensor(size)
-        size_inv = F.inv_mod(size_as_field_element)
-        group_gen_inv = F.inv_mod(group_gen)
+        self.size_as_field_element=fr.make_tensor(self.size)
+        self.size_inv = F.inv_mod(self.size_as_field_element)
+        self.group_gen_inv = F.inv_mod(self.group_gen)
         generator_inv = F.inv_mod(fr.GENERATOR())
 
-        return cls(size, log_size_of_group, size_as_field_element, size_inv, group_gen, group_gen_inv, generator_inv)
-    
-    
     # Evaluate all Lagrange polynomials at tau to get the lagrange coefficients.
     # Define the following as
     # - H: The coset we are in, with generator g and offset h

@@ -5,22 +5,6 @@ from ....domain import Radix2EvaluationDomain
 from ....arithmetic import poly_add_poly
 from ....plonk_core.src.permutation.constants import K1,K2,K3
 import torch.nn.functional as F
-@dataclass
-class Permutation:
-    # Left Permutation
-    left_sigma: Tuple[List[fr.Fr],List[fr.Fr]]
-
-    # Right Permutation
-    right_sigma: Tuple[List[fr.Fr],List[fr.Fr]]
-
-    # Output Permutation
-    out_sigma: Tuple[List[fr.Fr],List[fr.Fr]]
-
-    # Fourth Permutation
-    fourth_sigma: Tuple[List[fr.Fr],List[fr.Fr]]
-
-    # Linear Evaluations
-    linear_evaluations: List[fr.Fr]
 
 # Computes the following:
 # (a(x) + beta * X + gamma) (b(X) + beta * k1 * X + gamma) (c(X) + beta *

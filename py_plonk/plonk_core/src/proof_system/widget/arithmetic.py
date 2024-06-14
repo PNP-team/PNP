@@ -41,21 +41,21 @@ def compute_quotient_i(arithmetics_evals, wit_vals: WitnessValues):
 
 
 def compute_linearisation_arithmetic(
-    a_eval, b_eval, c_eval, d_eval, q_arith_eval, prover_key_arithmetic
+    wire_evals, q_arith_eval, prover_key_arithmetic
 ):
 
-    mid1_1 = F.mul_mod(a_eval, b_eval)
+    mid1_1 = F.mul_mod(wire_evals["a_eval"], wire_evals["b_eval"])
 
     mid1 = F.mul_mod_scalar(prover_key_arithmetic.q_m, mid1_1)
-    mid2 = F.mul_mod_scalar(prover_key_arithmetic.q_l, a_eval)
-    mid3 = F.mul_mod_scalar(prover_key_arithmetic.q_r, b_eval)
-    mid4 = F.mul_mod_scalar(prover_key_arithmetic.q_o, c_eval)
-    mid5 = F.mul_mod_scalar(prover_key_arithmetic.q_4, d_eval)
-    mid6_1 = F.exp_mod(a_eval, SBOX_ALPHA)
+    mid2 = F.mul_mod_scalar(prover_key_arithmetic.q_l, wire_evals["a_eval"])
+    mid3 = F.mul_mod_scalar(prover_key_arithmetic.q_r, wire_evals["b_eval"])
+    mid4 = F.mul_mod_scalar(prover_key_arithmetic.q_o, wire_evals["c_eval"])
+    mid5 = F.mul_mod_scalar(prover_key_arithmetic.q_4, wire_evals["d_eval"])
+    mid6_1 = F.exp_mod(wire_evals["a_eval"], SBOX_ALPHA)
     mid6 = F.mul_mod_scalar(prover_key_arithmetic.q_hl, mid6_1)
-    mid7_1 = F.exp_mod(b_eval, SBOX_ALPHA)
+    mid7_1 = F.exp_mod(wire_evals["b_eval"], SBOX_ALPHA)
     mid7 = F.mul_mod_scalar(prover_key_arithmetic.q_hr, mid7_1)
-    mid8_1 = F.exp_mod(d_eval, SBOX_ALPHA)
+    mid8_1 = F.exp_mod(wire_evals["d_eval"], SBOX_ALPHA)
     mid8 = F.mul_mod_scalar(prover_key_arithmetic.q_h4, mid8_1)
 
     add1 = poly_add_poly(mid1, mid2)

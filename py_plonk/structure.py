@@ -1,14 +1,6 @@
 from dataclasses import dataclass
-from typing import List
 from .bls12_381 import fq
 import torch
-
-
-@dataclass
-class G2Coordinate:
-    c0: any
-    c1: any
-
 
 class AffinePointG1:
     def __init__(self, x, y):
@@ -27,17 +19,10 @@ class ProjectivePointG1:
     def is_zero(self):
         return all(x == 0 for x in self.z.tolist())
 
-@dataclass
 class BTreeMap:
     def __init__(self, item, pos):
         self.item = item
         self.pos = pos
-
-class UniversalParams:
-    def __init__(self, powers_of_g, powers_of_gamma_g):
-        self.powers_of_g = powers_of_g
-        self.powers_of_gamma_g = powers_of_gamma_g
-
 
 @dataclass
 class OpenProof:

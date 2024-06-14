@@ -19,80 +19,42 @@ from .widget.arithmetic import compute_linearisation_arithmetic
 from .widget.lookup import compute_linearisation_lookup
 from ..proof_system.permutation import compute_linearisation_permutation
 
-
-@dataclass
-class WireEvaluations:
-    # Evaluation of the witness polynomial for the left wire at `z`.
-    a_eval: fr.Fr
-
-    # Evaluation of the witness polynomial for the right wire at `z`.
-    b_eval: fr.Fr
-
-    # Evaluation of the witness polynomial for the output wire at `z`.
-    c_eval: fr.Fr
-
-    # Evaluation of the witness polynomial for the fourth wire at `z`.
-    d_eval: fr.Fr
-
-
-@dataclass
 class PermutationEvaluations:
-    # Evaluation of the left sigma polynomial at `z`.
-    left_sigma_eval: fr.Fr
+    def __init__(self, left_sigma_eval, right_sigma_eval, out_sigma_eval, permutation_eval):
+        self.left_sigma_eval = left_sigma_eval # left sigma polynomial at z
+        self.right_sigma_eval = right_sigma_eval # right sigma polynomial at z
+        self.out_sigma_eval = out_sigma_eval # out sigma polynomial at z
+        self.permutation_eval = permutation_eval # permutation polynomial at z*omega
 
-    # Evaluation of the right sigma polynomial at `z`.
-    right_sigma_eval: fr.Fr
-
-    # Evaluation of the out sigma polynomial at `z`.
-    out_sigma_eval: fr.Fr
-
-    # Evaluation of the permutation polynomial at `z * omega` where `omega`
-    # is a root of unity.
-    permutation_eval: fr.Fr
-
-
-@dataclass
 class LookupEvaluations:
-    q_lookup_eval: fr.Fr
 
-    # (Shifted) Evaluation of the lookup permutation polynomial at `z * root of unity`
-    z2_next_eval: fr.Fr
-
-    # Evaluations of the first half of sorted plonkup poly at `z`
-    h1_eval: fr.Fr
-
-    # (Shifted) Evaluations of the even indexed half of sorted plonkup poly
-    # at `z root of unity
-    h1_next_eval: fr.Fr
-
-    # Evaluations of the odd indexed half of sorted plonkup poly at `z
-    # root of unity
-    h2_eval: fr.Fr
-
-    # Evaluations of the query polynomial at `z`
-    f_eval: fr.Fr
-
-    # Evaluations of the table polynomial at `z`
-    table_eval: fr.Fr
-
-    # Evaluations of the table polynomial at `z * root of unity`
-    table_next_eval: fr.Fr
-
-
+    def __init__(
+        self,
+        q_lookup_eval,
+        z2_next_eval,
+        h1_eval,
+        h1_next_eval,
+        h2_eval,
+        f_eval,
+        table_eval,
+        table_next_eval
+    ):
+        self.q_lookup_eval = q_lookup_eval
+        self.z2_next_eval = z2_next_eval
+        self.h1_eval = h1_eval
+        self.h1_next_eval = h1_next_eval
+        self.h2_eval = h2_eval
+        self.f_eval = f_eval
+        self.table_eval = table_eval
+        self.table_next_eval = table_next_eval
+        
 @dataclass
 class ProofEvaluations:
-    # Wire evaluations
-    wire_evals: WireEvaluations
-
-    # Permutation and sigma polynomials evaluations
-    perm_evals: PermutationEvaluations
-
-    # Lookup evaluations
-    lookup_evals: LookupEvaluations
-
-    # Evaluations needed for custom gates. This includes selector polynomials
-    # and evaluations of wire polynomials at an offset
-    custom_evals: dict
+    def __init__(self, wire_evals, perm_evals, lookup_evals, custom_evals):
+        self.wire_evals = wire_evals
+        self.perm_evals = perm_evals
+        self.lookup_evals = lookup_evals
+        self.custom_evals = custom_evals
 
 
 # The first lagrange polynomial has the expression:
@@ -152,7 +114,7 @@ def compute_linearisation_poly(
 ):
     n = domain.size
     omega = domain.group_gen
-    domain_permutation = Radix2EvaluationDomain.new(n)
+    domain_permutation = Radix2EvaluationDomain(n)
     # single scalar OP on CPU
     one = fr.one()
     mod = fr.MODULUS()
@@ -181,8 +143,13 @@ def compute_linearisation_poly(
     c_eval = F.evaluate(w_o_poly, z_challenge)
     d_eval = F.evaluate(w_4_poly, z_challenge)
 
-    wire_evals = WireEvaluations(a_eval, b_eval, c_eval, d_eval)
-
+    wire_evals = {
+        "a_eval": a_eval,
+        "b_eval": b_eval,
+        "c_eval": c_eval,
+        "d_eval": d_eval,
+    }
+    
     left_sigma_eval = F.evaluate(pk.permutations_coeffs.left_sigma, z_challenge)
     right_sigma_eval = F.evaluate(pk.permutations_coeffs.right_sigma, z_challenge)
     out_sigma_eval = F.evaluate(pk.permutations_coeffs.out_sigma, z_challenge)
@@ -348,22 +315,14 @@ def compute_gate_constraint_satisfiability(
     prover_key_arithmetic,
 ):
     wit_vals = WitnessValues(
-        a_val=wire_evals.a_eval,
-        b_val=wire_evals.b_eval,
-        c_val=wire_evals.c_eval,
-        d_val=wire_evals.d_eval,
+        a_val=wire_evals["a_eval"],
+        b_val=wire_evals["b_eval"],
+        c_val=wire_evals["c_eval"],
+        d_val=wire_evals["d_eval"],
     )
 
-    print("a_eval", wire_evals.a_eval)
-    print("b_eval", wire_evals.b_eval)
-    print("c_eval", wire_evals.c_eval)
-    print("d_eval", wire_evals.d_eval)
-
     arithmetic = compute_linearisation_arithmetic(
-        wire_evals.a_eval,
-        wire_evals.b_eval,
-        wire_evals.c_eval,
-        wire_evals.d_eval,
+        wire_evals,
         q_arith_eval,
         prover_key_arithmetic,
     )

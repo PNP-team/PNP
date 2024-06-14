@@ -3,18 +3,6 @@ from dataclasses import dataclass
 from typing import List, Tuple
 import torch.nn.functional as F
 from .....arithmetic import poly_add_poly
-@dataclass
-class Lookup:
-    # Lookup selector
-    q_lookup: Tuple[List[fr.Fr],List[fr.Fr]]
-    # Column 1 of lookup table
-    table_1: List[fr.Fr]
-    # Column 2 of lookup table
-    table_2: List[fr.Fr]
-    # Column 3 of lookup table
-    table_3: List[fr.Fr]
-    # Column 4 of lookup table
-    table_4: List[fr.Fr]
 
 # Linear combination of a series of values
 # For values [v_0, v_1,... v_k] returns:

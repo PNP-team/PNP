@@ -6,16 +6,6 @@ import torch.nn.functional as F
 import time
 import torch
 
-def calculate_execution_time(func):
-        def wrapper(*args, **kwargs):
-            start_time = time.time()  # 记录函数开始执行的时间
-            result = func(*args, **kwargs)
-            end_time = time.time()    # 记录函数执行结束的时间
-            execution_time = end_time - start_time  # 计算函数执行时间
-            print(f"func {func.__name__} consumed: {execution_time} s")
-            return result
-        return wrapper
-
 def poly_add_poly(self: torch.Tensor, other: torch.Tensor):  
     if self.size(0) == 0:
         return other
