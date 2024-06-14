@@ -1,9 +1,6 @@
 import time
-from py_plonk.composer import StandardComposer
 from py_plonk.gen_proof import gen_proof
 from py_plonk.transcript import transcript
-import numpy as np
-from torch.profiler import profile, record_function, ProfilerActivity
 
 
 

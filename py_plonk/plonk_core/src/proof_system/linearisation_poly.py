@@ -9,11 +9,10 @@ from .widget.fixed_base_scalar_mul import (
     FBSMGate,
     FBSMValues,
 )
-from .widget.curve_addition import CAGate, CAValues
+from .widget.GAGate import CAGate
 from ....arithmetic import (
     poly_add_poly,
 )
-import torch
 import torch.nn.functional as F
 import numpy as np
 from .widget.arithmetic import compute_linearisation_arithmetic
@@ -342,7 +341,7 @@ def compute_gate_constraint_satisfiability(
     logic_separation_challenge,
     fixed_base_separation_challenge,
     var_base_separation_challenge,
-    wire_evals: WireEvaluations,
+    wire_evals,
     q_arith_eval,
     custom_evals,
     pk,
@@ -398,7 +397,7 @@ def compute_gate_constraint_satisfiability(
         pk.selectors_coeffs.variable_group_add,
         var_base_separation_challenge,
         wit_vals,
-        CAValues.from_evaluations(custom_evals),
+        custom_evals,
     )
 
     print('arithmetic', arithmetic)

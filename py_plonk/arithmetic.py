@@ -1,5 +1,5 @@
 from .bls12_381 import fr,fq
-from .jacobian import ProjectivePointG1
+from .structure import ProjectivePointG1
 import random
 import torch
 import torch.nn.functional as F

@@ -75,8 +75,4 @@ def quotient_term(selector, separation_challenge: fr.Fr, wit_vals, custom_vals):
     
 def linearisation_term(selector_poly, separation_challenge, wit_vals, custom_vals):
     temp = _constraints(separation_challenge, wit_vals, custom_vals)
-    if selector_poly.size(0) == 0:
-        res = selector_poly.clone()
-    else:
-        res = F.mul_mod_scalar(selector_poly, temp)
-    return res
+    return F.mul_mod_scalar(selector_poly, temp)

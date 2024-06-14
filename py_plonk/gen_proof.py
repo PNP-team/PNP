@@ -1,7 +1,6 @@
 import itertools
 from .domain import Radix2EvaluationDomain
 from .transcript import transcript
-from .composer import StandardComposer
 from .bls12_381 import fr, fq
 from .plonk_core.lookup.multiset import combine_split
 from .plonk_core.src.permutation import mod
@@ -96,7 +95,7 @@ class gen_proof(torch.nn.Module):
         transcript: transcript.Transcript,
     ):
 
-        domain = Radix2EvaluationDomain.new(self.cs.circuit_bound())
+        domain = Radix2EvaluationDomain.new(self.cs.circuit_bound)
         n = domain.size
         transcript.append_pi(
             b"pi",

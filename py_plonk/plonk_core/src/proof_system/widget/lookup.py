@@ -2,7 +2,6 @@ from .....bls12_381 import fr
 from dataclasses import dataclass
 from typing import List, Tuple
 import torch.nn.functional as F
-from .....plonk_core.src.utils import lc
 from .....arithmetic import poly_add_poly
 @dataclass
 class Lookup:
@@ -17,6 +16,16 @@ class Lookup:
     # Column 4 of lookup table
     table_4: List[fr.Fr]
 
+# Linear combination of a series of values
+# For values [v_0, v_1,... v_k] returns:
+# v_0 + challenge * v_1 + ... + challenge^k  * v_k
+def lc(values: list, challenge):
+    kth_val = values[-1]
+    for val in reversed(values[:-1]):
+        kth_val = F.mul_mod_scalar(kth_val, challenge)
+        kth_val = F.add_mod(kth_val, val)
+
+    return kth_val
 
 def _compute_quotient_i(
         w_l_i,

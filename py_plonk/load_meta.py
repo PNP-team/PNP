@@ -2,7 +2,6 @@ import torch
 import numpy as np
 from .structure import UniversalParams
 from .bls12_381 import fr, fq
-from .composer import StandardComposer
 
 
 def to_fr_tensor(data):
@@ -10,6 +9,19 @@ def to_fr_tensor(data):
         return torch.tensor([], dtype=fr.TYPE(), device="cuda")
     else:
         return torch.tensor(data, dtype=fr.TYPE(), device="cuda")
+
+
+class StandardComposer:
+
+    def __init__(self, n, q_lookup, intended_pi_pos, public_inputs, lookup_table_size):
+        self.n = n
+        self.q_lookup = q_lookup
+        self.intended_pi_pos = intended_pi_pos
+        self.public_inputs = public_inputs
+        self.lookup_table_size = lookup_table_size
+
+        self.total_size = int(max(self.n, self.lookup_table_size))
+        self.circuit_bound = (1 << (self.total_size - 1).bit_length())
 
 
 class LookupTable:

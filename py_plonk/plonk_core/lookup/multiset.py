@@ -1,4 +1,3 @@
-from ...plonk_core.src import utils
 from collections import defaultdict
 from ...bls12_381 import fr
 import torch

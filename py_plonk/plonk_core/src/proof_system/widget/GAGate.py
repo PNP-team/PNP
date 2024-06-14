@@ -1,36 +1,20 @@
 from dataclasses import dataclass
 from .....bls12_381 import fr
-from .....plonk_core.src.proof_system.widget.mod import WitnessValues
+from .mod import WitnessValues
 from .....bls12_381 import edwards as P
 import torch
 import torch.nn.functional as F
-@dataclass
-class CAValues:
-    # Left wire value in the next position
-    a_next_val: fr.Fr
-    # Right wire value in the next position
-    b_next_val: fr.Fr
-    # Fourth wire value in the next position
-    d_next_val: fr.Fr
-
-    @staticmethod
-    def from_evaluations(custom_evals):
-        a_next_val = custom_evals["a_next_eval"]
-        b_next_val = custom_evals["b_next_eval"]
-        d_next_val = custom_evals["d_next_eval"]
-
-        return CAValues(a_next_val,b_next_val,d_next_val)
     
 class CAGate:
     @staticmethod
-    def constraints(separation_challenge, wit_vals: WitnessValues, custom_vals: CAValues):
+    def constraints(separation_challenge, wit_vals: WitnessValues, custom_vals):
         x_1 = wit_vals.a_val
-        x_3 = custom_vals.a_next_val
+        x_3 = custom_vals["a_next_eval"]
         y_1 = wit_vals.b_val
-        y_3 = custom_vals.b_next_val
+        y_3 = custom_vals["b_next_eval"]
         x_2 = wit_vals.c_val
         y_2 = wit_vals.d_val
-        x1_y2 = custom_vals.d_next_val
+        x1_y2 = custom_vals["d_next_eval"]
 
         kappa = F.mul_mod(separation_challenge,separation_challenge)
 
@@ -71,14 +55,14 @@ class CAGate:
 
     @staticmethod
     def quotient_term(selector: torch.Tensor, separation_challenge: torch.Tensor, 
-                      wit_vals: WitnessValues, custom_vals:CAValues):
+                      wit_vals: WitnessValues, custom_vals):
         x_1 = wit_vals.a_val
-        x_3 = custom_vals.a_next_val
+        x_3 = custom_vals["a_next_eval"]
         y_1 = wit_vals.b_val
-        y_3 = custom_vals.b_next_val
+        y_3 = custom_vals["b_next_eval"]
         x_2 = wit_vals.c_val
         y_2 = wit_vals.d_val
-        x1_y2 = custom_vals.d_next_val
+        x1_y2 = custom_vals["d_next_eval"]
 
         #single scalar OP on CPU
         kappa = F.mul_mod(separation_challenge, separation_challenge)

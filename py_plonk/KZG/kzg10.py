@@ -9,8 +9,7 @@ from ..arithmetic import (
     MSM,
 )
 from ..bls12_381 import fq, fr
-from ..jacobian import add_assign, add_assign_mixed, ProjectivePointG1, to_affine
-from ..plonk_core.src.proof_system.linearisation_poly import ProofEvaluations
+from ..jacobian import add_assign, to_affine
 from ..structure import OpenProof, UniversalParams
 
 
@@ -41,9 +40,8 @@ def commit(powers_of_g, powers_of_gamma_g, polynomial, hiding_bound):
         randomness = randomness_rand(hiding_bound)
     random_ints = F.to_base(randomness)
 
-    random_commitment: ProjectivePointG1 = MSM(powers_of_gamma_g, random_ints)
-    random_commitment_affine = to_affine(random_commitment)
-    commitment = add_assign_mixed(commitment, random_commitment_affine)
+    random_commitment = MSM(powers_of_gamma_g, random_ints)
+    commitment = add_assign(commitment, random_commitment)
     commitment_affine = to_affine(commitment)
     return commitment_affine, randomness
 
@@ -131,10 +129,10 @@ def open_with_witness_polynomial(
         random_witness_coeffs = F.to_base(hiding_witness_polynomial)
         random_commit = MSM(powers_of_gamma_g, random_witness_coeffs)
         w = add_assign(w, random_commit)
+        w_affine = to_affine(w)
         random_v = blinding_evaluation
 
-    # return to_affine(w)
-    return OpenProof(to_affine(w), random_v)
+    return OpenProof(w_affine, random_v)
 
 
 # On input a polynomial `p` and a point `point`, outputs a proof for the same.

@@ -1,10 +1,8 @@
-from dataclasses import dataclass
 from .bls12_381 import fr
 import torch
 import torch.nn.functional as F
 
 
-@dataclass
 class Radix2EvaluationDomain:
     size: int
     log_size_of_group: int

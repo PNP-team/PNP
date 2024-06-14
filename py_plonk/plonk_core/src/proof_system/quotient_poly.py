@@ -8,7 +8,7 @@ from .widget.fixed_base_scalar_mul import (
     FBSMGate,
     FBSMValues,
 )
-from .widget.curve_addition import CAGate, CAValues
+from .widget.GAGate import CAGate
 import torch.nn as nn
 from .widget.arithmetic import compute_quotient_i
 from ..proof_system.permutation import permutation_compute_quotient
@@ -45,30 +45,23 @@ def compute_gate_constraint_satisfiability(
     gate_contributions = []
 
     wit_vals = WitnessValues(
-        a_val=wl_eval_8n[:coset_NTT.Size],
-        b_val=wr_eval_8n[:coset_NTT.Size],
-        c_val=wo_eval_8n[:coset_NTT.Size],
-        d_val=w4_eval_8n[:coset_NTT.Size],
+        a_val=wl_eval_8n[: coset_NTT.Size],
+        b_val=wr_eval_8n[: coset_NTT.Size],
+        c_val=wo_eval_8n[: coset_NTT.Size],
+        d_val=w4_eval_8n[: coset_NTT.Size],
     )
 
     custom_vals = {
-        "a_next_eval" : wl_eval_8n[8:],
-        "b_next_eval" : wr_eval_8n[8:],
-        "d_next_eval" : w4_eval_8n[8:],
-        "q_l_eval" : arithmetics_evals.q_l,
-        "q_r_eval" : arithmetics_evals.q_r,
-        "q_c_eval" : arithmetics_evals.q_c,
-            # Possibly unnecessary but included nonetheless...
-        "q_hl_eval" : arithmetics_evals.q_hl,
-        "q_hr_eval" : arithmetics_evals.q_hr,
-        "q_h4_eval" : arithmetics_evals.q_h4,
+        "a_next_eval": wl_eval_8n[8:],
+        "b_next_eval": wr_eval_8n[8:],
+        "d_next_eval": w4_eval_8n[8:],
+        "q_l_eval": arithmetics_evals.q_l,
+        "q_r_eval": arithmetics_evals.q_r,
+        "q_c_eval": arithmetics_evals.q_c,
     }
-    
-    # start = time.time()
-    arithmetic = compute_quotient_i(arithmetics_evals, wit_vals)
-    # timings['compute_quotient_i'] += time.time() - start
 
-    # start = time.time()
+    arithmetic = compute_quotient_i(arithmetics_evals, wit_vals)
+
     range_term = range_constraint.quotient_term(
         selectors_evals.range,
         range_challenge,
@@ -76,34 +69,25 @@ def compute_gate_constraint_satisfiability(
         custom_vals,
     )
 
-    # start = time.time()
     logic_term = logic_constraint.quotient_term(
-        selectors_evals.logic,
-        logic_challenge,
-        wit_vals,
-        custom_vals
+        selectors_evals.logic, logic_challenge, wit_vals, custom_vals
     )
-    # timings['LogicGate_quotient_term'] += time.time() - start
 
-    # start = time.time()
     fixed_base_scalar_mul_term = FBSMGate.quotient_term(
         selectors_evals.fixed_group_add,
         fixed_base_challenge,
         wit_vals,
         FBSMValues.from_evaluations(custom_vals),
     )
-    # timings['FBSMGate_quotient_term'] += time.time() - start
 
-    # start = time.time()
     curve_addition_term = CAGate.quotient_term(
         selectors_evals.variable_group_add,
         var_base_challenge,
         wit_vals,
-        CAValues.from_evaluations(custom_vals),
+        custom_vals,
     )
-    # timings['CAGate_quotient_term'] += time.time() - start
 
-    mid1 = F.add_mod(arithmetic, pi_eval_8n[:coset_NTT.Size])
+    mid1 = F.add_mod(arithmetic, pi_eval_8n[: coset_NTT.Size])
     mid2 = F.add_mod(mid1, range_term)
     mid3 = F.add_mod(mid2, logic_term)
     mid4 = F.add_mod(mid3, fixed_base_scalar_mul_term)

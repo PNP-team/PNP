@@ -1,148 +1,87 @@
-from dataclasses import dataclass
-from typing import List
-from .structure import AffinePointG1
+from .structure import AffinePointG1, ProjectivePointG1
 from .bls12_381 import fq
-import torch
 import torch.nn.functional as F
 import copy
 
-COEFF_A=0
-@dataclass
+COEFF_A = 0
 
-class ProjectivePointG1: 
+def to_affine(input: ProjectivePointG1):
 
-    def __init__(self, x, y, z):
-        self.x = x
-        self.y = y
-        self.z = z
+    px = input.x
+    py = input.y
+    pz = input.z
 
+    if input.is_zero():
+        x = fq.zero()
+        y = fq.one()
+        return AffinePointG1(x, y)
+    else:
+        # Z is nonzero, so it must have an inverse in a field.
+        # div_mod work on cpu
+
+        zinv = F.div_mod(fq.one(), pz)
+        zinv_squared = F.mul_mod(zinv, zinv)
+
+        x = F.mul_mod(px, zinv_squared)
+        mid1 = F.mul_mod(zinv_squared, zinv)
+        y = F.mul_mod(py, mid1)
+
+        return AffinePointG1(x, y)
+
+def double_ProjectivePointG1(self: ProjectivePointG1):
+
+    if self.is_zero():
+        return self
+
+    if COEFF_A == 0:
+        # A = X1^2
+        a = F.mul_mod(self.x, self.x)
+
+        # B = Y1^2
+        b = F.mul_mod(self.y, self.y)
+
+        # C = B^2
+        c = F.mul_mod(b, b)
+
+        # D = 2*((X1+B)^2-A-C)
+        mid1 = F.add_mod(self.x, b)
+        mid1 = F.mul_mod(mid1, mid1)
+        mid2 = F.sub_mod(mid1, a)
+        mid2 = F.sub_mod(mid2, c)
+        d = F.add_mod(mid2, mid2)
+
+        # E = 3*A
+        mid1 = F.add_mod(a, a)
+        e = F.add_mod(mid1, a)
+
+        # F = E^2
+        f = F.mul_mod(e, e)
+
+        # Z3 = 2*Y1*Z1
+        mid1 = F.mul_mod(self.y, self.z)
+        z = F.add_mod(mid1, mid1)
+
+        # X3 = F-2*D
+        mid1 = F.sub_mod(f, d)
+        x = F.sub_mod(mid1, d)
+
+        # Y3 = E*(D-X3)-8*C
+        mid1 = F.sub_mod(d, x)
+        mid2 = F.add_mod(c, c)
+        mid2 = F.add_mod(mid2, mid2)
+        mid2 = F.add_mod(mid2, mid2)
+        mid3 = F.mul_mod(e, mid1)
+        y = F.sub_mod(mid3, mid2)
+
+        return ProjectivePointG1(x, y, z)
     
-    def is_zero(self):
-        return F.trace_equal(self.z, torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont)) 
-    
-    def double(self):
-        if self.is_zero():
-            return self
+def add_assign(self: ProjectivePointG1, other: ProjectivePointG1):
 
-        if fq.COEFF_A == 0:
-            # A = X1^2
-            a = F.mul_mod(self.x, self.x)
+    if self.is_zero():
+        return copy.deepcopy(other)
 
-            # B = Y1^2
-            b = F.mul_mod(self.y, self.y)
-
-            # C = B^2
-            c = F.mul_mod(b, b)
-
-            # D = 2*((X1+B)^2-A-C)
-            mid1 = F.add_mod(self.x, b)
-            mid1 = F.mul_mod(mid1, mid1)
-            mid2 = F.sub_mod(mid1, a)
-            mid2 = F.sub_mod(mid2, c)
-            d = F.add_mod(mid2, mid2)
-
-            # E = 3*A
-            mid1 = F.add_mod(a, a)
-            e = F.add_mod(mid1, a)
-
-            # F = E^2
-            f = F.mul_mod(e, e)
-
-            # Z3 = 2*Y1*Z1
-            mid1 = F.mul_mod(self.y, self.z)
-            z = F.add_mod(mid1, mid1)
-
-            # X3 = F-2*D
-            mid1 = F.sub_mod(f, d)
-            x = F.sub_mod(mid1, d)
-
-            # Y3 = E*(D-X3)-8*C
-            mid1 = F.sub_mod(d, x)
-            mid2 = F.add_mod(c, c)
-            mid2 = F.add_mod(mid2, mid2)
-            mid2 = F.add_mod(mid2, mid2)
-            mid3 = F.mul_mod(e, mid1)
-            y = F.sub_mod(mid3, mid2)
-
-            return ProjectivePointG1(x, y, z)
-
-        # else:
-        #     # http://www.hyperelliptic.org/EFD/g1p/auto-shortw-jacobian-0.html#doubling-dbl-2009-l
-        #     # XX = X1^2
-        #     xx = self.x.square()
-
-        #     # YY = Y1^2
-        #     yy = self.y.square()
-
-        #     # YYYY = YY^2
-        #     yyyy = yy.square()
-
-        #     # ZZ = Z1^2
-        #     zz = self.z.square()
-
-        #     # S = 2*((X1+YY)^2-XX-YYYY)
-        #     mid1 = self.x.add(yy)
-        #     mid1 = mid1.square()
-        #     mid2 = mid1.sub(xx)
-        #     mid1 = mid2.sub(yyyy)
-        #     s = mid1.double()
-
-        #     # M = 3*XX+a*ZZ^2
-        #     mid1 = xx.double()
-        #     mid1 = mid1.add(xx)
-        #     mid2 = zz.square()
-
-        #     m = xx + xx + xx + P.mul_by_a(zz.square())
-
-        #     # T = M^2-2*S
-        #     t = m.square() - s.double()
-
-        #     # X3 = T
-        #     self.x = t
-        #     # Y3 = M*(S-T)-8*YYYY
-        #     old_y = self.y
-        #     self.y = m * (s - t) - yyyy.double_in_place().double_in_place().double_in_place()
-        #     # Z3 = (Y1+Z1)^2-YY-ZZ
-        #     self.z = (old_y + self.z).square() - yy - zz
-        #     return self
-
-
-
-                
-def is_zero_ProjectivePointG1(self):
-    return F.trace_equal(self[2], torch.zeros(6,dtype=torch.BLS12_381_Fq_G1_Mont)) ##z
-
-
-def to_affine(input: ProjectivePointG1): 
-        px = input.x.clone()
-        py = input.y.clone()
-        pz = input.z.clone()
-        
-        one = fq.one()
-        if input.is_zero():
-            x = fq.zero()
-            y = one
-            return AffinePointG1(x, y)
-
-        else:
-            # Z is nonzero, so it must have an inverse in a field.
-            #div_mod work on cpu
-            zinv = F.div_mod(one, pz)
-            zinv_squared = F.mul_mod(zinv, zinv)
-
-            x = F.mul_mod(px, zinv_squared)
-            mid1 = F.mul_mod(zinv_squared, zinv)
-            y = F.mul_mod(py, mid1)
-         
-            return AffinePointG1(x,y)
-        
-def add_assign(self: 'ProjectivePointG1', other: 'ProjectivePointG1'):
-    if is_zero_ProjectivePointG1(self):
-        x, y, z = other.x, other.y, other.z
-        return ProjectivePointG1(x,y,z)
-
-    if is_zero_ProjectivePointG1(other):
-        return ProjectivePointG1(self.x,self.y,self.z)
+    if other.is_zero():
+        return copy.deepcopy(self)
 
     # Z1Z1 = Z1^2
     z1z1 = F.mul_mod(self.z, self.z)
@@ -159,12 +98,12 @@ def add_assign(self: 'ProjectivePointG1', other: 'ProjectivePointG1'):
     # S1 = Y1*Z2*Z2Z2
     s1 = F.mul_mod(self.y, other.z)
     s1 = F.mul_mod(s1, z2z2)
-    
+
     # S2 = Y2*Z1*Z1Z1
     s2 = F.mul_mod(other.y, self.z)
     s2 = F.mul_mod(s2, z1z1)
 
-    if  F.trace_equal(u1 ,u2)and F.trace_equal(s1 ,s2):
+    if F.trace_equal(u1, u2) and F.trace_equal(s1, s2):
         # The two points are equal, so we double.
         return double_ProjectivePointG1(self)
     else:
@@ -187,125 +126,20 @@ def add_assign(self: 'ProjectivePointG1', other: 'ProjectivePointG1'):
         x = F.sub_mod(F.sub_mod(F.mul_mod(r, r), j), F.add_mod(v, v))
 
         # Y3 = r*(V - X3) - 2*S1*J
-        y = F.sub_mod(F.mul_mod(r, F.sub_mod(v, x)), F.add_mod(F.mul_mod(s1, j), F.mul_mod(s1, j)))
+        y = F.sub_mod(
+            F.mul_mod(r, F.sub_mod(v, x)), F.add_mod(F.mul_mod(s1, j), F.mul_mod(s1, j))
+        )
 
         # Z3 = ((Z1+Z2)^2 - Z1Z1 - Z2Z2)*H
-        z = F.mul_mod(F.sub_mod(F.sub_mod(F.mul_mod(F.add_mod(self.z, other.z), F.add_mod(self.z, other.z)), z1z1), z2z2), h)
-        
-        return ProjectivePointG1(x,y,z)
+        z = F.mul_mod(
+            F.sub_mod(
+                F.sub_mod(
+                    F.mul_mod(F.add_mod(self.z, other.z), F.add_mod(self.z, other.z)),
+                    z1z1,
+                ),
+                z2z2,
+            ),
+            h,
+        )
 
-def double_ProjectivePointG1(self: ProjectivePointG1):
-        if self.is_zero():
-            return self
-
-        if COEFF_A == 0:
-            # A = X1^2
-            a = F.mul_mod(self.x, self.x)
-
-            # B = Y1^2
-            b = F.mul_mod(self.y, self.y)
-
-            # C = B^2
-            c = F.mul_mod(b, b)
-
-            # D = 2*((X1+B)^2-A-C)
-            mid1 = F.add_mod(self.x, b)
-            mid1 = F.mul_mod(mid1, mid1)
-            mid2 = F.sub_mod(mid1, a)
-            mid2 = F.sub_mod(mid2, c)
-            d = F.add_mod(mid2, mid2)
-
-            # E = 3*A
-            mid1 = F.add_mod(a, a)
-            e = F.add_mod(mid1, a)
-
-            # F = E^2
-            f = F.mul_mod(e, e)
-
-            # Z3 = 2*Y1*Z1
-            mid1 = F.mul_mod(self.y, self.z)
-            z = F.add_mod(mid1, mid1)
-
-            # X3 = F-2*D
-            mid1 = F.sub_mod(f, d)
-            x = F.sub_mod(mid1, d)
-
-            # Y3 = E*(D-X3)-8*C
-            mid1 = F.sub_mod(d, x)
-            mid2 = F.add_mod(c, c)
-            mid2 = F.add_mod(mid2, mid2)
-            mid2 = F.add_mod(mid2, mid2)
-            mid3 = F.mul_mod(e, mid1)
-            y = F.sub_mod(mid3, mid2)
-
-            # return ProjectivePointG1(x, y, z)
-            return ProjectivePointG1(x, y, z)
-
-def add_assign_mixed(self1: ProjectivePointG1, other: 'AffinePointG1'):
-    self = copy.deepcopy(self1)
-    if  other.is_zero():
-        # return ProjectivePointG1(self.x, self.y, self.z)
-        output= copy.deepcopy(self1)
-        return output
-
-    elif self1.is_zero():
-        # If self is zero, return the other point in projective coordinates.
-        x = copy.deepcopy(other.x)
-        y = copy.deepcopy(other.y)
-        #z = self.z.one()  # Assuming z.one() is a method to get a representation of one.
-        z =  fq.one()
-        return ProjectivePointG1(x,y,z)
-    else:
-        # Z1Z1 = Z1^2
-        z1z1 = F.mul_mod(self.z, self.z)
-
-        # U2 = X2*Z1Z1
-        u2 = F.mul_mod(other.x, z1z1)
-
-        # S2 = Y2*Z1*Z1Z1
-        s2 = F.mul_mod(other.y, self.z)
-        s2 = F.mul_mod(s2, z1z1)
-
-        if F.trace_equal(self.x, u2) and F.trace_equal(self.y, s2):
-            # The two points are equal, so we double.
-            return double_ProjectivePointG1(self)
-        else:
-            # H = U2-X1
-            h = F.sub_mod(u2, self.x)
-
-            # I = 4*(H^2)
-            i = F.mul_mod(h, h)
-            i = F.add_mod(i, i)
-            i = F.add_mod(i, i)
-
-            # J = H*I
-            j = F.mul_mod(h, i)
-
-            # r = 2*(S2-Y1)
-            r = F.sub_mod(s2, self.y)
-            r = F.add_mod(r, r)
-
-            # V = X1*I
-            v = F.mul_mod(self.x, i)
-
-            # X3 = r^2 - J - 2*V
-            x = F.mul_mod(r, r)
-            x = F.sub_mod(x, j)
-            v2 = F.add_mod(v, v)
-            x = F.sub_mod(x, v2)
-
-            # Y3 = r*(V-X3) - 2*Y1*J
-            y = F.sub_mod(v, x)
-            y = F.mul_mod(r, y)
-            s1j = F.mul_mod(self.y, j)
-            s1j2 = F.add_mod(s1j, s1j)
-            y = F.sub_mod(y, s1j2)
-
-            # Z3 = (Z1+H)^2 - Z1Z1 - H^2
-            z = F.add_mod(self.z, h)
-            z = F.mul_mod(z, z)
-            z = F.sub_mod(z, z1z1)
-            hh = F.mul_mod(h, h)
-            z = F.sub_mod(z, hh)
-
-            return ProjectivePointG1(x, y, z)
+        return ProjectivePointG1(x, y, z)
